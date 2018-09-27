@@ -83,4 +83,15 @@ public class ZtfxController {
 		List<DocForKeyword> docForKeywords = ztfxService.getDocForKeyword(jguid,keyword);
 		return ResponseModel.ok(docForKeywords);
 	}
+
+	@GetMapping("/isExists/{jguid}")
+	public ResponseModel<Boolean> isExists(@PathVariable String jguid){
+			return ResponseModel.ok(ztfxService.checkZtfxExists(jguid));
+	}
+
+	@GetMapping("/hotKeywords")
+	public ResponseModel<List<String>> hotKeywords(@RequestParam String queryName){
+		List<String> result = ztfxService.hotKeywords(queryName);
+		return ResponseModel.ok(result);
+	}
 }
