@@ -2,6 +2,8 @@ package com.wd.cloud.subanalysis.service.impl;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import com.wd.cloud.subanalysis.config.DefultVar;
+import com.wd.cloud.subanalysis.config.ElasticVar;
 import com.wd.cloud.subanalysis.entity.DocForKeyword;
 import com.wd.cloud.subanalysis.service.ZtfxServiceI;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -34,20 +36,20 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
     @Autowired
     private TransportClient transportClient;
 
-    private static String cacheIndex = "wos_ztfx";
-    private static String cacheType = "ztfx_cache";
+    @Autowired
+    private ElasticVar es;
 
     @Override
     public JSONObject getZtpc(String jguid, int startYear, int endYear) {
         JSONObject pageData = new JSONObject();
         String queryStr = "ztpc&" + jguid + "&" + startYear + "&" + endYear;
         String id = DigestUtils.md5Hex(queryStr);
-        GetResponse getResp = transportClient.prepareGet(cacheIndex, cacheType, id).get();
+        GetResponse getResp = transportClient.prepareGet(es.getIndex(), es.getType(), id).get();
         if (getResp.isExists()) {
             List<Map<String, Object>> nodesData = (List<Map<String, Object>>) getResp.getSource().get("nodes");
             List<Map<String, Object>> edgesData = (List<Map<String, Object>>) getResp.getSource().get("edges");
-            if (nodesData.size() > 50) {
-                pageData.put("nodes", nodesData.subList(0, 50));
+            if (nodesData.size() > DefultVar.MAX_SIZE) {
+                pageData.put("nodes", nodesData.subList(0, DefultVar.MAX_SIZE));
             } else {
                 pageData.put("nodes", nodesData);
             }
@@ -72,15 +74,15 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
         JSONObject pageData = new JSONObject();
         String queryStr = "fwqs" + "&" + jguid + "&" + startYear + "&" + 2016;
         String id = DigestUtils.md5Hex(queryStr);
-        GetResponse getResp = transportClient.prepareGet(cacheIndex, cacheType, id).get();
+        GetResponse getResp = transportClient.prepareGet(es.getIndex(), es.getType(), id).get();
         if (getResp.isExists()) {
             List<Map<String, Object>> lineDatas = (List<Map<String, Object>>) getResp.getSource().get("lineDatas");
             List<String> legends = new ArrayList<String>();
-            if (lineDatas.size() > 50) {
-                for (Map<String, Object> lineData : lineDatas.subList(0, 50)) {
+            if (lineDatas.size() > DefultVar.MAX_SIZE) {
+                for (Map<String, Object> lineData : lineDatas.subList(0, DefultVar.MAX_SIZE)) {
                     legends.add(lineData.get("name").toString());
                 }
-                pageData.put("lineDatas", lineDatas.subList(0, 50));
+                pageData.put("lineDatas", lineDatas.subList(0, DefultVar.MAX_SIZE));
             } else {
                 for (Map<String, Object> lineData : lineDatas) {
                     legends.add(lineData.get("name").toString());
@@ -102,7 +104,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
 
         String queryStr = "fwqs" + "&" + jguid + "&" + startYear + "&" + 2016;
         String id = DigestUtils.md5Hex(queryStr);
-        GetResponse getResp = transportClient.prepareGet(cacheIndex, cacheType, id).get();
+        GetResponse getResp = transportClient.prepareGet(es.getIndex(), es.getType(), id).get();
         if (getResp.isExists()) {
             List<Map<String, Object>> lineDatas = (List<Map<String, Object>>) getResp.getSource().get("lineDatas");
             List<Integer> years = (List<Integer>) getResp.getSource().get("xAxisData");
@@ -201,7 +203,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
 
         jguidAggs.subAggregation(journalAggs.subAggregation(lineDatas.subAggregation(keywordAggs.subAggregation(sumcountAggs))));
 
-        SearchResponse resp = transportClient.prepareSearch(cacheIndex).setTypes(cacheType)
+        SearchResponse resp = transportClient.prepareSearch(es.getIndex()).setTypes( es.getType())
                 .setQuery(queryBuilder)
                 .setSize(0)
                 .addAggregation(jguidAggs)
@@ -282,7 +284,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
     @Override
     public boolean checkZtfxExists(String jguid) {
         QueryBuilder queryBuilder = QueryBuilders.termQuery("JGuid", jguid);
-        SearchResponse resp = transportClient.prepareSearch(cacheIndex).setTypes(cacheType).setQuery(queryBuilder).get();
+        SearchResponse resp = transportClient.prepareSearch( es.getIndex()).setTypes( es.getType()).setQuery(queryBuilder).get();
         if (resp.getHits().getTotalHits() > 0) {
             return true;
         } else {
@@ -293,7 +295,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
     @Override
     public List<String> hotKeywords(String queryName){
         QueryBuilder queryBuilder = QueryBuilders.termsQuery("queryname.full",queryName+"&2012&2016");
-        SearchResponse resp = transportClient.prepareSearch(cacheIndex).setTypes(cacheType).setQuery(queryBuilder).get();
+        SearchResponse resp = transportClient.prepareSearch( es.getIndex()).setTypes( es.getType()).setQuery(queryBuilder).get();
         if (resp.getHits().getTotalHits()>0){
             for (SearchHit hit:resp.getHits().getHits()){
                 List<String> legends = (List)hit.getSource().get("legend");
