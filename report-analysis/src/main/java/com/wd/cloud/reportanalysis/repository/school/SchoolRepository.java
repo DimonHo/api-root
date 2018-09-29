@@ -1,9 +1,11 @@
-package com.wd.cloud.reportanalysis.repository;
+package com.wd.cloud.reportanalysis.repository.school;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.wd.cloud.reportanalysis.entity.School;
+import com.wd.cloud.reportanalysis.entity.school.School;
+
+
 
 
 /**

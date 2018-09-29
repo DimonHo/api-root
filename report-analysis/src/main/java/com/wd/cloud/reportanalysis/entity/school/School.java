@@ -1,4 +1,4 @@
-package com.wd.cloud.reportanalysis.entity;
+package com.wd.cloud.reportanalysis.entity.school;
 
 import java.util.Date;
 

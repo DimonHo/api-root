@@ -21,12 +21,12 @@ import org.springframework.stereotype.Service;
 
 import com.wd.cloud.reportanalysis.entity.QueryCondition;
 import com.wd.cloud.reportanalysis.repository.TransportRepository;
-import com.wd.cloud.reportanalysis.service.AnalysisServiceI;
+import com.wd.cloud.reportanalysis.service.AnalysisByESServiceI;
 import com.wd.cloud.reportanalysis.util.AggregationBuilderUtil;
 import com.wd.cloud.reportanalysis.util.QueryBuilderUtil;
 
 @Service
-public class AnalysisService implements AnalysisServiceI{
+public class AnalysisByESService implements AnalysisByESServiceI{
 	
 	@Autowired
 	TransportRepository transportRepository;

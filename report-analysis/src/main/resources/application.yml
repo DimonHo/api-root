@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8084
 spring:
   data:
     elasticsearch:
@@ -14,25 +14,46 @@ spring:
     hibernate: 
       ddl-auto: update
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.1.31:3306/yun_v3?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
-    username: api
-    password: api123
-    default-auto-commit: true
-    dbcp2:
-      max-open-prepared-statements: 20
-      pool-prepared-statements: true
-      test-on-borrow: false
-      test-on-return: false
-      test-while-idle: true
-      validation-query: "select 'x'"
-      min-evictable-idle-time-millis: 300000
-      time-between-eviction-runs-millis: 60000
-      min-idle: 30
-      max-idle: 50
-      max-wait-millis: 1000
-      initial-size: 1
-      max-total: 200
+    analysis:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://rm-bp16zs74lzakjc7gco.mysql.rds.aliyuncs.com:3306/yunscholar_release_analysis?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+      username: root
+      password: O5XuyCqN4ZaF
+      default-auto-commit: true
+      dbcp2:
+        max-open-prepared-statements: 20
+        pool-prepared-statements: true
+        test-on-borrow: false
+        test-on-return: false
+        test-while-idle: true
+        validation-query: "select 'x'"
+        min-evictable-idle-time-millis: 300000
+        time-between-eviction-runs-millis: 60000
+        min-idle: 30
+        max-idle: 50
+        max-wait-millis: 1000
+        initial-size: 1
+        max-total: 200
+    school:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://192.168.1.31:3306/yun_v3?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+      username: api
+      password: api123
+      default-auto-commit: true
+      dbcp2:
+        max-open-prepared-statements: 20
+        pool-prepared-statements: true
+        test-on-borrow: false
+        test-on-return: false
+        test-while-idle: true
+        validation-query: "select 'x'"
+        min-evictable-idle-time-millis: 300000
+        time-between-eviction-runs-millis: 60000
+        min-idle: 30
+        max-idle: 50
+        max-wait-millis: 1000
+        initial-size: 1
+        max-total: 200
 #swagger 配置
 swagger:
   enabled: true

@@ -3,8 +3,8 @@ package com.wd.cloud.reportanalysis.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wd.cloud.reportanalysis.entity.School;
-import com.wd.cloud.reportanalysis.repository.SchoolRepository;
+import com.wd.cloud.reportanalysis.entity.school.School;
+import com.wd.cloud.reportanalysis.repository.school.SchoolRepository;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
 
 @Service

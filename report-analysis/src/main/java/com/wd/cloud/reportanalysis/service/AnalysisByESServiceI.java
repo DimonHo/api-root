@@ -11,7 +11,7 @@ import com.wd.cloud.reportanalysis.util.ResourceLabel;
  * @date 2018/5/17
  * @Description:
  */
-public interface AnalysisServiceI {
+public interface AnalysisByESServiceI {
 
 	
 	public Map<String, Object> amount(List<QueryCondition> list,String filed,String type);
