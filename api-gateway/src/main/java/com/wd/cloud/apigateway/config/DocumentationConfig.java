@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @author He Zhigang
  * @date 2018/5/17
- * @Description:
+ * @Description: API网关整合Swagger
  */
 @Component
 @Primary
