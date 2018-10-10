@@ -139,7 +139,8 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
             while (tfztYearData.hasNext()) {
                 String yearName = tfztYearData.next();
                 JSONArray yearData = pageData.getJSONObject(yearName).getJSONArray("tfztData");
-                sortJsonArray(yearData);
+                yearData.sort(Comparator.comparingDouble(o -> ((JSONObject) o).getDouble("value")).reversed());
+//                sortJsonArray(yearData);
                 pageData.getJSONObject(yearName).put("tfztData", yearData);
             }
         }
@@ -170,7 +171,8 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
             }
             fwqk.add(juidObj);
         }
-        sortJsonArray(fwqk);
+//        sortJsonArray(fwqk);
+        fwqk.sort(Comparator.comparingDouble(o -> ((JSONObject) o).getDouble("value")).reversed());
         List<String> lenged = new ArrayList<String>();
         List<Integer> data = new ArrayList<Integer>();
         int size = fwqk.size() > 20 ? 20 : fwqk.size();
@@ -252,28 +254,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
     }
 
 
-    /**
-     * JSONArray的value属性排序
-     *
-     * @param arr
-     */
-    @SuppressWarnings("unchecked")
-    private void sortJsonArray(JSONArray arr) {
-        Collections.sort(arr.toList(JSONObject.class), new Comparator<JSONObject>() {
-            @Override
-            public int compare(JSONObject o1, JSONObject o2) {
-                double a = o1.getDouble("value");
-                double b = o2.getDouble("value");
-                if (a == b) {
-                    return 0;
-                } else if (a > b) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        });
-    }
+
 
     /**
      * 检查期刊是否有主题分析数据
