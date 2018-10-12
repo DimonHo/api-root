@@ -2,17 +2,14 @@ package com.wd.cloud.subanalysis;
 
 import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.cloud.client.SpringCloudApplication;
 
-@SpringBootApplication
+
 @EnableSwagger2Doc
-@EnableDiscoveryClient
-@EnableElasticsearchRepositories(basePackages = "com.wd.cloud.subanalysis.repository")
+@SpringCloudApplication
 public class SubAnalysisApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SubAnalysisApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SubAnalysisApplication.class, args);
+    }
 }

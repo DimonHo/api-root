@@ -132,7 +132,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
                 JSONObject tfztDataObj = new JSONObject();
                 tfztDataObj.put("tfztData", tfztData);
                 tfztDataObj.put("sumsize", tfztData.size());
-                pageData.put(keyyear+"", tfztDataObj);
+                pageData.put(keyyear + "", tfztDataObj);
             }
             //对突发主题进行排序
             Iterator<String> tfztYearData = pageData.keySet().iterator();
@@ -205,7 +205,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
 
         jguidAggs.subAggregation(journalAggs.subAggregation(lineDatas.subAggregation(keywordAggs.subAggregation(sumcountAggs))));
 
-        SearchResponse resp = transportClient.prepareSearch(es.getIndex()).setTypes( es.getType())
+        SearchResponse resp = transportClient.prepareSearch(es.getIndex()).setTypes(es.getType())
                 .setQuery(queryBuilder)
                 .setSize(0)
                 .addAggregation(jguidAggs)
@@ -254,8 +254,6 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
     }
 
 
-
-
     /**
      * 检查期刊是否有主题分析数据
      *
@@ -265,7 +263,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
     @Override
     public boolean checkZtfxExists(String jguid) {
         QueryBuilder queryBuilder = QueryBuilders.termQuery("JGuid", jguid);
-        SearchResponse resp = transportClient.prepareSearch( es.getIndex()).setTypes( es.getType()).setQuery(queryBuilder).get();
+        SearchResponse resp = transportClient.prepareSearch(es.getIndex()).setTypes(es.getType()).setQuery(queryBuilder).get();
         if (resp.getHits().getTotalHits() > 0) {
             return true;
         } else {
@@ -274,13 +272,13 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
     }
 
     @Override
-    public List<String> hotKeywords(String queryName){
-        QueryBuilder queryBuilder = QueryBuilders.termsQuery("queryname.full",queryName+"&2012&2016");
-        SearchResponse resp = transportClient.prepareSearch( es.getIndex()).setTypes( es.getType()).setQuery(queryBuilder).get();
-        if (resp.getHits().getTotalHits()>0){
-            for (SearchHit hit:resp.getHits().getHits()){
-                List<String> legends = (List)hit.getSource().get("legend");
-                return legends.subList(0,5);
+    public List<String> hotKeywords(String queryName) {
+        QueryBuilder queryBuilder = QueryBuilders.termsQuery("queryname.full", queryName + "&2012&2016");
+        SearchResponse resp = transportClient.prepareSearch(es.getIndex()).setTypes(es.getType()).setQuery(queryBuilder).get();
+        if (resp.getHits().getTotalHits() > 0) {
+            for (SearchHit hit : resp.getHits().getHits()) {
+                List<String> legends = (List) hit.getSource().get("legend");
+                return legends.subList(0, 5);
             }
         }
         return null;
@@ -294,18 +292,18 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
         SearchResponse resp = transportClient.prepareSearch("wos_source3.0").setTypes("periodical").setQuery(queryBuilder)
                 .setSize(5000).get();
         SearchHit[] hits = resp.getHits().getHits();
-        if (hits != null){
-            for (SearchHit hit:hits){
+        if (hits != null) {
+            for (SearchHit hit : hits) {
                 DocForKeyword docForKeyword = new DocForKeyword();
-                Map<String,Object> doc = hit.getSource();
+                Map<String, Object> doc = hit.getSource();
                 docForKeyword.setDocTitile(doc.get("docTitle").toString());
-                docForKeyword.setAuthorList((List)doc.get("author"));
-                docForKeyword.setYearAndVolAndIssueAndPages(doc.get("year")+" Vol."+doc.get("volume")+" No."+doc.get("issue")+" page."+doc.get("pageNum"));
-                docForKeyword.setKeywords((List)doc.get("keywords"));
-                List<Map<String,Object>> sourcesList = (List)doc.get("sources");
-                for (Map<String,Object> sources:sourcesList){
-                    if (Integer.parseInt(sources.get("isOpen")+"")==0){
-                        docForKeyword.setSourceUrl(sources.get("url")+"");
+                docForKeyword.setAuthorList((List) doc.get("author"));
+                docForKeyword.setYearAndVolAndIssueAndPages(doc.get("year") + " Vol." + doc.get("volume") + " No." + doc.get("issue") + " page." + doc.get("pageNum"));
+                docForKeyword.setKeywords((List) doc.get("keywords"));
+                List<Map<String, Object>> sourcesList = (List) doc.get("sources");
+                for (Map<String, Object> sources : sourcesList) {
+                    if (Integer.parseInt(sources.get("isOpen") + "") == 0) {
+                        docForKeyword.setSourceUrl(sources.get("url") + "");
                         break;
                     }
                 }

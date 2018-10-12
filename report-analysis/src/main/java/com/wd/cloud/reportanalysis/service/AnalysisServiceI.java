@@ -1,10 +1,9 @@
 package com.wd.cloud.reportanalysis.service;
 
+import com.wd.cloud.reportanalysis.entity.QueryCondition;
+
 import java.util.List;
 import java.util.Map;
-
-import com.wd.cloud.reportanalysis.entity.QueryCondition;
-import com.wd.cloud.reportanalysis.util.ResourceLabel;
 
 /**
  * @author He Zhigang
@@ -13,11 +12,10 @@ import com.wd.cloud.reportanalysis.util.ResourceLabel;
  */
 public interface AnalysisServiceI {
 
-	
-	public Map<String, Object> amount(List<QueryCondition> list,String filed,String type);
-	
-	public Map<String, Object> explain(String type);
-	
-	
+
+    public Map<String, Object> amount(List<QueryCondition> list, String filed, String type);
+
+    public Map<String, Object> explain(String type);
+
 
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,11 +39,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <spring-cloud.version>Finchley.RC2</spring-cloud.version>
-        <openfeign.version>1.4.4.RELEASE</openfeign.version>
+        <feign.version>1.4.5.RELEASE</feign.version>
         <com.alibaba.druid.version>1.1.9</com.alibaba.druid.version>
         <javax.mail.version>1.4.7</javax.mail.version>
-        <swagger.version>1.7.0.RELEASE</swagger.version>
+        <swagger.version>1.8.0.RELEASE</swagger.version>
         <cn.hutool.all.version>4.1.8</cn.hutool.all.version>
+        <guava.version>23.0</guava.version>
         <jackson.databind.version>2.9.5</jackson.databind.version>
         <jackson.core.version>2.9.5</jackson.core.version>
         <jackson.asl.version>1.9.12</jackson.asl.version>
@@ -67,6 +68,16 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-feign</artifactId>
+                <version>${feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-elasticsearch</artifactId>
+                <version>${spring.data.elasticsearch.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-hadoop</artifactId>
                 <version>${spring.data.hadoop.version}</version>
@@ -75,11 +86,6 @@
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
                 <version>${hbase.client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-elasticsearch</artifactId>
-                <version>${spring.data.elastic}</version>
             </dependency>
 
             <dependency>
@@ -97,22 +103,14 @@
                 <artifactId>druid</artifactId>
                 <version>${com.alibaba.druid.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-feign</artifactId>
-                <version>${openfeign.version}</version>
-            </dependency>
+
 
             <dependency>
                 <groupId>com.spring4all</groupId>
                 <artifactId>swagger-spring-boot-starter</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.spring4all</groupId>
-                <artifactId>spring-boot-starter-hbase</artifactId>
-                <version>1.0.0.RELEASE</version>
-            </dependency>
+
             <dependency>
                 <groupId>javax.mail</groupId>
                 <artifactId>mail</artifactId>
@@ -133,6 +131,11 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${cn.hutool.all.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -161,11 +164,7 @@
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j-core.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-elasticsearch</artifactId>
-                <version>${spring.data.elasticsearch.version}</version>
-            </dependency>
+
             <!-- ==========================ES 依赖包end============================-->
         </dependencies>
     </dependencyManagement>

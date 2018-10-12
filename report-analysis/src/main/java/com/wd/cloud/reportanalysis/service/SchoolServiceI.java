@@ -9,6 +9,6 @@ import com.wd.cloud.reportanalysis.entity.School;
  */
 public interface SchoolServiceI {
 
-	School findByScid(int scid);
+    School findByScid(int scid);
 
 }

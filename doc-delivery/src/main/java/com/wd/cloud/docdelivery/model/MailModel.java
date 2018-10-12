@@ -1,14 +1,13 @@
 package com.wd.cloud.docdelivery.model;
 
 import cn.hutool.extra.mail.Mail;
-import cn.hutool.extra.mail.MailAccount;
 
 /**
  * @author He Zhigang
  * @date 2018/5/17
  * @Description:
  */
-public class MailModel extends Mail{
+public class MailModel extends Mail {
 
     /**
      * 有效期毫秒数

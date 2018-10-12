@@ -4,5 +4,5 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 
 public interface FacetBuilderStrategyI {
 
-	public AbstractAggregationBuilder execute(String field);
+    public AbstractAggregationBuilder execute(String field);
 }

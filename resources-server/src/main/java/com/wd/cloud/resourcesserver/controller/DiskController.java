@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -56,7 +54,7 @@ public class DiskController {
     @PostMapping("/{dir}")
     public ResponseModel<JSONObject> uploadFile(@PathVariable String dir,
                                                 @RequestParam(required = false) String fileName,
-                                                @RequestParam(required = false,defaultValue = "false")boolean rename,
+                                                @RequestParam(required = false, defaultValue = "false") boolean rename,
                                                 @NotNull MultipartFile file) {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -73,7 +71,6 @@ public class DiskController {
     }
 
 
-
     @ApiOperation(value = "文件下载")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dir", value = "文件所在目录", dataType = "String", paramType = "path"),
@@ -81,8 +78,8 @@ public class DiskController {
     })
     @GetMapping("/{dir}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable String dir,
-                                       @RequestParam String fileName,
-                                       HttpServletRequest request)
+                                               @RequestParam String fileName,
+                                               HttpServletRequest request)
             throws UnsupportedEncodingException {
         FileObjModel fileObjModel = fileService.getFileToDisk(globalConfig.getResources() + dir, fileName);
         if (fileObjModel.getFile().exists()) {

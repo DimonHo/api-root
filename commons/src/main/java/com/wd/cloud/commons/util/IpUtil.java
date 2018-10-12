@@ -21,8 +21,8 @@ public class IpUtil {
         //等价上面
         String ip = "";
         for (int i = 3; i >= 0; i--) {
-            ip  += String.valueOf((number & 0xff));
-            if(i != 0){
+            ip += String.valueOf((number & 0xff));
+            if (i != 0) {
                 ip += ".";
             }
             number = number >> 8;
@@ -33,15 +33,16 @@ public class IpUtil {
 
     /**
      * ip是否在范围内
+     *
      * @param ip
      * @param ipFrom
      * @param ipTo
      * @return
      */
-    public static boolean isInner(String ip,String ipFrom,String ipTo){
-        if(ipToLong(ip)>=ipToLong(ipFrom) &&  ipToLong(ip)<=ipToLong(ipTo)){
+    public static boolean isInner(String ip, String ipFrom, String ipTo) {
+        if (ipToLong(ip) >= ipToLong(ipFrom) && ipToLong(ip) <= ipToLong(ipTo)) {
             return true;
-        }else{
+        } else {
             return false;
         }
 

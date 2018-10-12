@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.entity;
 
 import cn.hutool.core.util.ReflectUtil;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -59,28 +58,16 @@ public class HelpRecord extends AbstractEntity {
     private String helperScname;
 
     private int monitor;
-
-    public int getMonitor() {
-        return monitor;
-    }
-
-    public void setMonitor(int monitor) {
-        this.monitor = monitor;
-    }
-
     /**
      * 求助IP
      */
     @Column(name = "helper_ip")
     private String helperIp;
-
     /**
      * 求助渠道，1：QQ，2：SPIS，3：ZHY，4：CRS
      */
     @Column(name = "help_channel", columnDefinition = "tinyint default 0 COMMENT '求助渠道，1：QQ，2：SPIS，3：ZHY，4：CRS'")
     private int helpChannel;
-
-
     /**
      * 互助状态
      * 0：待应助，
@@ -92,6 +79,14 @@ public class HelpRecord extends AbstractEntity {
      */
     @Column(name = "status", columnDefinition = "tinyint default 0 COMMENT '0：待应助， 1：应助中（用户已认领，15分钟内上传文件）， 2: 待审核（用户已应助）， 3：求助第三方（第三方应助）， 4：应助成功（审核通过或管理员应助）， 5：应助失败（超过15天无结果）'")
     private int status;
+
+    public int getMonitor() {
+        return monitor;
+    }
+
+    public void setMonitor(int monitor) {
+        this.monitor = monitor;
+    }
 
     public Literature getLiterature() {
         return literature;
@@ -137,6 +132,10 @@ public class HelpRecord extends AbstractEntity {
         return helpChannel;
     }
 
+    public void setHelpChannel(int helpChannel) {
+        this.helpChannel = helpChannel;
+    }
+
     public void setHelpChannel(Integer helpChannel) {
         this.helpChannel = helpChannel;
     }
@@ -173,10 +172,6 @@ public class HelpRecord extends AbstractEntity {
         this.giveRecords = giveRecords;
     }
 
-    public void setHelpChannel(int helpChannel) {
-        this.helpChannel = helpChannel;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -196,7 +191,7 @@ public class HelpRecord extends AbstractEntity {
                 .toString();
     }
 
-    public HelpRecord filterByNotIn(String fieldName, List<Object> values){
+    public HelpRecord filterByNotIn(String fieldName, List<Object> values) {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> values.contains(ReflectUtil.getFieldValue(g, fieldName)))
@@ -204,7 +199,8 @@ public class HelpRecord extends AbstractEntity {
         this.getGiveRecords().removeAll(giveRecords);
         return this;
     }
-    public HelpRecord filterByNotEq(String fieldName, Object value){
+
+    public HelpRecord filterByNotEq(String fieldName, Object value) {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> value.equals(ReflectUtil.getFieldValue(g, fieldName)))
@@ -213,7 +209,7 @@ public class HelpRecord extends AbstractEntity {
         return this;
     }
 
-    public HelpRecord filterByIn(String fieldName, List<Object> values){
+    public HelpRecord filterByIn(String fieldName, List<Object> values) {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> !values.contains(ReflectUtil.getFieldValue(g, fieldName)))
@@ -221,7 +217,8 @@ public class HelpRecord extends AbstractEntity {
         this.getGiveRecords().removeAll(giveRecords);
         return this;
     }
-    public HelpRecord filterByEq(String fieldName, Object value){
+
+    public HelpRecord filterByEq(String fieldName, Object value) {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> !value.equals(ReflectUtil.getFieldValue(g, fieldName)))

@@ -13,7 +13,8 @@ public class HbaseObjModel {
     private byte[] qualifier = "fileByte".getBytes();
     private byte[] value;
 
-    public HbaseObjModel() {}
+    public HbaseObjModel() {
+    }
 
     public HbaseObjModel(String tableName, byte[] rowKey, byte[] value) {
         this.tableName = tableName;

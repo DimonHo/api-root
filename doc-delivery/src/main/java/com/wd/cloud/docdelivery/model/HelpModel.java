@@ -2,9 +2,7 @@ package com.wd.cloud.docdelivery.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 /**

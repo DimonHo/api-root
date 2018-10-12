@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,7 +29,7 @@ import java.util.List;
  */
 @FeignClient(value = "resources-server",
         configuration = ResourcesServerApi.MultipartSupportConfig.class,
-        fallback=ResourcesServerApi.HystrixCalculatorService.class)
+        fallback = ResourcesServerApi.HystrixCalculatorService.class)
 public interface ResourcesServerApi {
 
     /**
@@ -136,7 +137,8 @@ public interface ResourcesServerApi {
         }
     }
 
-    class HystrixCalculatorService implements ResourcesServerApi{
+    @Component
+    class HystrixCalculatorService implements ResourcesServerApi {
 
         @Override
         public ResponseModel<JSONObject> uploadFileToHf(String tableName, String fileName, boolean rename, MultipartFile file) {

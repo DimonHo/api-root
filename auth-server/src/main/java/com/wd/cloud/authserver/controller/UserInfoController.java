@@ -1,10 +1,10 @@
 package com.wd.cloud.authserver.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.vo.UserVo;
 import com.wd.cloud.authserver.entity.User;
 import com.wd.cloud.authserver.service.UserInfoService;
+import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.commons.vo.UserVo;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +29,7 @@ public class UserInfoController {
     public ResponseModel user(@PathVariable Long id) {
         User user = userInfoService.getUserInfo(id);
         UserVo userVo = new UserVo();
-        BeanUtil.copyProperties(user,userVo);
+        BeanUtil.copyProperties(user, userVo);
         return ResponseModel.ok(userVo);
     }
 

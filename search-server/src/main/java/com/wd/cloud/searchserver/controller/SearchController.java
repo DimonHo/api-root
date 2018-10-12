@@ -1,25 +1,18 @@
 package com.wd.cloud.searchserver.controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.searchserver.entity.SearchCondition;
 import com.wd.cloud.searchserver.entity.SearchResult;
 import com.wd.cloud.searchserver.service.SearchServiceI;
 import com.wd.cloud.searchserver.util.PinYinUtil;
 import com.wd.cloud.searchserver.util.SystemContext;
-
 import net.sf.json.JSONArray;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 
 /**
@@ -178,8 +171,6 @@ public class SearchController {
         }
         searchResult.setDatas(datasList);
     }
-
-
 
 
     @RequestMapping("/detail/{id}")

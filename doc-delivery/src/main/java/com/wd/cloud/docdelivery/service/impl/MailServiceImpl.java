@@ -3,12 +3,9 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.mail.MailUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.config.HelpMailConfig;
 import com.wd.cloud.docdelivery.enums.ChannelEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.model.HelpModel;
 import com.wd.cloud.docdelivery.model.MailModel;
 import com.wd.cloud.docdelivery.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +36,21 @@ public class MailServiceImpl implements MailService {
     @Autowired
     GlobalConfig globalConfig;
 
+    private static List<String> splitAddress(String addresses) {
+        if (StrUtil.isBlank(addresses)) {
+            return null;
+        }
 
+        List<String> result;
+        if (StrUtil.contains(addresses, ',')) {
+            result = StrUtil.splitTrim(addresses, ',');
+        } else if (StrUtil.contains(addresses, ';')) {
+            result = StrUtil.splitTrim(addresses, ';');
+        } else {
+            result = CollUtil.newArrayList(addresses);
+        }
+        return result;
+    }
 
     @Override
     public void sendMail(Integer channel, String helpEmail, String docTitle, String url, Integer processType) {
@@ -56,17 +67,17 @@ public class MailServiceImpl implements MailService {
     public void sendNotifyMail(Integer channel, String orgName, String helpEmail) {
         ChannelEnum channelEnum = getChannelEnum(channel);
         if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendNotifyMail(spis,orgName,helpEmail);
+            sendNotifyMail(spis, orgName, helpEmail);
         }
-        if (ChannelEnum.CRS.equals(channelEnum)){
-            sendNotifyMail(crs,orgName,helpEmail);
+        if (ChannelEnum.CRS.equals(channelEnum)) {
+            sendNotifyMail(crs, orgName, helpEmail);
         }
-        if (ChannelEnum.ZHY.equals(channelEnum)){
-            sendNotifyMail(zhy,orgName,helpEmail);
+        if (ChannelEnum.ZHY.equals(channelEnum)) {
+            sendNotifyMail(zhy, orgName, helpEmail);
         }
     }
 
-    private void sendNotifyMail(MailModel mailModel,String orgName, String helpEmail){
+    private void sendNotifyMail(MailModel mailModel, String orgName, String helpEmail) {
         mailModel.setTos(globalConfig.getNotifyMail());
         mailModel.setTitle(mailModel.getNotify().getTitle())
                 .setContent(String.format(mailModel.getNotify().getContent(), orgName, helpEmail));
@@ -92,15 +103,15 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendMail(ChannelEnum channelEnum, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum) {
         if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendMail(spis, channelEnum,helpEmail, docTitle, url, helpStatusEnum);
+            sendMail(spis, channelEnum, helpEmail, docTitle, url, helpStatusEnum);
         } else if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendMail(crs,channelEnum,helpEmail, docTitle, url, helpStatusEnum);
+            sendMail(crs, channelEnum, helpEmail, docTitle, url, helpStatusEnum);
         } else if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendMail(zhy,channelEnum,helpEmail, docTitle, url, helpStatusEnum);
+            sendMail(zhy, channelEnum, helpEmail, docTitle, url, helpStatusEnum);
         }
     }
 
-    private void sendMail(MailModel mailModel,ChannelEnum channelEnum, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum){
+    private void sendMail(MailModel mailModel, ChannelEnum channelEnum, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum) {
         String expTime = expStr(channelEnum);
         List<String> tos = splitAddress(helpEmail);
         mailModel.setTos(tos.toArray(new String[tos.size()]));
@@ -116,7 +127,6 @@ public class MailServiceImpl implements MailService {
         }
         mailModel.send();
     }
-
 
     /**
      * 计算过期时间
@@ -136,22 +146,5 @@ public class MailServiceImpl implements MailService {
             expLong = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 15;
         }
         return DateUtil.date(expLong).toString("yyyy-MM-dd HH:mm:ss");
-    }
-
-
-    private static List<String> splitAddress(String addresses){
-        if(StrUtil.isBlank(addresses)) {
-            return null;
-        }
-
-        List<String> result;
-        if(StrUtil.contains(addresses, ',')) {
-            result = StrUtil.splitTrim(addresses, ',');
-        }else if(StrUtil.contains(addresses, ';')) {
-            result = StrUtil.splitTrim(addresses, ';');
-        }else {
-            result = CollUtil.newArrayList(addresses);
-        }
-        return result;
     }
 }

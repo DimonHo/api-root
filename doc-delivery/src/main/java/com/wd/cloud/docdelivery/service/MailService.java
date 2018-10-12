@@ -43,5 +43,5 @@ public interface MailService {
      */
     void sendMail(Integer channel, String helpEmail, String docTitle, String url, Integer processType);
 
-    void sendNotifyMail(Integer channel,String orgName,String helpEmail);
+    void sendNotifyMail(Integer channel, String orgName, String helpEmail);
 }

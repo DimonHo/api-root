@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -7,38 +8,23 @@ import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.model.DownloadModel;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.BackendService;
-
-import cn.hutool.core.date.DateUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -79,11 +65,11 @@ public class BackendServiceImpl implements BackendService {
                     list.add(cb.equal(root.get("helperScid").as(Integer.class), helpUserScid));
                 }
                 if (status != null && status != 0) {
-                	if(status == 1) {//列表查询未处理
-                		list.add(cb.or(cb.equal(root.get("status").as(Integer.class), 0),cb.equal(root.get("status").as(Integer.class), 1),cb.equal(root.get("status").as(Integer.class), 2)));
-                	} else {
-                		list.add(cb.equal(root.get("status").as(Integer.class), status));
-                	}
+                    if (status == 1) {//列表查询未处理
+                        list.add(cb.or(cb.equal(root.get("status").as(Integer.class), 0), cb.equal(root.get("status").as(Integer.class), 1), cb.equal(root.get("status").as(Integer.class), 2)));
+                    } else {
+                        list.add(cb.equal(root.get("status").as(Integer.class), status));
+                    }
                 }
                 if (!StringUtils.isEmpty(keyword)) {
                     list.add(cb.or(cb.like(root.get("literature").get("docTitle").as(String.class), "%" + keyword.trim() + "%"), cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
@@ -102,48 +88,48 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public Page getLiteratureList(Pageable pageable, Map<String, Object> param) {
-		Boolean reusing = (Boolean) param.get("reusing");
-		String keyword = (String) param.get("keyword");
-		Page<Literature> result = literatureRepository.findAll(new Specification<Literature>() {
-			@Override
-			public Predicate toPredicate(Root<Literature> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-				List<Predicate> list = new ArrayList<Predicate>();
-				if (reusing != null) {
-					list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
-				}
-				if (!StringUtils.isEmpty(keyword)) {
-					list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));
-				}
-				list.add(cb.isNotEmpty(root.get("docFiles")));
-				Predicate[] p = new Predicate[list.size()];
-				return cb.and(list.toArray(p));
-			}
-		}, pageable);
+        Boolean reusing = (Boolean) param.get("reusing");
+        String keyword = (String) param.get("keyword");
+        Page<Literature> result = literatureRepository.findAll(new Specification<Literature>() {
+            @Override
+            public Predicate toPredicate(Root<Literature> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (reusing != null) {
+                    list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
+                }
+                if (!StringUtils.isEmpty(keyword)) {
+                    list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));
+                }
+                list.add(cb.isNotEmpty(root.get("docFiles")));
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            }
+        }, pageable);
 
-		for (Literature literature : result) {
-			Set<DocFile> docFiles = literature.getDocFiles();
-			List<DocFile> list = new ArrayList<>();
-			list.addAll(docFiles);
-			if(docFiles != null && docFiles.size() > 1) {
-				Collections.sort(list, new Comparator<DocFile>() {
-				    @Override
-			        public int compare(DocFile docFile1, DocFile docFile2) {
-			        	if(!literature.isReusing()) {
-			        		 return docFile1.getGmtModified().compareTo(docFile2.getGmtModified());
-			        	} else {
-			        		if(docFile1.isReusing()) {
-			        			return -1;
-			        		}
-			        		return 1;
-			        	}
-			        }
-			    });
-			}
-			docFiles.clear();
-			docFiles.addAll(list);
-			literature.setDocFiles(docFiles);
-		}
-		return result;
+        for (Literature literature : result) {
+            Set<DocFile> docFiles = literature.getDocFiles();
+            List<DocFile> list = new ArrayList<>();
+            list.addAll(docFiles);
+            if (docFiles != null && docFiles.size() > 1) {
+                Collections.sort(list, new Comparator<DocFile>() {
+                    @Override
+                    public int compare(DocFile docFile1, DocFile docFile2) {
+                        if (!literature.isReusing()) {
+                            return docFile1.getGmtModified().compareTo(docFile2.getGmtModified());
+                        } else {
+                            if (docFile1.isReusing()) {
+                                return -1;
+                            }
+                            return 1;
+                        }
+                    }
+                });
+            }
+            docFiles.clear();
+            docFiles.addAll(list);
+            literature.setDocFiles(docFiles);
+        }
+        return result;
     }
 
     @Override
@@ -172,12 +158,12 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public HelpRecord getWaitOrThirdHelpRecord(Long id) {
         return helpRecordRepository.findByIdAndStatusIn(id,
-                new int[]{ HelpStatusEnum.WAIT_HELP.getCode(), HelpStatusEnum.HELP_THIRD.getCode()});
+                new int[]{HelpStatusEnum.WAIT_HELP.getCode(), HelpStatusEnum.HELP_THIRD.getCode()});
     }
 
     @Override
     public HelpRecord getWaitAuditHelpRecord(Long id) {
-        return helpRecordRepository.findByIdAndStatus(id,HelpStatusEnum.WAIT_AUDIT.getCode());
+        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.getCode());
     }
 
     @Override

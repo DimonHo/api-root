@@ -11,12 +11,12 @@ import javax.validation.constraints.NotNull;
  * @Description:
  */
 @Entity
-@Table(name = "upload_record",uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
+@Table(name = "upload_record", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
 public class UploadRecord extends AbstractEntity {
 
     @NotNull
-    @Column(name = "unid",length = 64)
-    private String unid ;
+    @Column(name = "unid", length = 64)
+    private String unid;
     /**
      * 保存介质：hbase OR 磁盘
      */
@@ -28,7 +28,7 @@ public class UploadRecord extends AbstractEntity {
     /**
      * 文件名称
      */
-    @Column(name = "file_name",length = 1000)
+    @Column(name = "file_name", length = 1000)
     private String fileName;
 
     /**
@@ -44,7 +44,7 @@ public class UploadRecord extends AbstractEntity {
     /**
      * 文件是否丢失
      */
-    @Column(name = "is_missed",columnDefinition = "tinyint(1) default 0")
+    @Column(name = "is_missed", columnDefinition = "tinyint(1) default 0")
     private boolean missed;
 
     public String getUnid() {
@@ -107,15 +107,15 @@ public class UploadRecord extends AbstractEntity {
      * 数据插入之前，自动计算设置unid字段值
      */
     @PrePersist
-    public void createUnid(){
-        this.unid = SecureUtil.md5(this.target+this.path+this.fileName+this.fileSize);
+    public void createUnid() {
+        this.unid = SecureUtil.md5(this.target + this.path + this.fileName + this.fileSize);
     }
 
     /**
      * 数据更新之前，自动计算设置unid字段值
      */
     @PreUpdate
-    public void updateUnid(){
-        this.unid = SecureUtil.md5(this.target+this.path+this.fileName+this.fileSize);
+    public void updateUnid() {
+        this.unid = SecureUtil.md5(this.target + this.path + this.fileName + this.fileSize);
     }
 }

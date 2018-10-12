@@ -2,7 +2,8 @@ package com.wd.cloud.docdelivery.entity;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author He Zhigang

@@ -14,19 +14,19 @@ import java.util.Set;
  * @Description: 文献元数据
  */
 @Entity
-@Table(name = "literature",uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
+@Table(name = "literature", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
 public class Literature extends AbstractEntity {
 
     /**
      * 文献的链接地址
      */
-    @Column(name = "doc_href",length = 1000,columnDefinition = "default ''")
+    @Column(name = "doc_href", length = 1000, columnDefinition = "default ''")
     private String docHref = "";
     /**
      * 文献标题
      */
     @NotNull
-    @Column(name = "doc_title",length = 1000,columnDefinition = "default ''")
+    @Column(name = "doc_title", length = 1000, columnDefinition = "default ''")
     private String docTitle = "";
 
     @OneToMany(mappedBy = "literature")
@@ -135,12 +135,12 @@ public class Literature extends AbstractEntity {
     }
 
     @PrePersist
-    public void createUnid(){
+    public void createUnid() {
         this.unid = SecureUtil.md5(this.docTitle + this.docHref);
     }
 
     @PreUpdate
-    public void updateUnid(){
+    public void updateUnid() {
         this.unid = SecureUtil.md5(this.docTitle + this.docHref);
     }
 
@@ -150,7 +150,7 @@ public class Literature extends AbstractEntity {
         return new ToStringBuilder(this)
                 .append("docHref", docHref)
                 .append("docTitle", docTitle)
-                .append("unid",unid)
+                .append("unid", unid)
                 .append("docFiles", docFiles)
                 .append("authors", authors)
                 .append("yearOfPublication", yearOfPublication)

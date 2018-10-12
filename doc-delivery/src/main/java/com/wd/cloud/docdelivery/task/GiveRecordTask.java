@@ -1,6 +1,5 @@
 package com.wd.cloud.docdelivery.task;
 
-import cn.hutool.core.lang.Console;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
@@ -24,13 +23,13 @@ public class GiveRecordTask {
     @Autowired
     HelpRecordRepository helpRecordRepository;
 
-    @Scheduled(fixedRate=1000 * 30)
-    public void deleteGiveRecord(){
+    @Scheduled(fixedRate = 1000 * 30)
+    public void deleteGiveRecord() {
         List<GiveRecord> giveRecords = giveRecordRepository.findTimeOutRecord();
         giveRecords.stream().forEach(g -> updateHelpStatus(g));
     }
 
-    public void updateHelpStatus(GiveRecord giveRecord){
+    public void updateHelpStatus(GiveRecord giveRecord) {
         giveRecordRepository.delete(giveRecord);
         HelpRecord helpRecord = giveRecord.getHelpRecord();
         helpRecord.setStatus(0);

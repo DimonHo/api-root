@@ -28,6 +28,7 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
     /**
      * 审核记录
+     *
      * @param giverId
      * @param auditStatus
      * @return
@@ -36,6 +37,7 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
     /**
      * 特定状态的应助记录
+     *
      * @param helpRecord
      * @param auditStatus
      * @param giverId
@@ -45,6 +47,7 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
     /**
      * 取消应助，删除应助记录
+     *
      * @param helpRecord
      * @param auditStatus
      * @param giverId
@@ -54,6 +57,7 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
     /**
      * 特定应助类型的应助记录
+     *
      * @param helpRecord
      * @param auditStatus
      * @param giverType
@@ -63,13 +67,14 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
     /**
      * 已审核通过的 或 非用户应助的应助记录
+     *
      * @param helpRecord
      * @return
      */
     @Query("FROM GiveRecord WHERE helpRecord = :helpRecord AND (auditStatus = 1 OR giverType <> 2)")
     GiveRecord findByHelpRecord(@Param("helpRecord") HelpRecord helpRecord);
 
-    GiveRecord findByHelpRecordAndAuditStatusEquals(HelpRecord helpRecord,Integer status);
+    GiveRecord findByHelpRecordAndAuditStatusEquals(HelpRecord helpRecord, Integer status);
 
     @Query("FROM GiveRecord WHERE giverType = 2 AND docFile IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmtCreate, now())")
     List<GiveRecord> findTimeOutRecord();

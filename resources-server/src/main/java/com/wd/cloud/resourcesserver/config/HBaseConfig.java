@@ -1,25 +1,14 @@
 package com.wd.cloud.resourcesserver.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
-import com.wd.cloud.resourcesserver.config.HBaseProperties;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.AndFileFilter;
-import org.apache.commons.io.filefilter.CanReadFileFilter;
-import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Singleton;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @Configuration

@@ -14,9 +14,10 @@ public interface FileService {
 
     /**
      * 保存文件至磁盘目录
-     * @param dir 目录名称
+     *
+     * @param dir      目录名称
      * @param fileName 文件名称
-     * @param file 文件
+     * @param file     文件
      * @return
      * @throws IOException
      */
@@ -24,6 +25,7 @@ public interface FileService {
 
     /**
      * 从磁盘获取文件
+     *
      * @param dir
      * @param fileName
      * @return
@@ -32,6 +34,7 @@ public interface FileService {
 
     /**
      * 保存文件至hbase
+     *
      * @param tableName
      * @param fileName
      * @param file
@@ -42,9 +45,10 @@ public interface FileService {
 
     /**
      * 从hbase获取文件
-     * @param fileName rowKey
+     *
+     * @param fileName  rowKey
      * @param tableName
      * @return
      */
-    FileObjModel getFileToHbase(String tableName,String fileName);
+    FileObjModel getFileToHbase(String tableName, String fileName);
 }

@@ -3,72 +3,82 @@ package com.wd.cloud.searchserver.entity;
 
 /**
  * 收录详情
- * @author Administrator
  *
+ * @author Administrator
  */
-public class ShouluDetail implements Comparable<ShouluDetail>{
-	
-	/**收录数据库*/
-	private String db;
-	
-	/**收录年份*/
-	private String year;
-	
-	/**学科**/
-	private String subject;
-	
-	/**影响因子*/
-	private Double imfact;
-	
-	/**分区*/
-	private Integer partition;
+public class ShouluDetail implements Comparable<ShouluDetail> {
 
-	public String getDb() {
-		return db;
-	}
+    /**
+     * 收录数据库
+     */
+    private String db;
 
-	public void setDb(String db) {
-		this.db = db;
-	}
+    /**
+     * 收录年份
+     */
+    private String year;
 
-	public String getYear() {
-		return year;
-	}
+    /**
+     * 学科
+     **/
+    private String subject;
 
-	public void setYear(String year) {
-		this.year = year;
-	}
+    /**
+     * 影响因子
+     */
+    private Double imfact;
 
-	public String getSubject() {
-		return subject;
-	}
+    /**
+     * 分区
+     */
+    private Integer partition;
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    public String getDb() {
+        return db;
+    }
 
-	public Double getImfact() {
-		return imfact;
-	}
+    public void setDb(String db) {
+        this.db = db;
+    }
 
-	public void setImfact(Double imfact) {
-		this.imfact = imfact;
-	}
+    public String getYear() {
+        return year;
+    }
 
-	public Integer getPartition() {
-		return partition;
-	}
+    public void setYear(String year) {
+        this.year = year;
+    }
 
-	public void setPartition(Integer partition) {
-		this.partition = partition;
-	}
+    public String getSubject() {
+        return subject;
+    }
 
-	@Override
-	public int compareTo(ShouluDetail o) {
-		if(Integer.parseInt(o.getYear()) > Integer.parseInt(this.getYear())){
-			return -1;
-		}
-		return 1;
-	}
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public Double getImfact() {
+        return imfact;
+    }
+
+    public void setImfact(Double imfact) {
+        this.imfact = imfact;
+    }
+
+    public Integer getPartition() {
+        return partition;
+    }
+
+    public void setPartition(Integer partition) {
+        this.partition = partition;
+    }
+
+    @Override
+    public int compareTo(ShouluDetail o) {
+        if (Integer.parseInt(o.getYear()) > Integer.parseInt(this.getYear())) {
+            return -1;
+        }
+        return 1;
+    }
 
 }

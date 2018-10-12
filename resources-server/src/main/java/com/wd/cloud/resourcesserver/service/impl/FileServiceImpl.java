@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -54,7 +53,7 @@ public class FileServiceImpl implements FileService {
                 File newFile = FileUtil.touch(dir, fileName);
                 //将文件流写入文件中
                 FileUtil.writeFromStream(file.getInputStream(), newFile);
-                flag = saveUploadRecord(TargetEnum.DISK,dir,fileName,file);
+                flag = saveUploadRecord(TargetEnum.DISK, dir, fileName, file);
             } catch (IOException e) {
                 e.printStackTrace();
                 flag = false;
@@ -88,7 +87,8 @@ public class FileServiceImpl implements FileService {
                 Put put = new Put(hbaseObjModel.getRowKey());
                 put.addColumn(hbaseObjModel.getFamily(), hbaseObjModel.getQualifier(), hbaseObjModel.getValue());
                 hTableInterface.put(put);
-                flag = saveUploadRecord(TargetEnum.HBASE,tableName,fileName,file);;
+                flag = saveUploadRecord(TargetEnum.HBASE, tableName, fileName, file);
+                ;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -107,7 +107,7 @@ public class FileServiceImpl implements FileService {
                     Cell cell = cells.stream().findFirst().get();
                     byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                     log.info("读取文件：{}，size：{} byte", fileName, fileByte.length);
-                    File file = FileUtil.writeByteToDisk(globalConfig.getResources()+"/temp/",fileName,fileByte);
+                    File file = FileUtil.writeByteToDisk(globalConfig.getResources() + "/temp/", fileName, fileByte);
                     fileObjModel.setFileByte(fileByte);
                     fileObjModel.setFile(file);
                 }
@@ -117,9 +117,9 @@ public class FileServiceImpl implements FileService {
     }
 
 
-    private boolean saveUploadRecord(TargetEnum target,String path,String fileName,MultipartFile file){
+    private boolean saveUploadRecord(TargetEnum target, String path, String fileName, MultipartFile file) {
         UploadRecord uploadRecord = uploadRecordRepository
-                .findByTargetAndPathAndFileNameAndFileSizeAndMissed(target.name(),path,fileName,file.getSize(),false)
+                .findByTargetAndPathAndFileNameAndFileSizeAndMissed(target.name(), path, fileName, file.getSize(), false)
                 .orElse(new UploadRecord());
         uploadRecord.setTarget(target.name());
         uploadRecord.setPath(path);

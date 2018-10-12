@@ -1,7 +1,6 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.format.DateParser;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
@@ -20,7 +19,6 @@ import com.wd.cloud.docdelivery.service.FrontService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +29,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -74,8 +71,8 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public boolean checkExists(String email, Literature literature) {
-        HelpRecord helpRecord = helpRecordRepository.findByHelperEmailAndLiterature(email,literature);
-        if (helpRecord != null){
+        HelpRecord helpRecord = helpRecordRepository.findByHelperEmailAndLiterature(email, literature);
+        if (helpRecord != null) {
             return true;
         }
         return false;
@@ -139,7 +136,7 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public HelpRecord getWaitOrThirdHelpRecord(Long id) {
         return helpRecordRepository.findByIdAndStatusIn(id,
-                new int[]{ HelpStatusEnum.WAIT_HELP.getCode(), HelpStatusEnum.HELP_THIRD.getCode()});
+                new int[]{HelpStatusEnum.WAIT_HELP.getCode(), HelpStatusEnum.HELP_THIRD.getCode()});
     }
 
     @Override
@@ -220,8 +217,8 @@ public class FrontServiceImpl implements FrontService {
 //            }
 //        }, pageable);
 
-        for (HelpRecord helpRecord:waitHelpRecords){
-            helpRecord.filterByNotEq("auditStatus",2);
+        for (HelpRecord helpRecord : waitHelpRecords) {
+            helpRecord.filterByNotEq("auditStatus", 2);
         }
         return waitHelpRecords;
     }
@@ -257,7 +254,7 @@ public class FrontServiceImpl implements FrontService {
                 Predicate[] p = new Predicate[list.size()];
                 return criteriaBuilder.and(list.toArray(p));
             }
-        },pageable);
+        }, pageable);
         return helpRecords;
     }
 

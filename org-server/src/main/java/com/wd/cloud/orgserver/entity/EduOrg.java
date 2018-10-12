@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "edu_org")
-public class EduOrg extends AbstractEntity{
+public class EduOrg extends AbstractEntity {
 
     private String orgFlag;
     private String orgName;

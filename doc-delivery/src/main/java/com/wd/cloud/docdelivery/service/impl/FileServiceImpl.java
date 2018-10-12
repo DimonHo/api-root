@@ -3,7 +3,6 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpRequest;
 import com.wd.cloud.apifeign.ResourcesServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
@@ -16,11 +15,8 @@ import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.Date;
 
 /**
@@ -45,10 +41,11 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     ResourcesServerApi resourcesServerApi;
+
     @Override
     public DownloadModel getDownloadFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        if (checkTimeOut(helpRecord.getGmtModified())){
+        if (checkTimeOut(helpRecord.getGmtModified())) {
             return null;
         }
         GiveRecord giveRecord = giveRecordRepository.findByHelpRecord(helpRecord);
@@ -70,20 +67,20 @@ public class FileServiceImpl implements FileService {
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadModel downloadModel = new DownloadModel();
-        ResponseModel<byte[]> fileByte = resourcesServerApi.getFileByteToHf(globalConfig.getHbaseTableName(),fileName);
+        ResponseModel<byte[]> fileByte = resourcesServerApi.getFileByteToHf(globalConfig.getHbaseTableName(), fileName);
         downloadModel.setFileByte(fileByte.getBody());
-        String ext = StrUtil.subAfter(fileName,".",true);
+        String ext = StrUtil.subAfter(fileName, ".", true);
         String downLoadFileName = docTitle + "." + ext;
         downloadModel.setDownloadFileName(downLoadFileName);
         return downloadModel;
     }
 
 
-    private boolean checkTimeOut(Date startDate){
-       if (15 < DateUtil.betweenDay(startDate, new Date(),true)){
-           return true;
-       }
-       return false;
+    private boolean checkTimeOut(Date startDate) {
+        if (15 < DateUtil.betweenDay(startDate, new Date(), true)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

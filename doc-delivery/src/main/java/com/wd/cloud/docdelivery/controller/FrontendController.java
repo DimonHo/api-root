@@ -91,7 +91,7 @@ public class FrontendController {
             // 如果不存在，则新增一条元数据
             literatureData = frontService.saveLiterature(literature);
         }
-        if (frontService.checkExists(helpEmail,literatureData)){
+        if (frontService.checkExists(helpEmail, literatureData)) {
             return ResponseModel.clientErr("error:您最近15天内已求助过这篇文献,请注意查收邮箱");
         }
         helpRecord.setLiterature(literatureData);
@@ -117,7 +117,7 @@ public class FrontendController {
         } else {
             try {
                 // 发送通知邮件
-                mailService.sendNotifyMail(helpRecord.getHelpChannel(),helpModel.getHelperScname(),helpModel.getHelperEmail());
+                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpModel.getHelperScname(), helpModel.getHelperEmail());
                 // 保存求助记录
                 frontService.saveHelpRecord(helpRecord);
             } catch (Exception e) {
@@ -136,7 +136,7 @@ public class FrontendController {
     @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
     @GetMapping("/help/wait/{helpChannel}")
     public ResponseModel helpWaitList(@PathVariable int helpChannel,
-                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+                                      @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> waitHelpRecords = frontService.getWaitHelpRecords(helpChannel, pageable);
         return ResponseModel.ok(waitHelpRecords);
     }
@@ -176,7 +176,7 @@ public class FrontendController {
     @ApiOperation(value = "获取用户当天已求助记录的数量")
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
     @GetMapping("/help/count")
-    public int getHelpCountToDay(@RequestParam String email){
+    public int getHelpCountToDay(@RequestParam String email) {
         return frontService.getCountHelpRecordToDay(email);
     }
 
@@ -205,8 +205,8 @@ public class FrontendController {
         }
         //检查用户是否已经认领了应助
         String docTitle = frontService.checkExistsGiveing(giverId);
-        if (docTitle!=null) {
-            return ResponseModel.error("请先完成您正在应助的文献："+ docTitle);
+        if (docTitle != null) {
+            return ResponseModel.error("请先完成您正在应助的文献：" + docTitle);
         }
         helpRecord = frontService.givingHelp(helpRecordId, giverId, giverName, HttpUtil.getClientIP(request));
         return ResponseModel.ok(helpRecord);
@@ -264,13 +264,13 @@ public class FrontendController {
         }
         //保存文件
         DocFile docFile = null;
-        ResponseModel<JSONObject> fileModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(),null,true,file);
-        log.info("code={}:msg={}:body={}",fileModel.getCode(),fileModel.getMsg(),fileModel.getBody().toString());
-        if (fileModel.getCode() != HttpStatus.HTTP_OK){
+        ResponseModel<JSONObject> fileModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        log.info("code={}:msg={}:body={}", fileModel.getCode(), fileModel.getMsg(), fileModel.getBody().toString());
+        if (fileModel.getCode() != HttpStatus.HTTP_OK) {
             return ResponseModel.serverErr("文件上传失败，请重试");
         }
         String filename = fileModel.getBody().getStr("file");
-        docFile = frontService.saveDocFile(helpRecord.getLiterature(),filename);
+        docFile = frontService.saveDocFile(helpRecord.getLiterature(), filename);
 
         //更新记录
         frontService.createGiveRecord(helpRecord, giverId, docFile, HttpUtil.getClientIP(request));
@@ -301,6 +301,7 @@ public class FrontendController {
 
         return ResponseModel.ok(helpRecords);
     }
+
     /**
      * 文献求助记录
      *

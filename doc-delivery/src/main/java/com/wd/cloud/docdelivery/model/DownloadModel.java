@@ -1,7 +1,6 @@
 package com.wd.cloud.docdelivery.model;
 
 import java.io.File;
-import java.io.InputStream;
 
 /**
  * @author He Zhigang

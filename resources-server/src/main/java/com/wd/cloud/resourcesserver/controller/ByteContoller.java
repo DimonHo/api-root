@@ -33,7 +33,7 @@ public class ByteContoller {
     @GetMapping("/hf/{tableName}")
     public ResponseModel<byte[]> getFileByteToHf(@PathVariable String tableName,
                                                  @RequestParam String fileName) {
-        FileObjModel fileObjModel = fileService.getFileToHbase(tableName,fileName);
+        FileObjModel fileObjModel = fileService.getFileToHbase(tableName, fileName);
         if (fileObjModel.getFileByte() != null) {
             return ResponseModel.ok(fileObjModel.getFileByte());
         } else {
@@ -49,7 +49,7 @@ public class ByteContoller {
     @GetMapping("/df/{dir}")
     public ResponseModel<byte[]> getFileByteToDf(@PathVariable String dir,
                                                  @RequestParam String fileName) {
-        FileObjModel fileObjModel = fileService.getFileToDisk(dir,fileName);
+        FileObjModel fileObjModel = fileService.getFileToDisk(dir, fileName);
         if (fileObjModel.getFileByte() != null) {
             return ResponseModel.ok(fileObjModel.getFileByte());
         } else {

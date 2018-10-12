@@ -11,7 +11,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "user")
-public class User extends AbstractEntity{
+public class User extends AbstractEntity {
 
     @Column(name = "login_time")
     private Date loginTime;

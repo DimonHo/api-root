@@ -1,6 +1,5 @@
 package com.wd.cloud.docdelivery.config;
 
-import cn.hutool.extra.mail.Mail;
 import com.wd.cloud.docdelivery.model.MailModel;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(value = "help.mail")
-public class HelpMailConfig{
+public class HelpMailConfig {
 
     /**
      * spis配置
@@ -46,7 +45,7 @@ public class HelpMailConfig{
         this.crs = crs;
     }
 
-    @Bean(name= "zhy")
+    @Bean(name = "zhy")
     public MailModel getZhy() {
         return zhy;
     }

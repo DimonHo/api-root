@@ -2,8 +2,7 @@ package com.wd.cloud.authserver;
 
 import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
@@ -14,8 +13,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  */
 @EnableSwagger2Doc
 @EnableRedisHttpSession
-@EnableDiscoveryClient
-@SpringBootApplication
+@SpringCloudApplication
 public class AuthServerApplication {
 
     public static void main(String[] args) {

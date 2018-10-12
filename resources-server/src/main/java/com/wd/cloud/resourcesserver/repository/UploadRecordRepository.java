@@ -11,13 +11,14 @@ import java.util.Optional;
  * @date 2018/9/3
  * @Description:
  */
-public interface UploadRecordRepository extends JpaRepository<UploadRecord,Long> {
+public interface UploadRecordRepository extends JpaRepository<UploadRecord, Long> {
 
     /**
      * 丢失的文件列表
+     *
      * @return
      */
     Optional<List<UploadRecord>> findByMissedTrue();
 
-    Optional<UploadRecord> findByTargetAndPathAndFileNameAndFileSizeAndMissed(String target,String path,String fileName,Long fileSize,boolean missed);
+    Optional<UploadRecord> findByTargetAndPathAndFileNameAndFileSizeAndMissed(String target, String path, String fileName, Long fileSize, boolean missed);
 }

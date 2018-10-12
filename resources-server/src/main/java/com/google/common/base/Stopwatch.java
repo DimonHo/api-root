@@ -16,7 +16,6 @@ package com.google.common.base;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
-import com.google.common.base.Ticker;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,37 +24,36 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.*;
 
 /**
-
- An object that measures elapsed time in nanoseconds. It is useful to measure
- elapsed time using this class instead of direct calls to {@link
-System#nanoTime} for a few reasons:
- An alternate time source can be substituted, for testing or performance
- reasons.
- As documented by {@code nanoTime}, the value returned has no absolute
- meaning, and can only be interpreted as relative to another timestamp
- returned by {@code nanoTime} at a different time. {@code Stopwatch} is a
- more effective abstraction because it exposes only these relative values,
- not the absolute ones.
- Basic usage:
-
- Stopwatch stopwatch = Stopwatch.{@link #createStarted createStarted}();
- doSomething();
- stopwatch.{@link #stop stop}(); // optional
- long millis = stopwatch.elapsed(MILLISECONDS);
- log.info("time: " + stopwatch); // formatted string like "12.3 ms"
- Stopwatch methods are not idempotent; it is an error to start or stop a
-
- stopwatch that is already in the desired state.
- When testing code that uses this class, use
-
- {@link #createUnstarted(Ticker)} or {@link #createStarted(Ticker)} to
- supply a fake or mock ticker.
- This allows you to
- simulate any valid behavior of the stopwatch.
- Note: This class is not thread-safe.
-
- @author Kevin Bourrillion
- @SInCE 10.0
+ * An object that measures elapsed time in nanoseconds. It is useful to measure
+ * elapsed time using this class instead of direct calls to {@link
+ * System#nanoTime} for a few reasons:
+ * An alternate time source can be substituted, for testing or performance
+ * reasons.
+ * As documented by {@code nanoTime}, the value returned has no absolute
+ * meaning, and can only be interpreted as relative to another timestamp
+ * returned by {@code nanoTime} at a different time. {@code Stopwatch} is a
+ * more effective abstraction because it exposes only these relative values,
+ * not the absolute ones.
+ * Basic usage:
+ * <p>
+ * Stopwatch stopwatch = Stopwatch.{@link #createStarted createStarted}();
+ * doSomething();
+ * stopwatch.{@link #stop stop}(); // optional
+ * long millis = stopwatch.elapsed(MILLISECONDS);
+ * log.info("time: " + stopwatch); // formatted string like "12.3 ms"
+ * Stopwatch methods are not idempotent; it is an error to start or stop a
+ * <p>
+ * stopwatch that is already in the desired state.
+ * When testing code that uses this class, use
+ * <p>
+ * {@link #createUnstarted(Ticker)} or {@link #createStarted(Ticker)} to
+ * supply a fake or mock ticker.
+ * This allows you to
+ * simulate any valid behavior of the stopwatch.
+ * Note: This class is not thread-safe.
+ *
+ * @author Kevin Bourrillion
+ * @SInCE 10.0
  */
 @Beta
 @GwtCompatible(emulated = true)
@@ -64,137 +62,67 @@ public final class Stopwatch {
     private boolean isRunning;
     private long elapsedNanos;
     private long startTick;
-    /**
 
-     Creates (but does not start) a new stopwatch using {@link System#nanoTime}
-     as its time source.
-     @SInCE 15.0
-     */
-    public static com.google.common.base.Stopwatch createUnstarted() {
-        return new com.google.common.base.Stopwatch();
-    }
     /**
-
-     Creates (but does not start) a new stopwatch, using the specified time
-     source.
-     @SInCE 15.0
-     */
-    public static com.google.common.base.Stopwatch createUnstarted(Ticker ticker) {
-        return new com.google.common.base.Stopwatch(ticker);
-    }
-    /**
-
-     Creates (and starts) a new stopwatch using {@link System#nanoTime}
-     as its time source.
-     @SInCE 15.0
-     */
-    public static com.google.common.base.Stopwatch createStarted() {
-        return new com.google.common.base.Stopwatch().start();
-    }
-    /**
-
-     Creates (and starts) a new stopwatch, using the specified time
-     source.
-     @SInCE 15.0
-     */
-    public static com.google.common.base.Stopwatch createStarted(Ticker ticker) {
-        return new com.google.common.base.Stopwatch(ticker).start();
-    }
-    /**
-
-     Creates (but does not start) a new stopwatch using {@link System#nanoTime}
-     as its time source.
-     @deprecated Use {@link com.google.common.base.Stopwatch#createUnstarted()} instead.
+     * Creates (but does not start) a new stopwatch using {@link System#nanoTime}
+     * as its time source.
+     *
+     * @deprecated Use {@link com.google.common.base.Stopwatch#createUnstarted()} instead.
      */
     @Deprecated
     public Stopwatch() {
         this(Ticker.systemTicker());
     }
-    /**
 
-     Creates (but does not start) a new stopwatch, using the specified time
-     source.
-     @deprecated Use {@link com.google.common.base.Stopwatch#createUnstarted(Ticker)} instead.
+    /**
+     * Creates (but does not start) a new stopwatch, using the specified time
+     * source.
+     *
+     * @deprecated Use {@link com.google.common.base.Stopwatch#createUnstarted(Ticker)} instead.
      */
     @Deprecated
     Stopwatch(Ticker ticker) {
         this.ticker = checkNotNull(ticker, "ticker");
     }
-    /**
 
-     Returns {@code true} if {@link #start()} has been called on this stopwatch,
-     and {@link #stop()} has not been called since the last call to {@code
-    start()}.
-     */
-    public boolean isRunning() {
-        return isRunning;
-    }
     /**
-
-     Starts the stopwatch.
-     @return this {@code Stopwatch} instance
-     @throws IllegalStateException if the stopwatch is already running.
+     * Creates (but does not start) a new stopwatch using {@link System#nanoTime}
+     * as its time source.
+     *
+     * @SInCE 15.0
      */
-    public com.google.common.base.Stopwatch start() {
-        checkState(!isRunning, "This stopwatch is already running.");
-        isRunning = true;
-        startTick = ticker.read();
-        return this;
-    }
-    /**
-
-     Stops the stopwatch. Future reads will return the fixed duration that had
-     elapsed up to this point.
-     @return this {@code Stopwatch} instance
-     @throws IllegalStateException if the stopwatch is already stopped.
-     */
-    public com.google.common.base.Stopwatch stop() {
-        long tick = ticker.read();
-        checkState(isRunning, "This stopwatch is already stopped.");
-        isRunning = false;
-        elapsedNanos += tick - startTick;
-        return this;
-    }
-    /**
-
-     Sets the elapsed time for this stopwatch to zero,
-     and places it in a stopped state.
-     @return this {@code Stopwatch} instance
-     */
-    public com.google.common.base.Stopwatch reset() {
-        elapsedNanos = 0;
-        isRunning = false;
-        return this;
-    }
-    private long elapsedNanos() {
-        return isRunning ? ticker.read() - startTick + elapsedNanos : elapsedNanos;
+    public static com.google.common.base.Stopwatch createUnstarted() {
+        return new com.google.common.base.Stopwatch();
     }
 
     /**
-
-     Returns the current elapsed time shown on this stopwatch, expressed
-     in the desired time unit, with any fraction rounded down.
-     Note that the overhead of measurement can be more than a microsecond, so
-
-     it is generally not useful to specify {@link TimeUnit#NANOSECONDS}
-     precision here.
-     @SInCE 14.0 (since 10.0 as {@code elapsedTime()})
+     * Creates (but does not start) a new stopwatch, using the specified time
+     * source.
+     *
+     * @SInCE 15.0
      */
-    public long elapsed(TimeUnit desiredUnit) {
-        return desiredUnit.convert(elapsedNanos(), NANOSECONDS);
+    public static com.google.common.base.Stopwatch createUnstarted(Ticker ticker) {
+        return new com.google.common.base.Stopwatch(ticker);
     }
+
     /**
-
-     Returns a string representation of the current elapsed time.
+     * Creates (and starts) a new stopwatch using {@link System#nanoTime}
+     * as its time source.
+     *
+     * @SInCE 15.0
      */
-    @GwtIncompatible("String.format()")
-    @Override public String toString() {
-        long nanos = elapsedNanos();
-        TimeUnit unit = chooseUnit(nanos);
-        double value = (double) nanos / NANOSECONDS.convert(1, unit);
+    public static com.google.common.base.Stopwatch createStarted() {
+        return new com.google.common.base.Stopwatch().start();
+    }
 
-// Too bad this functionality is not exposed as a regular method call
-        return String.format("%.4g %s", value, abbreviate(unit));
+    /**
+     * Creates (and starts) a new stopwatch, using the specified time
+     * source.
+     *
+     * @SInCE 15.0
+     */
+    public static com.google.common.base.Stopwatch createStarted(Ticker ticker) {
+        return new com.google.common.base.Stopwatch(ticker).start();
     }
 
     private static TimeUnit chooseUnit(long nanos) {
@@ -238,5 +166,86 @@ public final class Stopwatch {
             default:
                 throw new AssertionError();
         }
+    }
+
+    /**
+     * Returns {@code true} if {@link #start()} has been called on this stopwatch,
+     * and {@link #stop()} has not been called since the last call to {@code
+     * start()}.
+     */
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    /**
+     * Starts the stopwatch.
+     *
+     * @return this {@code Stopwatch} instance
+     * @throws IllegalStateException if the stopwatch is already running.
+     */
+    public com.google.common.base.Stopwatch start() {
+        checkState(!isRunning, "This stopwatch is already running.");
+        isRunning = true;
+        startTick = ticker.read();
+        return this;
+    }
+
+    /**
+     * Stops the stopwatch. Future reads will return the fixed duration that had
+     * elapsed up to this point.
+     *
+     * @return this {@code Stopwatch} instance
+     * @throws IllegalStateException if the stopwatch is already stopped.
+     */
+    public com.google.common.base.Stopwatch stop() {
+        long tick = ticker.read();
+        checkState(isRunning, "This stopwatch is already stopped.");
+        isRunning = false;
+        elapsedNanos += tick - startTick;
+        return this;
+    }
+
+    /**
+     * Sets the elapsed time for this stopwatch to zero,
+     * and places it in a stopped state.
+     *
+     * @return this {@code Stopwatch} instance
+     */
+    public com.google.common.base.Stopwatch reset() {
+        elapsedNanos = 0;
+        isRunning = false;
+        return this;
+    }
+
+    private long elapsedNanos() {
+        return isRunning ? ticker.read() - startTick + elapsedNanos : elapsedNanos;
+    }
+
+    /**
+     * Returns the current elapsed time shown on this stopwatch, expressed
+     * in the desired time unit, with any fraction rounded down.
+     * Note that the overhead of measurement can be more than a microsecond, so
+     * <p>
+     * it is generally not useful to specify {@link TimeUnit#NANOSECONDS}
+     * precision here.
+     *
+     * @SInCE 14.0 (since 10.0 as {@code elapsedTime()})
+     */
+    public long elapsed(TimeUnit desiredUnit) {
+        return desiredUnit.convert(elapsedNanos(), NANOSECONDS);
+    }
+
+    /**
+     * Returns a string representation of the current elapsed time.
+     */
+    @GwtIncompatible("String.format()")
+    @Override
+    public String toString() {
+        long nanos = elapsedNanos();
+        TimeUnit unit = chooseUnit(nanos);
+        double value = (double) nanos / NANOSECONDS.convert(1, unit);
+
+// Too bad this functionality is not exposed as a regular method call
+        return String.format("%.4g %s", value, abbreviate(unit));
     }
 }

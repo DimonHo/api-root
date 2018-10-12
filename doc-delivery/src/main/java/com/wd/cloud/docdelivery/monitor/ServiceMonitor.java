@@ -2,12 +2,12 @@ package com.wd.cloud.docdelivery.monitor;
 
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.logging.Logger;
 
 
 @Aspect
@@ -31,9 +31,9 @@ public class ServiceMonitor {
     @Before("executePackage()")
     public void beforeAdvice() {
         HelpRecord helpModel = new HelpRecord();
-        if (helpModel.getMonitor()==2){
+        if (helpModel.getMonitor() == 2) {
 
-        }else {
+        } else {
             helpModel.setMonitor(1);
             recordRepository.save(helpModel);
         }

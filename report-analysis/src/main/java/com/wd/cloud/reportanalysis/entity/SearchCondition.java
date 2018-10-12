@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchCondition {
-	
-	private List<QueryCondition> queryConditions = new ArrayList<QueryCondition>();
+
+    private List<QueryCondition> queryConditions = new ArrayList<QueryCondition>();
 
 }

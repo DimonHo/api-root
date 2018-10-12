@@ -1,7 +1,9 @@
 package com.wd.cloud.authserver.entity;
 
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author He Zhigang
@@ -10,7 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "school")
-public class School extends AbstractEntity{
+public class School extends AbstractEntity {
 
     private String schoolFlag;
     private String schoolName;

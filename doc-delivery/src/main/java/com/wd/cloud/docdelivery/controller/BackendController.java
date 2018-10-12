@@ -12,15 +12,6 @@ import com.wd.cloud.docdelivery.enums.AuditEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.service.BackendService;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
 import io.swagger.annotations.Api;
@@ -30,17 +21,17 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -150,16 +141,16 @@ public class BackendController {
                                 @NotNull MultipartFile file) {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(helpRecordId);
         DocFile docFile = null;
-        log.info("正在上传文件[file = {},size = {}]",file.getOriginalFilename(),file.getSize());
-        ResponseModel<JSONObject> jsonObjectResponseModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(),null,true,file);
-        log.info("code={}:msg={}:body={}",jsonObjectResponseModel.getCode(),jsonObjectResponseModel.getMsg(),jsonObjectResponseModel.getBody().toString());
-        if (jsonObjectResponseModel.getCode() != HttpStatus.HTTP_OK){
-            log.info("文件[file = {},size = {}] 上传失败 。。。",file.getOriginalFilename(),file.getSize());
+        log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
+        ResponseModel<JSONObject> jsonObjectResponseModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        log.info("code={}:msg={}:body={}", jsonObjectResponseModel.getCode(), jsonObjectResponseModel.getMsg(), jsonObjectResponseModel.getBody().toString());
+        if (jsonObjectResponseModel.getCode() != HttpStatus.HTTP_OK) {
+            log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
             return ResponseModel.serverErr("文件上传失败，请重试");
         }
-        log.info("文件{}上传成功!",file.getOriginalFilename());
+        log.info("文件{}上传成功!", file.getOriginalFilename());
         String fileName = jsonObjectResponseModel.getBody().getStr("file");
-        docFile = backendService.saveDocFile(helpRecord.getLiterature(),fileName);
+        docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileName);
 
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         Optional<GiveRecord> giveRecordOptional = helpRecord.getGiveRecords().stream()
