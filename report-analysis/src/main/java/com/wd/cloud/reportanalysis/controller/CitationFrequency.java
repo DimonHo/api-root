@@ -1,11 +1,13 @@
 package com.wd.cloud.reportanalysis.controller;
 
+import cn.hutool.setting.Setting;
 import com.wd.cloud.reportanalysis.entity.school.School;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
 import com.wd.cloud.reportanalysis.util.WordUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -16,10 +18,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
 import java.io.*;
@@ -31,9 +34,7 @@ import java.util.List;
 @Controller
 public class CitationFrequency {
 
-    private String filePath="D:/doc_f/"; //文件路径
-    private String fileName; //文件名称
-    private String fileOnlyName; //文件唯一名称
+
 
     @Autowired
     private DocumentGenerationI documentGenerationI;
@@ -75,8 +76,15 @@ public class CitationFrequency {
     int duibi4_total=0;
     int duibi4_cited=0;
     School duibi4_jigou=null;
+
+    String settingPath="";
+
+    private String filePath=settingPath+""; //文件路径
+    private String fileName; //文件名称
+    private String fileOnlyName; //文件唯一名称
+    StringBuffer sb=null;
     @RequestMapping("/frequency")
-    public String CitationFrequency (@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException {
+    public byte[] CitationFrequency (@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException {
 
         if(signature==0){
             jigou_shuming="全部";
@@ -172,21 +180,24 @@ public class CitationFrequency {
         //篇均被引频次最高的机构是：；中南大学篇均被引频次最高的年份是年
         dataMap.put("max_school_paper",max_school_paper.getName());
         dataMap.put("max_year_paper",max_year_paper);
-        String img1 = getImgStr(filePath+"/5.jpg");
-        String img2=  getImgStr(filePath+"/6.jpg");
+        String img1 = getImgStr(filePath+"/5"+sb+".jpg");
+        String img2=  getImgStr(filePath+"/6"+sb+".jpg");
         dataMap.put("shuju_tu",img1);
         dataMap.put("shuju_tu_paper",img2);
 
         /** 文件名称，唯一字符串 */
         Random r = new Random();
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-        StringBuffer sb = new StringBuffer();
+        sb = new StringBuffer();
         sb.append(sdf1.format(new Date()));
         sb.append("_");
         sb.append(r.nextInt(100));
 
+        Setting setting = new Setting("word",true);
+        String settingPath = setting.getSettingPath();
+        this.settingPath=settingPath;
         //文件路径
-        filePath = "D:/doc_f/";
+        filePath = settingPath+"";
 
         //文件唯一名称
         fileOnlyName = "用freemarker生成Word文档_" + sb + ".doc";
@@ -198,10 +209,12 @@ public class CitationFrequency {
         WordUtil.createWord(dataMap, "被引频次对比分析.ftl", filePath, fileOnlyName);
 
         File tFile=new File(filePath+""+fileOnlyName);
-        FileSystemResource fs=new FileSystemResource(tFile);
-        String fileName= documentGenerationI.input(fs);
+        FileInputStream input = new FileInputStream(tFile);
+        MultipartFile multipartFile = new MockMultipartFile("file", tFile.getName(), "text/plain", IOUtils.toByteArray(input));
+        String fileName= documentGenerationI.input(multipartFile);
+        byte[] bytes = documentGenerationI.downLoad(fileName);
         System.out.println(fileName);
-        return fileName;
+        return bytes;
     }
 
     public int getMax_year_paper(@RequestParam int scid) {
@@ -406,7 +419,7 @@ public class CitationFrequency {
         chart.getTitle().setFont(new Font("宋体", Font.PLAIN, 12));
         FileOutputStream out = null;
         try {
-            out=new FileOutputStream(filePath+"/5.jpg");
+            out=new FileOutputStream(filePath+"/5"+sb+".jpg");
             ChartUtilities.writeChartAsJPEG(out, 0.5f, chart, 800, 400, null);
         }catch (Exception e){
             e.printStackTrace();
@@ -442,7 +455,7 @@ public class CitationFrequency {
         chart.getTitle().setFont(new Font("宋体", Font.PLAIN, 12));
         FileOutputStream out = null;
         try {
-            out=new FileOutputStream(filePath+"/6.jpg");
+            out=new FileOutputStream(filePath+"/6"+sb+".jpg");
             ChartUtilities.writeChartAsJPEG(out, 0.5f, chart, 800, 400, null);
         }catch (Exception e){
             e.printStackTrace();

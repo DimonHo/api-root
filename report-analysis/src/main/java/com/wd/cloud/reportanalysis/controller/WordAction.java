@@ -1,10 +1,12 @@
 package com.wd.cloud.reportanalysis.controller;
+import cn.hutool.setting.Setting;
 import com.wd.cloud.reportanalysis.entity.school.School;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
 import com.wd.cloud.reportanalysis.util.WordUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -15,10 +17,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
 import java.io.*;
@@ -35,15 +38,14 @@ import java.util.List;
 @Controller
 public class WordAction {
 
-    private String filePath="D:/doc_f/"; //文件路径
-    private String fileName; //文件名称
-    private String fileOnlyName; //文件唯一名称
+
 
     @Autowired
     private DocumentGenerationI documentGenerationI;
 
     @Autowired
     private SchoolServiceI schoolServiceI;
+
 
 
 //    @RequestMapping("/testmap")
@@ -77,8 +79,16 @@ public class WordAction {
     int total4=0;
     JSONObject lists4=null;
     School duibi_jigou3=null;
+
+    //文件的相对路径
+    String settingPath="";
+
+    private String filePath=settingPath+""; //文件路径
+    private String fileName; //文件名称
+    private String fileOnlyName; //文件唯一名称
+    StringBuffer sb=null;
     @RequestMapping("/hut")
-    public String createWord(@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException {
+    public byte[] createWord(@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException {
 
         JSONObject jsonObject=new JSONObject();
         jsonObject= documentGenerationI.get(act+"",table+"",scid,compare_scids+"",time+"",source+"",signature);
@@ -235,7 +245,7 @@ public class WordAction {
         chart.getTitle().setFont(new Font("宋体", Font.PLAIN, 12));
         FileOutputStream out = null;
         try {
-            out=new FileOutputStream(filePath+"/1.jpg");
+            out=new FileOutputStream(filePath+"/1"+sb+".jpg");
             ChartUtilities.writeChartAsJPEG(out, 0.5f, chart, 800, 400, null);
         }catch (Exception e){
             e.printStackTrace();
@@ -324,7 +334,7 @@ public class WordAction {
         dataMap.put("source",source);
         dataMap.put("jigou_shuming",jigou_shuming);
         dataMap.put("listInfo", listInfo);
-        String img1 = getImgStr(filePath+"/1.jpg");
+        String img1 = getImgStr(filePath+"/1"+sb+".jpg");
         dataMap.put("shuju_tu",img1);
 
         dataMap.put("weidu","weidukeji");
@@ -334,14 +344,18 @@ public class WordAction {
         /** 文件名称，唯一字符串 */
         Random r = new Random();
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-        StringBuffer sb = new StringBuffer();
+        sb = new StringBuffer();
         sb.append(sdf1.format(new Date()));
         sb.append("_");
         sb.append(r.nextInt(100));
 
-        //文件路径
-        filePath = "D:/doc_f/";
 
+
+         Setting setting = new Setting("word",true);
+         String settingPath = setting.getSettingPath();
+         this.settingPath=settingPath;
+        //文件路径
+        filePath = settingPath+"";
         //文件唯一名称
         fileOnlyName = "用freemarker生成Word文档_" + sb + ".doc";
 
@@ -351,13 +365,19 @@ public class WordAction {
         /** 生成word */
         WordUtil.createWord(dataMap, "数据3.ftl", filePath, fileOnlyName);
 
+
         File tFile=new File(filePath+""+fileOnlyName);
-        FileSystemResource fs=new FileSystemResource(tFile);
-        String fileName= documentGenerationI.input(fs);
+        FileInputStream input = new FileInputStream(tFile);
+        MultipartFile multipartFile = new MockMultipartFile("file", tFile.getName(), "text/plain", IOUtils.toByteArray(input));
+        byte[] bytes = documentGenerationI.downLoad(fileName);
+        String fileName= documentGenerationI.input(multipartFile);
         System.out.println(fileName);
         //JSONObject filename2=rngNiuBiServer.download(fileName);
         // System.out.println(filename2+"----------------------------------------------------------------------");
-        return fileName;
+
+
+        return bytes;
+
 
         // return "createWordSuccess";
 

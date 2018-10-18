@@ -12,6 +12,7 @@ import java.util.Iterator;
 public class ConfigUtil {
 
     static Setting setting = new Setting("config.setting",true);
+
     
     Iterator<Setting.Entry<String,String>> it=setting.entrySet().iterator();
 

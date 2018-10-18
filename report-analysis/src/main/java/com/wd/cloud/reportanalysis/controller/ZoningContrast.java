@@ -1,10 +1,12 @@
 package com.wd.cloud.reportanalysis.controller;
+import cn.hutool.setting.Setting;
 import com.wd.cloud.reportanalysis.entity.school.School;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
 import com.wd.cloud.reportanalysis.util.WordUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -15,10 +17,12 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.awt.*;
 import java.io.*;
 import java.net.URLDecoder;
@@ -28,9 +32,6 @@ import java.util.List;
 
 @Controller
 public class ZoningContrast {
-    private String filePath="D:/doc_f/"; //文件路径
-    private String fileName; //文件名称
-    private String fileOnlyName; //文件唯一名称
 
     @Autowired
     private DocumentGenerationI documentGenerationI;
@@ -90,9 +91,14 @@ public class ZoningContrast {
     String compare_scid_value3="";
     String compare_scid_value4="";
 
+    String settingPath="";
 
+    private String filePath=settingPath+""; //文件路径
+    private String fileName; //文件名称
+    private String fileOnlyName; //文件唯一名称
+    StringBuffer sb=null;
     @RequestMapping("/fenqu")
-    public String createZoning(@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException{
+    public byte[] createZoning(@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException{
 
         JSONObject jsonObject=new JSONObject();
         jsonObject1=new JSONObject();
@@ -303,7 +309,7 @@ public class ZoningContrast {
             chart.getTitle().setFont(new Font("宋体", Font.PLAIN, 12));
             FileOutputStream out = null;
             try {
-                out = new FileOutputStream(filePath + "/2.jpg");
+                out = new FileOutputStream(filePath + "/2"+sb+".jpg");
                 ChartUtilities.writeChartAsJPEG(out, 0.5f, chart, 800, 400, null);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -339,7 +345,7 @@ public class ZoningContrast {
         chart1.getTitle().setFont(new Font("宋体", Font.PLAIN, 12));
         FileOutputStream out1 = null;
         try {
-            out1 = new FileOutputStream(filePath + "/3.jpg");
+            out1 = new FileOutputStream(filePath + "/3"+sb+".jpg");
             ChartUtilities.writeChartAsJPEG(out1, 0.5f, chart1, 800, 400, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -375,7 +381,7 @@ public class ZoningContrast {
         chart2.getTitle().setFont(new Font("宋体", Font.PLAIN, 12));
         FileOutputStream out2 = null;
         try {
-            out2 = new FileOutputStream(filePath + "/4.jpg");
+            out2 = new FileOutputStream(filePath + "/4"+sb+".jpg");
             ChartUtilities.writeChartAsJPEG(out2, 0.5f, chart2, 800, 400, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -390,9 +396,9 @@ public class ZoningContrast {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             /** 组装数据 */
-            String img1 = getImgStr(filePath + "/2.jpg");
-            String img2 = getImgStr(filePath + "/3.jpg");
-            String img3 = getImgStr(filePath + "/4.jpg");
+            String img1 = getImgStr(filePath + "/2"+sb+".jpg");
+            String img2 = getImgStr(filePath + "/3"+sb+".jpg");
+            String img3 = getImgStr(filePath + "/4"+sb+".jpg");
             //得到最高和第二高的机构民称
             //jcr分区
             Map<String, Object> map5 = GetMaxAndTwoSchool(scid, names, cls);
@@ -540,12 +546,15 @@ public class ZoningContrast {
             //生成文档的格式
             Random r = new Random();
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-            StringBuffer sb = new StringBuffer();
+            sb = new StringBuffer();
             sb.append(sdf1.format(new Date()));
             sb.append("_");
             sb.append(r.nextInt(100));
 
-            filePath = "D:/doc_f/";
+            Setting setting = new Setting("word",true);
+            String settingPath = setting.getSettingPath();
+            this.settingPath=settingPath;
+            filePath = settingPath+"";
 
             //文件唯一名称
             fileOnlyName = "用freemarker生成Word文档_" + sb + ".doc";
@@ -554,12 +563,14 @@ public class ZoningContrast {
             fileName = "用freemarker生成Word文档.doc";
             WordUtil.createWord(dataMap, "分区对比分析.ftl", filePath, fileOnlyName);
 
-            File tFile = new File(filePath + "" + fileOnlyName);
-            FileSystemResource fs = new FileSystemResource(tFile);
-            String fileName = documentGenerationI.input(fs);
+            File tFile=new File(filePath+""+fileOnlyName);
+            FileInputStream input = new FileInputStream(tFile);
+            MultipartFile multipartFile = new MockMultipartFile("file", tFile.getName(), "text/plain", IOUtils.toByteArray(input));
+            String fileName = documentGenerationI.input(multipartFile);
+            byte[] bytes = documentGenerationI.downLoad(fileName);
             System.out.println(fileName);
 
-            return fileName;
+            return bytes;
 
     }
     School sch_er=null;

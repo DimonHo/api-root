@@ -1,10 +1,9 @@
 package com.wd.cloud.reportanalysis.service.impl;
-
-
+import com.wd.cloud.apifeign.ResourcesServerApi;
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DocumentGeneration implements DocumentGenerationI {
@@ -25,6 +25,8 @@ public class DocumentGeneration implements DocumentGenerationI {
     private RestTemplate restTemplate;
     private ClientHttpRequestFactory factory;
 
+    @Autowired
+    ResourcesServerApi resourcesServerApi;
     @Autowired
     public void setFactory() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -78,7 +80,7 @@ public class DocumentGeneration implements DocumentGenerationI {
     }
 
     @Override
-    public String input(FileSystemResource resource) {
+    public String input(MultipartFile resource) {
         try {
             MultiValueMap<String,Object> requestEntity=new LinkedMultiValueMap<>();
             requestEntity.add("file",resource);
@@ -87,12 +89,19 @@ public class DocumentGeneration implements DocumentGenerationI {
             headers.set("Content-Type", "multipart/form-data");
             headers.set("Accept", "application/json");
             HttpEntity<MultiValueMap<String,Object>> httpEntity=new HttpEntity<>(requestEntity,headers);
-            ResponseEntity<JSONObject> responseEntity=restTemplate.exchange("http://cloud.api.hnlat.com/resources-server/hf/journalImage",HttpMethod.POST,httpEntity,JSONObject.class);
-            return responseEntity.getBody().getJSONObject("body").getString("file");
+            ResponseModel<cn.hutool.json.JSONObject> fileByte = resourcesServerApi.uploadFileToHf("journalImage",null,true,resource);
+            fileByte.getBody();
+            return fileByte.getBody().toString();
         }catch (Exception e){
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public byte[] downLoad(String fileName) {
+        ResponseModel<byte[]> fileByte = resourcesServerApi.getFileByteToHf("journalImage",fileName);
+        return fileByte.getBody();
     }
 
 //    @Override

@@ -1,7 +1,7 @@
 package com.wd.cloud.reportanalysis.service;
 
 import net.sf.json.JSONObject;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface DocumentGenerationI {
 
@@ -10,7 +10,10 @@ public interface DocumentGenerationI {
 
     public JSONObject getEsi(String table,int scid,String compare_scids,String category_type, int signature);
 
-    public String input(FileSystemResource resource);
+    public String input(MultipartFile resource);
+
+
+   public byte[] downLoad(String fileName);
 
     //   public JSONObject download(String fileName);
 
