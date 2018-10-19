@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.Header;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.model.DownloadModel;
+import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -47,17 +47,17 @@ public class FileController {
     @ApiImplicitParam(name = "helpRecodeId", value = "求助记录ID", dataType = "Long", paramType = "path")
     @GetMapping("/download/{helpRecodeId}")
     public void download(@PathVariable Long helpRecodeId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        DownloadModel downloadModel = fileService.getDownloadFile(helpRecodeId);
-        if (downloadModel == null) {
+        DownloadFileModel downloadFileModel = fileService.getDownloadFile(helpRecodeId);
+        if (downloadFileModel == null) {
             response.sendRedirect(globalConfig.getCloudDomain() + "/doc-delivery/404FileNotFind.html");
             return;
         }
         String filename = null;
         //判断是否是IE浏览器
         if (request.getHeader(Header.USER_AGENT.toString()).toLowerCase().contains("msie")) {
-            filename = URLUtil.encode(downloadModel.getDownloadFileName(), CharsetUtil.UTF_8);
+            filename = URLUtil.encode(downloadFileModel.getDownloadFileName(), CharsetUtil.UTF_8);
         } else {
-            filename = new String(downloadModel.getDownloadFileName().getBytes(CharsetUtil.UTF_8), CharsetUtil.ISO_8859_1);
+            filename = new String(downloadFileModel.getDownloadFileName().getBytes(CharsetUtil.UTF_8), CharsetUtil.ISO_8859_1);
         }
         String disposition = StrUtil.format("attachment; filename=\"{}\"", filename);
         response.setHeader(Header.CACHE_CONTROL.toString(), "no-cache, no-store, must-revalidate");
@@ -65,7 +65,7 @@ public class FileController {
         response.setHeader(Header.PRAGMA.toString(), "no-cache");
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         OutputStream out = response.getOutputStream();
-        out.write(downloadModel.getFileByte());
+        out.write(downloadFileModel.getFileByte());
         out.close();
     }
 
@@ -79,13 +79,13 @@ public class FileController {
     @ApiImplicitParam(name = "helpRecodeId", value = "求助记录ID", dataType = "Long", paramType = "path")
     @GetMapping("/view/{helpRecodeId}")
     public void viewFile(@PathVariable Long helpRecodeId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        DownloadModel downloadModel = fileService.getWaitAuditFile(helpRecodeId);
+        DownloadFileModel downloadFileModel = fileService.getWaitAuditFile(helpRecodeId);
         String filename = null;
         //判断是否是IE浏览器
         if (request.getHeader(Header.USER_AGENT.toString()).toLowerCase().contains("msie")) {
-            filename = URLUtil.encode(downloadModel.getDownloadFileName(), CharsetUtil.UTF_8);
+            filename = URLUtil.encode(downloadFileModel.getDownloadFileName(), CharsetUtil.UTF_8);
         } else {
-            filename = new String(downloadModel.getDownloadFileName().getBytes(CharsetUtil.UTF_8), CharsetUtil.ISO_8859_1);
+            filename = new String(downloadFileModel.getDownloadFileName().getBytes(CharsetUtil.UTF_8), CharsetUtil.ISO_8859_1);
         }
         String disposition = StrUtil.format("attachment; filename=\"{}\"", filename);
         response.setHeader(Header.CACHE_CONTROL.toString(), "no-cache, no-store, must-revalidate");
@@ -93,7 +93,7 @@ public class FileController {
         response.setHeader(Header.PRAGMA.toString(), "no-cache");
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         OutputStream out = response.getOutputStream();
-        out.write(downloadModel.getFileByte());
+        out.write(downloadFileModel.getFileByte());
         out.close();
     }
 }

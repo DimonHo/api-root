@@ -26,10 +26,10 @@ public class GiveRecordTask {
     @Scheduled(fixedRate = 1000 * 30)
     public void deleteGiveRecord() {
         List<GiveRecord> giveRecords = giveRecordRepository.findTimeOutRecord();
-        giveRecords.stream().forEach(g -> updateHelpStatus(g));
+        giveRecords.forEach(g -> updateHelpStatus(g));
     }
 
-    public void updateHelpStatus(GiveRecord giveRecord) {
+    private void updateHelpStatus(GiveRecord giveRecord) {
         giveRecordRepository.delete(giveRecord);
         HelpRecord helpRecord = giveRecord.getHelpRecord();
         helpRecord.setStatus(0);

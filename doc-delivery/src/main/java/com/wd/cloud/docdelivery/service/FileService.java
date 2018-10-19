@@ -1,6 +1,6 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.docdelivery.model.DownloadModel;
+import com.wd.cloud.docdelivery.model.DownloadFileModel;
 
 /**
  * @author He Zhigang
@@ -9,9 +9,9 @@ import com.wd.cloud.docdelivery.model.DownloadModel;
  */
 public interface FileService {
 
-    DownloadModel getDownloadFile(Long helpRecordId);
+    DownloadFileModel getDownloadFile(Long helpRecordId);
 
-    DownloadModel getWaitAuditFile(Long helpRecordId);
+    DownloadFileModel getWaitAuditFile(Long helpRecordId);
 
     String getDownloadUrl(Long helpRecordId);
 }

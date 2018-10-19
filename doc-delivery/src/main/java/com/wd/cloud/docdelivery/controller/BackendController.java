@@ -171,7 +171,7 @@ public class BackendController {
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
         String url = fileService.getDownloadUrl(helpRecord.getId());
-        mailService.sendMail(helpRecord.getHelpChannel(), helpRecord.getHelperEmail(), helpRecord.getLiterature().getDocTitle(), url, HelpStatusEnum.HELP_SUCCESSED);
+        mailService.sendMail(helpRecord.getHelpChannel(), helpRecord.getHelperScname(), helpRecord.getHelperEmail(), helpRecord.getLiterature().getDocTitle(), url, HelpStatusEnum.HELP_SUCCESSED);
         return ResponseModel.ok("文件上传成功");
     }
 
@@ -196,6 +196,7 @@ public class BackendController {
         giveRecord.setGiverType(GiveTypeEnum.THIRD.getCode());
         giveRecord.setGiverName(giverName);
         mailService.sendMail(helpRecord.getHelpChannel(),
+                helpRecord.getHelperScname(),
                 helpRecord.getHelperEmail(),
                 helpRecord.getLiterature().getDocTitle(),
                 null,
@@ -232,6 +233,7 @@ public class BackendController {
         giveRecord.setGiverType(GiveTypeEnum.MANAGER.getCode());
         giveRecord.setGiverName(giverName);
         mailService.sendMail(helpRecord.getHelpChannel(),
+                helpRecord.getHelperScname(),
                 helpRecord.getHelperEmail(),
                 helpRecord.getLiterature().getDocTitle(),
                 null,
@@ -268,6 +270,7 @@ public class BackendController {
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
         String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
         mailService.sendMail(helpRecord.getHelpChannel(),
+                helpRecord.getHelperScname(),
                 helpRecord.getHelperEmail(),
                 helpRecord.getLiterature().getDocTitle(),
                 downloadUrl,

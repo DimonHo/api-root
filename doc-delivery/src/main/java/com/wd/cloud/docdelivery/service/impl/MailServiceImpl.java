@@ -2,16 +2,22 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.enums.ChannelEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.model.MailModel;
+import com.wd.cloud.docdelivery.model.*;
 import com.wd.cloud.docdelivery.service.MailService;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -29,13 +35,116 @@ public class MailServiceImpl implements MailService {
     @Autowired
     MailModel crs;
 
-
     @Autowired
     MailModel zhy;
 
     @Autowired
     GlobalConfig globalConfig;
 
+    @Autowired
+    private FreeMarkerConfigurer configuration;
+
+    @Override
+    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, Integer processType) {
+        HelpStatusEnum helpStatusEnum = null;
+        for (HelpStatusEnum helpStatusInstance : HelpStatusEnum.values()) {
+            if (helpStatusInstance.getCode() == processType) {
+                helpStatusEnum = helpStatusInstance;
+            }
+        }
+        sendMail(channel, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+    }
+
+
+    @Override
+    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
+        ChannelEnum channelEnum = getChannelEnum(channel);
+        sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+    }
+
+
+    @Override
+    public void sendMail(ChannelEnum channelEnum, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
+        if (ChannelEnum.SPIS.equals(channelEnum)) {
+            sendMail(spis, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+        } else if (ChannelEnum.CRS.equals(channelEnum)) {
+            sendMail(crs, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+        } else if (ChannelEnum.ZHY.equals(channelEnum)) {
+            sendMail(zhy, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+        }
+    }
+
+    @Override
+    public void sendNotifyMail(Integer channel, String helperScname, String helpEmail) {
+        ChannelEnum channelEnum = getChannelEnum(channel);
+        if (ChannelEnum.SPIS.equals(channelEnum)) {
+            sendNotifyMail(spis, helperScname, helpEmail);
+        }
+        if (ChannelEnum.CRS.equals(channelEnum)) {
+            sendNotifyMail(crs, helperScname, helpEmail);
+        }
+        if (ChannelEnum.ZHY.equals(channelEnum)) {
+            sendNotifyMail(zhy, helperScname, helpEmail);
+        }
+    }
+
+    private void sendMail(MailModel mailModel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
+        List<String> tos = splitAddress(helpEmail);
+        mailModel.setTos(tos.toArray(new String[tos.size()]));
+        if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
+            DefaultMailSuccessModel successModel = new DefaultMailSuccessModel();
+            successModel.setDownloadUrl(downloadUrl).setDocTitle(docTitle);
+            mailModel.setSuccessModel(successModel);
+            mailModel.setTitle(String.format(mailModel.getSuccessModel().getMailTitle(), docTitle))
+                    .setContent(buildContent(mailModel,helpStatusEnum,helperScname));
+        } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
+            DefaultMailThirdModel thirdModel = new DefaultMailThirdModel();
+            thirdModel.setDocTitle(docTitle);
+            mailModel.setThirdModel(thirdModel);
+            mailModel.setTitle(String.format(mailModel.getThirdModel().getMailTitle(), docTitle))
+                    .setContent(buildContent(mailModel,helpStatusEnum,helperScname));
+
+        } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
+            DefaultMailFailedModel failedModel = new DefaultMailFailedModel();
+            failedModel.setDocTitle(docTitle);
+            mailModel.setFailedModel(failedModel);
+            mailModel.setTitle(String.format(mailModel.getFailedModel().getMailTitle(), docTitle))
+                    .setContent(buildContent(mailModel,helpStatusEnum,helperScname));
+        }
+        mailModel.send();
+    }
+
+
+    private void sendNotifyMail(MailModel mailModel, String helperScname, String helpEmail) {
+        DefaultMailNotifyModel notifyModel = new DefaultMailNotifyModel();
+        notifyModel.setHelperScname(helperScname).setHelperName(helpEmail);
+        mailModel.setTos(globalConfig.getNotifyMail());
+        mailModel.setNotifyModel(notifyModel);
+        mailModel.setTitle(mailModel.getNotifyModel().getMailTitle())
+                .setContent(buildNotifyContent(mailModel, helperScname));
+        mailModel.send();
+    }
+
+    /**
+     * 获取渠道
+     * @param channel
+     * @return
+     */
+    private ChannelEnum getChannelEnum(Integer channel) {
+        ChannelEnum channelEnum = null;
+        for (ChannelEnum channelInstance : ChannelEnum.values()) {
+            if (channelInstance.getCode() == channel) {
+                channelEnum = channelInstance;
+            }
+        }
+        return channelEnum;
+    }
+    /**
+     * 地址拆分
+     *
+     * @param addresses
+     * @return
+     */
     private static List<String> splitAddress(String addresses) {
         if (StrUtil.isBlank(addresses)) {
             return null;
@@ -52,99 +161,52 @@ public class MailServiceImpl implements MailService {
         return result;
     }
 
-    @Override
-    public void sendMail(Integer channel, String helpEmail, String docTitle, String url, Integer processType) {
-        HelpStatusEnum helpStatusEnum = null;
-        for (HelpStatusEnum helpStatusInstance : HelpStatusEnum.values()) {
-            if (helpStatusInstance.getCode() == processType) {
-                helpStatusEnum = helpStatusInstance;
-            }
-        }
-        sendMail(channel, helpEmail, docTitle, url, helpStatusEnum);
-    }
-
-    @Override
-    public void sendNotifyMail(Integer channel, String orgName, String helpEmail) {
-        ChannelEnum channelEnum = getChannelEnum(channel);
-        if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendNotifyMail(spis, orgName, helpEmail);
-        }
-        if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendNotifyMail(crs, orgName, helpEmail);
-        }
-        if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendNotifyMail(zhy, orgName, helpEmail);
-        }
-    }
-
-    private void sendNotifyMail(MailModel mailModel, String orgName, String helpEmail) {
-        mailModel.setTos(globalConfig.getNotifyMail());
-        mailModel.setTitle(mailModel.getNotify().getTitle())
-                .setContent(String.format(mailModel.getNotify().getContent(), orgName, helpEmail));
-        mailModel.send();
-    }
-
-    @Override
-    public void sendMail(Integer channel, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum) {
-        ChannelEnum channelEnum = getChannelEnum(channel);
-        sendMail(channelEnum, helpEmail, docTitle, url, helpStatusEnum);
-    }
-
-    private ChannelEnum getChannelEnum(Integer channel) {
-        ChannelEnum channelEnum = null;
-        for (ChannelEnum channelInstance : ChannelEnum.values()) {
-            if (channelInstance.getCode() == channel) {
-                channelEnum = channelInstance;
-            }
-        }
-        return channelEnum;
-    }
-
-    @Override
-    public void sendMail(ChannelEnum channelEnum, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum) {
-        if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendMail(spis, channelEnum, helpEmail, docTitle, url, helpStatusEnum);
-        } else if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendMail(crs, channelEnum, helpEmail, docTitle, url, helpStatusEnum);
-        } else if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendMail(zhy, channelEnum, helpEmail, docTitle, url, helpStatusEnum);
-        }
-    }
-
-    private void sendMail(MailModel mailModel, ChannelEnum channelEnum, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum) {
-        String expTime = expStr(channelEnum);
-        List<String> tos = splitAddress(helpEmail);
-        mailModel.setTos(tos.toArray(new String[tos.size()]));
-        if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
-            mailModel.setTitle(String.format(mailModel.getSuccess().getTitle(), docTitle))
-                    .setContent(String.format(mailModel.getSuccess().getContent(), docTitle, url, url, expTime));
-        } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
-            mailModel.setTitle(String.format(mailModel.getOuther().getTitle(), docTitle))
-                    .setContent(String.format(mailModel.getOuther().getContent(), docTitle));
-        } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
-            mailModel.setTitle(String.format(mailModel.getFailed().getTitle(), docTitle))
-                    .setContent(String.format(mailModel.getFailed().getContent(), docTitle));
-        }
-        mailModel.send();
-    }
-
     /**
-     * 计算过期时间
-     *
-     * @param channelEnum
+     * 构建邮件内容
+     * @param mailModel
+     * @param helpStatusEnum
+     * @param helperScname
      * @return
      */
-    private String expStr(ChannelEnum channelEnum) {
-        long expLong;
-        if (ChannelEnum.SPIS.equals(channelEnum)) {
-            expLong = System.currentTimeMillis() + spis.getExp();
-        } else if (ChannelEnum.CRS.equals(channelEnum)) {
-            expLong = System.currentTimeMillis() + crs.getExp();
-        } else if (ChannelEnum.ZHY.equals(channelEnum)) {
-            expLong = System.currentTimeMillis() + zhy.getExp();
-        } else {
-            expLong = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 15;
+    private String buildContent(MailModel mailModel, HelpStatusEnum helpStatusEnum, String helperScname) {
+        String templateFile = null;
+        if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
+            templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-success");
+            if (!FileUtil.exist(templateFile)) {
+                templateFile = "default-success.ftl";
+            }
+        } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
+            templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-failed");
+            if (!FileUtil.exist(templateFile)) {
+                templateFile = "default-failed.ftl";
+            }
+        } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
+            templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-third");
+            if (!FileUtil.exist(templateFile)) {
+                templateFile = "default-third.ftl";
+            }
         }
-        return DateUtil.date(expLong).toString("yyyy-MM-dd HH:mm:ss");
+        return buildContent(mailModel,templateFile);
+    }
+
+    private String buildNotifyContent(MailModel mailModel, String helperScname) {
+        String templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-notify");
+        if (!FileUtil.exist(templateFile)) {
+            templateFile = "default-notify.ftl";
+        }
+        return buildContent(mailModel,templateFile);
+    }
+
+    private String buildContent(MailModel mailModel, String templateFile){
+        String content = null;
+        try {
+            Template template = configuration.getConfiguration().getTemplate(templateFile);
+            content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailModel);
+        } catch (TemplateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return content;
     }
 }

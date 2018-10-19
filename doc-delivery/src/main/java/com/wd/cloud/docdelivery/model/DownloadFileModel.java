@@ -7,7 +7,7 @@ import java.io.File;
  * @date 2018/5/24
  * @Description: 文件下载对象
  */
-public class DownloadModel {
+public class DownloadFileModel {
     /**
      * 下载的真实文件对象
      */
@@ -22,7 +22,7 @@ public class DownloadModel {
         return fileByte;
     }
 
-    public DownloadModel setFileByte(byte[] fileByte) {
+    public DownloadFileModel setFileByte(byte[] fileByte) {
         this.fileByte = fileByte;
         return this;
     }
@@ -31,7 +31,7 @@ public class DownloadModel {
         return file;
     }
 
-    public DownloadModel setFile(File file) {
+    public DownloadFileModel setFile(File file) {
         this.file = file;
         return this;
     }

@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  * @Description:
  */
 @ApiModel(value = "文献求助post对象")
-public class HelpModel {
+public class HelpRequestModel {
 
     /**
      * 求助用户ID

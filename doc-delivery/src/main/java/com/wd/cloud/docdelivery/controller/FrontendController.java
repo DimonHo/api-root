@@ -14,7 +14,7 @@ import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.model.HelpModel;
+import com.wd.cloud.docdelivery.model.HelpRequestModel;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -68,22 +68,22 @@ public class FrontendController {
      */
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
-    public ResponseModel<HelpRecord> helpFrom(@Valid HelpModel helpModel, HttpServletRequest request) {
+    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
 
         HelpRecord helpRecord = new HelpRecord();
-        String helpEmail = helpModel.getHelperEmail();
-        helpRecord.setHelpChannel(helpModel.getHelpChannel());
-        helpRecord.setHelperScid(helpModel.getHelperScid());
-        helpRecord.setHelperScname(helpModel.getHelperScname());
-        helpRecord.setHelperId(helpModel.getHelperId());
-        helpRecord.setHelperName(helpModel.getHelperName());
+        String helpEmail = helpRequestModel.getHelperEmail();
+        helpRecord.setHelpChannel(helpRequestModel.getHelpChannel());
+        helpRecord.setHelperScid(helpRequestModel.getHelperScid());
+        helpRecord.setHelperScname(helpRequestModel.getHelperScname());
+        helpRecord.setHelperId(helpRequestModel.getHelperId());
+        helpRecord.setHelperName(helpRequestModel.getHelperName());
         helpRecord.setHelperIp(request.getLocalAddr());
         helpRecord.setHelperEmail(helpEmail);
 
         Literature literature = new Literature();
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        literature.setDocTitle(frontService.clearHtml(helpModel.getDocTitle().trim()));
-        literature.setDocHref(helpModel.getDocHref().trim());
+        literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));
+        literature.setDocHref(helpRequestModel.getDocHref().trim());
         // 先查询元数据是否存在
         Literature literatureData = frontService.queryLiterature(literature);
         String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
@@ -109,6 +109,7 @@ public class FrontendController {
             frontService.saveGiveRecord(giveRecord);
             String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
             mailService.sendMail(helpRecord.getHelpChannel(),
+                    helpRequestModel.getHelperScname(),
                     helpEmail,
                     helpRecord.getLiterature().getDocTitle(),
                     downloadUrl,
@@ -117,7 +118,7 @@ public class FrontendController {
         } else {
             try {
                 // 发送通知邮件
-                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpModel.getHelperScname(), helpModel.getHelperEmail());
+                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpRequestModel.getHelperScname(), helpRequestModel.getHelperEmail());
                 // 保存求助记录
                 frontService.saveHelpRecord(helpRecord);
             } catch (Exception e) {

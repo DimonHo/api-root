@@ -13,35 +13,44 @@ public interface MailService {
     /**
      * 发送邮件
      *
-     * @param channelEnum
-     * @param helpEmail
-     * @param docTitle
-     * @param url
-     * @param helpStatusEnum
+     * @param channelEnum 渠道enum
+     * @param helperScname 机构名称
+     * @param helperEmail 求助者邮箱
+     * @param docTitle 文献标题
+     * @param downloadUrl 下载链接
+     * @param helpStatusEnum 求助状态
      */
-    void sendMail(ChannelEnum channelEnum, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum);
+    void sendMail(ChannelEnum channelEnum, String helperScname, String helperEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum);
 
     /**
      * 发送邮件
      *
-     * @param channel
-     * @param helpEmail
-     * @param docTitle
-     * @param url
-     * @param helpStatusEnum
+     * @param channel 渠道code
+     * @param helperScname 机构名称
+     * @param helperEmail 求助者邮箱
+     * @param docTitle 文献标题
+     * @param downloadUrl 下载链接
+     * @param helpStatusEnum 求助状态
      */
-    void sendMail(Integer channel, String helpEmail, String docTitle, String url, HelpStatusEnum helpStatusEnum);
+    void sendMail(Integer channel, String helperScname, String helperEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum);
 
     /**
      * 发送邮件
      *
-     * @param channel
-     * @param helpEmail
-     * @param docTitle
-     * @param url
-     * @param processType
+     * @param channel 渠道code
+     * @param helperScname 机构名称
+     * @param helperEmail 求助者邮箱
+     * @param docTitle 文献标题
+     * @param downloadUrl 下载链接
+     * @param processType 处理方式
      */
-    void sendMail(Integer channel, String helpEmail, String docTitle, String url, Integer processType);
+    void sendMail(Integer channel, String helperScname, String helperEmail, String docTitle, String downloadUrl, Integer processType);
 
-    void sendNotifyMail(Integer channel, String orgName, String helpEmail);
+    /**
+     * 通知邮件
+     * @param channel 渠道code
+     * @param helperScname 机构名称
+     * @param helperEmail 求助者邮箱
+     */
+    void sendNotifyMail(Integer channel, String helperScname, String helperEmail);
 }

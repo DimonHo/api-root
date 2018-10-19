@@ -57,7 +57,6 @@ public class HelpRecord extends AbstractEntity {
      */
     private String helperScname;
 
-    private int monitor;
     /**
      * 求助IP
      */
@@ -80,13 +79,6 @@ public class HelpRecord extends AbstractEntity {
     @Column(name = "status", columnDefinition = "tinyint default 0 COMMENT '0：待应助， 1：应助中（用户已认领，15分钟内上传文件）， 2: 待审核（用户已应助）， 3：求助第三方（第三方应助）， 4：应助成功（审核通过或管理员应助）， 5：应助失败（超过15天无结果）'")
     private int status;
 
-    public int getMonitor() {
-        return monitor;
-    }
-
-    public void setMonitor(int monitor) {
-        this.monitor = monitor;
-    }
 
     public Literature getLiterature() {
         return literature;

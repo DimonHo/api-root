@@ -1,6 +1,8 @@
 package com.wd.cloud.docdelivery.model;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.extra.mail.Mail;
+import org.springframework.context.annotation.Bean;
 
 /**
  * @author He Zhigang
@@ -14,60 +16,110 @@ public class MailModel extends Mail {
      */
     private long exp = 1000 * 60 * 60 * 24 * 15;
 
-    private MailContentTemplate notify;
     /**
-     * 提交第三方处理
+     * 有效期
      */
-    private MailContentTemplate outher;
+    private String expStr ;
 
     /**
-     * 应助成功标题
+     * 内容模板文件
      */
-    private MailContentTemplate success;
-
+    private String templateFile;
     /**
-     * 无有效应助，应助失败
+     * 渠道名称
      */
-    private MailContentTemplate failed;
+    private String channelName;
+    /**
+     * 渠道官网
+     */
+    private String channelUrl;
+
+    private DefaultMailSuccessModel successModel;
+
+    private DefaultMailFailedModel failedModel;
+
+    private DefaultMailThirdModel thirdModel;
+
+    private DefaultMailNotifyModel notifyModel;
 
     public long getExp() {
         return exp;
     }
 
-    public void setExp(long exp) {
+    public MailModel setExp(long exp) {
         this.exp = exp;
+        return this;
     }
 
-    public MailContentTemplate getNotify() {
-        return notify;
+    public String getTemplateFile() {
+        return templateFile;
     }
 
-    public void setNotify(MailContentTemplate notify) {
-        this.notify = notify;
+    public MailModel setTemplateFile(String templateFile) {
+        this.templateFile = templateFile;
+        return this;
     }
 
-    public MailContentTemplate getOuther() {
-        return outher;
+    public String getChannelName() {
+        return channelName;
     }
 
-    public void setOuther(MailContentTemplate outher) {
-        this.outher = outher;
+    public MailModel setChannelName(String channelName) {
+        this.channelName = channelName;
+        return this;
     }
 
-    public MailContentTemplate getSuccess() {
-        return success;
+    public String getChannelUrl() {
+        return channelUrl;
     }
 
-    public void setSuccess(MailContentTemplate success) {
-        this.success = success;
+    public MailModel setChannelUrl(String channelUrl) {
+        this.channelUrl = channelUrl;
+        return this;
     }
 
-    public MailContentTemplate getFailed() {
-        return failed;
+    public DefaultMailSuccessModel getSuccessModel() {
+        return successModel;
     }
 
-    public void setFailed(MailContentTemplate failed) {
-        this.failed = failed;
+    public MailModel setSuccessModel(DefaultMailSuccessModel successModel) {
+        this.successModel = successModel;
+        return this;
     }
 
+    public DefaultMailFailedModel getFailedModel() {
+        return failedModel;
+    }
+
+    public MailModel setFailedModel(DefaultMailFailedModel failedModel) {
+        this.failedModel = failedModel;
+        return this;
+    }
+
+    public DefaultMailThirdModel getThirdModel() {
+        return thirdModel;
+    }
+
+    public MailModel setThirdModel(DefaultMailThirdModel thirdModel) {
+        this.thirdModel = thirdModel;
+        return this;
+    }
+
+    public DefaultMailNotifyModel getNotifyModel() {
+        return notifyModel;
+    }
+
+    public MailModel setNotifyModel(DefaultMailNotifyModel notifyModel) {
+        this.notifyModel = notifyModel;
+        return this;
+    }
+
+    public String getExpStr() {
+        return DateUtil.date(exp).toString("yyyy-MM-dd HH:mm:ss");
+    }
+
+    public MailModel setExpStr(String expStr) {
+        this.expStr = expStr;
+        return this;
+    }
 }
