@@ -1,16 +1,6 @@
 package com.wd.cloud.reportanalysis.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.reportanalysis.entity.QueryCondition;
 import com.wd.cloud.reportanalysis.entity.school.School;
 import com.wd.cloud.reportanalysis.service.AnalysisByDBServiceI;
@@ -18,12 +8,18 @@ import com.wd.cloud.reportanalysis.service.AnalysisByESServiceI;
 import com.wd.cloud.reportanalysis.service.CxfWebServiceI;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
 import com.wd.cloud.reportanalysis.util.ResourceLabel;
-import com.wd.cloud.commons.model.ResponseModel;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Api(value = "数据可视化分析", tags = {""})
 @RestController

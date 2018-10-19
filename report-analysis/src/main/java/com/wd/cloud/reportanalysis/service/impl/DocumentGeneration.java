@@ -33,12 +33,9 @@ public class DocumentGeneration implements DocumentGenerationI {
         factory.setReadTimeout(5000);//ms
         factory.setConnectTimeout(15000);//ms
         this.factory = factory;
-    }
-
-    @Autowired
-    public void setRestTemplate() {
         this.restTemplate = new RestTemplate(this.factory);
     }
+
 
 
     @Override

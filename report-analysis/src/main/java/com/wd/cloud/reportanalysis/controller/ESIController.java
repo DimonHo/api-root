@@ -1,11 +1,14 @@
 package com.wd.cloud.reportanalysis.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.setting.Setting;
+import com.google.gson.Gson;
 import com.wd.cloud.reportanalysis.entity.school.School;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
 import com.wd.cloud.reportanalysis.util.WordUtil;
 import net.sf.json.JSONObject;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.jfree.chart.ChartFactory;
@@ -18,6 +21,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +39,6 @@ import java.util.List;
 
 @Controller
 public class ESIController {
-
 
     @Autowired
     private DocumentGenerationI documentGenerationI;
@@ -95,7 +100,7 @@ public class ESIController {
     StringBuffer sb=null;
 
     @RequestMapping("/esi")
-    public byte[] ESIContrast(@RequestParam int scid, @RequestParam String compare_scids,  @RequestParam String category_type, @RequestParam int signature) throws IOException {
+    public ResponseEntity ESIContrast(@RequestParam int scid, @RequestParam String compare_scids,  @RequestParam String category_type, @RequestParam int signature,HttpServletRequest request) throws IOException {
         if(signature==0){
             jigou_shuming="全部";
         }else if(signature==1){
@@ -472,10 +477,32 @@ public class ESIController {
         File tFile=new File(filePath+""+fileOnlyName);
         FileInputStream input = new FileInputStream(tFile);
         MultipartFile multipartFile = new MockMultipartFile("file", tFile.getName(), "text/plain", IOUtils.toByteArray(input));
-        String fileName= documentGenerationI.input(multipartFile);
-        byte[] bytes = documentGenerationI.downLoad(fileName);
-        System.out.println(fileName);
-        return bytes;
+        String fileName = documentGenerationI.input(multipartFile);
+        Gson gson = new Gson();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map = gson.fromJson(fileName, map.getClass());
+        String filename= (String) map.get("file");
+        byte[] bytes = documentGenerationI.downLoad(filename);
+        HttpHeaders headers = new HttpHeaders();
+        String disposition = StrUtil.format("attachment; filename=\"{}\"", filename);
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Content-Disposition", disposition);
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+       return   ResponseEntity.ok().contentLength(bytes.length)
+                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .headers(headers)
+                .body(bytes);
+
+//        FileObjModel fileObjModel = fileService.getFileToHbase("journalImage", filename);
+////        return ResponseEntity
+////                .ok()
+////                .headers(HttpHeaderUtil.buildHttpHeaders(filename,request ))
+////                .contentLength(fileObjModel.getFileByte().length)
+////                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+////                .body(fileObjModel.getFileByte());
+
     }
 
     private void CreateTu() {

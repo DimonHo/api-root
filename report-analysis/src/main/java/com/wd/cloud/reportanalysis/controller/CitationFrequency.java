@@ -1,6 +1,8 @@
 package com.wd.cloud.reportanalysis.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.setting.Setting;
+import com.google.gson.Gson;
 import com.wd.cloud.reportanalysis.entity.school.School;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
@@ -18,6 +20,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,7 +89,7 @@ public class CitationFrequency {
     private String fileOnlyName; //文件唯一名称
     StringBuffer sb=null;
     @RequestMapping("/frequency")
-    public byte[] CitationFrequency (@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException {
+    public ResponseEntity CitationFrequency (@RequestParam String act, @RequestParam String table, @RequestParam int scid, @RequestParam String compare_scids, @RequestParam String time, @RequestParam String source, @RequestParam int signature) throws IOException {
 
         if(signature==0){
             jigou_shuming="全部";
@@ -193,7 +198,7 @@ public class CitationFrequency {
         sb.append("_");
         sb.append(r.nextInt(100));
 
-        Setting setting = new Setting("word",true);
+        Setting setting = new Setting("word/",true);
         String settingPath = setting.getSettingPath();
         this.settingPath=settingPath;
         //文件路径
@@ -212,9 +217,24 @@ public class CitationFrequency {
         FileInputStream input = new FileInputStream(tFile);
         MultipartFile multipartFile = new MockMultipartFile("file", tFile.getName(), "text/plain", IOUtils.toByteArray(input));
         String fileName= documentGenerationI.input(multipartFile);
-        byte[] bytes = documentGenerationI.downLoad(fileName);
         System.out.println(fileName);
-        return bytes;
+        Gson gson = new Gson();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map = gson.fromJson(fileName, map.getClass());
+        String filename= (String) map.get("file");
+        byte[] bytes = documentGenerationI.downLoad(filename);
+        HttpHeaders headers = new HttpHeaders();
+        String disposition = StrUtil.format("attachment; filename=\"{}\"", filename);
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Content-Disposition", disposition);
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return   ResponseEntity.ok().contentLength(bytes.length)
+                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .headers(headers)
+                .body(bytes);
+
     }
 
     public int getMax_year_paper(@RequestParam int scid) {
