@@ -1,4 +1,4 @@
-package com.wd.cloud.discovery;
+package com.wd.cloud.eurekaserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
