@@ -1,13 +1,15 @@
 package com.wd.cloud.reportanalysis;
 
-import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
+import com.spring4all.swagger.EnableSwagger2Doc;
+
+
 @EnableSwagger2Doc
-@EnableFeignClients(basePackages = {"com.wd.cloud.apifeign"})
 @SpringCloudApplication
+@EnableFeignClients(basePackages = {"com.wd.cloud.apifeign"})
 public class ReportAnalysisApplication {
 
 	public static void main(String[] args) {

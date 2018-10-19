@@ -27,54 +27,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class EsTest {
 	
-	@Autowired
-	TransportClient client;
 	
 	@Test
 	public void test() {
 		
-		try {
-			String field = "wosCites";
-			
-			/**总被引频次   wosCitesAll*/
-//			TermsAggregationBuilder termsBuilders = AggregationBuilders.terms(field).field("year").size(Integer.MAX_VALUE).order(Terms.Order.term(false));
-//			SearchRequestBuilder searchRequest = client.prepareSearch("resource").setTypes("resourcelabel").addAggregation(termsBuilders)	;
-//			SearchResponse searchResponse = searchRequest.execute().actionGet();
-//			Terms yearTerms = null;
-//			yearTerms = (StringTerms) searchResponse.getAggregations().get(field);
-//			Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> iter = (Iterator<Bucket>) yearTerms.getBuckets().iterator();
-//			while(iter.hasNext()){
-//				Map<String, Object> json = new LinkedMap(); 
-//				org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket collegeBucket = iter.next();
-//				long yearCount = collegeBucket.getDocCount();
-//				System.out.println(collegeBucket.getKey() + "count:" + yearCount);
-//			}
-			
-			/**篇均被引频次   wosCites*/
-			TermsAggregationBuilder termsBuilders = AggregationBuilders.terms(field).field("year").size(Integer.MAX_VALUE).order(Terms.Order.term(false));
-			AggregationBuilder termsBuilder = AggregationBuilders.sum("wosCites").field("wosCites");
-			termsBuilders.subAggregation(termsBuilder);
-			SearchRequestBuilder searchRequest = client.prepareSearch("resource").setTypes("resourcelabel").addAggregation(termsBuilders)	;
-			SearchResponse searchResponse = searchRequest.execute().actionGet();
-			Terms yearTerms = null;
-			yearTerms = (StringTerms) searchResponse.getAggregations().get(field);
-			Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> iter = (Iterator<Bucket>) yearTerms.getBuckets().iterator();
-			while(iter.hasNext()){
-				Map<String, Object> json = new LinkedMap(); 
-				org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket collegeBucket = iter.next();
-				
-				double value = 0;
-				InternalSum pvTerms = (InternalSum) collegeBucket.getAggregations().asMap().get("wosCites");
-				value = pvTerms.getValue();  
-				long yearCount = collegeBucket.getDocCount();
-				double dou = value/yearCount;
-				dou = (double)Math.round(dou*100)/100;
-				System.out.println(collegeBucket.getKey() + ";val = " + value + "count:" + yearCount + "avg:" + dou);
-			}
 		
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }
