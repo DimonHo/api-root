@@ -15,7 +15,8 @@
         <module>commons</module><!--提取的公共方法和类-->
         <module>api-feign</module><!--内部互调接口定义-->
         <module>config-server</module><!--配置中心-->
-        <module>discovery</module><!--服务注册中心-->
+        <module>eureka-server</module><!--服务注册中心-->
+        <module>zipkin-server</module><!--链路追踪服务-->
         <module>api-gateway</module><!--api网关-->
         <module>monitoring</module><!-- 监控模块 -->
         <module>auth-server</module><!--鉴权服务-->

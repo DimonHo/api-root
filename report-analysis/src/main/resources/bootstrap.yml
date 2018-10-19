@@ -3,9 +3,7 @@ spring:
     name: report-analysis
   profiles:
     active: dev
-server:
-  port: 8083
- # cloud:
- #   config:
- #     uri: http://192.168.1.7:8888
- #     enabled: true
+  cloud:
+    config:
+      uri: http://192.168.1.7:8888
+      enabled: true

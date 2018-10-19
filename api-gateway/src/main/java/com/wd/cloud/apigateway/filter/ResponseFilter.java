@@ -1,25 +1,27 @@
 package com.wd.cloud.apigateway.filter;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
+import java.io.InputStream;
 
 /**
  * @author He Zhigang
- * @date 2018/5/10
+ * @date 2018/10/10
  * @Description:
  */
-public class AuthFilter extends ZuulFilter {
+@Component
+public class ResponseFilter extends ZuulFilter {
     private static final Log log = LogFactory.get();
 
     @Override
     public String filterType() {
-        return "pre";
+        return "post";
     }
 
     @Override
@@ -34,10 +36,12 @@ public class AuthFilter extends ZuulFilter {
 
     @Override
     public Object run() throws ZuulException {
-        HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
-        Principal principal = request.getUserPrincipal();
-        String userName = principal == null ? null : principal.getName();
-        log.info("用户：{}", userName);
+        InputStream stream = RequestContext.getCurrentContext().getResponseDataStream();
+        String body = IoUtil.read(stream, "UTF-8");
+        log.info("http响应::> {}", body);
+        RequestContext.getCurrentContext().setResponseBody(body);
+
         return null;
     }
+
 }

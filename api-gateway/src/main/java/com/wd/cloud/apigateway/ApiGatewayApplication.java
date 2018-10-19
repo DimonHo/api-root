@@ -3,6 +3,7 @@ package com.wd.cloud.apigateway;
 import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,6 +15,7 @@ import org.springframework.web.filter.CorsFilter;
  * @date 2018-05-04
  */
 @EnableSwagger2Doc
+@RefreshScope
 @EnableZuulProxy
 @SpringCloudApplication
 public class ApiGatewayApplication {

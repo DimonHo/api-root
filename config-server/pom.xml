@@ -23,16 +23,8 @@
             <artifactId>spring-cloud-config-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.spring4all</groupId>
-            <artifactId>swagger-spring-boot-starter</artifactId>
+            <groupId>com.wd.cloud</groupId>
+            <artifactId>api-feign</artifactId>
         </dependency>
     </dependencies>
 

@@ -2,10 +2,10 @@ package com.wd.cloud.resourcesserver.controller;
 
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.commons.util.HttpHeaderUtil;
 import com.wd.cloud.resourcesserver.model.FileObjModel;
 import com.wd.cloud.resourcesserver.service.FileService;
 import com.wd.cloud.resourcesserver.util.FileUtil;
-import com.wd.cloud.resourcesserver.util.HttpHeaderUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -78,7 +78,7 @@ public class HbaseController {
         if (fileObjModel.getFileByte() != null) {
             return ResponseEntity
                     .ok()
-                    .headers(HttpHeaderUtil.buildHttpHeaders(fileName, request))
+                    .headers(HttpHeaderUtil.buildBroserFileHttpHeaders(fileName, request))
                     .contentLength(fileObjModel.getFileByte().length)
                     .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
                     .body(fileObjModel.getFileByte());

@@ -1,4 +1,4 @@
-package com.wd.cloud.resourcesserver.util;
+package com.wd.cloud.commons.util;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
@@ -14,7 +14,15 @@ import java.io.UnsupportedEncodingException;
  */
 public class HttpHeaderUtil {
 
-    public static HttpHeaders buildHttpHeaders(String fileName, HttpServletRequest request) throws UnsupportedEncodingException {
+    /**
+     * 浏览器文件下载httpHeader构建
+     *
+     * @param fileName
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static HttpHeaders buildBroserFileHttpHeaders(String fileName, HttpServletRequest request) throws UnsupportedEncodingException {
         //判断是否是IE浏览器，对文件名进行编码，防止乱码
         if (request.getHeader("user-agent").toLowerCase().contains("msie")) {
             fileName = URLUtil.encode(fileName, "UTF-8");
@@ -30,7 +38,14 @@ public class HttpHeaderUtil {
         return headers;
     }
 
-    public static HttpHeaders buildHttpHeaders(String fileName) throws UnsupportedEncodingException {
+    /**
+     * API文件下载httpHeader构建
+     *
+     * @param fileName
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static HttpHeaders buildApiFileHttpHeaders(String fileName) throws UnsupportedEncodingException {
         HttpHeaders headers = new HttpHeaders();
         String disposition = StrUtil.format("attachment; filename=\"{}\"", fileName);
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
