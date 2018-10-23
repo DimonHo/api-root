@@ -41,6 +41,7 @@ import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.DecimalFormat;
@@ -357,13 +358,17 @@ public class BrowseController {
      *
      * @return
      */
-    @RequestMapping("/visitHistoryInfo/{school}/{val}/{ip}/{refererUrl}/{type}")
-    public List<Map<String, Object>> visitHistoryInfo(@PathVariable String school,
-                                                      @PathVariable String val,
-                                                      @PathVariable String ip,
-                                                      @PathVariable String refererUrl,
-                                                      @PathVariable String type) {
+    @RequestMapping("/visitHistoryInfo/")
+    public List<Map<String, Object>> visitHistoryInfo(@RequestParam String school,
+                                                      @RequestParam String val,
+                                                      @RequestParam String ip,
+                                                      @RequestParam String refererUrl,
+                                                      @RequestParam String type,
+                                                      @RequestParam Integer page,
+                                                      @RequestParam Integer size) {
         SearchResponse searchResponse = null;
+        SystemContext.setOffset(page * size);
+        SystemContext.setPageSize(size);
         BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
         //构建查询请求
         SearchRequestBuilder requestBuilder = transportClient.prepareSearch(EsKey.BROWSE_INDEX).setTypes(EsKey.BROWSE_TYPE);
@@ -478,7 +483,6 @@ public class BrowseController {
                                      @PathVariable String time,
                                      Map<String, Object> data) {
         SearchResponse searchResponse = null;
-
         BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
         //构建查询请求
         QueryBuilder builder = QueryBuilders.termQuery("memberId", memberId);
@@ -521,17 +525,17 @@ public class BrowseController {
      * @param filed
      * @return
      */
-    @RequestMapping("/visitLan/{typesJson}/{school}/{beginTime}/{endTime}/{filed}/{offset}/{size}/{memberType}/{sort}/{dataType}")
+    @RequestMapping("/visitLan/{typesJson}/")
     public List<Map<String, Object>> visitLan(@PathVariable String typesJson,
-                                              @PathVariable String school,
-                                              @PathVariable String beginTime,
-                                              @PathVariable String endTime,
-                                              @PathVariable String filed,
-                                              @PathVariable int offset,
-                                              @PathVariable int size,
-                                              @PathVariable int memberType,
-                                              @PathVariable String sort,
-                                              @PathVariable String dataType) {
+                                              @RequestParam String school,
+                                              @RequestParam String beginTime,
+                                              @RequestParam String endTime,
+                                              @RequestParam String filed,
+                                              @RequestParam int offset,
+                                              @RequestParam int size,
+                                              @RequestParam int memberType,
+                                              @RequestParam String sort,
+                                              @RequestParam String dataType) {
         String[] types = JsonUtil.json2Obj(typesJson, String[].class);
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         try {
@@ -798,11 +802,11 @@ public class BrowseController {
     /**
      * 访问页面
      */
-    @RequestMapping("/visitPage/{beginTime}/{endTime}/{school}/{type}")
-    public List<Map<String, Object>> visitPage(@PathVariable String beginTime,
-                                               @PathVariable String endTime,
-                                               @PathVariable String school,
-                                               @PathVariable String type) {
+    @RequestMapping("/visitPage/")
+    public List<Map<String, Object>> visitPage(@RequestParam String beginTime,
+                                               @RequestParam String endTime,
+                                               @RequestParam String school,
+                                               @RequestParam String type) {
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         try {
             SearchResponse searchResponse = null;

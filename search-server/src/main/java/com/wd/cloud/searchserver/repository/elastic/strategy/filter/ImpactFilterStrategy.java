@@ -15,11 +15,17 @@ public class ImpactFilterStrategy implements FilterBuilderStrategyI {
     @Override
     public BoolQueryBuilder execute(BoolQueryBuilder boolFilterBuilder, Set<String> valueSet) {
         Iterator<String> ite = valueSet.iterator();
-        String value = ite.next();
         String field = null;
-        if (ite.hasNext()) {
-            field = ite.next();
-        } else {
+        String value = null;
+        while(ite.hasNext()) {
+            String val = ite.next();
+            if(val.contains("|")) {
+                field = val;
+            } else {
+                value = val;
+            }
+        }
+        if(field == null) {
             field = "9";
         }
         return boolFilterBuilder.filter(new RangeQueryBuilder("sort." + field).from(Double.parseDouble(value)));
