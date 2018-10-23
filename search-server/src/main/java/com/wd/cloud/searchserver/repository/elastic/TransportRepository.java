@@ -6,6 +6,8 @@ import com.wd.cloud.searchserver.util.SystemContext;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.MultiSearchRequestBuilder;
+import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -16,16 +18,18 @@ import org.elasticsearch.index.engine.DocumentMissingException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -216,9 +220,52 @@ public class TransportRepository implements ElasticRepository {
             searchRequest.addAggregation(aggregation);
         }
         SearchResponse response = searchRequest.setFrom(SystemContext.getOffset())
-                .setSize(SystemContext.getPageSize())
+                .setSize(SystemContext.getPageSize()).setPreference("_primary")
                 .get();
-        return ResponseModel.ok(response);
+
+        MultiSearchRequestBuilder multiSearchRequestBuilder = transportClient.prepareMultiSearch();
+        searchRequest.setFrom(SystemContext.getOffset())
+                .setSize(SystemContext.getPageSize());
+        multiSearchRequestBuilder.add(searchRequest);
+        // 执行mutilSearch
+        MultiSearchResponse multiSearchResponse = multiSearchRequestBuilder.execute().actionGet();
+        MultiSearchResponse.Item[] itemArr = multiSearchResponse.getResponses();
+
+        convertDocList(response);
+        return ResponseModel.ok(itemArr[0].getResponse());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Map<String, Object>> convertDocList(
+            SearchResponse searchResponse) {
+        List<Map<String, Object>> datas = null;
+        SearchHits searchHits = searchResponse.getHits();
+        SearchHit[] hitArr = searchHits.getHits();
+        if (null != hitArr && hitArr.length > 0) {
+            datas = new ArrayList<Map<String, Object>>(hitArr.length);
+            for (SearchHit hit : hitArr) {
+                Map<String, Object> source = hit.getSource();
+                source.put("_id", hit.getId());
+                // 获取高亮值
+                Map<String, HighlightField> hightLightMap = hit
+                        .getHighlightFields();
+                Set<String> keySet = hightLightMap.keySet();
+                String value = null;
+                for (String highlightField : keySet) {
+                    HighlightField highlightValue = hightLightMap
+                            .get(highlightField);
+                    value = highlightValue.fragments()[0].string();
+                    // 将高亮值也放入source中，高亮值的字段名必须符合命名规范(原字段名_highlight)
+                    source.put(highlightField, value);
+                }
+
+                datas.add(source);
+            }
+        } else {
+            datas = Collections.EMPTY_LIST;
+        }
+
+        return datas;
     }
 
     /**
@@ -227,14 +274,5 @@ public class TransportRepository implements ElasticRepository {
      * @param jguid
      * @return
      */
-//	@Override
-//    public boolean checkZtfxExists(String index, String type,String jguid) {
-//        QueryBuilder queryBuilder = QueryBuilders.termQuery("JGuid", jguid);
-//        SearchResponse resp = client.prepareSearch(index).setTypes(type).setQuery(queryBuilder).get();
-//        if (resp.getHits().getTotalHits() > 0) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
+
 }
