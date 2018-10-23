@@ -5,7 +5,7 @@ import cn.hutool.log.LogFactory;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-import com.wd.cloud.commons.model.SessionKey;
+import com.wd.cloud.commons.constant.SessionConstant;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -39,7 +39,7 @@ public class AuthFilter extends ZuulFilter {
         Principal principal = request.getUserPrincipal();
         String userName = principal == null ? null : principal.getName();
         log.info("用户名：{}", userName);
-        log.info("用户session:{}", request.getSession().getAttribute(SessionKey.LOGIN_USER));
+        log.info("用户session:{}", request.getSession().getAttribute(SessionConstant.LOGIN_USER));
         return null;
     }
 }

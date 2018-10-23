@@ -3,8 +3,8 @@ package com.wd.cloud.authserver.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.wd.cloud.authserver.entity.User;
 import com.wd.cloud.authserver.service.AuthService;
+import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.model.SessionKey;
 import com.wd.cloud.commons.vo.UserVo;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +33,13 @@ public class AuthController {
         User user = authService.loing(username, pwd);
         UserVo userVo = new UserVo();
         BeanUtil.copyProperties(user, userVo);
-        request.getSession().setAttribute(SessionKey.LOGIN_USER, userVo);
-        return ResponseModel.ok(userVo);
+        request.getSession().setAttribute(SessionConstant.LOGIN_USER, userVo);
+        return ResponseModel.ok().body(userVo);
     }
 
     @GetMapping("/index")
     public ResponseModel index(HttpServletRequest request) {
         String sessionId = request.getSession().getId();
-        return ResponseModel.ok("sessionId: " + sessionId);
+        return ResponseModel.ok().body("sessionId: " + sessionId);
     }
 }

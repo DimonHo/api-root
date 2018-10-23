@@ -51,7 +51,7 @@ public class SearchServiceImpl implements SearchServiceI {
         List<AbstractAggregationBuilder> aggregationList = SearchRequestUtil.buildFacetCondition(searchCondition, Collections.EMPTY_LIST);
         SortBuilder sortBuilder = sortBulider.getSortBuilde(searchCondition);
         ResponseModel res = transportRepository.query(Comm.Journal_INDEX, Comm.Journal_TYPE_TITLES, queryBuilder, filterBuilder, sortBuilder, aggregationList);
-        SearchResponse response = (SearchResponse) res.getBody();
+        SearchResponse response = (SearchResponse) res.body();
         List<Map<String, Object>> docList = JournalResultConvertUtil.convertDocList(response);
         searchResult.setDatas(docList);
         searchResult.setTotal(response.getHits().getTotalHits());
@@ -82,7 +82,7 @@ public class SearchServiceImpl implements SearchServiceI {
         List<AbstractAggregationBuilder> aggregationList = SearchRequestUtil.buildFacetCondition(disciplineSystemFacetSearchCondition, Arrays.asList("dbYearDiscipline"));
         SortBuilder sortBuilder = sortBulider.getSortBuilde(disciplineSystemFacetSearchCondition);
         ResponseModel disciplineSystemRes = transportRepository.query(Comm.Journal_INDEX, Comm.Journal_TYPE_DISCIPLINE, queryBuilder, filterBuilder, sortBuilder, aggregationList);
-        Map<String, Map<String, String>> facetMap = JournalResultConvertUtil.convertFacet((SearchResponse) disciplineSystemRes.getBody());
+        Map<String, Map<String, String>> facetMap = JournalResultConvertUtil.convertFacet((SearchResponse) disciplineSystemRes.body());
         return facetMap;
     }
 
@@ -101,7 +101,7 @@ public class SearchServiceImpl implements SearchServiceI {
         SortBuilder sortBuilder = sortBulider.getSortBuilde(searchCondition);
 
         ResponseModel res = transportRepository.query(Comm.Journal_INDEX, Comm.Journal_TYPE_DISCIPLINE, queryBuilder, filterBuilder, sortBuilder, aggregationList);
-        SearchResponse response = (SearchResponse) res.getBody();
+        SearchResponse response = (SearchResponse) res.body();
         List<Map<String, Object>> docList = JournalResultConvertUtil.convertDocList(response);
         searchResult.setDatas(docList);
         searchResult.setTotal(response.getHits().getTotalHits());
@@ -111,7 +111,7 @@ public class SearchServiceImpl implements SearchServiceI {
     @Override
     public Map<String, Object> getDoc(String id) {
         ResponseModel<GetResponse> responseModel = transportRepository.getDocById(Comm.Journal_INDEX, Comm.Journal_TYPE_TITLES, id);
-        GetResponse resp = responseModel.getBody();
+        GetResponse resp = responseModel.body();
         Map<String, Object> doc = resp.getSource();
         doc.put("_id", id);
         Map<String, ShouluMap> map = DetailParserUtil.parseShoulu((List<Map<String, Object>>) doc.get("shouLu"));

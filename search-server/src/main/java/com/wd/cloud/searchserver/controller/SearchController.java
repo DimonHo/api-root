@@ -197,7 +197,7 @@ public class SearchController {
     public ResponseModel subjectJSON(HttpServletRequest request,
                                      String db, String year) {
         if (StringUtils.isBlank(db) || StringUtils.isBlank(year)) {
-            return ResponseModel.ok(JSONArray.fromObject(new String[]{}));
+            return ResponseModel.ok().body(JSONArray.fromObject(new String[]{}));
         }
         SearchCondition condition = new SearchCondition();
         condition.setSearchComponentFlag("subject_system_search");
@@ -215,7 +215,7 @@ public class SearchController {
                 return p1.compareTo(p2);
             }
         });
-        return ResponseModel.ok(JSONArray.fromObject(datas));
+        return ResponseModel.ok().body(JSONArray.fromObject(datas));
     }
 
 

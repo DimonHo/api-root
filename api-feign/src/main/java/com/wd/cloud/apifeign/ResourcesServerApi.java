@@ -142,7 +142,7 @@ public interface ResourcesServerApi {
 
         @Override
         public ResponseModel<JSONObject> uploadFileToHf(String tableName, String fileName, boolean rename, MultipartFile file) {
-            return ResponseModel.serverErr("服务调用失败");
+            return ResponseModel.fail();
         }
 
         @Override
@@ -154,7 +154,7 @@ public interface ResourcesServerApi {
 
         @Override
         public ResponseModel<JSONObject> uploadFileToDf(String dir, String fileName, boolean rename, MultipartFile file) {
-            return ResponseModel.serverErr("服务调用失败");
+            return ResponseModel.fail();
         }
 
         @Override
@@ -166,12 +166,12 @@ public interface ResourcesServerApi {
 
         @Override
         public ResponseModel<byte[]> getFileByteToHf(String tableName, String fileName) {
-            return ResponseModel.serverErr("服务调用失败");
+            return ResponseModel.fail();
         }
 
         @Override
         public ResponseModel<byte[]> getFileByteToDf(String dir, String fileName) {
-            return ResponseModel.serverErr("服务调用失败");
+            return ResponseModel.fail();
         }
     }
 }

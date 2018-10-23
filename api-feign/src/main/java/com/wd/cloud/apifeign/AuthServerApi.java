@@ -28,7 +28,7 @@ public interface AuthServerApi {
     class HystrixCalculatorService implements AuthServerApi {
         @Override
         public ResponseModel<UserVo> getUserInfo(@PathVariable(value = "userId") Long userId) {
-            return ResponseModel.serverErr("服务不可用");
+            return ResponseModel.fail();
         }
     }
 }

@@ -56,13 +56,13 @@ public class HbaseController {
             fileName = FileUtil.buildFileName(fileName, rename, file);
             boolean flag = fileService.saveToHbase(tableName, fileName, file);
             if (!flag) {
-                return ResponseModel.serverErr("上传失败，请重试...");
+                return ResponseModel.serverError();
             }
             jsonObject.put("file", fileName);
         } catch (IOException e) {
-            return ResponseModel.serverErr("上传失败，请重试...");
+            return ResponseModel.fail(e);
         }
-        return ResponseModel.ok("上传成功", jsonObject);
+        return ResponseModel.ok().body(jsonObject);
     }
 
     @ApiOperation(value = "下载")

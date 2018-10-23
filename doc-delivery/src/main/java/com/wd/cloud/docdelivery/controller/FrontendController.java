@@ -1,12 +1,13 @@
 package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.apifeign.ResourcesServerApi;
-import com.wd.cloud.commons.model.HttpStatus;
+import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.model.SessionKey;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -92,7 +93,9 @@ public class FrontendController {
             literatureData = frontService.saveLiterature(literature);
         }
         if (frontService.checkExists(helpEmail, literatureData)) {
-            return ResponseModel.clientErr("error:您最近15天内已求助过这篇文献,请注意查收邮箱");
+            return ResponseModel
+                    .fail(StatusEnum.DOC_HELP_REPEATED)
+                    .message("error:您最近15天内已求助过这篇文献,请注意查收邮箱");
         }
         helpRecord.setLiterature(literatureData);
         DocFile docFile = frontService.getReusingFile(literatureData);
@@ -122,10 +125,12 @@ public class FrontendController {
                 // 保存求助记录
                 frontService.saveHelpRecord(helpRecord);
             } catch (Exception e) {
-                return ResponseModel.clientErr("error:主键冲突!");
+                return ResponseModel
+                        .fail(StatusEnum.DB_PRIMARY_EXCEPTION)
+                        .message(msg);
             }
         }
-        return ResponseModel.ok(msg);
+        return ResponseModel.ok().message(msg);
     }
 
     /**
@@ -139,7 +144,7 @@ public class FrontendController {
     public ResponseModel helpWaitList(@PathVariable int helpChannel,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> waitHelpRecords = frontService.getWaitHelpRecords(helpChannel, pageable);
-        return ResponseModel.ok(waitHelpRecords);
+        return ResponseModel.ok().body(waitHelpRecords);
     }
 
     /**
@@ -155,7 +160,7 @@ public class FrontendController {
     public ResponseModel helpSuccessList(@PathVariable Integer helpChannel,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
-        return ResponseModel.ok(finishHelpRecords);
+        return ResponseModel.ok().body(finishHelpRecords);
     }
 
     /**
@@ -171,7 +176,7 @@ public class FrontendController {
                                    @PageableDefault(sort = {"gmtCreate"},
                                            direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> myHelpRecords = frontService.getHelpRecordsForUser(helperId, pageable);
-        return ResponseModel.ok(myHelpRecords);
+        return ResponseModel.ok().body(myHelpRecords);
     }
 
     @ApiOperation(value = "获取用户当天已求助记录的数量")
@@ -202,15 +207,19 @@ public class FrontendController {
         HelpRecord helpRecord = frontService.getWaitOrThirdHelpRecord(helpRecordId);
         // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
         if (helpRecord == null) {
-            return ResponseModel.clientErr("该求助已经被其它人应助", helpRecord);
+            return ResponseModel
+                    .fail(StatusEnum.DOC_OTHER_GIVING)
+                    .body(helpRecord);
         }
         //检查用户是否已经认领了应助
         String docTitle = frontService.checkExistsGiveing(giverId);
         if (docTitle != null) {
-            return ResponseModel.error("请先完成您正在应助的文献：" + docTitle);
+            return ResponseModel
+                    .fail(StatusEnum.DOC_FINISH_GIVING)
+                    .message("请先完成您正在应助的文献:"+docTitle);
         }
         helpRecord = frontService.givingHelp(helpRecordId, giverId, giverName, HttpUtil.getClientIP(request));
-        return ResponseModel.ok(helpRecord);
+        return ResponseModel.ok().body(helpRecord);
     }
 
     /**
@@ -234,7 +243,7 @@ public class FrontendController {
             frontService.cancelGivingHelp(helpRecordId, giverId);
             return ResponseModel.ok();
         }
-        return ResponseModel.notFound();
+        return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }
 
     /**
@@ -254,28 +263,28 @@ public class FrontendController {
                                 @NotNull MultipartFile file,
                                 HttpServletRequest request) {
         if (file == null) {
-            return ResponseModel.error("请选择上传文件");
+            return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
         } else if (!globalConfig.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
-            return ResponseModel.error("不支持的文件类型");
+            return ResponseModel.fail(StatusEnum.DOC_FILE_TYPE_ERROR);
         }
         // 检查求助记录状态是否为HelpStatusEnum.HELPING
         HelpRecord helpRecord = frontService.getHelpingRecord(helpRecordId);
         if (helpRecord == null) {
-            return ResponseModel.notFound("没有这个求助或求助已完成");
+            return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
         //保存文件
         DocFile docFile = null;
         ResponseModel<JSONObject> fileModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
-        log.info("code={}:msg={}:body={}", fileModel.getCode(), fileModel.getMsg(), fileModel.getBody().toString());
-        if (fileModel.getCode() != HttpStatus.HTTP_OK) {
-            return ResponseModel.serverErr("文件上传失败，请重试");
+        log.info("code={}:msg={}:body={}", fileModel.status(), fileModel.message(), fileModel.body().toString());
+        if (fileModel.status() != StatusEnum.OK.value()) {
+            return ResponseModel.fail().message("文件上传失败，请重试");
         }
-        String filename = fileModel.getBody().getStr("file");
+        String filename = fileModel.body().getStr("file");
         docFile = frontService.saveDocFile(helpRecord.getLiterature(), filename);
 
         //更新记录
         frontService.createGiveRecord(helpRecord, giverId, docFile, HttpUtil.getClientIP(request));
-        return ResponseModel.ok("应助成功，感谢您的帮助");
+        return ResponseModel.ok().message("应助成功，感谢您的帮助");
     }
 
 
@@ -291,7 +300,7 @@ public class FrontendController {
     public ResponseModel recordsByEmail(@RequestParam String email,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> helpRecords = frontService.getHelpRecordsForEmail(email, pageable);
-        return ResponseModel.ok(helpRecords);
+        return ResponseModel.ok().body(helpRecords);
     }
 
     @ApiOperation(value = "邮箱或标题查询记录")
@@ -300,7 +309,7 @@ public class FrontendController {
     public ResponseModel recordsBySearch(@RequestParam String keyword, @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> helpRecords = frontService.search(keyword, pageable);
 
-        return ResponseModel.ok(helpRecords);
+        return ResponseModel.ok().body(helpRecords);
     }
 
     /**
@@ -311,7 +320,7 @@ public class FrontendController {
 
     @GetMapping("/help/records/all")
     public ResponseModel allRecords(@PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) {
-        return ResponseModel.ok(request.getSession().getAttribute(SessionKey.LOGIN_USER));
+        return ResponseModel.ok().body(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
     }
 
 }

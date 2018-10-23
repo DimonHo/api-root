@@ -30,7 +30,7 @@ public class UserInfoController {
         User user = userInfoService.getUserInfo(id);
         UserVo userVo = new UserVo();
         BeanUtil.copyProperties(user, userVo);
-        return ResponseModel.ok(userVo);
+        return ResponseModel.ok().body(userVo);
     }
 
 

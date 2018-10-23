@@ -25,7 +25,7 @@ public class DicController {
     @GetMapping("/audit/msg")
     public ResponseModel auditMsgs() {
         List<AuditMsg> auditMsgs = auditMsgRepository.findAll();
-        return ResponseModel.ok(auditMsgs);
+        return ResponseModel.ok().body(auditMsgs);
     }
 
 

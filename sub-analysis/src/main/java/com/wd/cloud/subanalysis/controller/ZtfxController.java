@@ -24,7 +24,7 @@ public class ZtfxController {
 
         JSONObject pageResult = ztfxService.getZtpc(id, startYear, endYear);
 
-        return ResponseModel.ok(pageResult);
+        return ResponseModel.ok().body(pageResult);
     }
 
     /**
@@ -40,7 +40,7 @@ public class ZtfxController {
         endYear = calendar.get(Calendar.YEAR) - 1;
         JSONObject pageResult = ztfxService.getFwqs(id, startYear, endYear);
 
-        return ResponseModel.ok(pageResult);
+        return ResponseModel.ok().body(pageResult);
 
     }
 
@@ -53,7 +53,7 @@ public class ZtfxController {
         endYear = calendar.get(Calendar.YEAR) - 1;
         JSONObject pageResult = ztfxService.getTfzt(id, startYear, endYear);
 
-        return ResponseModel.ok(pageResult);
+        return ResponseModel.ok().body(pageResult);
     }
 
 
@@ -65,14 +65,14 @@ public class ZtfxController {
         Calendar calendar = Calendar.getInstance();
         endYear = calendar.get(Calendar.YEAR) - 1;
         JSONObject pageResult = ztfxService.getMoreFwqsForKey(keyword, startYear, endYear);
-        return ResponseModel.ok(pageResult);
+        return ResponseModel.ok().body(pageResult);
     }
 
 
     @GetMapping("/fwqk/{keyword}")
     public ResponseModel<JSONObject> fwqk(@PathVariable String keyword) {
         JSONObject pageResult = ztfxService.getFwqk(keyword);
-        return ResponseModel.ok(pageResult);
+        return ResponseModel.ok().body(pageResult);
     }
 
     @GetMapping("/getDocForKey/{jguid}")
@@ -80,17 +80,17 @@ public class ZtfxController {
                                                            @RequestParam String keyword) {
 
         List<DocForKeyword> docForKeywords = ztfxService.getDocForKeyword(jguid, keyword);
-        return ResponseModel.ok(docForKeywords);
+        return ResponseModel.ok().body(docForKeywords);
     }
 
     @GetMapping("/isExists/{jguid}")
     public ResponseModel<Boolean> isExists(@PathVariable String jguid) {
-        return ResponseModel.ok(ztfxService.checkZtfxExists(jguid));
+        return ResponseModel.ok().body(ztfxService.checkZtfxExists(jguid));
     }
 
     @GetMapping("/hotKeywords")
     public ResponseModel<List<String>> hotKeywords(@RequestParam String queryName) {
         List<String> result = ztfxService.hotKeywords(queryName);
-        return ResponseModel.ok(result);
+        return ResponseModel.ok().body(result);
     }
 }

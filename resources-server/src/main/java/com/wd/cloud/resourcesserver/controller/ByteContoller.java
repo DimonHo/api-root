@@ -1,5 +1,6 @@
 package com.wd.cloud.resourcesserver.controller;
 
+import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.resourcesserver.model.FileObjModel;
 import com.wd.cloud.resourcesserver.service.FileService;
@@ -35,9 +36,9 @@ public class ByteContoller {
                                                  @RequestParam String fileName) {
         FileObjModel fileObjModel = fileService.getFileToHbase(tableName, fileName);
         if (fileObjModel.getFileByte() != null) {
-            return ResponseModel.ok(fileObjModel.getFileByte());
+            return ResponseModel.ok().body(fileObjModel.getFileByte());
         } else {
-            return ResponseModel.notFound();
+            return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }
     }
 
@@ -51,9 +52,9 @@ public class ByteContoller {
                                                  @RequestParam String fileName) {
         FileObjModel fileObjModel = fileService.getFileToDisk(dir, fileName);
         if (fileObjModel.getFileByte() != null) {
-            return ResponseModel.ok(fileObjModel.getFileByte());
+            return ResponseModel.ok().body(fileObjModel.getFileByte());
         } else {
-            return ResponseModel.notFound();
+            return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }
     }
 }
