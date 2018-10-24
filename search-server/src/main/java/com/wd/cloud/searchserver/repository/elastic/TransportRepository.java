@@ -104,26 +104,26 @@ public class TransportRepository implements ElasticRepository {
             createIndexRequest.mapping(type, mapping);
         }
         CreateIndexResponse response = transportClient.admin().indices().create(createIndexRequest).actionGet(2000);
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
     public ResponseModel<SearchResponse> matchAll(String index, String type) {
         SearchResponse response = transportClient.prepareSearch(index).setTypes(type).get();
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
     public ResponseModel<GetResponse> getDocById(String index, String type, String id) {
         GetResponse response = transportClient.prepareGet(index, type, id).get();
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
     public ResponseModel updateFieldById(String index, String type, String id, Map<String, Object> fieldMap) {
         try {
             RestStatus response = transportClient.prepareUpdate(index, type, id).setDoc(fieldMap).get().status();
-            return ResponseModel.ok().body(response);
+            return ResponseModel.ok().setBody(response);
         } catch (DocumentMissingException e) {
             Console.log("Document：{}未找到", id);
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
@@ -135,7 +135,7 @@ public class TransportRepository implements ElasticRepository {
         ResponseModel responseModel = new ResponseModel();
         try {
             RestStatus restStatus = transportClient.update(updateRequest).get().status();
-            responseModel = ResponseModel.ok().body(restStatus);
+            responseModel = ResponseModel.ok().setBody(restStatus);
         } catch (InterruptedException e) {
             e.printStackTrace();
             // responseModel = ResponseModel.error(500, "InterruptedException");
@@ -175,7 +175,7 @@ public class TransportRepository implements ElasticRepository {
                 .setScroll(TimeValue.timeValueMillis(timeValue))
                 .setSize(batchSize)
                 .get();
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
@@ -184,7 +184,7 @@ public class TransportRepository implements ElasticRepository {
                 .setQuery(queryBuilder)
                 .setScroll(TimeValue.timeValueMillis(1000 * 60))
                 .get();
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
@@ -207,13 +207,13 @@ public class TransportRepository implements ElasticRepository {
                 .setScroll(TimeValue.timeValueMillis(1000 * 60))
                 .setSource(searchSourceBuilder)
                 .get();
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
     public ResponseModel<SearchResponse> scrollByScrollId(String scrollId, long scrollTime) {
         SearchResponse response = transportClient.prepareSearchScroll(scrollId).setScroll(TimeValue.timeValueMillis(scrollTime)).get();
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class TransportRepository implements ElasticRepository {
         SearchResponse response = searchRequest.setFrom(SystemContext.getOffset())
                 .setSize(SystemContext.getPageSize())
                 .get();
-        return ResponseModel.ok().body(response);
+        return ResponseModel.ok().setBody(response);
     }
 
     @Override
@@ -267,7 +267,7 @@ public class TransportRepository implements ElasticRepository {
         MultiSearchResponse.Item[] itemArr = multiSearchResponse.getResponses();
 
         convertDocList(response);
-        return ResponseModel.ok().body(itemArr[0].getResponse());
+        return ResponseModel.ok().setBody(itemArr[0].getResponse());
     }
 
     /**

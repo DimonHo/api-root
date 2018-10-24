@@ -66,7 +66,7 @@ public class IndexController {
         result.put("explain", explain);
         result.put("content", scidMap);
         System.out.println(result);
-        return ResponseModel.ok().body(result);
+        return ResponseModel.ok().setBody(result);
     }
 
 

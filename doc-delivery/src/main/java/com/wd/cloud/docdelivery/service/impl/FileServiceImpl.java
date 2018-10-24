@@ -68,7 +68,7 @@ public class FileServiceImpl implements FileService {
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
         ResponseModel<byte[]> fileByte = resourcesServerApi.getFileByteToHf(globalConfig.getHbaseTableName(), fileName);
-        downloadFileModel.setFileByte(fileByte.body());
+        downloadFileModel.setFileByte(fileByte.getBody());
         String ext = StrUtil.subAfter(fileName, ".", true);
         String downLoadFileName = docTitle + "." + ext;
         downloadFileModel.setDownloadFileName(downLoadFileName);

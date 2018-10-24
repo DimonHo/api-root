@@ -36,7 +36,7 @@ public class ByteContoller {
                                                  @RequestParam String fileName) {
         FileObjModel fileObjModel = fileService.getFileToHbase(tableName, fileName);
         if (fileObjModel.getFileByte() != null) {
-            return ResponseModel.ok().body(fileObjModel.getFileByte());
+            return ResponseModel.ok().setBody(fileObjModel.getFileByte());
         } else {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }
@@ -52,7 +52,7 @@ public class ByteContoller {
                                                  @RequestParam String fileName) {
         FileObjModel fileObjModel = fileService.getFileToDisk(dir, fileName);
         if (fileObjModel.getFileByte() != null) {
-            return ResponseModel.ok().body(fileObjModel.getFileByte());
+            return ResponseModel.ok().setBody(fileObjModel.getFileByte());
         } else {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }

@@ -81,7 +81,7 @@ public class SearchInterfaceController {
             searchResult.setDatas(null);
             resultList.add(searchResult);
         }
-        return ResponseModel.ok().body(resultList);
+        return ResponseModel.ok().setBody(resultList);
     }
 
     @RequestMapping("/searchInterface")
@@ -116,7 +116,7 @@ public class SearchInterfaceController {
             long end = System.currentTimeMillis();
             searchResult.setTime(end - start);
             String result = JSONObject.fromObject(searchResult).toString();
-            return ResponseModel.ok().body(result);
+            return ResponseModel.ok().setBody(result);
         } catch (Exception e) {
         }
         return ResponseModel.fail();
@@ -178,7 +178,7 @@ public class SearchInterfaceController {
             long end = System.currentTimeMillis();
             System.out.println(end - start);
             String result = JSONObject.fromObject(map).toString();
-            return ResponseModel.ok().body(result);
+            return ResponseModel.ok().setBody(result);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

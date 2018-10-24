@@ -34,12 +34,12 @@ public class AuthController {
         UserVo userVo = new UserVo();
         BeanUtil.copyProperties(user, userVo);
         request.getSession().setAttribute(SessionConstant.LOGIN_USER, userVo);
-        return ResponseModel.ok().body(userVo);
+        return ResponseModel.ok().setBody(userVo);
     }
 
     @GetMapping("/index")
     public ResponseModel index(HttpServletRequest request) {
         String sessionId = request.getSession().getId();
-        return ResponseModel.ok().body("sessionId: " + sessionId);
+        return ResponseModel.ok().setBody("sessionId: " + sessionId);
     }
 }

@@ -62,7 +62,7 @@ public class HbaseController {
         } catch (IOException e) {
             return ResponseModel.fail(e);
         }
-        return ResponseModel.ok().body(jsonObject);
+        return ResponseModel.ok().setBody(jsonObject);
     }
 
     @ApiOperation(value = "下载")

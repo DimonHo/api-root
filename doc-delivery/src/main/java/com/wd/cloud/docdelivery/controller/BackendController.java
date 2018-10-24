@@ -84,7 +84,7 @@ public class BackendController {
         param.put("beginTime", beginTime);
         param.put("endTime", endTime);
 
-        return ResponseModel.ok().body(backendService.getHelpList(pageable, param));
+        return ResponseModel.ok().setBody(backendService.getHelpList(pageable, param));
     }
 
 
@@ -104,7 +104,7 @@ public class BackendController {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("reusing", reusing);
         param.put("keyword", keyword);
-        return ResponseModel.ok().body(backendService.getLiteratureList(pageable, param));
+        return ResponseModel.ok().setBody(backendService.getLiteratureList(pageable, param));
     }
 
     /**
@@ -120,7 +120,7 @@ public class BackendController {
     public ResponseModel getDocFileList(@RequestParam Long literatureId,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseModel.ok().body(backendService.getDocFileList(pageable, literatureId));
+        return ResponseModel.ok().setBody(backendService.getDocFileList(pageable, literatureId));
     }
 
     /**
@@ -143,13 +143,13 @@ public class BackendController {
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
         ResponseModel<JSONObject> jsonObjectResponseModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
-        log.info("code={}:msg={}:body={}", jsonObjectResponseModel.status(), jsonObjectResponseModel.message(), jsonObjectResponseModel.body().toString());
-        if (jsonObjectResponseModel.status() != StatusEnum.OK.value()) {
+        log.info("code={}:msg={}:body={}", jsonObjectResponseModel.getStatus(), jsonObjectResponseModel.getMessage(), jsonObjectResponseModel.getBody().toString());
+        if (jsonObjectResponseModel.getStatus() != StatusEnum.OK.value()) {
             log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
-            return ResponseModel.fail().message("文件上传失败，请重试");
+            return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
         log.info("文件{}上传成功!", file.getOriginalFilename());
-        String fileName = jsonObjectResponseModel.body().getStr("file");
+        String fileName = jsonObjectResponseModel.getBody().getStr("file");
         docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileName);
 
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
@@ -172,7 +172,7 @@ public class BackendController {
         backendService.saveGiveRecord(giveRecord);
         String url = fileService.getDownloadUrl(helpRecord.getId());
         mailService.sendMail(helpRecord.getHelpChannel(), helpRecord.getHelperScname(), helpRecord.getHelperEmail(), helpRecord.getLiterature().getDocTitle(), url, HelpStatusEnum.HELP_SUCCESSED);
-        return ResponseModel.ok().message("文件上传成功");
+        return ResponseModel.ok().setMessage("文件上传成功");
     }
 
     /**
@@ -203,7 +203,7 @@ public class BackendController {
                 HelpStatusEnum.HELP_THIRD);
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
-        return ResponseModel.ok().message("已提交第三方处理，请耐心等待第三方应助结果");
+        return ResponseModel.ok().setMessage("已提交第三方处理，请耐心等待第三方应助结果");
     }
 
     /**
@@ -240,7 +240,7 @@ public class BackendController {
                 HelpStatusEnum.HELP_FAILED);
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
-        return ResponseModel.ok().message("处理成功");
+        return ResponseModel.ok().setMessage("处理成功");
     }
 
     /**
@@ -333,7 +333,7 @@ public class BackendController {
         if (result) {
             return ResponseModel.ok();
         } else {
-            return ResponseModel.fail().message("一篇文章不允许复用多个文档");
+            return ResponseModel.fail().setMessage("一篇文章不允许复用多个文档");
         }
     }
 

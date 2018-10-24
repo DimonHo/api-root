@@ -67,7 +67,7 @@ public class DiskController {
         } catch (IOException e) {
             return ResponseModel.fail(e);
         }
-        return ResponseModel.ok().body(jsonObject);
+        return ResponseModel.ok().setBody(jsonObject);
     }
 
 

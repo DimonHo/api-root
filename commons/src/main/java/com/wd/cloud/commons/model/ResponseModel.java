@@ -67,39 +67,39 @@ public class ResponseModel<T> implements Serializable {
         return new ResponseModel(StatusEnum.INTERNAL_SERVER_ERROR, true);
     }
 
-    public Integer status() {
-        return status;
-    }
-
-    public ResponseModel<T> status(Integer status) {
-        this.status = status;
-        return this;
-    }
-
-    public String message() {
-        return message;
-    }
-
-    public ResponseModel<T> message(String message) {
-        this.message = message;
-        return this;
-    }
-
-    public T body() {
-        return body;
-    }
-
-    public ResponseModel<T> body(T body) {
-        this.body = body;
-        return this;
-    }
-
     public boolean isError() {
         return error;
     }
 
     public ResponseModel<T> setError(boolean error) {
         this.error = error;
+        return this;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public ResponseModel<T> setStatus(Integer status) {
+        this.status = status;
+        return this;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public ResponseModel<T> setMessage(String message) {
+        this.message = message;
+        return this;
+    }
+
+    public T getBody() {
+        return body;
+    }
+
+    public ResponseModel<T> setBody(T body) {
+        this.body = body;
         return this;
     }
 }
