@@ -32,7 +32,7 @@ public class PublicFallBack implements FallbackProvider {
     public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
         if (cause != null && cause.getCause() != null) {
             String reason = cause.getCause().getMessage();
-            log.info("Excption {}", reason);
+            log.info("调用异常： {}", reason);
         }
         return fallbackResponse();
     }
@@ -62,8 +62,9 @@ public class PublicFallBack implements FallbackProvider {
             @Override
             public InputStream getBody() throws IOException {
                 JSONObject responseModel = new JSONObject();
+                responseModel.put("error", true);
                 responseModel.put("status", -1);
-                responseModel.put("message", "未知错误");
+                responseModel.put("message", "网关返回未知错误");
                 //返回前端的内容
                 return new ByteArrayInputStream(responseModel.toString().getBytes("UTF-8"));
             }

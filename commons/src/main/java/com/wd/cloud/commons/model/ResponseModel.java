@@ -1,8 +1,10 @@
 package com.wd.cloud.commons.model;
 
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.enums.StatusEnum;
 
 import java.io.Serializable;
+import java.util.StringJoiner;
 
 /**
  * @author He Zhigang
@@ -18,7 +20,8 @@ public class ResponseModel<T> implements Serializable {
     private String message;
     private T body;
 
-    public ResponseModel(){}
+    public ResponseModel() {
+    }
 
     private ResponseModel(Throwable e) {
         this.error = true;
@@ -101,5 +104,15 @@ public class ResponseModel<T> implements Serializable {
     public ResponseModel<T> setBody(T body) {
         this.body = body;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", ResponseModel.class.getSimpleName() + "[", "]")
+                .add("error=" + error)
+                .add("status=" + status)
+                .add("message='" + message + "'")
+                .add("body=" + JSONUtil.toJsonStr(body))
+                .toString();
     }
 }

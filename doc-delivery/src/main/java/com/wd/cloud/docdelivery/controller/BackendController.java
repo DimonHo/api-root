@@ -143,7 +143,7 @@ public class BackendController {
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
         ResponseModel<JSONObject> jsonObjectResponseModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
-        log.info("code={}:msg={}:body={}", jsonObjectResponseModel.getStatus(), jsonObjectResponseModel.getMessage(), jsonObjectResponseModel.getBody().toString());
+        log.info(jsonObjectResponseModel.toString());
         if (jsonObjectResponseModel.getStatus() != StatusEnum.OK.value()) {
             log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
             return ResponseModel.fail().setMessage("文件上传失败，请重试");

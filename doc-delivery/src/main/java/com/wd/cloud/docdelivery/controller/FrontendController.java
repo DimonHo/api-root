@@ -207,8 +207,7 @@ public class FrontendController {
         // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
         if (helpRecord == null) {
             return ResponseModel
-                    .fail(StatusEnum.DOC_OTHER_GIVING)
-                    .setBody(helpRecord);
+                    .fail(StatusEnum.DOC_OTHER_GIVING);
         }
         //检查用户是否已经认领了应助
         String docTitle = frontService.checkExistsGiveing(giverId);
@@ -274,7 +273,7 @@ public class FrontendController {
         //保存文件
         DocFile docFile = null;
         ResponseModel<JSONObject> fileModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
-        log.info("code={}:msg={}:body={}", fileModel.getStatus(), fileModel.getMessage(), fileModel.getBody().toString());
+        log.info(fileModel.toString());
         if (fileModel.getStatus() != StatusEnum.OK.value()) {
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
