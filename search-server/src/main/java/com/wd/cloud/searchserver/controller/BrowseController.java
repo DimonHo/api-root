@@ -7,7 +7,6 @@ import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -519,6 +518,7 @@ public class BrowseController {
      * 如果是comefrom（学校详细，必须有学校）filed：refererUrl
      * 如果是comefrom（学校列表）filed：schoolFlag
      * findRegion地域分布table表（必须有学校）filed：schoolProvince
+     *
      * @param school
      * @param beginTime
      * @param endTime
@@ -901,9 +901,9 @@ public class BrowseController {
     }
 
     @RequestMapping("/getDoc/{id}")
-    public Map<String, Object> getDoc(@PathVariable String id){
-        GetResponse resp=transportClient.prepareGet().setIndex(EsKey.DEFAULT_INDEX).setId(id).execute().actionGet();
-        Map<String, Object> doc=resp.getSource();
+    public Map<String, Object> getDoc(@PathVariable String id) {
+        GetResponse resp = transportClient.prepareGet().setIndex(EsKey.DEFAULT_INDEX).setId(id).execute().actionGet();
+        Map<String, Object> doc = resp.getSource();
         doc.put("_id", id);
         return doc;
     }
@@ -911,22 +911,21 @@ public class BrowseController {
     @RequestMapping("/getSuggest/{value}/{size}")
     public List<String> getSuggest(@PathVariable String value,
                                    @PathVariable int size) {
-        assert size>0;
-        SuggestBuilder suggestionsBuilder = new  SuggestBuilder();
+        assert size > 0;
+        SuggestBuilder suggestionsBuilder = new SuggestBuilder();
         suggestionsBuilder.addSuggestion("complete", SuggestBuilders.completionSuggestion("suggest").text(value).size(size));
-        SearchResponse resp  = transportClient.prepareSearch(EsKey.DEFAULT_INDEX).suggest(suggestionsBuilder).execute().actionGet();
+        SearchResponse resp = transportClient.prepareSearch(EsKey.DEFAULT_INDEX).suggest(suggestionsBuilder).execute().actionGet();
         List<String> result = new ArrayList<String>();
-        List<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>>  entries = resp.getSuggest().getSuggestion("complete").getEntries();
+        List<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>> entries = resp.getSuggest().getSuggestion("complete").getEntries();
         for (Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option> e : entries) {
-            Iterator<? extends Suggest.Suggestion.Entry.Option> ite  = e.getOptions().iterator();
-            while(ite.hasNext()){
+            Iterator<? extends Suggest.Suggestion.Entry.Option> ite = e.getOptions().iterator();
+            while (ite.hasNext()) {
                 Suggest.Suggestion.Entry.Option o = ite.next();
                 result.add(o.getText().toString());
             }
         }
         return result;
     }
-
 
 
 }

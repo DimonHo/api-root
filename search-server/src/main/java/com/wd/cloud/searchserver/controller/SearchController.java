@@ -59,7 +59,6 @@ public class SearchController {
     }
 
 
-
     @RequestMapping("/category/list")
     public SearchResult category(HttpServletRequest request,
                                  @RequestBody SearchCondition condition,

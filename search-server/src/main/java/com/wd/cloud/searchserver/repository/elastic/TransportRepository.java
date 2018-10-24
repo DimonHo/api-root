@@ -45,6 +45,39 @@ public class TransportRepository implements ElasticRepository {
     @Autowired
     TransportClient transportClient;
 
+    @SuppressWarnings("unchecked")
+    public static List<Map<String, Object>> convertDocList(
+            SearchResponse searchResponse) {
+        List<Map<String, Object>> datas = null;
+        SearchHits searchHits = searchResponse.getHits();
+        SearchHit[] hitArr = searchHits.getHits();
+        if (null != hitArr && hitArr.length > 0) {
+            datas = new ArrayList<Map<String, Object>>(hitArr.length);
+            for (SearchHit hit : hitArr) {
+                Map<String, Object> source = hit.getSource();
+                source.put("_id", hit.getId());
+                // 获取高亮值
+                Map<String, HighlightField> hightLightMap = hit
+                        .getHighlightFields();
+                Set<String> keySet = hightLightMap.keySet();
+                String value = null;
+                for (String highlightField : keySet) {
+                    HighlightField highlightValue = hightLightMap
+                            .get(highlightField);
+                    value = highlightValue.fragments()[0].string();
+                    // 将高亮值也放入source中，高亮值的字段名必须符合命名规范(原字段名_highlight)
+                    source.put(highlightField, value);
+                }
+
+                datas.add(source);
+            }
+        } else {
+            datas = Collections.EMPTY_LIST;
+        }
+
+        return datas;
+    }
+
     @Override
     public ResponseModel createIndex(String index) {
         return createIndex(index, null, null, null);
@@ -61,7 +94,7 @@ public class TransportRepository implements ElasticRepository {
     }
 
     @Override
-    public ResponseModel createIndex(String index, String type, Settings settings, Map<String, Object> mapping) {
+    public ResponseModel<CreateIndexResponse> createIndex(String index, String type, Settings settings, Map<String, Object> mapping) {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest();
         createIndexRequest.index(index);
         if (settings != null) {
@@ -205,7 +238,6 @@ public class TransportRepository implements ElasticRepository {
         return ResponseModel.ok().body(response);
     }
 
-
     @Override
     public ResponseModel<SearchResponse> query(String index, String type, QueryBuilder queryBuilder, QueryBuilder filterBuilder, SortBuilder sortBuilder, List<AbstractAggregationBuilder> aggregationList) {
         SearchRequestBuilder searchRequest = transportClient.prepareSearch(index).setTypes(type);
@@ -236,39 +268,6 @@ public class TransportRepository implements ElasticRepository {
 
         convertDocList(response);
         return ResponseModel.ok().body(itemArr[0].getResponse());
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<Map<String, Object>> convertDocList(
-            SearchResponse searchResponse) {
-        List<Map<String, Object>> datas = null;
-        SearchHits searchHits = searchResponse.getHits();
-        SearchHit[] hitArr = searchHits.getHits();
-        if (null != hitArr && hitArr.length > 0) {
-            datas = new ArrayList<Map<String, Object>>(hitArr.length);
-            for (SearchHit hit : hitArr) {
-                Map<String, Object> source = hit.getSource();
-                source.put("_id", hit.getId());
-                // 获取高亮值
-                Map<String, HighlightField> hightLightMap = hit
-                        .getHighlightFields();
-                Set<String> keySet = hightLightMap.keySet();
-                String value = null;
-                for (String highlightField : keySet) {
-                    HighlightField highlightValue = hightLightMap
-                            .get(highlightField);
-                    value = highlightValue.fragments()[0].string();
-                    // 将高亮值也放入source中，高亮值的字段名必须符合命名规范(原字段名_highlight)
-                    source.put(highlightField, value);
-                }
-
-                datas.add(source);
-            }
-        } else {
-            datas = Collections.EMPTY_LIST;
-        }
-
-        return datas;
     }
 
     /**

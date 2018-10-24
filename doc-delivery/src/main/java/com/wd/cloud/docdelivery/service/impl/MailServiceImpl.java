@@ -1,7 +1,6 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
@@ -44,6 +43,28 @@ public class MailServiceImpl implements MailService {
     @Autowired
     private FreeMarkerConfigurer configuration;
 
+    /**
+     * 地址拆分
+     *
+     * @param addresses
+     * @return
+     */
+    private static List<String> splitAddress(String addresses) {
+        if (StrUtil.isBlank(addresses)) {
+            return null;
+        }
+
+        List<String> result;
+        if (StrUtil.contains(addresses, ',')) {
+            result = StrUtil.splitTrim(addresses, ',');
+        } else if (StrUtil.contains(addresses, ';')) {
+            result = StrUtil.splitTrim(addresses, ';');
+        } else {
+            result = CollUtil.newArrayList(addresses);
+        }
+        return result;
+    }
+
     @Override
     public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, Integer processType) {
         HelpStatusEnum helpStatusEnum = null;
@@ -55,13 +76,11 @@ public class MailServiceImpl implements MailService {
         sendMail(channel, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
     }
 
-
     @Override
     public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
         ChannelEnum channelEnum = getChannelEnum(channel);
         sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
     }
-
 
     @Override
     public void sendMail(ChannelEnum channelEnum, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
@@ -96,24 +115,23 @@ public class MailServiceImpl implements MailService {
             successModel.setDownloadUrl(downloadUrl).setDocTitle(docTitle);
             mailModel.setSuccessModel(successModel);
             mailModel.setTitle(String.format(mailModel.getSuccessModel().getMailTitle(), docTitle))
-                    .setContent(buildContent(mailModel,helpStatusEnum,helperScname));
+                    .setContent(buildContent(mailModel, helpStatusEnum, helperScname));
         } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
             DefaultMailThirdModel thirdModel = new DefaultMailThirdModel();
             thirdModel.setDocTitle(docTitle);
             mailModel.setThirdModel(thirdModel);
             mailModel.setTitle(String.format(mailModel.getThirdModel().getMailTitle(), docTitle))
-                    .setContent(buildContent(mailModel,helpStatusEnum,helperScname));
+                    .setContent(buildContent(mailModel, helpStatusEnum, helperScname));
 
         } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
             DefaultMailFailedModel failedModel = new DefaultMailFailedModel();
             failedModel.setDocTitle(docTitle);
             mailModel.setFailedModel(failedModel);
             mailModel.setTitle(String.format(mailModel.getFailedModel().getMailTitle(), docTitle))
-                    .setContent(buildContent(mailModel,helpStatusEnum,helperScname));
+                    .setContent(buildContent(mailModel, helpStatusEnum, helperScname));
         }
         mailModel.send();
     }
-
 
     private void sendNotifyMail(MailModel mailModel, String helperScname, String helpEmail) {
         DefaultMailNotifyModel notifyModel = new DefaultMailNotifyModel();
@@ -127,6 +145,7 @@ public class MailServiceImpl implements MailService {
 
     /**
      * 获取渠道
+     *
      * @param channel
      * @return
      */
@@ -139,30 +158,10 @@ public class MailServiceImpl implements MailService {
         }
         return channelEnum;
     }
-    /**
-     * 地址拆分
-     *
-     * @param addresses
-     * @return
-     */
-    private static List<String> splitAddress(String addresses) {
-        if (StrUtil.isBlank(addresses)) {
-            return null;
-        }
-
-        List<String> result;
-        if (StrUtil.contains(addresses, ',')) {
-            result = StrUtil.splitTrim(addresses, ',');
-        } else if (StrUtil.contains(addresses, ';')) {
-            result = StrUtil.splitTrim(addresses, ';');
-        } else {
-            result = CollUtil.newArrayList(addresses);
-        }
-        return result;
-    }
 
     /**
      * 构建邮件内容
+     *
      * @param mailModel
      * @param helpStatusEnum
      * @param helperScname
@@ -186,7 +185,7 @@ public class MailServiceImpl implements MailService {
                 templateFile = "default-third.ftl";
             }
         }
-        return buildContent(mailModel,templateFile);
+        return buildContent(mailModel, templateFile);
     }
 
     private String buildNotifyContent(MailModel mailModel, String helperScname) {
@@ -194,10 +193,10 @@ public class MailServiceImpl implements MailService {
         if (!FileUtil.exist(templateFile)) {
             templateFile = "default-notify.ftl";
         }
-        return buildContent(mailModel,templateFile);
+        return buildContent(mailModel, templateFile);
     }
 
-    private String buildContent(MailModel mailModel, String templateFile){
+    private String buildContent(MailModel mailModel, String templateFile) {
         String content = null;
         try {
             Template template = configuration.getConfiguration().getTemplate(templateFile);

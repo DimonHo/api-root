@@ -40,12 +40,16 @@ public enum StatusEnum {
     MULTIPLE_CHOICES(300, "Multiple Choices"),
     MOVED_PERMANENTLY(301, "Moved Permanently"),
     FOUND(302, "Found"),
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     @Deprecated
     MOVED_TEMPORARILY(302, "Moved Temporarily"),
     SEE_OTHER(303, "See Other"),
     NOT_MODIFIED(304, "Not Modified"),
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     @Deprecated
     USE_PROXY(305, "Use Proxy"),
     TEMPORARY_REDIRECT(307, "Temporary Redirect"),
@@ -64,24 +68,34 @@ public enum StatusEnum {
     LENGTH_REQUIRED(411, "Length Required"),
     PRECONDITION_FAILED(412, "Precondition Failed"),
     PAYLOAD_TOO_LARGE(413, "Payload Too Large"),
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     @Deprecated
     REQUEST_ENTITY_TOO_LARGE(413, "Request Entity Too Large"),
     URI_TOO_LONG(414, "URI Too Long"),
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     @Deprecated
     REQUEST_URI_TOO_LONG(414, "Request-URI Too Long"),
     UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type"),
     REQUESTED_RANGE_NOT_SATISFIABLE(416, "Requested range not satisfiable"),
     EXPECTATION_FAILED(417, "Expectation Failed"),
     I_AM_A_TEAPOT(418, "I'm a teapot"),
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     @Deprecated
     INSUFFICIENT_SPACE_ON_RESOURCE(419, "Insufficient Space On Resource"),
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     @Deprecated
     METHOD_FAILURE(420, "Method Failure"),
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     @Deprecated
     DESTINATION_LOCKED(421, "Destination Locked"),
     UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
@@ -112,12 +126,12 @@ public enum StatusEnum {
     /**
      * 文献传递相关异常信息
      */
-    DOC_OTHER_GIVING(2004,"该应助已经有其他人正在应助"),
-    DOC_FINISH_GIVING(2005,"请先完成您正在应助的文献"),
-    DOC_FILE_TYPE_ERROR(2006,"不支持的文件类型"),
-    DOC_HELP_NOT_FOUND(2007,"没有找到该求助或该求助已完成"),
-    DOC_HELP_REPEATED(2008,"您最近15天内已求助过这篇文献,请注意查收邮箱"),
-    DOC_FILE_EMPTY(2009,"未上传文件");
+    DOC_OTHER_GIVING(2004, "该应助已经有其他人正在应助"),
+    DOC_FINISH_GIVING(2005, "请先完成您正在应助的文献"),
+    DOC_FILE_TYPE_ERROR(2006, "不支持的文件类型"),
+    DOC_HELP_NOT_FOUND(2007, "没有找到该求助或该求助已完成"),
+    DOC_HELP_REPEATED(2008, "您最近15天内已求助过这篇文献,请注意查收邮箱"),
+    DOC_FILE_EMPTY(2009, "未上传文件");
 
     private final int value;
     private final String message;
@@ -125,19 +139,6 @@ public enum StatusEnum {
     private StatusEnum(int value, String message) {
         this.value = value;
         this.message = message;
-    }
-
-    public int value() {
-        return value;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public String toString() {
-        return Integer.toString(this.value);
     }
 
     public static StatusEnum valueOf(int statusCode) {
@@ -158,5 +159,18 @@ public enum StatusEnum {
             }
         }
         return null;
+    }
+
+    public int value() {
+        return value;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(this.value);
     }
 }

@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.model;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.extra.mail.Mail;
-import org.springframework.context.annotation.Bean;
 
 /**
  * @author He Zhigang
@@ -19,7 +18,7 @@ public class MailModel extends Mail {
     /**
      * 有效期
      */
-    private String expStr ;
+    private String expStr;
 
     /**
      * 内容模板文件

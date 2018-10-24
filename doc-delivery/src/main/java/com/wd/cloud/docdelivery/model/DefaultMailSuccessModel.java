@@ -5,7 +5,7 @@ package com.wd.cloud.docdelivery.model;
  * @date 2018/10/13
  * @Description:
  */
-public class DefaultMailSuccessModel{
+public class DefaultMailSuccessModel {
     /**
      * 邮件标题
      */
@@ -18,7 +18,6 @@ public class DefaultMailSuccessModel{
      * 下载链接
      */
     private String downloadUrl;
-
 
 
     public DefaultMailSuccessModel() {
@@ -50,7 +49,6 @@ public class DefaultMailSuccessModel{
         this.downloadUrl = downloadUrl;
         return this;
     }
-
 
 
 }

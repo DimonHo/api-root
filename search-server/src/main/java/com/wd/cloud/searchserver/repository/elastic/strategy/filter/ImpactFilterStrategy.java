@@ -17,15 +17,15 @@ public class ImpactFilterStrategy implements FilterBuilderStrategyI {
         Iterator<String> ite = valueSet.iterator();
         String field = null;
         String value = null;
-        while(ite.hasNext()) {
+        while (ite.hasNext()) {
             String val = ite.next();
-            if(val.contains("|")) {
+            if (val.contains("|")) {
                 field = val;
             } else {
                 value = val;
             }
         }
-        if(field == null) {
+        if (field == null) {
             field = "9";
         }
         return boolFilterBuilder.filter(new RangeQueryBuilder("sort." + field).from(Double.parseDouble(value)));

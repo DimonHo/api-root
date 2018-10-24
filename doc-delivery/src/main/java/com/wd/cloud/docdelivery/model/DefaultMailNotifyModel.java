@@ -5,7 +5,7 @@ package com.wd.cloud.docdelivery.model;
  * @date 2018/10/19
  * @Description:
  */
-public class DefaultMailNotifyModel{
+public class DefaultMailNotifyModel {
     /**
      * 邮件标题
      */

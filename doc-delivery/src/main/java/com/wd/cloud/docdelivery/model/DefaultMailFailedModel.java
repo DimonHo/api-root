@@ -5,7 +5,7 @@ package com.wd.cloud.docdelivery.model;
  * @date 2018/10/13
  * @Description:
  */
-public class DefaultMailFailedModel{
+public class DefaultMailFailedModel {
     /**
      * 邮件标题
      */

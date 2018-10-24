@@ -1,7 +1,6 @@
 package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.apifeign.ResourcesServerApi;
@@ -216,7 +215,7 @@ public class FrontendController {
         if (docTitle != null) {
             return ResponseModel
                     .fail(StatusEnum.DOC_FINISH_GIVING)
-                    .message("请先完成您正在应助的文献:"+docTitle);
+                    .message("请先完成您正在应助的文献:" + docTitle);
         }
         helpRecord = frontService.givingHelp(helpRecordId, giverId, giverName, HttpUtil.getClientIP(request));
         return ResponseModel.ok().body(helpRecord);
