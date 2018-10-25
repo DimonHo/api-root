@@ -27,10 +27,10 @@ import java.util.List;
  * @date 2018/7/24
  * @Description:
  */
-@FeignClient(value = "resources-server",
-        configuration = ResourcesServerApi.MultipartSupportConfig.class,
-        fallback = ResourcesServerApi.HystrixCalculatorService.class)
-public interface ResourcesServerApi {
+@FeignClient(value = "resource-server",
+        configuration = ResourceServerApi.MultipartSupportConfig.class,
+        fallback = ResourceServerApi.HystrixCalculatorService.class)
+public interface ResourceServerApi {
 
     /**
      * 文件上传至Hbase
@@ -138,7 +138,7 @@ public interface ResourcesServerApi {
     }
 
     @Component
-    class HystrixCalculatorService implements ResourcesServerApi {
+    class HystrixCalculatorService implements ResourceServerApi {
 
         @Override
         public ResponseModel<JSONObject> uploadFileToHf(String tableName, String fileName, boolean rename, MultipartFile file) {

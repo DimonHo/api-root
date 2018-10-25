@@ -3,7 +3,7 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.apifeign.ResourcesServerApi;
+import com.wd.cloud.apifeign.ResourceServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -40,7 +40,7 @@ public class FileServiceImpl implements FileService {
     GiveRecordRepository giveRecordRepository;
 
     @Autowired
-    ResourcesServerApi resourcesServerApi;
+    ResourceServerApi resourceServerApi;
 
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
@@ -67,7 +67,7 @@ public class FileServiceImpl implements FileService {
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<byte[]> fileByte = resourcesServerApi.getFileByteToHf(globalConfig.getHbaseTableName(), fileName);
+        ResponseModel<byte[]> fileByte = resourceServerApi.getFileByteToHf(globalConfig.getHbaseTableName(), fileName);
         downloadFileModel.setFileByte(fileByte.getBody());
         String ext = StrUtil.subAfter(fileName, ".", true);
         String downLoadFileName = docTitle + "." + ext;

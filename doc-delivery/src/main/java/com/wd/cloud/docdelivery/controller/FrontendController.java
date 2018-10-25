@@ -3,7 +3,7 @@ package com.wd.cloud.docdelivery.controller;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
-import com.wd.cloud.apifeign.ResourcesServerApi;
+import com.wd.cloud.apifeign.ResourceServerApi;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -59,7 +59,7 @@ public class FrontendController {
     FrontService frontService;
 
     @Autowired
-    ResourcesServerApi resourcesServerApi;
+    ResourceServerApi resourceServerApi;
 
     /**
      * 1. 文献求助
@@ -272,7 +272,7 @@ public class FrontendController {
         }
         //保存文件
         DocFile docFile = null;
-        ResponseModel<JSONObject> fileModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        ResponseModel<JSONObject> fileModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
         log.info(fileModel.toString());
         if (fileModel.getStatus() != StatusEnum.OK.value()) {
             return ResponseModel.fail().setMessage("文件上传失败，请重试");

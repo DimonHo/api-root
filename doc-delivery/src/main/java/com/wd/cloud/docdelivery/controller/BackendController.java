@@ -1,7 +1,7 @@
 package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.json.JSONObject;
-import com.wd.cloud.apifeign.ResourcesServerApi;
+import com.wd.cloud.apifeign.ResourceServerApi;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,7 +55,7 @@ public class BackendController {
     @Autowired
     GlobalConfig globalConfig;
     @Autowired
-    ResourcesServerApi resourcesServerApi;
+    ResourceServerApi resourceServerApi;
 
 
     /**
@@ -144,7 +143,7 @@ public class BackendController {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(helpRecordId);
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
-        ResponseModel<JSONObject> jsonObjectResponseModel = resourcesServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        ResponseModel<JSONObject> jsonObjectResponseModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
         log.info(jsonObjectResponseModel.toString());
         if (jsonObjectResponseModel.getStatus() != StatusEnum.OK.value()) {
             log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
