@@ -57,12 +57,12 @@ public class RequestFilter extends ZuulFilter {
         if (params.length() > 0) {
             params.delete(params.length() - 1, params.length());
         }
-        log.info("REQUEST:: > {} {} {} {}", req.getMethod(), req.getRequestURI(), params, req.getProtocol());
+        log.info("http请求:: > {} {} {} {}", req.getMethod(), req.getRequestURI(), params, req.getProtocol());
         Enumeration<String> headers = req.getHeaderNames();
         while (headers.hasMoreElements()) {
             String name = (String) headers.nextElement();
             String value = req.getHeader(name);
-            log.info("REQUEST:: > {}:{}", name, value);
+            log.info("http请求头信息:: > {}:{}", name, value);
         }
         if (!ctx.isChunkedRequestBody()) {
             ServletInputStream inp = null;
@@ -70,7 +70,7 @@ public class RequestFilter extends ZuulFilter {
                 inp = ctx.getRequest().getInputStream();
                 if (inp != null) {
                     String body = IoUtil.read(inp, "utf-8");
-                    log.info("REQUEST:: > {}", body);
+                    log.info("http请求body:: > {}", body);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

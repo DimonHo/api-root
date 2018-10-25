@@ -30,10 +30,14 @@ public class DocumentationConfig implements SwaggerResourcesProvider {
     @Override
     public List<SwaggerResource> get() {
         List<SwaggerResource> resources = new ArrayList<>();
+        //需要屏蔽的swagger
+        List<String> filterIds = new ArrayList<>();
+        filterIds.add("zipkin-server");
+        filterIds.add("monitoring");
         List<Route> routes = routeLocator.getRoutes();
-        routes.forEach(route -> {
-            resources.add(swaggerResource(route.getId(), route.getFullPath().replace("**", "v2/api-docs"), "1.0"));
-        });
+        routes.stream().filter(route -> !filterIds.contains(route.getId()))
+                .forEach(route -> resources.add(swaggerResource(route.getId(), route.getFullPath().replace("**", "v2/api-docs"), "1.0"))
+        );
         return resources;
     }
 

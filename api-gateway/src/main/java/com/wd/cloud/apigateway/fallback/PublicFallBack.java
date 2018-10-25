@@ -30,14 +30,14 @@ public class PublicFallBack implements FallbackProvider {
 
     @Override
     public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
-        if (cause != null && cause.getCause() != null) {
-            String reason = cause.getCause().getMessage();
+        if (cause != null && cause.getMessage()!= null) {
+            String reason = cause.getMessage();
             log.info("调用异常： {}", reason);
         }
-        return fallbackResponse();
+        return fallbackResponse(cause);
     }
 
-    private ClientHttpResponse fallbackResponse() {
+    private ClientHttpResponse fallbackResponse(Throwable cause) {
         return new ClientHttpResponse() {
             @Override
             public HttpStatus getStatusCode() throws IOException {
@@ -64,7 +64,7 @@ public class PublicFallBack implements FallbackProvider {
                 JSONObject responseModel = new JSONObject();
                 responseModel.put("error", true);
                 responseModel.put("status", -1);
-                responseModel.put("message", "网关返回未知错误");
+                responseModel.put("message", cause.getMessage());
                 //返回前端的内容
                 return new ByteArrayInputStream(responseModel.toString().getBytes("UTF-8"));
             }

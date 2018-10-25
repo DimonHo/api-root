@@ -16,51 +16,51 @@ public class HelpRequestModel {
     /**
      * 求助用户ID
      */
-    @ApiModelProperty(value = "求助用户ID")
+    @ApiModelProperty(value = "求助用户ID",example = "1000")
     private Long helperId;
 
     /**
      * 求助用户名称
      */
-    @ApiModelProperty(value = "求助用户名称")
+    @ApiModelProperty(value = "求助用户名称",example = "dimon")
     private String helperName;
 
     /**
      * 求助渠道
      */
-    @ApiModelProperty(value = "求助渠道")
+    @ApiModelProperty(value = "求助渠道",example = "1")
     @NotNull
     private Integer helpChannel;
 
     /**
      * 求助用户所属机构id
      */
-    @ApiModelProperty(value = "求助者所属机构ID")
+    @ApiModelProperty(value = "求助者所属机构ID",example = "60")
     private Long helperScid;
 
     /**
      * 求助用户所属机构名
      */
-    @ApiModelProperty(value = "求助者所属机构名称")
+    @ApiModelProperty(value = "求助者所属机构名称",example = "中南大学")
     private String helperScname;
 
     /**
      * 求助文件标题
      */
-    @ApiModelProperty(value = "求助文献标题")
+    @ApiModelProperty(value = "求助文献标题",example = "关于xxx可行性研究")
     @NotNull
     private String docTitle;
 
     /**
      * 求助文献连接
      */
-    @ApiModelProperty(value = "求助文献链接")
+    @ApiModelProperty(value = "求助文献链接",example = "http://www.xxx.com")
     private String docHref;
 
     /**
      * 求助用户邮箱
      */
-    @ApiModelProperty(value = "求助用户邮箱")
+    @ApiModelProperty(value = "求助用户邮箱",example = "hezhigang@qq.com")
     @NotNull
     private String helperEmail;
 
