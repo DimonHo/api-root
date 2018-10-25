@@ -143,14 +143,14 @@ public class BackendController {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(helpRecordId);
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
-        ResponseModel<JSONObject> jsonObjectResponseModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
-        log.info(jsonObjectResponseModel.toString());
-        if (jsonObjectResponseModel.getStatus() != StatusEnum.OK.value()) {
+        ResponseModel<JSONObject> responseModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        log.info(responseModel.toString());
+        if (responseModel.isError()) {
             log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
         log.info("文件{}上传成功!", file.getOriginalFilename());
-        String fileName = jsonObjectResponseModel.getBody().getStr("file");
+        String fileName = responseModel.getBody().getStr("file");
         docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileName);
 
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录

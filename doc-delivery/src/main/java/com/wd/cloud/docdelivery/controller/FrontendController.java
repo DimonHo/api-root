@@ -272,12 +272,12 @@ public class FrontendController {
         }
         //保存文件
         DocFile docFile = null;
-        ResponseModel<JSONObject> fileModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
-        log.info(fileModel.toString());
-        if (fileModel.getStatus() != StatusEnum.OK.value()) {
+        ResponseModel<JSONObject> responseModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        log.info(responseModel.toString());
+        if (responseModel.isError()) {
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
-        String filename = fileModel.getBody().getStr("file");
+        String filename = responseModel.getBody().getStr("file");
         docFile = frontService.saveDocFile(helpRecord.getLiterature(), filename);
 
         //更新记录
