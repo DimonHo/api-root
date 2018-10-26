@@ -1,6 +1,6 @@
 package com.wd.cloud.reportanalysis.service;
 
-import com.wd.cloud.reportanalysis.entity.School;
+import com.wd.cloud.reportanalysis.entity.school.School;
 
 /**
  * @author He Zhigang

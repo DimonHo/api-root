@@ -11,27 +11,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TransportRepository {
-
-    @Autowired
-    TransportClient transportClient;
-
-
-    public SearchResponse query(QueryBuilder queryBuilder, QueryBuilder filterBuilder, AbstractAggregationBuilder aggregation, String type) {
-        SearchRequestBuilder searchRequest = transportClient.prepareSearch("resource").setTypes(type);
-        searchRequest.setSearchType(SearchType.DEFAULT);
-        if (null != queryBuilder && null != filterBuilder) {
-            searchRequest.setQuery(queryBuilder).setPostFilter(filterBuilder);
-        } else if (null != queryBuilder) {
-            searchRequest.setQuery(queryBuilder);
-        } else if (null != filterBuilder) {
-            searchRequest.setPostFilter(filterBuilder);
-        }
-        if (null != aggregation) {
-            searchRequest.addAggregation(aggregation);
-        }
-        System.out.println(searchRequest.toString());
-        SearchResponse response = searchRequest.get();
-        return response;
-    }
+	
+	@Autowired
+	TransportClient transportClient;
+	
+	
+	public SearchResponse query(QueryBuilder queryBuilder,QueryBuilder filterBuilder,AbstractAggregationBuilder aggregation,String type) {
+		SearchRequestBuilder searchRequest = transportClient.prepareSearch("resource").setTypes(type);
+		searchRequest.setSearchType(SearchType.DEFAULT);
+		if (null != queryBuilder && null != filterBuilder) {
+			searchRequest.setQuery(queryBuilder).setPostFilter(filterBuilder);
+		} else if (null != queryBuilder) {
+			searchRequest.setQuery(queryBuilder);
+		} else if (null != filterBuilder) {
+			searchRequest.setPostFilter(filterBuilder);
+		}
+		if(null != aggregation) {
+			searchRequest.addAggregation(aggregation);
+		}
+//		System.out.println(searchRequest.toString());
+		SearchResponse response = searchRequest.get();
+		return response;
+	}
 
 }

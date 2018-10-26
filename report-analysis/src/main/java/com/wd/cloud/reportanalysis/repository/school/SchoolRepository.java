@@ -1,8 +1,11 @@
-package com.wd.cloud.reportanalysis.repository;
+package com.wd.cloud.reportanalysis.repository.school;
 
-import com.wd.cloud.reportanalysis.entity.School;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import com.wd.cloud.reportanalysis.entity.school.School;
+
+
 
 
 /**
@@ -18,7 +21,7 @@ public interface SchoolRepository extends JpaRepository<School, Long>, JpaSpecif
      * @param scid
      * @return
      */
-    School findByScid(int scid);
+	School findByScid(int scid);
 
 
 }
