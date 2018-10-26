@@ -3,6 +3,8 @@ package com.wd.cloud.apigateway.fallback;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.netflix.hystrix.exception.HystrixTimeoutException;
+import com.wd.cloud.commons.enums.StatusEnum;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,28 +32,33 @@ public class PublicFallBack implements FallbackProvider {
 
     @Override
     public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
-        if (cause != null && cause.getMessage()!= null) {
+        if (cause != null && cause.getMessage() != null) {
             String reason = cause.getMessage();
             log.info("调用异常： {}", reason);
         }
-        return fallbackResponse(cause);
+        if (cause instanceof HystrixTimeoutException) {
+            return fallbackResponse(HttpStatus.GATEWAY_TIMEOUT, cause);
+        } else {
+            return fallbackResponse(HttpStatus.INTERNAL_SERVER_ERROR, cause);
+        }
+
     }
 
-    private ClientHttpResponse fallbackResponse(Throwable cause) {
+    private ClientHttpResponse fallbackResponse(HttpStatus status, Throwable cause) {
         return new ClientHttpResponse() {
             @Override
             public HttpStatus getStatusCode() throws IOException {
-                return HttpStatus.OK;
+                return status;
             }
 
             @Override
             public int getRawStatusCode() throws IOException {
-                return HttpStatus.OK.value();
+                return status.value();
             }
 
             @Override
             public String getStatusText() throws IOException {
-                return HttpStatus.OK.getReasonPhrase();
+                return status.getReasonPhrase();
             }
 
             @Override
@@ -63,7 +70,7 @@ public class PublicFallBack implements FallbackProvider {
             public InputStream getBody() throws IOException {
                 JSONObject responseModel = new JSONObject();
                 responseModel.put("error", true);
-                responseModel.put("status", -1);
+                responseModel.put("status", StatusEnum.FALL_BACK);
                 responseModel.put("message", cause.getMessage());
                 //返回前端的内容
                 return new ByteArrayInputStream(responseModel.toString().getBytes("UTF-8"));

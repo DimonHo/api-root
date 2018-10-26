@@ -8,18 +8,23 @@ import org.springframework.lang.Nullable;
  * @Description:
  */
 public enum StatusEnum {
+
     /**
      * 未知异常
      */
-    UNKNOWN(-1, "unknow exception"),
+    UNKNOWN(-1, "Unknow Exception"),
     /**
      * 成功
      */
-    SUCCESS(1, "successed"),
+    SUCCESS(1, "Successed"),
     /**
      * 失败
      */
-    FAIL(0, "failed"),
+    FAIL(0, "Failed"),
+    /**
+     * fallback exception
+     */
+    FALL_BACK(2, "Fallback Exception"),
     /**
      * 状态码
      */

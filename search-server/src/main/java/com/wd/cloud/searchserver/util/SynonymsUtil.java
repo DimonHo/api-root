@@ -23,6 +23,22 @@ public class SynonymsUtil {
 
 //    private static TransportClient transportClient = (TransportClient) SpringContextUtil.getBean("transportClient");
 
+    private static void getExtendKeywords(Set<String> keywords, SearchHit hit, String field) {
+
+        Map<String, Object> doc = hit.getSource();
+        Object titleMainObj = doc.get(field);
+        if (null != titleMainObj) {
+            String[] extendKeywordsArr = titleMainObj.toString().split(";");
+            if (extendKeywordsArr.length > 0) {
+                for (String word : extendKeywordsArr) {
+                    if (null != word && !"".equals(word.trim())) {
+                        keywords.add(word.trim());
+                    }
+                }
+            }
+        }
+    }
+
     public List<String> analyzer(String word, String analyzerName) {
 
         List<String> result = new ArrayList<String>();
@@ -61,22 +77,6 @@ public class SynonymsUtil {
             result.addAll(keywords);
         }
         return result;
-    }
-
-    private static void getExtendKeywords(Set<String> keywords, SearchHit hit, String field) {
-
-        Map<String, Object> doc = hit.getSource();
-        Object titleMainObj = doc.get(field);
-        if (null != titleMainObj) {
-            String[] extendKeywordsArr = titleMainObj.toString().split(";");
-            if (extendKeywordsArr.length > 0) {
-                for (String word : extendKeywordsArr) {
-                    if (null != word && !"".equals(word.trim())) {
-                        keywords.add(word.trim());
-                    }
-                }
-            }
-        }
     }
 
     public Set<String> extendOrg(String word) {

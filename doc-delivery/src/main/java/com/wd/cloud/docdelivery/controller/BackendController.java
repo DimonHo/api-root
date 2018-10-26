@@ -100,7 +100,7 @@ public class BackendController {
     })
     @GetMapping("/literature/list")
     public ResponseModel literatureList(@RequestParam(required = false) Boolean reusing, @RequestParam(required = false) String keyword,
-                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("reusing", reusing);
         param.put("keyword", keyword);

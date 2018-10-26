@@ -1,10 +1,5 @@
 package com.wd.cloud.reportanalysis.config;
 
-import java.util.Map;
-
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -18,24 +13,29 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.util.Map;
+
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef="analysisEntityManagerFactory",
-        transactionManagerRef="analysisTransactionManager",
-        basePackages= { "com.wd.cloud.reportanalysis.repository.analysis" }) //设置Repository所在位置
+        entityManagerFactoryRef = "analysisEntityManagerFactory",
+        transactionManagerRef = "analysisTransactionManager",
+        basePackages = {"com.wd.cloud.reportanalysis.repository.analysis"}) //设置Repository所在位置
 public class AnalysisDataSourceConfig {
-	
-	@Autowired
+
+    @Autowired
     private JpaProperties jpaProperties;
-	
-	@Autowired
+
+    @Autowired
     @Qualifier("analysisDataSource")
     private DataSource analysisDataSource;
-	
-	
-	/**
+
+
+    /**
      * 我们通过LocalContainerEntityManagerFactoryBean来获取EntityManagerFactory实例
+     *
      * @return
      */
     @Bean(name = "analysisEntityManagerFactoryBean")
@@ -53,10 +53,12 @@ public class AnalysisDataSourceConfig {
     private Map<String, String> getVendorProperties(DataSource dataSource) {
         return jpaProperties.getProperties();
     }
+
     /**
      * EntityManagerFactory类似于Hibernate的SessionFactory,mybatis的SqlSessionFactory
      * 总之,在执行操作之前,我们总要获取一个EntityManager,这就类似于Hibernate的Session,
      * mybatis的sqlSession.
+     *
      * @param builder
      * @return
      */
@@ -68,6 +70,7 @@ public class AnalysisDataSourceConfig {
 
     /**
      * 配置事物管理器
+     *
      * @return
      */
     @Bean(name = "analysisTransactionManager")
@@ -75,5 +78,5 @@ public class AnalysisDataSourceConfig {
     public PlatformTransactionManager writeTransactionManager(EntityManagerFactoryBuilder builder) {
         return new JpaTransactionManager(userEntityManagerFactory(builder));
     }
-	
+
 }

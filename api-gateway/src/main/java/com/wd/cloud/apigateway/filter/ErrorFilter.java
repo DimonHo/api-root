@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @Description:
  */
 @Component
-public class ErrorFilter  extends ZuulFilter {
+public class ErrorFilter extends ZuulFilter {
     private static final Log log = LogFactory.get();
 
     @Override

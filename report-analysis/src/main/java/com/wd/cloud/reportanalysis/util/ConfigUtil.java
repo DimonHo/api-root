@@ -2,6 +2,7 @@ package com.wd.cloud.reportanalysis.util;
 
 
 import cn.hutool.setting.Setting;
+
 import java.util.Iterator;
 
 /**
@@ -11,16 +12,16 @@ import java.util.Iterator;
  */
 public class ConfigUtil {
 
-    static Setting setting = new Setting("config.setting",true);
+    static Setting setting = new Setting("config.setting", true);
 
     public static String getStr(String key) {
-            return setting.getStr(key);
+        return setting.getStr(key);
     }
-    
+
     public static Iterator getIterator() {
-    	Iterator<Setting.Entry<String,String>> it=setting.entrySet().iterator();
-    	return it;
+        Iterator<Setting.Entry<String, String>> it = setting.entrySet().iterator();
+        return it;
     }
-    
-    
+
+
 }

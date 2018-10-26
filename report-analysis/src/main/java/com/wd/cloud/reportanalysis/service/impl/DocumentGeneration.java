@@ -1,4 +1,5 @@
 package com.wd.cloud.reportanalysis.service.impl;
+
 import com.wd.cloud.apifeign.ResourceServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
@@ -22,11 +23,11 @@ public class DocumentGeneration implements DocumentGenerationI {
 //    @Autowired
 //    private RestTemplate restTemplate;
 
+    @Autowired
+    ResourceServerApi resourceServerApi;
     private RestTemplate restTemplate;
     private ClientHttpRequestFactory factory;
 
-    @Autowired
-    ResourceServerApi resourceServerApi;
     @Autowired
     public void setFactory() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -37,59 +38,58 @@ public class DocumentGeneration implements DocumentGenerationI {
     }
 
 
-
     @Override
     public JSONObject get(String act, String table, int scid, String compare_scids, String time, String source, int signature) {
         // http://cloud.test.hnlat.com/report-analysis/compare
 
-        MultiValueMap<String,Object> requestEntity=new LinkedMultiValueMap<>();
-        requestEntity.add("act",act);
-        requestEntity.add("table",table);
-        requestEntity.add("scid",scid);
-        requestEntity.add("compare_scids",compare_scids);
-        requestEntity.add("time",time);
-        requestEntity.add("source",source);
-        requestEntity.add("signature",signature);
+        MultiValueMap<String, Object> requestEntity = new LinkedMultiValueMap<>();
+        requestEntity.add("act", act);
+        requestEntity.add("table", table);
+        requestEntity.add("scid", scid);
+        requestEntity.add("compare_scids", compare_scids);
+        requestEntity.add("time", time);
+        requestEntity.add("source", source);
+        requestEntity.add("signature", signature);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "multipart/form-data");
         headers.set("Accept", "application/json");
-        HttpEntity<MultiValueMap<String,Object>> httpEntity=new HttpEntity<>(requestEntity,headers);
-        ResponseEntity<JSONObject> responseEntity=restTemplate.exchange("http://cloud.test.hnlat.com/report-analysis/compare",HttpMethod.POST,httpEntity,JSONObject.class);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(requestEntity, headers);
+        ResponseEntity<JSONObject> responseEntity = restTemplate.exchange("http://cloud.test.hnlat.com/report-analysis/compare", HttpMethod.POST, httpEntity, JSONObject.class);
         return responseEntity.getBody().getJSONObject("body");
     }
 
     @Override
-    public JSONObject getEsi(String table,int scid, String compare_scids, String category_type, int signature) {
-        MultiValueMap<String,Object> requestEntity=new LinkedMultiValueMap<>();
-        requestEntity.add("act","esi");
-        requestEntity.add("table",table);
-        requestEntity.add("scid",scid);
-        requestEntity.add("compare_scids",compare_scids);
-        requestEntity.add("time","{\"start\":\"2008\",\"end\":\"2018\"}");
-        requestEntity.add("category_type",category_type);
-        requestEntity.add("signature",signature);
+    public JSONObject getEsi(String table, int scid, String compare_scids, String category_type, int signature) {
+        MultiValueMap<String, Object> requestEntity = new LinkedMultiValueMap<>();
+        requestEntity.add("act", "esi");
+        requestEntity.add("table", table);
+        requestEntity.add("scid", scid);
+        requestEntity.add("compare_scids", compare_scids);
+        requestEntity.add("time", "{\"start\":\"2008\",\"end\":\"2018\"}");
+        requestEntity.add("category_type", category_type);
+        requestEntity.add("signature", signature);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "multipart/form-data");
         headers.set("Accept", "application/json");
-        HttpEntity<MultiValueMap<String,Object>> httpEntity=new HttpEntity<>(requestEntity,headers);
-        ResponseEntity<JSONObject> responseEntity=restTemplate.exchange("http://cloud.test.hnlat.com/report-analysis/compare",HttpMethod.POST,httpEntity,JSONObject.class);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(requestEntity, headers);
+        ResponseEntity<JSONObject> responseEntity = restTemplate.exchange("http://cloud.test.hnlat.com/report-analysis/compare", HttpMethod.POST, httpEntity, JSONObject.class);
         return responseEntity.getBody().getJSONObject("body");
     }
 
     @Override
     public String input(MultipartFile resource) {
         try {
-            MultiValueMap<String,Object> requestEntity=new LinkedMultiValueMap<>();
-            requestEntity.add("file",resource);
-            requestEntity.add("rename",true);
+            MultiValueMap<String, Object> requestEntity = new LinkedMultiValueMap<>();
+            requestEntity.add("file", resource);
+            requestEntity.add("rename", true);
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "multipart/form-data");
             headers.set("Accept", "application/json");
-            HttpEntity<MultiValueMap<String,Object>> httpEntity=new HttpEntity<>(requestEntity,headers);
-            ResponseModel<cn.hutool.json.JSONObject> fileByte = resourceServerApi.uploadFileToHf("journalImage",null,true,resource);
+            HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(requestEntity, headers);
+            ResponseModel<cn.hutool.json.JSONObject> fileByte = resourceServerApi.uploadFileToHf("journalImage", null, true, resource);
             fileByte.getBody();
             return fileByte.getBody().toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -97,7 +97,7 @@ public class DocumentGeneration implements DocumentGenerationI {
 
     @Override
     public byte[] downLoad(String fileName) {
-        ResponseModel<byte[]> fileByte = resourceServerApi.getFileByteToHf("journalImage",fileName);
+        ResponseModel<byte[]> fileByte = resourceServerApi.getFileByteToHf("journalImage", fileName);
         return fileByte.getBody();
     }
 

@@ -10,12 +10,12 @@ import java.util.Map;
  */
 public interface AnalysisByDBServiceI {
 
-	public List<Map<String, Object>> getIssue(int limit_start, int limit_num);
-	
-	public Map<String,Object> getanalysisCategory(String column,String issue,String scname,int scid);
-	
-	public Map<String, Object> analysis(int scid,String issue,String category,String classify, String column,int type_c);
-	
-	public Map<String,Object> getColumnList(int scid,String issue);
+    public List<Map<String, Object>> getIssue(int limit_start, int limit_num);
+
+    public Map<String, Object> getanalysisCategory(String column, String issue, String scname, int scid);
+
+    public Map<String, Object> analysis(int scid, String issue, String category, String classify, String column, int type_c);
+
+    public Map<String, Object> getColumnList(int scid, String issue, String scname);
 
 }
