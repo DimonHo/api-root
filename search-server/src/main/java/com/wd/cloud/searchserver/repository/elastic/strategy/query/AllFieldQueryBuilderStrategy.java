@@ -6,6 +6,7 @@ import com.wd.cloud.searchserver.util.SynonymsUtil;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,6 +17,9 @@ import static org.elasticsearch.index.query.QueryBuilders.spanTermQuery;
 
 @Component("all")
 public class AllFieldQueryBuilderStrategy implements QueryBuilderStrategyI {
+
+    @Autowired
+    SynonymsUtil synonymsUtil;
 
     @Override
     public QueryBuilder execute(String value, Object otherConstraint) {
@@ -67,7 +71,7 @@ public class AllFieldQueryBuilderStrategy implements QueryBuilderStrategyI {
     private BoolQueryBuilder chineseQuery(String value) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         //使用mmseg分词器将value分词返回分词列表
-        List<String> termList = SynonymsUtil.analyzer(value, "mmseg");
+        List<String> termList = synonymsUtil.analyzer(value, "mmseg");
         if (termList.size() > 1) {
             SpanNearQueryBuilder titleSpanNearSlopZeroQueryBuilder = null;
             for (String term : termList) {

@@ -222,7 +222,7 @@ public class BrowseController {
         //构建查询的时间聚合
         List<String> dayList = DateUtil.dayList(beginTime, endTime, day);
         json.put("dataList", dayList.subList(0, dayList.size() - 1));
-        DateRangeAggregationBuilder timeTermsBuilder = AggregationBuilders.dateRange("lastTimeCount").field("lastTime");
+        DateRangeAggregationBuilder timeTermsBuilder = AggregationBuilders.dateRange("lastTimeCount").field("beginTime");
         for (int i = 0; i < dayList.size(); i++) {
             if (day == 1 && beginTime.equals(endTime) && i < dayList.size() - 1) {
                 List<String> hourList = new ArrayList<String>();

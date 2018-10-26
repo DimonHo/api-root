@@ -8,16 +8,22 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component("synonymsUtil")
 public class SynonymsUtil {
 
     public static final String DEFAULT_INDEX = "journal";
 
-    private static TransportClient transportClient = (TransportClient) SpringContextUtil.getBean("transportClient");
+    @Autowired
+    TransportClient transportClient;
 
-    public static List<String> analyzer(String word, String analyzerName) {
+//    private static TransportClient transportClient = (TransportClient) SpringContextUtil.getBean("transportClient");
+
+    public List<String> analyzer(String word, String analyzerName) {
 
         List<String> result = new ArrayList<String>();
 
@@ -30,12 +36,12 @@ public class SynonymsUtil {
         return result;
     }
 
-    public static Set<String> extendsWord(String word) {
+    public Set<String> extendsWord(String word) {
 
         return extendKeyword(word, DEFAULT_INDEX, "titleMainFullField");
     }
 
-    private static Set<String> extendKeyword(String word, String type, String field) {
+    private Set<String> extendKeyword(String word, String type, String field) {
 
         Set<String> result = new HashSet<String>();
         result.add(word);
