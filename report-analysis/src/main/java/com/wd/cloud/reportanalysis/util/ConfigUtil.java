@@ -13,9 +13,6 @@ public class ConfigUtil {
 
     static Setting setting = new Setting("config.setting",true);
 
-    
-    Iterator<Setting.Entry<String,String>> it=setting.entrySet().iterator();
-
     public static String getStr(String key) {
             return setting.getStr(key);
     }

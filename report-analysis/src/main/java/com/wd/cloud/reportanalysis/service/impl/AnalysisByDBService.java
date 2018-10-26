@@ -48,7 +48,8 @@ public class AnalysisByDBService implements AnalysisByDBServiceI{
 	public static Cache<String, Map<String,Object>> cache = CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(1, TimeUnit.HOURS).build();
 	
 	
-	public Map<String,Object> getColumnList(int scid,String issue) {
+	@Override
+	public Map<String,Object> getColumnList(int scid, String issue) {
 		try{
 			return cache.get(scid + ":" + issue, new Callable<Map<String,Object>>(){
 

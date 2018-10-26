@@ -57,7 +57,9 @@ public class IndexController {
 			if(school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
 				List<QueryCondition> list = resource.getQueryList();
 				list.add(new QueryCondition("scid", scid));
-				if(resource.getSignature() != null) list.add(new QueryCondition("signature", scid, resource.getSignature()));
+				if(resource.getSignature() != null) {
+					list.add(new QueryCondition("signature", scid, resource.getSignature()));
+				}
 				scidMap.put(scid, analysisByESService.amount(list,resource.getFiled(),type));
 			} else {
 				scidMap.put(scid, cxfWebService.amount(resource.toXML(scid)));
@@ -68,7 +70,7 @@ public class IndexController {
 		result.put("explain", explain);
 		result.put("content", scidMap);
 		System.out.println(result);
-		return ResponseModel.ok(result);
+		return ResponseModel.ok().setBody(result);
 	}
 	
 	@ApiOperation(value = "智慧云分析数据：发文量、分区、被引频次对比分析（非esi）")
@@ -87,9 +89,15 @@ public class IndexController {
 		String category = request.getParameter("category");
 		String limit_start = request.getParameter("limit_start");
 		String limit_num = request.getParameter("limit_num");
-		if(limit_start == null) limit_start = "0";
-		if(limit_num == null) limit_num = "1";
-		if(type_c == null) type_c = "0";
+		if(limit_start == null) {
+			limit_start = "0";
+		}
+		if(limit_num == null) {
+			limit_num = "1";
+		}
+		if(type_c == null) {
+			type_c = "0";
+		}
 		System.out.println("act:" + act + "scid:" + scid +"classify:" + classify +"column:" + column +"issue:" + issue +"category:" + category+" type_c:" + type_c);
 		Map<String,Object> result = new HashMap<>();
 		switch (act) {
@@ -122,7 +130,7 @@ public class IndexController {
 			break;
 		}
 		
-		return ResponseModel.ok(result);
+		return ResponseModel.ok().setBody(result);
 	}
 	 
 	 

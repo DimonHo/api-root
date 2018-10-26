@@ -44,8 +44,9 @@ public class AnalysisByESService implements AnalysisByESServiceI{
 		SearchResponse res = transportRepository.query(null,null,null,"explain");
 		for (SearchHit hit : res.getHits().getHits()) {
 			Map<String,Object> source = hit.getSource();
-			if(type.equals(source.get("type"))) 
-				return source;
+			if(type.equals(source.get("type"))) {
+                return source;
+            }
 		}
 		return null;
 	}

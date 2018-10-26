@@ -1,5 +1,5 @@
 package com.wd.cloud.reportanalysis.service.impl;
-import com.wd.cloud.apifeign.ResourcesServerApi;
+import com.wd.cloud.apifeign.ResourceServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import net.sf.json.JSONObject;
@@ -26,7 +26,7 @@ public class DocumentGeneration implements DocumentGenerationI {
     private ClientHttpRequestFactory factory;
 
     @Autowired
-    ResourcesServerApi resourcesServerApi;
+    ResourceServerApi resourceServerApi;
     @Autowired
     public void setFactory() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -86,7 +86,7 @@ public class DocumentGeneration implements DocumentGenerationI {
             headers.set("Content-Type", "multipart/form-data");
             headers.set("Accept", "application/json");
             HttpEntity<MultiValueMap<String,Object>> httpEntity=new HttpEntity<>(requestEntity,headers);
-            ResponseModel<cn.hutool.json.JSONObject> fileByte = resourcesServerApi.uploadFileToHf("journalImage",null,true,resource);
+            ResponseModel<cn.hutool.json.JSONObject> fileByte = resourceServerApi.uploadFileToHf("journalImage",null,true,resource);
             fileByte.getBody();
             return fileByte.getBody().toString();
         }catch (Exception e){
@@ -97,7 +97,7 @@ public class DocumentGeneration implements DocumentGenerationI {
 
     @Override
     public byte[] downLoad(String fileName) {
-        ResponseModel<byte[]> fileByte = resourcesServerApi.getFileByteToHf("journalImage",fileName);
+        ResponseModel<byte[]> fileByte = resourceServerApi.getFileByteToHf("journalImage",fileName);
         return fileByte.getBody();
     }
 

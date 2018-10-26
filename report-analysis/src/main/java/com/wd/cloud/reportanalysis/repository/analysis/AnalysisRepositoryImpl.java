@@ -40,7 +40,8 @@ public class AnalysisRepositoryImpl <T,ID extends Serializable> implements Analy
 		return list;
 	}
 	
-	public Map<String,Object> getanalysisCategory(String column,String issue,String scname,int scid) {
+	@Override
+    public Map<String,Object> getanalysisCategory(String column, String issue, String scname, int scid) {
 		String sql = "";
 		Object[] object = new Object[] {issue,scname};
 		if(column.equals("category")) {
@@ -66,7 +67,8 @@ public class AnalysisRepositoryImpl <T,ID extends Serializable> implements Analy
 	 * @param scid
 	 * @return
 	 */
-	public Map<String, Object> search(int scid,String issue,String category,String classify, String column,int type_c) {
+	@Override
+    public Map<String, Object> search(int scid, String issue, String category, String classify, String column, int type_c) {
 		String sql = "";
 		Object[] object = null;
 		switch (classify) {
@@ -184,7 +186,8 @@ public class AnalysisRepositoryImpl <T,ID extends Serializable> implements Analy
 	 * @param args
 	 * @return
 	 */
-	public Integer queryCount(String sql){
+	@Override
+    public Integer queryCount(String sql){
 		Query query = entityManager.createNativeQuery(sql);
 		String totle =  query.getSingleResult().toString();
 		return Integer.parseInt(totle);
