@@ -14,10 +14,12 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "doc_file",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"literature_id", "fileName"})})
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"literature_id", "file_id"})})
 public class DocFile extends AbstractEntity {
 
-    @NotNull
+    @Column(name = "file_id")
+    private String fileId;
+
     private String fileName;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -44,6 +46,14 @@ public class DocFile extends AbstractEntity {
      * 备注
      */
     private String reMark;
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
 
     public String getFileName() {
         return fileName;
@@ -105,7 +115,7 @@ public class DocFile extends AbstractEntity {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("fileName", fileName)
+                .append("fileId", fileId)
                 .append("literature", literature)
                 .append("auditorId", auditorId)
                 .append("auditorName", auditorName)
@@ -127,7 +137,7 @@ public class DocFile extends AbstractEntity {
         }
         DocFile docFile = (DocFile) o;
         return reusing == docFile.reusing &&
-                Objects.equals(fileName, docFile.fileName) &&
+                Objects.equals(fileId, docFile.fileId) &&
                 Objects.equals(literature, docFile.literature) &&
                 Objects.equals(auditorId, docFile.auditorId) &&
                 Objects.equals(auditorName, docFile.auditorName) &&
@@ -137,6 +147,6 @@ public class DocFile extends AbstractEntity {
     @Override
     public int hashCode() {
 
-        return Objects.hash(fileName, literature, auditorId, auditorName, reusing, reMark);
+        return Objects.hash(fileId, literature, auditorId, auditorName, reusing, reMark);
     }
 }

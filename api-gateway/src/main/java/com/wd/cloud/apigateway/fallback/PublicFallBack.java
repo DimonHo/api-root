@@ -1,10 +1,14 @@
 package com.wd.cloud.apigateway.fallback;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
 import com.wd.cloud.commons.enums.StatusEnum;
+import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -68,12 +72,12 @@ public class PublicFallBack implements FallbackProvider {
 
             @Override
             public InputStream getBody() throws IOException {
-                JSONObject responseModel = new JSONObject();
-                responseModel.put("error", true);
-                responseModel.put("status", StatusEnum.FALL_BACK);
-                responseModel.put("message", cause.getMessage());
+
+                ResponseModel responseModel = ResponseModel.fail()
+                        .setStatus(StatusEnum.FALL_BACK.value())
+                        .setMessage(cause.getMessage());
                 //返回前端的内容
-                return new ByteArrayInputStream(responseModel.toString().getBytes("UTF-8"));
+                return new ByteArrayInputStream(JSONUtil.toJsonStr(responseModel).getBytes());
             }
 
             @Override

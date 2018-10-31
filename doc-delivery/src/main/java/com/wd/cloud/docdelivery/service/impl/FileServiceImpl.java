@@ -3,7 +3,7 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.apifeign.ResourceServerApi;
+import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -17,6 +17,7 @@ import com.wd.cloud.docdelivery.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.Date;
 
 /**
@@ -40,7 +41,7 @@ public class FileServiceImpl implements FileService {
     GiveRecordRepository giveRecordRepository;
 
     @Autowired
-    ResourceServerApi resourceServerApi;
+    FsServerApi fsServerApi;
 
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
@@ -62,14 +63,17 @@ public class FileServiceImpl implements FileService {
     }
 
     private DownloadFileModel buildDownloadModel(HelpRecord helpRecord, GiveRecord giveRecord) {
-        String fileName = giveRecord.getDocFile().getFileName();
+        String fileId = giveRecord.getDocFile().getFileId();
         String docTitle = helpRecord.getLiterature().getDocTitle();
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<byte[]> fileByte = resourceServerApi.getFileByteToHf(globalConfig.getHbaseTableName(), fileName);
-        downloadFileModel.setFileByte(fileByte.getBody());
-        String ext = StrUtil.subAfter(fileName, ".", true);
+        ResponseModel<File> responseModel = fsServerApi.getFile(fileId);
+        if (!responseModel.isError()){
+            downloadFileModel.setFile(responseModel.getBody());
+            downloadFileModel.setFileByte(FileUtil.readBytes(responseModel.getBody()));
+        }
+        String ext = StrUtil.subAfter(responseModel.getBody().getName(), ".", true);
         String downLoadFileName = docTitle + "." + ext;
         downloadFileModel.setDownloadFileName(downLoadFileName);
         return downloadFileModel;

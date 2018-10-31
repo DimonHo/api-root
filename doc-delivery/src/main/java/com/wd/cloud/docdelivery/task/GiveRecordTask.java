@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author He Zhigang
  * @date 2018/7/17
- * @Description:
+ * @Description: 定时删除用户过期的应助记录
  */
 @Component
 public class GiveRecordTask {

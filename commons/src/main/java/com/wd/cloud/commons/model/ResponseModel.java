@@ -1,6 +1,5 @@
 package com.wd.cloud.commons.model;
 
-import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.enums.StatusEnum;
 
 import java.io.Serializable;
@@ -112,7 +111,7 @@ public class ResponseModel<T> implements Serializable {
                 .add("error=" + error)
                 .add("status=" + status)
                 .add("message='" + message + "'")
-                .add("body=" + JSONUtil.toJsonStr(body))
+                .add("body=" + body.toString())
                 .toString();
     }
 }

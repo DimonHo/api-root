@@ -20,7 +20,7 @@
         <module>api-gateway</module><!--api网关-->
         <module>monitoring</module><!-- 监控模块 -->
         <module>auth-server</module><!--鉴权服务-->
-        <module>resource-server</module><!--  文件（图片）资源服务 -->
+        <module>fs-server</module><!--  文件（图片）资源服务 -->
         <module>doc-delivery</module><!--文献传递服务-->
         <module>search-server</module><!-- 检索服务 -->
         <module>report-analysis</module><!--分析报表服务-->

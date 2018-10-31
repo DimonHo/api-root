@@ -15,11 +15,14 @@ import java.util.List;
  */
 public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
-    DocFile findByFileName(String fileName);
+
+    DocFile findByFileId(String fileId);
+
+    List<DocFile> findByFileIdIsNull();
 
     DocFile findByLiteratureAndReusingIsTrue(Literature literature);
 
-    DocFile findByLiteratureAndFileName(Literature literature, String fileName);
+    DocFile findByLiteratureAndFileId(Literature literature, String fileId);
 
     @Query("from DocFile where literature = :literature and (auditStatus is null or auditStatus = 1)")
     List<DocFile> getResuingDoc(@Param("literature") Literature literature);

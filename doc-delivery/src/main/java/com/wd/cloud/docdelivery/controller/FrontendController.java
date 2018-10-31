@@ -3,7 +3,9 @@ package com.wd.cloud.docdelivery.controller;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
-import com.wd.cloud.apifeign.ResourceServerApi;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
+import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -22,8 +24,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +45,7 @@ import javax.validation.constraints.NotNull;
 @RequestMapping("/front")
 public class FrontendController {
 
-    private static final Logger log = LoggerFactory.getLogger(FrontendController.class);
+    private static final Log log = LogFactory.get();
     @Autowired
     GlobalConfig globalConfig;
 
@@ -59,7 +59,7 @@ public class FrontendController {
     FrontService frontService;
 
     @Autowired
-    ResourceServerApi resourceServerApi;
+    FsServerApi fsServerApi;
 
     /**
      * 1. 文献求助
@@ -272,12 +272,12 @@ public class FrontendController {
         }
         //保存文件
         DocFile docFile = null;
-        ResponseModel<JSONObject> responseModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), null, file);
         log.info(responseModel.toString());
         if (responseModel.isError()) {
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
-        String filename = responseModel.getBody().getStr("file");
+        String filename = responseModel.getBody().getStr("fileId");
         docFile = frontService.saveDocFile(helpRecord.getLiterature(), filename);
 
         //更新记录

@@ -1,6 +1,6 @@
 package com.wd.cloud.reportanalysis.service.impl;
 
-import com.wd.cloud.apifeign.ResourceServerApi;
+import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import net.sf.json.JSONObject;
@@ -24,7 +24,7 @@ public class DocumentGeneration implements DocumentGenerationI {
 //    private RestTemplate restTemplate;
 
     @Autowired
-    ResourceServerApi resourceServerApi;
+    FsServerApi fsServerApi;
     private RestTemplate restTemplate;
     private ClientHttpRequestFactory factory;
 
@@ -86,7 +86,7 @@ public class DocumentGeneration implements DocumentGenerationI {
             headers.set("Content-Type", "multipart/form-data");
             headers.set("Accept", "application/json");
             HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(requestEntity, headers);
-            ResponseModel<cn.hutool.json.JSONObject> fileByte = resourceServerApi.uploadFileToHf("journalImage", null, true, resource);
+            ResponseModel<cn.hutool.json.JSONObject> fileByte = fsServerApi.uploadFile("journalImage", null, resource);
             fileByte.getBody();
             return fileByte.getBody().toString();
         } catch (Exception e) {
@@ -96,16 +96,10 @@ public class DocumentGeneration implements DocumentGenerationI {
     }
 
     @Override
-    public byte[] downLoad(String fileName) {
-        ResponseModel<byte[]> fileByte = resourceServerApi.getFileByteToHf("journalImage", fileName);
+    public byte[] downLoad(String unid) {
+        ResponseModel<byte[]> fileByte = fsServerApi.getFileByte(unid);
         return fileByte.getBody();
     }
 
-//    @Override
-//    public JSONObject download(String fileName) {
-//      String url=String.format("http://cloud.api.hnlat.com/resources-server/hf/journalImage?fileName=%s",fileName);
-//      ResponseEntity<JSONObject> responseEntity=restTemplate.getForEntity(url,JSONObject.class);
-//      return responseEntity.getBody();
-//    }
 
 }

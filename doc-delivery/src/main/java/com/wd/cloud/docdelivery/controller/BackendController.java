@@ -1,7 +1,9 @@
 package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.json.JSONObject;
-import com.wd.cloud.apifeign.ResourceServerApi;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
+import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
@@ -18,8 +20,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,7 +42,7 @@ import java.util.Optional;
 @RequestMapping("/backend")
 public class BackendController {
 
-    private static final Logger log = LoggerFactory.getLogger(BackendController.class);
+    private static final Log log = LogFactory.get();
     @Autowired
     BackendService backendService;
 
@@ -55,7 +55,7 @@ public class BackendController {
     @Autowired
     GlobalConfig globalConfig;
     @Autowired
-    ResourceServerApi resourceServerApi;
+    FsServerApi fsServerApi;
 
 
     /**
@@ -104,7 +104,6 @@ public class BackendController {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("reusing", reusing);
         param.put("keyword", keyword);
-
         return ResponseModel.ok().setBody(backendService.getLiteratureList(pageable, param));
     }
 
@@ -143,14 +142,14 @@ public class BackendController {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(helpRecordId);
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
-        ResponseModel<JSONObject> responseModel = resourceServerApi.uploadFileToHf(globalConfig.getHbaseTableName(), null, true, file);
+        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), null, file);
         log.info(responseModel.toString());
         if (responseModel.isError()) {
             log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
         log.info("文件{}上传成功!", file.getOriginalFilename());
-        String fileName = responseModel.getBody().getStr("file");
+        String fileName = responseModel.getBody().getStr("fileId");
         docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileName);
 
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录

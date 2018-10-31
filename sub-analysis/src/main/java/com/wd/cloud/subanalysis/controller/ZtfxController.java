@@ -4,12 +4,17 @@ import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.subanalysis.entity.DocForKeyword;
 import com.wd.cloud.subanalysis.service.ZtfxServiceI;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.List;
 
+@Api(value = "主题分析接口",tags = "主题分析相关")
 @RestController
 @RequestMapping("/ztfx")
 public class ZtfxController {
@@ -30,6 +35,7 @@ public class ZtfxController {
     /**
      * 发文趋势
      */
+
     @GetMapping("/fwqs/{id}")
     public ResponseModel<JSONObject> fwqs(@PathVariable String id,
                                           @RequestParam int startYear,

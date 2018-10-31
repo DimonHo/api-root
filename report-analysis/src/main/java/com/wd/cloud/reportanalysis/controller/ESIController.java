@@ -471,7 +471,7 @@ public class ESIController {
         Gson gson = new Gson();
         Map<String, Object> map = new HashMap<String, Object>();
         map = gson.fromJson(fileName, map.getClass());
-        String filename = (String) map.get("file");
+        String filename = (String) map.get("fileId");
         byte[] bytes = documentGenerationI.downLoad(filename);
         HttpHeaders headers = new HttpHeaders();
         String disposition = StrUtil.format("attachment; filename=\"{}\"", filename);

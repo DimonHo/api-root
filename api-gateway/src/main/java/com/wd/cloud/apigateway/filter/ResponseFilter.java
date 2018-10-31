@@ -40,7 +40,6 @@ public class ResponseFilter extends ZuulFilter {
         String body = IoUtil.read(stream, "UTF-8");
         log.info("http响应::> {}", body);
         RequestContext.getCurrentContext().setResponseBody(body);
-
         return null;
     }
 

@@ -1,7 +1,5 @@
 package com.wd.cloud.commons.enums;
 
-import org.springframework.lang.Nullable;
-
 /**
  * @author He Zhigang
  * @date 2018/10/10
@@ -155,7 +153,6 @@ public enum StatusEnum {
         }
     }
 
-    @Nullable
     public static StatusEnum resolve(int statusCode) {
         StatusEnum[] statusEnums = values();
         for (StatusEnum statusEnum : statusEnums) {

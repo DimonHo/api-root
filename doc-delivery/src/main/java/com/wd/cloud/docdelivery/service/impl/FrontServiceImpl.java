@@ -79,12 +79,12 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public DocFile saveDocFile(Literature literature, String fileName) {
-        DocFile docFile = docFileRepository.findByLiteratureAndFileName(literature, fileName);
+    public DocFile saveDocFile(Literature literature, String fileId) {
+        DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId);
         if (docFile == null) {
             docFile = new DocFile();
         }
-        docFile.setFileName(fileName);
+        docFile.setFileId(fileId);
         docFile.setLiterature(literature);
         docFile.setAuditStatus(0);
         docFile = docFileRepository.save(docFile);
