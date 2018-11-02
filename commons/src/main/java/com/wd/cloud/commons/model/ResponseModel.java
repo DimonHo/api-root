@@ -1,5 +1,6 @@
 package com.wd.cloud.commons.model;
 
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.enums.StatusEnum;
 
 import java.io.Serializable;
@@ -107,11 +108,17 @@ public class ResponseModel<T> implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", ResponseModel.class.getSimpleName() + "[", "]")
-                .add("error=" + error)
-                .add("status=" + status)
-                .add("message='" + message + "'")
-                .add("body=" + body.toString())
-                .toString();
+        StringJoiner responseModel = new StringJoiner(", ", ResponseModel.class.getSimpleName() + "[", "]");
+        responseModel.add("error=" + error);
+        if (status != null) {
+            responseModel.add("status=" + status);
+        }
+        if (message != null) {
+            responseModel.add("message='" + message + "'");
+        }
+        if (body != null) {
+            responseModel.add("body=" + JSONUtil.toJsonStr(body));
+        }
+        return responseModel.toString();
     }
 }

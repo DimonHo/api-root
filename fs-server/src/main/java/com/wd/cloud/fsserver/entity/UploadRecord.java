@@ -52,68 +52,76 @@ public class UploadRecord extends AbstractEntity {
     @Column(name = "is_asynced", columnDefinition = "tinyint(1) default 0")
     private boolean asynced;
 
-    public String getMd5() {
-        return md5;
+    public String getUnid() {
+        return unid;
     }
 
-    public void setMd5(String md5) {
-        this.md5 = md5;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public Long getFileSize() {
-        return fileSize;
-    }
-
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
+    public UploadRecord setUnid(String unid) {
+        this.unid = unid;
+        return this;
     }
 
     public String getPath() {
         return path;
     }
 
-    public void setPath(String path) {
+    public UploadRecord setPath(String path) {
         this.path = path;
+        return this;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public UploadRecord setFileName(String fileName) {
+        this.fileName = fileName;
+        return this;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public UploadRecord setMd5(String md5) {
+        this.md5 = md5;
+        return this;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public UploadRecord setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+        return this;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public UploadRecord setFileType(String fileType) {
+        this.fileType = fileType;
+        return this;
     }
 
     public boolean isMissed() {
         return missed;
     }
 
-    public void setMissed(boolean missed) {
+    public UploadRecord setMissed(boolean missed) {
         this.missed = missed;
+        return this;
     }
 
     public boolean isAsynced() {
         return asynced;
     }
 
-    public void setAsynced(boolean asynced) {
+    public UploadRecord setAsynced(boolean asynced) {
         this.asynced = asynced;
-    }
-
-    public String getUnid() {
-        return unid;
-    }
-
-    public void setUnid(String unid) {
-        this.unid = unid;
+        return this;
     }
 
     /**

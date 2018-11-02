@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +29,7 @@ import java.util.List;
  */
 @FeignClient(value = "fs-server",
         configuration = FsServerApi.MultipartSupportConfig.class,
-        fallback = FsServerApi.HystrixCalculatorService.class)
+        fallback = FsServerApi.Fallback.class)
 public interface FsServerApi {
 
     @PostMapping(value = "/upload/{dir}", consumes = "multipart/form-data")
@@ -40,7 +39,7 @@ public interface FsServerApi {
 
     @PostMapping(value = "/upload/{dir}", consumes = "multipart/form-data")
     public ResponseModel<JSONObject> uploadFiles(@PathVariable(value = "dir") String dir,
-                                                @RequestPart(value = "files") MultipartFile[] files);
+                                                 @RequestPart(value = "files") MultipartFile[] files);
 
     @GetMapping(value = "/download/{unid}")
     public ResponseEntity downloadFile(@PathVariable(value = "unid") String unid);
@@ -87,7 +86,7 @@ public interface FsServerApi {
     }
 
     @Component
-    class HystrixCalculatorService implements FsServerApi {
+    public class Fallback implements FsServerApi {
 
         @Override
         public ResponseModel<JSONObject> uploadFile(String dir, String fileName, MultipartFile file) {

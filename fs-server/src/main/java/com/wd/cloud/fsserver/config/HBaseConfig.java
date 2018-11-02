@@ -1,12 +1,14 @@
 package com.wd.cloud.fsserver.config;
 
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +39,17 @@ public class HBaseConfig {
             configuration.set(key, config.get(key));
         }
         return configuration;
+    }
+
+    @Bean
+    public HBaseAdmin hBaseAdmin(){
+        HBaseAdmin hBaseAdmin = null;
+        try {
+            hBaseAdmin = new HBaseAdmin(configuration());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return hBaseAdmin;
     }
 
 }

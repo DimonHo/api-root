@@ -14,8 +14,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>resources-server</name>
-    <description>资源服务</description>
+    <name>fs-server</name>
+    <description>文件资源服务</description>
 
     <dependencies>
         <!-- ========================= public start ========================= -->

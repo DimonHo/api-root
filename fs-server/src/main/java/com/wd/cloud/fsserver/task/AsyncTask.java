@@ -4,16 +4,17 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
 import com.wd.cloud.fsserver.entity.UploadRecord;
-import com.wd.cloud.fsserver.repository.UploadRecordRepository;
-import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.HbaseService;
+import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -27,33 +28,46 @@ public class AsyncTask {
     @Autowired
     GlobalConfig globalConfig;
     @Autowired
-    private UploadRecordRepository uploadRecordRepository;
+    UploadRecordService uploadRecordService;
     @Autowired
-    private HbaseService hbaseService;
+    HbaseService hbaseService;
 
     /**
      * 每天凌晨0点执行一次
      */
     @Scheduled(cron = "0 0 0 * * ?")
-    public void deleteGiveRecord() {
+    public void asyncToHbase() {
+        log.info("开始执行同步文件至hbase...");
         //找出所有未同步的记录
-        List<UploadRecord> uploadRecords = uploadRecordRepository.findByAsyncedIsFalse();
-        if (uploadRecords != null) {
-            uploadRecords.forEach(uploadRecord -> {
-                // 获取磁盘上的文件
-                File file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), uploadRecord.getFileName());
-                if (file.exists()) {
-                    try {
-                        // 同步至hbase中
-                        hbaseService.saveToHbase(uploadRecord.getPath(), uploadRecord.getUnid(), file);
-                        // 更新记录
-                        uploadRecord.setAsynced(true);
-                        uploadRecordRepository.save(uploadRecord);
-                    } catch (Exception e) {
-                        log.warn(e, "文件{}同步到hbase失败", uploadRecord.getUnid());
-                    }
-                }
-            });
+        Pageable pageable = PageRequest.of(0, 1000);
+        Page<UploadRecord> uploadRecords = uploadRecordService.getNotAsyncList(pageable);
+        log.info("共有{}个文件待同步", uploadRecords.getTotalElements());
+        uploadRecords.getContent().forEach(uploadRecord -> asyncToHbase(uploadRecord));
+        // 下一页
+        while (uploadRecords.hasNext()) {
+            uploadRecords = uploadRecordService.getNotAsyncList(uploadRecords.nextPageable());
+            uploadRecords.getContent().forEach(uploadRecord -> asyncToHbase(uploadRecord));
+        }
+        log.info("执行同步文件至hbase完成");
+    }
+
+    private void asyncToHbase(UploadRecord uploadRecord) {
+        // 获取磁盘上的文件
+        File file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), uploadRecord.getFileName());
+        if (file.exists()) {
+            try {
+                // 同步至hbase中
+                hbaseService.saveToHbase(uploadRecord.getPath(), uploadRecord.getUnid(), file);
+                // 更新记录
+                uploadRecord.setAsynced(true);
+                uploadRecordService.save(uploadRecord);
+            } catch (Exception e) {
+                log.error(e, "文件{}同步到hbase失败", uploadRecord.getUnid());
+            }
+        }else {
+            uploadRecord.setMissed(true);
+            uploadRecordService.save(uploadRecord);
+            log.error("找不到文件：{}", file.getName());
         }
     }
 }

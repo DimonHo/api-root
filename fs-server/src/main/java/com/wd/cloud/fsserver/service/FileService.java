@@ -13,10 +13,6 @@ import java.io.IOException;
  */
 public interface FileService {
 
-    UploadRecord getUploadRecord(String dir, String fileMd5);
-
-    UploadRecord getUploadRecord(String unid);
-
     UploadRecord save(String dir, String fileName, MultipartFile file) throws Exception;
 
     File getFile(String unid);

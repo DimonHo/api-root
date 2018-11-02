@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
  * @date 2018/10/30
  * @Description:
  */
-@Api(value = "图片资源服务接口", tags = {"图片资源服务接口"})
+@Api(value = "图片资源服务接口", tags = {"fs-server API"})
 @RestController
 @RequestMapping("/image")
 public class ImageController {

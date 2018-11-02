@@ -6,6 +6,7 @@ import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.fsserver.entity.UploadRecord;
 import com.wd.cloud.fsserver.service.FileService;
+import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.util.HttpHeaderUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -28,7 +29,7 @@ import java.io.UnsupportedEncodingException;
  * @date 2018/10/29
  * @Description:
  */
-@Api(value = "文件资源服务接口", tags = {"文件资源服务接口"})
+@Api(value = "文件资源服务接口", tags = {"fs-server API"})
 @RestController
 @RequestMapping("/")
 public class BaseController {
@@ -36,7 +37,10 @@ public class BaseController {
     @Autowired
     FileService fileService;
 
-    @ApiOperation(value = "检查文件是否已存在")
+    @Autowired
+    UploadRecordService uploadRecordService;
+
+    @ApiOperation(value = "检查文件是否已存在", tags = {"文件上传"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "fileMd5", value = "文件校验码", dataType = "String", paramType = "path")
@@ -44,27 +48,26 @@ public class BaseController {
     @GetMapping("/check/{dir}/{fileMd5}")
     public ResponseModel<Boolean> checkFile(@PathVariable String dir,
                                             @PathVariable String fileMd5) {
-        UploadRecord uploadRecord = fileService.getUploadRecord(dir, fileMd5);
+        UploadRecord uploadRecord = uploadRecordService.getOne(dir, fileMd5);
         if (uploadRecord != null) {
             return ResponseModel.ok().setBody(true);
         }
         return ResponseModel.ok().setBody(false);
     }
 
-    @ApiOperation(value = "检查文件是否已存在")
+    @ApiOperation(value = "检查文件是否已存在", tags = {"文件上传"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "fileMd5", value = "文件校验码", dataType = "String", paramType = "path")
     })
     @GetMapping("/check/{unid}")
     public ResponseModel<Boolean> checkFile(@PathVariable String unid) {
-        UploadRecord uploadRecord = fileService.getUploadRecord(unid);
+        UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord != null) {
             return ResponseModel.ok().setBody(true);
         }
         return ResponseModel.ok().setBody(false);
     }
-
 
 
     /**
@@ -74,7 +77,7 @@ public class BaseController {
      * @param dir
      * @return
      */
-    @ApiOperation(value = "文件上传")
+    @ApiOperation(value = "文件上传", tags = {"文件上传"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "fileName", value = "文件名称（非必传）", dataType = "String", paramType = "query")
@@ -102,27 +105,27 @@ public class BaseController {
      * @param dir
      * @return
      */
-    @ApiOperation(value = "多文件上传")
+    @ApiOperation(value = "多文件上传", tags = {"文件上传"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path")
     })
     @PostMapping("/mulitupload/{dir}")
     public ResponseModel<JSONObject> uploadFiles(@PathVariable String dir,
-                                                @NotNull MultipartFile[] files) {
+                                                 @NotNull MultipartFile[] files) {
         JSONObject jsonObject = new JSONObject();
-        for (MultipartFile file : files){
+        for (MultipartFile file : files) {
             try {
                 UploadRecord uploadRecord = fileService.save(dir, null, file);
-                jsonObject.put(file.getOriginalFilename(),uploadRecord.getUnid());
-            }catch (Exception e){
-                jsonObject.put(file.getOriginalFilename(),"failed");
+                jsonObject.put(file.getOriginalFilename(), uploadRecord.getUnid());
+            } catch (Exception e) {
+                jsonObject.put(file.getOriginalFilename(), "failed");
             }
         }
         return ResponseModel.ok().setBody(jsonObject);
     }
 
 
-    @ApiOperation(value = "文件下载")
+    @ApiOperation(value = "文件下载", tags = {"文件获取"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "unid", value = "文件唯一码", dataType = "String", paramType = "path")
     })
@@ -143,7 +146,7 @@ public class BaseController {
         }
     }
 
-    @ApiOperation(value = "获取文件")
+    @ApiOperation(value = "获取文件", tags = {"文件获取"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "unid", value = "文件唯一码", dataType = "String", paramType = "path")
     })
@@ -156,7 +159,7 @@ public class BaseController {
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }
 
-    @ApiOperation(value = "获取文件byte流")
+    @ApiOperation(value = "获取文件byte流", tags = {"文件获取"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "unid", value = "文件唯一码", dataType = "String", paramType = "path")
     })

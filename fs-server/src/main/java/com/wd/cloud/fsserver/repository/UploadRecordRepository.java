@@ -2,6 +2,8 @@ package com.wd.cloud.fsserver.repository;
 
 
 import com.wd.cloud.fsserver.entity.UploadRecord;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,21 +16,26 @@ import java.util.Optional;
  */
 public interface UploadRecordRepository extends JpaRepository<UploadRecord, Long> {
 
+
+    Page<UploadRecord> findByMissedAndAsynced(boolean missed, boolean asynced,Pageable pageable);
+
     /**
      * 丢失的文件列表
      *
      * @return
      */
-    Optional<List<UploadRecord>> findByMissedTrue();
+    Page<UploadRecord> findByMissedIsTrue(Pageable pageable);
 
     /**
      * 未同步到hbase的记录
      *
      * @return
      */
-    List<UploadRecord> findByAsyncedIsFalse();
+    Page<UploadRecord> findByAsyncedIsFalse(Pageable pageable);
 
     Optional<UploadRecord> findByUnid(String nuid);
+
+    Optional<UploadRecord> findByPathAndMd5(String path, String md5);
 
     /**
      * 查找有效文件

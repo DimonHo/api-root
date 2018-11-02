@@ -54,6 +54,7 @@ public class BackendController {
 
     @Autowired
     GlobalConfig globalConfig;
+
     @Autowired
     FsServerApi fsServerApi;
 
@@ -72,8 +73,10 @@ public class BackendController {
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", paramType = "query")
     })
     @GetMapping("/help/list")
-    public ResponseModel helpList(@RequestParam(required = false) Short status, @RequestParam(required = false) Short helperScid,
-                                  @RequestParam(required = false) String keyword, @RequestParam(required = false) String beginTime,
+    public ResponseModel helpList(@RequestParam(required = false) Short status,
+                                  @RequestParam(required = false) Short helperScid,
+                                  @RequestParam(required = false) String keyword,
+                                  @RequestParam(required = false) String beginTime,
                                   @RequestParam(required = false) String endTime,
                                   @PageableDefault(value = 20, sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
 

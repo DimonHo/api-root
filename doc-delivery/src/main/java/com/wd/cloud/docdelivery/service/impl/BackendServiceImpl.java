@@ -65,7 +65,8 @@ public class BackendServiceImpl implements BackendService {
                     list.add(cb.equal(root.get("helperScid").as(Integer.class), helpUserScid));
                 }
                 if (status != null && status != 0) {
-                    if (status == 1) {//列表查询未处理
+                    //列表查询未处理
+                    if (status == 1) {
                         list.add(cb.or(cb.equal(root.get("status").as(Integer.class), 0), cb.equal(root.get("status").as(Integer.class), 1), cb.equal(root.get("status").as(Integer.class), 2)));
                     } else {
                         list.add(cb.equal(root.get("status").as(Integer.class), status));

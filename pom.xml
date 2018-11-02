@@ -26,6 +26,7 @@
         <module>report-analysis</module><!--分析报表服务-->
         <module>org-server</module><!-- 机构管理服务-->
         <module>sub-analysis</module><!--主题分析服务-->
+        <module>wdtj-server</module><!--访问统计服务-->
     </modules>
 
     <parent>
