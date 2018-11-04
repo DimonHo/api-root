@@ -2,6 +2,7 @@ package com.wd.cloud.fsserver.util;
 
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.io.IORuntimeException;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -39,6 +40,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     public static String fileMd5(InputStream fileStream) {
         log.info("开始计算文件的MD5...");
         String fileMd5 = DigestUtil.md5Hex(fileStream);
+        IoUtil.close(fileStream);
         log.info("文件的MD5计算完成。");
         return fileMd5;
     }
@@ -64,10 +66,14 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      */
     public static String getFileType(MultipartFile file) {
         String ext = FileUtil.extName(file.getOriginalFilename()).trim().toLowerCase();
+        InputStream fileStream = null;
         try {
-            ext = StrUtil.isBlank(ext) ? FileTypeUtil.getType(file.getInputStream()) : ext;
+            fileStream = file.getInputStream();
+            ext = StrUtil.isBlank(ext) ? FileTypeUtil.getType(fileStream) : ext;
         } catch (IOException e) {
             ext = StrUtil.EMPTY;
+        } finally {
+            IoUtil.close(fileStream);
         }
         return ext;
     }
@@ -80,8 +86,9 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      */
     public static String getFileType(File file) {
         String ext = FileUtil.extName(file.getName()).trim();
+        String type = FileUtil.getType(file);
         try {
-            ext = StrUtil.isBlank(ext) ? FileTypeUtil.getType(file) : ext;
+            ext = StrUtil.isBlank(ext) && !StrUtil.isBlank(type) ? type : ext;
         } catch (Exception e) {
             ext = StrUtil.EMPTY;
         }
@@ -100,32 +107,9 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      */
     public static String buildFileName(File file) {
         String ext = FileUtil.extName(file.getName()).trim();
-        String fileType = FileTypeUtil.getType(file);
-        return StrUtil.isBlank(ext) && !StrUtil.isBlank(fileType) ? file.getName() + "." + fileType : file.getName();
+        String type = FileTypeUtil.getType(file);
+        return StrUtil.isBlank(ext) && !StrUtil.isBlank(type) ? file.getName() + "." + type : file.getName();
     }
-
-    /**
-     * 自动补全文件名后缀
-     *
-     * @param file
-     * @return
-     */
-    public static String buildFileMd5Name(File file, String md5) {
-        String ext = FileUtil.getFileType(file);
-        return md5 + "." + ext;
-    }
-
-    /**
-     * 自动补全MD5文件名后缀
-     *
-     * @param file
-     * @return
-     */
-    public static String buildFileMd5Name(MultipartFile file, String md5) {
-        String ext = FileUtil.getFileType(file);
-        return md5 + "." + ext;
-    }
-
 
     /**
      * 自动补全MD5文件名后缀
@@ -148,6 +132,33 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     }
 
     /**
+     * 自动补全文件名后缀
+     *
+     * @param file
+     * @return
+     */
+    public static String buildFileMd5Name(File file, String md5) {
+        String ext = FileUtil.getFileType(file);
+        return !StrUtil.isBlank(ext) ? md5 + "." + ext : md5;
+    }
+
+    /**
+     * 自动补全MD5文件名后缀
+     *
+     * @param file
+     * @return
+     */
+    public static String buildFileMd5Name(MultipartFile file, String md5) {
+        String ext = FileUtil.getFileType(file);
+        return !StrUtil.isBlank(ext) ? md5 + "." + ext : md5;
+    }
+
+    public static File saveToDisk(String absolutePath, MultipartFile file) throws IOException {
+        String md5 = FileUtil.fileMd5(file);
+        return saveToDisk(absolutePath, file, md5);
+    }
+
+    /**
      * 保存文件到磁盘目录,以MD5命名
      *
      * @param absolutePath 文件绝对路径
@@ -158,11 +169,6 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      */
     public static File saveToDisk(String absolutePath, MultipartFile file, String md5) throws IOException {
         String fileMd5Name = FileUtil.buildFileMd5Name(file, md5);
-        return saveToDisk(absolutePath, fileMd5Name, file.getBytes());
-    }
-
-    public static File saveToDisk(String absolutePath, MultipartFile file) throws IOException {
-        String fileMd5Name = FileUtil.buildFileMd5Name(file);
         return saveToDisk(absolutePath, fileMd5Name, file.getBytes());
     }
 

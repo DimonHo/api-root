@@ -139,7 +139,7 @@ public class HbaseServiceImpl implements HbaseService {
                             String fileMd5Name = FileUtil.buildFileMd5Name(file);
                             // 以MD5文件名保存
                             if (!fileMd5Name.equals(file.getName())) {
-                                FileUtil.rename(file, fileMd5Name, false, true);
+                                file = FileUtil.rename(file, fileMd5Name, false, true);
                             }
                             uploadRecordService.save(tableName, fileMd5Name, file);
                         } catch (Exception e) {

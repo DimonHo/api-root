@@ -181,8 +181,9 @@ public class FrontendController {
     @ApiOperation(value = "获取用户当天已求助记录的数量")
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
     @GetMapping("/help/count")
-    public int getHelpCountToDay(@RequestParam String email) {
-        return frontService.getCountHelpRecordToDay(email);
+    public ResponseModel getHelpCountToDay(@RequestParam String email) {
+
+        return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
     }
 
     /**
