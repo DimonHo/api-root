@@ -4,7 +4,6 @@ import com.wd.cloud.fsserver.entity.UploadRecord;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author He Zhigang

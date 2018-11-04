@@ -56,10 +56,7 @@ public class BaseController {
     }
 
     @ApiOperation(value = "检查文件是否已存在", tags = {"文件上传"})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "fileMd5", value = "文件校验码", dataType = "String", paramType = "path")
-    })
+    @ApiImplicitParam(name = "unid", value = "文件ID", dataType = "String", paramType = "path")
     @GetMapping("/check/{unid}")
     public ResponseModel<Boolean> checkFile(@PathVariable String unid) {
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
@@ -151,9 +148,9 @@ public class BaseController {
             @ApiImplicitParam(name = "unid", value = "文件唯一码", dataType = "String", paramType = "path")
     })
     @GetMapping("/file/{unid}")
-    public ResponseModel<File> getFile(@PathVariable String unid) {
+    public ResponseModel<File> getFile(@PathVariable String unid) throws UnsupportedEncodingException {
         File file = fileService.getFile(unid);
-        if (file.exists()) {
+        if (file != null) {
             return ResponseModel.ok().setBody(file);
         }
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
@@ -166,7 +163,7 @@ public class BaseController {
     @GetMapping("/byte/{unid}")
     public ResponseModel<byte[]> getFileByte(@PathVariable String unid) {
         File file = fileService.getFile(unid);
-        if (file.exists()) {
+        if (file != null) {
             return ResponseModel.ok().setBody(FileUtil.readBytes(file));
         }
         return ResponseModel.fail(StatusEnum.NOT_FOUND);

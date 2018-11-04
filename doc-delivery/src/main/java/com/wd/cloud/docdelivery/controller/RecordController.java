@@ -25,6 +25,7 @@ public class RecordController {
     GlobalConfig globalConfig;
     @Autowired
     DocFileRepository docFileRepository;
+
     /**
      * 审核不通过记录报表
      *
@@ -67,16 +68,17 @@ public class RecordController {
 
     /**
      * 生成文件ID
+     *
      * @return
      */
     @GetMapping("/createfileid")
-    public ResponseModel<JSONObject> updateFileUnid(){
+    public ResponseModel<JSONObject> updateFileUnid() {
         JSONObject response = JSONUtil.createObj();
         docFileRepository.findByFileIdIsNull().forEach(docFile -> {
-            String fileId = SecureUtil.md5(globalConfig.getHbaseTableName() + StrUtil.subBefore(docFile.getFileName(),".",true));
+            String fileId = SecureUtil.md5(globalConfig.getHbaseTableName() + StrUtil.subBefore(docFile.getFileName(), ".", true));
             docFile.setFileId(fileId);
             docFileRepository.save(docFile);
-            response.put(docFile.getFileId(),docFile.getFileName());
+            response.put(docFile.getFileId(), docFile.getFileName());
         });
         return ResponseModel.ok().setBody(response);
     }

@@ -69,7 +69,7 @@ public class FileServiceImpl implements FileService {
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
         ResponseModel<File> responseModel = fsServerApi.getFile(fileId);
-        if (!responseModel.isError()){
+        if (!responseModel.isError()) {
             downloadFileModel.setFile(responseModel.getBody());
             downloadFileModel.setFileByte(FileUtil.readBytes(responseModel.getBody()));
         }

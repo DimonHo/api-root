@@ -1,32 +1,19 @@
 package com.wd.cloud.fsserver.controller;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.fsserver.entity.UploadRecord;
 import com.wd.cloud.fsserver.service.HbaseService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.task.AsyncTask;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.hbase.HbaseTemplate;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -39,9 +26,6 @@ import java.util.List;
 public class AsyncController {
 
     private static final Log log = LogFactory.get();
-
-    @Autowired
-    HbaseTemplate hbaseTemplate;
 
     @Autowired
     UploadRecordService uploadRecordService;
@@ -60,7 +44,7 @@ public class AsyncController {
     }
 
     /**
-     * 同步hbase中的数据至uploadRecord
+     * 同步hbase中的数据同步至uploadRecord
      *
      * @param tableName
      * @return

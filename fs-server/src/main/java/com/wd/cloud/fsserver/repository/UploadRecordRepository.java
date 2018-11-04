@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -17,7 +16,7 @@ import java.util.Optional;
 public interface UploadRecordRepository extends JpaRepository<UploadRecord, Long> {
 
 
-    Page<UploadRecord> findByMissedAndAsynced(boolean missed, boolean asynced,Pageable pageable);
+    Page<UploadRecord> findByMissedAndAsynced(boolean missed, boolean asynced, Pageable pageable);
 
     /**
      * 丢失的文件列表
@@ -39,6 +38,7 @@ public interface UploadRecordRepository extends JpaRepository<UploadRecord, Long
 
     /**
      * 查找有效文件
+     *
      * @param nuid
      * @return
      */

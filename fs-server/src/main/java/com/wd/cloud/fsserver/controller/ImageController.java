@@ -2,7 +2,6 @@ package com.wd.cloud.fsserver.controller;
 
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.fsserver.entity.UploadRecord;
 import com.wd.cloud.fsserver.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -24,6 +23,7 @@ import javax.validation.constraints.NotNull;
 public class ImageController {
 
     FileService imageService;
+
     @ApiOperation(value = "图片上传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dir", value = "图片上传目录", dataType = "String", paramType = "path"),
@@ -32,7 +32,7 @@ public class ImageController {
     @PostMapping("/upload/{dir}")
     public ResponseModel upload(@PathVariable String dir,
                                 @RequestParam(required = false) String fileName,
-                                @NotNull MultipartFile file){
+                                @NotNull MultipartFile file) {
         JSONObject jsonObject = new JSONObject();
 
         return ResponseModel.ok().setBody(jsonObject);

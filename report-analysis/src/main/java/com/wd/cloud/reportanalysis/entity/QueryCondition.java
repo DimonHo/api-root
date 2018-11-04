@@ -92,13 +92,13 @@ public class QueryCondition implements Serializable {
         return logic;
     }
 
-    public QueryCondition setLogic(Logic logic) {
-        this.logic = logic.value();
+    public QueryCondition setLogic(int logic) {
+        this.logic = logic;
         return this;
     }
 
-    public QueryCondition setLogic(int logic) {
-        this.logic = logic;
+    public QueryCondition setLogic(Logic logic) {
+        this.logic = logic.value();
         return this;
     }
 

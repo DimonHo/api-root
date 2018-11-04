@@ -1,6 +1,7 @@
 package com.wd.cloud.apigateway.filter;
 
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.netflix.zuul.ZuulFilter;
@@ -31,13 +32,14 @@ public class ResponseFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return true;
+        return false;
     }
 
     @Override
     public Object run() throws ZuulException {
-        InputStream stream = RequestContext.getCurrentContext().getResponseDataStream();
-        String body = IoUtil.read(stream, "UTF-8");
+        //开启该过滤器可能造成下载文件损坏
+        InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
+        String body = IoUtil.read(bodyStream, CharsetUtil.UTF_8);
         log.info("http响应::> {}", body);
         RequestContext.getCurrentContext().setResponseBody(body);
         return null;

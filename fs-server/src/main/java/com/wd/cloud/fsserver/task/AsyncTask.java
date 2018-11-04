@@ -64,7 +64,7 @@ public class AsyncTask {
             } catch (Exception e) {
                 log.error(e, "文件{}同步到hbase失败", uploadRecord.getUnid());
             }
-        }else {
+        } else {
             uploadRecord.setMissed(true);
             uploadRecordService.save(uploadRecord);
             log.error("找不到文件：{}", file.getName());

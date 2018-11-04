@@ -76,34 +76,27 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         return ext;
     }
 
-    public static String buildFileName(String fileName,File file){
+    public static String buildFileName(String fileName, File file) {
         String ext = FileUtil.extName(fileName).trim().toLowerCase();
         String fileType = FileTypeUtil.getType(file);
-        fileName = StrUtil.isBlank(ext) && !StrUtil.isBlank(fileType) ? fileName + "."+ fileType : fileName;
+        fileName = StrUtil.isBlank(ext) && !StrUtil.isBlank(fileType) ? fileName + "." + fileType : fileName;
         return fileName;
     }
 
     public static File saveToDisk(String absolutePath, String fileName, MultipartFile file) throws IOException {
-        File newFile = new File(absolutePath, fileName);
-        if (!FileUtil.exist(newFile)) {
-            log.info("正在保存{}文件...",absolutePath + fileName);
-            //将文件流写入文件中
-            newFile = FileUtil.writeFromStream(file.getInputStream(), newFile);
-            log.info("文件{}已保存成功。",absolutePath + fileName);
-        }
-        log.info("文件{}已存在。", absolutePath + fileName);
-        return newFile;
+        return saveToDisk(absolutePath, fileName, file.getBytes());
     }
 
     public static File saveToDisk(String absolutePath, String fileName, byte[] fileByte) throws IOException {
         File newFile = new File(absolutePath, fileName);
         if (!FileUtil.exist(newFile)) {
-            log.info("正在保存{}文件...",absolutePath + fileName);
+            log.info("正在保存{}文件...", absolutePath + fileName);
             //将文件流写入文件中
             newFile = FileUtil.writeBytes(fileByte, newFile);
-            log.info("文件{}已保存成功。",absolutePath + fileName);
+            log.info("文件{}已保存成功。", absolutePath + fileName);
+        } else {
+            log.info("文件{}已存在。", absolutePath + fileName);
         }
-        log.info("文件{}已存在。", absolutePath + fileName);
         return newFile;
     }
 

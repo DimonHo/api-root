@@ -5,10 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import java.awt.*;
 import java.io.File;
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -23,7 +20,7 @@ public interface UploadRecordService {
 
     UploadRecord getNotMissed(String unid);
 
-    UploadRecord getOne(String path,String fileMd5);
+    UploadRecord getOne(String path, String fileMd5);
 
     UploadRecord save(UploadRecord uploadRecord);
 

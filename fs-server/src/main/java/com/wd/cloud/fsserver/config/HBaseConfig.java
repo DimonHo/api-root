@@ -42,7 +42,7 @@ public class HBaseConfig {
     }
 
     @Bean
-    public HBaseAdmin hBaseAdmin(){
+    public HBaseAdmin hBaseAdmin() {
         HBaseAdmin hBaseAdmin = null;
         try {
             hBaseAdmin = new HBaseAdmin(configuration());

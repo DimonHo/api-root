@@ -6,7 +6,7 @@ package com.wd.cloud.fsserver.model;
  * @date 2018/8/23
  * @Description:
  */
-public class HbaseObjModel {
+public class TableModel {
     private String tableName;
     /**
      * 使用文件unid作为rowkey
@@ -21,17 +21,17 @@ public class HbaseObjModel {
 
     private String fileName;
 
-    public HbaseObjModel() {
+    public TableModel() {
     }
 
-    public HbaseObjModel(String tableName, byte[] rowKey, byte[] value) {
+    public TableModel(String tableName, byte[] rowKey, byte[] value) {
         this.tableName = tableName;
         this.rowKey = rowKey;
         this.value = value;
     }
 
 
-    public HbaseObjModel(String tableName, byte[] rowKey, byte[] family, byte[] qualifier, byte[] value) {
+    public TableModel(String tableName, byte[] rowKey, byte[] family, byte[] qualifier, byte[] value) {
         this.tableName = tableName;
         this.rowKey = rowKey;
         this.family = family;
@@ -40,15 +40,15 @@ public class HbaseObjModel {
     }
 
 
-    public static HbaseObjModel create(){
-       return new HbaseObjModel();
+    public static TableModel create() {
+        return new TableModel();
     }
 
     public String getTableName() {
         return tableName;
     }
 
-    public HbaseObjModel setTableName(String tableName) {
+    public TableModel setTableName(String tableName) {
         this.tableName = tableName;
         return this;
     }
@@ -57,7 +57,7 @@ public class HbaseObjModel {
         return fileName;
     }
 
-    public HbaseObjModel setFileName(String fileName) {
+    public TableModel setFileName(String fileName) {
         this.fileName = fileName;
         return this;
     }
@@ -66,7 +66,7 @@ public class HbaseObjModel {
         return rowKey;
     }
 
-    public HbaseObjModel setRowKey(byte[] rowKey) {
+    public TableModel setRowKey(byte[] rowKey) {
         this.rowKey = rowKey;
         return this;
     }
@@ -75,7 +75,7 @@ public class HbaseObjModel {
         return family;
     }
 
-    public HbaseObjModel setFamily(byte[] family) {
+    public TableModel setFamily(byte[] family) {
         this.family = family;
         return this;
     }
@@ -84,7 +84,7 @@ public class HbaseObjModel {
         return qualifier;
     }
 
-    public HbaseObjModel setQualifier(byte[] qualifier) {
+    public TableModel setQualifier(byte[] qualifier) {
         this.qualifier = qualifier;
         return this;
     }
@@ -93,7 +93,7 @@ public class HbaseObjModel {
         return value;
     }
 
-    public HbaseObjModel setValue(byte[] value) {
+    public TableModel setValue(byte[] value) {
         this.value = value;
         return this;
     }

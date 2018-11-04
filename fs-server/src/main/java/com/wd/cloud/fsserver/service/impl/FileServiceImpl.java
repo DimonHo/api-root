@@ -6,13 +6,12 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
 import com.wd.cloud.fsserver.entity.UploadRecord;
-import com.wd.cloud.fsserver.repository.UploadRecordRepository;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.HbaseService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -23,7 +22,7 @@ import java.io.IOException;
  * @date 2018/7/20
  * @Description:
  */
-@Service("fileService")
+@Component("fileService")
 public class FileServiceImpl implements FileService {
 
     private static final Log log = LogFactory.get();
@@ -51,8 +50,8 @@ public class FileServiceImpl implements FileService {
         try {
             FileUtil.saveToDisk(globalConfig.getRootPath() + dir, fileName, file);
         } catch (IOException e) {
-            log.info("文件：{} 保存磁盘失败，尝试上传至hbase中。。。", fileName);
-            MailUtil.sendHtml("hezhigang@hnwdkj.com", "fs-server exception", String.format("文件:{}保存失败，请检查磁盘是否已满", fileName));
+            log.warn(e, "文件：{} 保存磁盘失败，尝试上传至hbase中。。。", fileName);
+            MailUtil.sendHtml("hezhigang@hnwdkj.com", "fs-server exception", String.format("文件:%s保存失败，请检查磁盘是否已满", fileName));
             //如果磁盘已满，直接保存至hbase
             hbaseService.saveToHbase(dir, unid, file);
         }

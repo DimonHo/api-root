@@ -7,7 +7,7 @@ import com.wd.cloud.fsserver.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -17,8 +17,9 @@ import java.io.File;
  * @date 2018/11/1
  * @Description:
  */
-@Service("uploadRecordService")
+@Component("uploadRecordService")
 public class UploadRecordServiceImpl implements UploadRecordService {
+
     @Autowired
     UploadRecordRepository uploadRecordRepository;
 
@@ -29,17 +30,17 @@ public class UploadRecordServiceImpl implements UploadRecordService {
 
     @Override
     public UploadRecord getOne(String unid) {
-        return uploadRecordRepository.findByUnid(unid).orElseGet(null);
+        return uploadRecordRepository.findByUnid(unid).orElse(null);
     }
 
     @Override
     public UploadRecord getNotMissed(String unid) {
-        return uploadRecordRepository.findByUnidAndMissedIsFalse(unid).orElseGet(null);
+        return uploadRecordRepository.findByUnidAndMissedIsFalse(unid).orElse(null);
     }
 
     @Override
     public UploadRecord getOne(String path, String fileMd5) {
-        return uploadRecordRepository.findByPathAndMd5(path, fileMd5).orElseGet(null);
+        return uploadRecordRepository.findByPathAndMd5(path, fileMd5).orElse(null);
     }
 
     @Override

@@ -124,11 +124,11 @@ public class HelpRecord extends AbstractEntity {
         return helpChannel;
     }
 
-    public void setHelpChannel(Integer helpChannel) {
+    public void setHelpChannel(int helpChannel) {
         this.helpChannel = helpChannel;
     }
 
-    public void setHelpChannel(int helpChannel) {
+    public void setHelpChannel(Integer helpChannel) {
         this.helpChannel = helpChannel;
     }
 

@@ -30,7 +30,7 @@ public class HttpHeaderUtil {
             fileName = new String(fileName.getBytes("utf-8"), "iso-8859-1");
         }
         HttpHeaders headers = new HttpHeaders();
-        String disposition = StrUtil.format("attachment; filename=\"{}\"", fileName);
+        String disposition = StrUtil.format("filename=\"{}\"", fileName);
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Content-Disposition", disposition);
         headers.add("Pragma", "no-cache");
@@ -47,7 +47,7 @@ public class HttpHeaderUtil {
      */
     public static HttpHeaders buildApiFileHttpHeaders(String fileName) throws UnsupportedEncodingException {
         HttpHeaders headers = new HttpHeaders();
-        String disposition = StrUtil.format("attachment; filename=\"{}\"", fileName);
+        String disposition = StrUtil.format("filename=\"{}\"", fileName);
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Content-Disposition", disposition);
         headers.add("Pragma", "no-cache");
