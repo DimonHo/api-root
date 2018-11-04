@@ -11,34 +11,15 @@ public class TableModel {
     /**
      * 使用文件unid作为rowkey
      */
-    private byte[] rowKey;
-    private byte[] family = "cf".getBytes();
-    private byte[] qualifier = "fileByte".getBytes();
+    private String rowKey;
+    private String family = "cf";
+    private String qualifier = "fileByte";
     /**
      * 文件byte流
      */
     private byte[] value;
 
     private String fileName;
-
-    public TableModel() {
-    }
-
-    public TableModel(String tableName, byte[] rowKey, byte[] value) {
-        this.tableName = tableName;
-        this.rowKey = rowKey;
-        this.value = value;
-    }
-
-
-    public TableModel(String tableName, byte[] rowKey, byte[] family, byte[] qualifier, byte[] value) {
-        this.tableName = tableName;
-        this.rowKey = rowKey;
-        this.family = family;
-        this.qualifier = qualifier;
-        this.value = value;
-    }
-
 
     public static TableModel create() {
         return new TableModel();
@@ -62,29 +43,29 @@ public class TableModel {
         return this;
     }
 
-    public byte[] getRowKey() {
+    public String getRowKey() {
         return rowKey;
     }
 
-    public TableModel setRowKey(byte[] rowKey) {
+    public TableModel setRowKey(String rowKey) {
         this.rowKey = rowKey;
         return this;
     }
 
-    public byte[] getFamily() {
+    public String getFamily() {
         return family;
     }
 
-    public TableModel setFamily(byte[] family) {
+    public TableModel setFamily(String family) {
         this.family = family;
         return this;
     }
 
-    public byte[] getQualifier() {
+    public String getQualifier() {
         return qualifier;
     }
 
-    public TableModel setQualifier(byte[] qualifier) {
+    public TableModel setQualifier(String qualifier) {
         this.qualifier = qualifier;
         return this;
     }

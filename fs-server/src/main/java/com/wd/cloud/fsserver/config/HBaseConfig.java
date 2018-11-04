@@ -41,6 +41,7 @@ public class HBaseConfig {
         return configuration;
     }
 
+
     @Bean
     public HBaseAdmin hBaseAdmin() {
         HBaseAdmin hBaseAdmin = null;

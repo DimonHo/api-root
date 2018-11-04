@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author He Zhigang
@@ -27,6 +28,10 @@ public interface UploadRecordService {
     UploadRecord save(String path, String fileName, String fileMd5, MultipartFile file);
 
     UploadRecord save(String path, String fileName, String fileMd5, File file);
+
+    UploadRecord save(String path, String fileName, MultipartFile file) throws IOException;
+
+    UploadRecord save(String path, String fileName, File file);
 
     Page<UploadRecord> getMissedList(Pageable pageable);
 

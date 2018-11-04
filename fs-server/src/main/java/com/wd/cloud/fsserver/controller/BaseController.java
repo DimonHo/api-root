@@ -76,16 +76,14 @@ public class BaseController {
      */
     @ApiOperation(value = "文件上传", tags = {"文件上传"})
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "fileName", value = "文件名称（非必传）", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path")
     })
     @PostMapping("/upload/{dir}")
     public ResponseModel<JSONObject> uploadFile(@PathVariable String dir,
-                                                @RequestParam(required = false) String fileName,
                                                 @NotNull MultipartFile file) {
         JSONObject jsonObject = new JSONObject();
         try {
-            UploadRecord uploadRecord = fileService.save(dir, fileName, file);
+            UploadRecord uploadRecord = fileService.save(dir, file);
             if (uploadRecord != null) {
                 jsonObject.put("fileId", uploadRecord.getUnid());
             }
@@ -112,7 +110,7 @@ public class BaseController {
         JSONObject jsonObject = new JSONObject();
         for (MultipartFile file : files) {
             try {
-                UploadRecord uploadRecord = fileService.save(dir, null, file);
+                UploadRecord uploadRecord = fileService.save(dir, file);
                 jsonObject.put(file.getOriginalFilename(), uploadRecord.getUnid());
             } catch (Exception e) {
                 jsonObject.put(file.getOriginalFilename(), "failed");

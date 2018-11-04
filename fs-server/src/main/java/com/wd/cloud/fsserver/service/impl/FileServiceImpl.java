@@ -1,6 +1,5 @@
 package com.wd.cloud.fsserver.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -36,22 +35,23 @@ public class FileServiceImpl implements FileService {
     UploadRecordService uploadRecordService;
 
     @Override
-    public UploadRecord save(String dir, String fileName, MultipartFile file) throws Exception {
-        // 如果未自定义文件名，则使用文件本身文件名
-        fileName = StrUtil.isBlank(fileName) ? file.getOriginalFilename() : fileName;
+    public UploadRecord save(String dir, MultipartFile file) throws Exception {
+        String fileName = file.getOriginalFilename();
         String fileMd5 = FileUtil.fileMd5(file);
         String unid = FileUtil.buildFileUuid(dir, fileMd5);
         //如果文件已存在且missed不为true
         UploadRecord uploadRecord = uploadRecordService.getNotMissed(unid);
         if (uploadRecord != null) {
-            log.info("文件记录：{} 已存在，unid={}", fileName, uploadRecord.getUnid());
+            log.info("文件记录：{} 已存在，unid={}", file.getName(), uploadRecord.getUnid());
             return uploadRecord;
         }
         try {
-            FileUtil.saveToDisk(globalConfig.getRootPath() + dir, fileName, file);
+            FileUtil.saveToDisk(globalConfig.getRootPath() + dir, file, fileMd5);
         } catch (IOException e) {
             log.warn(e, "文件：{} 保存磁盘失败，尝试上传至hbase中。。。", fileName);
-            MailUtil.sendHtml("hezhigang@hnwdkj.com", "fs-server exception", String.format("文件:%s保存失败，请检查磁盘是否已满", fileName));
+            MailUtil.sendHtml("hezhigang@hnwdkj.com",
+                    "fs-server exception",
+                    String.format("文件:%s保存失败，请检查磁盘是否已满", fileName));
             //如果磁盘已满，直接保存至hbase
             hbaseService.saveToHbase(dir, unid, file);
         }
@@ -64,8 +64,9 @@ public class FileServiceImpl implements FileService {
         File file = null;
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord != null) {
+            String md5FileName = FileUtil.buildFileName(uploadRecord.getMd5(), uploadRecord.getFileType());
             // 获取磁盘中的文件
-            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), uploadRecord.getFileName());
+            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), md5FileName);
             //如果在磁盘中没找到文件，则去hbase中去获取
             if (!file.exists()) {
                 byte[] fileByte = hbaseService.getFileFromHbase(uploadRecord.getPath(), unid);

@@ -51,7 +51,7 @@ public class HbaseServiceImpl implements HbaseService {
     public void saveToHbase(String tableName, String unid, MultipartFile file) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getOriginalFilename())
-                .setRowKey(unid.getBytes())
+                .setRowKey(unid)
                 .setValue(file.getBytes());
         saveToHbase(tableModel);
     }
@@ -60,7 +60,7 @@ public class HbaseServiceImpl implements HbaseService {
     public void saveToHbase(String tableName, String unid, File file) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
-                .setRowKey(unid.getBytes())
+                .setRowKey(unid)
                 .setValue(FileUtil.readBytes(file));
         saveToHbase(tableModel);
     }
@@ -69,7 +69,7 @@ public class HbaseServiceImpl implements HbaseService {
     public void saveToHbase(String tableName, String unid, byte[] fileByte, String fileName) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(fileName)
-                .setRowKey(unid.getBytes())
+                .setRowKey(unid)
                 .setValue(fileByte);
         saveToHbase(tableModel);
     }
@@ -79,7 +79,7 @@ public class HbaseServiceImpl implements HbaseService {
         String unid = FileUtil.buildFileUuid(tableName, FileUtil.fileMd5(file));
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
-                .setRowKey(unid.getBytes())
+                .setRowKey(unid)
                 .setValue(FileUtil.readBytes(file));
         saveToHbase(tableModel);
     }
@@ -88,8 +88,10 @@ public class HbaseServiceImpl implements HbaseService {
     public void saveToHbase(TableModel tableModel) throws Exception {
         log.info("正在上传文件：{}至HBASE...", tableModel.getFileName());
         hbaseTemplate.execute(tableModel.getTableName(), (hTableInterface) -> {
-            Put put = new Put(tableModel.getRowKey());
-            put.addColumn(tableModel.getFamily(), tableModel.getQualifier(), tableModel.getValue());
+            Put put = new Put(tableModel.getRowKey().getBytes());
+            put.addColumn(tableModel.getFamily().getBytes(),
+                    tableModel.getQualifier().getBytes(),
+                    tableModel.getValue());
             hTableInterface.put(put);
             log.info("文件：{} 已保存HBASE", tableModel.getFileName());
             return true;
@@ -134,12 +136,12 @@ public class HbaseServiceImpl implements HbaseService {
                             fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                             byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                             File file = FileUtil.saveToDisk(globalConfig.getRootPath() + tableName, fileName, fileByte);
-                            String md5 = FileUtil.fileMd5(file);
-                            fileName = FileUtil.buildFileName(fileName, file);
-                            uploadRecordService.save(tableName, fileName, md5, file);
-                            if (fileName.equals(file.getName())) {
-                                FileUtil.rename(file, fileName, false, true);
+                            String fileMd5Name = FileUtil.buildFileMd5Name(file);
+                            // 以MD5文件名保存
+                            if (!fileMd5Name.equals(file.getName())) {
+                                FileUtil.rename(file, fileMd5Name, false, true);
                             }
+                            uploadRecordService.save(tableName, fileMd5Name, file);
                         } catch (Exception e) {
                             log.error(e, "fileName:{}", fileName);
                         }
@@ -159,8 +161,10 @@ public class HbaseServiceImpl implements HbaseService {
 
     @Override
     public void createTable(String tableName) throws IOException {
+        TableModel tableModel = new TableModel();
+        tableModel.setTableName(tableName);
         HTableDescriptor table = new HTableDescriptor(tableName);
-        table.addFamily(new HColumnDescriptor("cf"));
+        table.addFamily(new HColumnDescriptor(tableModel.getFamily()));
         hBaseAdmin.createTable(table);
     }
 }

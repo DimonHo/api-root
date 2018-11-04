@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author He Zhigang
@@ -55,7 +56,7 @@ public class UploadRecordServiceImpl implements UploadRecordService {
         uploadRecord.setPath(path)
                 .setFileName(fileName)
                 .setMd5(fileMd5)
-                .setFileType(FileUtil.getFileType(fileName, file))
+                .setFileType(FileUtil.getFileType(file))
                 .setFileSize(file.getSize())
                 .setMissed(false);
         return save(uploadRecord);
@@ -68,7 +69,35 @@ public class UploadRecordServiceImpl implements UploadRecordService {
         uploadRecord.setPath(path)
                 .setFileName(fileName)
                 .setMd5(fileMd5)
-                .setFileType(FileUtil.getFileType(fileName, file))
+                .setFileType(FileUtil.getFileType(file))
+                .setFileSize(file.length())
+                .setMissed(false);
+        return save(uploadRecord);
+    }
+
+    @Override
+    public UploadRecord save(String path, String fileName, MultipartFile file) throws IOException {
+        String md5 = FileUtil.fileMd5(file);
+        //有则更新，没有则插入
+        UploadRecord uploadRecord = uploadRecordRepository.findByPathAndMd5(path, md5).orElse(new UploadRecord());
+        uploadRecord.setPath(path)
+                .setFileName(fileName)
+                .setMd5(FileUtil.fileMd5(file))
+                .setFileType(FileUtil.getFileType(file))
+                .setFileSize(file.getSize())
+                .setMissed(false);
+        return save(uploadRecord);
+    }
+
+    @Override
+    public UploadRecord save(String path, String fileName, File file) {
+        String md5 = FileUtil.fileMd5(file);
+        //有则更新，没有则插入
+        UploadRecord uploadRecord = uploadRecordRepository.findByPathAndMd5(path, md5).orElse(new UploadRecord());
+        uploadRecord.setPath(path)
+                .setFileName(fileName)
+                .setMd5(md5)
+                .setFileType(FileUtil.getFileType(file))
                 .setFileSize(file.length())
                 .setMissed(false);
         return save(uploadRecord);

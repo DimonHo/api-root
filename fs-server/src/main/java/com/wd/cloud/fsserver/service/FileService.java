@@ -12,7 +12,7 @@ import java.io.File;
  */
 public interface FileService {
 
-    UploadRecord save(String dir, String fileName, MultipartFile file) throws Exception;
+    UploadRecord save(String dir, MultipartFile file) throws Exception;
 
     File getFile(String unid);
 
