@@ -14,4 +14,6 @@ public interface FileService {
     DownloadFileModel getWaitAuditFile(Long helpRecordId);
 
     String getDownloadUrl(Long helpRecordId);
+
+    int buildFileId();
 }

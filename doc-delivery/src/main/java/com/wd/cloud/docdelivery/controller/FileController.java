@@ -4,6 +4,7 @@ import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.Header;
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.service.FileService;
@@ -95,5 +96,12 @@ public class FileController {
         OutputStream out = response.getOutputStream();
         out.write(downloadFileModel.getFileByte());
         out.close();
+    }
+
+
+    @GetMapping("/build/fileid")
+    public ResponseModel buildFileId(){
+        int count = fileService.buildFileId();
+        return ResponseModel.ok().setBody(count);
     }
 }
