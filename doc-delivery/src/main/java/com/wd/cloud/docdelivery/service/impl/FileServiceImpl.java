@@ -120,7 +120,7 @@ public class FileServiceImpl implements FileService {
     private AtomicInteger updateFileId(Page<DocFile> docFiles,AtomicInteger count) {
         docFiles.forEach(docFile -> {
             String md5 = StrUtil.subBefore(docFile.getFileName(), ".", true);
-            String path = "doc_delivery";
+            String path = "doc-delivery";
             docFile.setFileId(SecureUtil.md5(md5 + path));
             docFileRepository.save(docFile);
             count.getAndIncrement();

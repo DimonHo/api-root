@@ -40,7 +40,7 @@ public interface HbaseService {
      * @param tableName
      * @return
      */
-    boolean hfToUploadRecord(String tableName);
+    int hfToUploadRecord(String tableName);
 
     void dropTable(String tableName) throws IOException;
 

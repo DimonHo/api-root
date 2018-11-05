@@ -53,8 +53,8 @@ public class AsyncController {
     @ApiImplicitParam(name = "tableName", value = "hbase表名", dataType = "String", type = "path")
     @GetMapping("/from/{tableName}")
     public ResponseModel hfToUploadRecord(@PathVariable String tableName) {
-        hbaseService.hfToUploadRecord(tableName);
-        return ResponseModel.ok().setBody("同步完成");
+        int count = hbaseService.hfToUploadRecord(tableName);
+        return ResponseModel.ok().setMessage("同步完成").setBody(count);
     }
 
 }

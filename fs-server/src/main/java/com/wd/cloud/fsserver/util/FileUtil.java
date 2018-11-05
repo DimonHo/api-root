@@ -75,7 +75,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         } finally {
             IoUtil.close(fileStream);
         }
-        return ext;
+        return ext.toLowerCase();
     }
 
     /**
@@ -92,11 +92,11 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         } catch (Exception e) {
             ext = StrUtil.EMPTY;
         }
-        return ext;
+        return ext.toLowerCase();
     }
 
     public static String buildFileName(String md5, String fileType) {
-        return String.format("%s.%s", md5, fileType);
+        return String.format("%s.%s", md5, fileType.toLowerCase());
     }
 
     /**
@@ -173,25 +173,30 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     }
 
     public static File saveToDisk(String absolutePath, String fileName, byte[] fileByte) throws IOException {
-        File newFile = new File(absolutePath, fileName);
+        File file = new File(absolutePath, fileName);
         // 文件不存在
-        if (!FileUtil.exist(newFile)) {
-            log.info("正在保存{}文件...", newFile.getName());
+        if (!FileUtil.exist(file)) {
+            log.info("正在保存{}文件...", file.getName());
             //将文件流写入文件中
-            newFile = FileUtil.writeBytes(fileByte, newFile);
+            File newFile = FileUtil.writeBytes(fileByte, file);
             log.info("文件{}已保存成功。", newFile.getName());
+            return newFile;
             //如果存在同名文件，但内容不同
         } else {
-            String fileMd5 = FileUtil.fileMd5(newFile);
+            String beforeName = file.getName();
+            log.info("文件{}已存在。", beforeName);
+            String fileMd5 = FileUtil.fileMd5(file);
             //如果文件名于MD5不匹配，则用MD5重命名该文件
-            if (!fileMd5.equals(getFileName(newFile, true))) {
-                FileUtil.rename(newFile, fileMd5, true, true);
+            if (!fileMd5.equals(getFileName(file, true))) {
+                log.info("正在重命名文件:{}",beforeName);
+                File renameFile = FileUtil.rename(file, fileMd5, true, true);
+                String afterName = renameFile.getName();
+                log.info("重命名文件成功:{} --> {}",beforeName,afterName);
                 // 重新保存这个文件
                 return saveToDisk(absolutePath, fileName, fileByte);
             }
-            log.info("文件{}已存在。", newFile.getName());
+            return file;
         }
-        return newFile;
     }
 
 

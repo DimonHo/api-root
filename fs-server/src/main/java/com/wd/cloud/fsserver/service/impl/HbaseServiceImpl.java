@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author He Zhigang
@@ -124,7 +125,8 @@ public class HbaseServiceImpl implements HbaseService {
     }
 
     @Override
-    public boolean hfToUploadRecord(String tableName) {
+    public int hfToUploadRecord(String tableName) {
+        AtomicInteger count = new AtomicInteger();
         hbaseTemplate.find(tableName, new Scan(), new RowMapper<String>() {
             @Override
             public String mapRow(Result result, int i) {
@@ -142,6 +144,7 @@ public class HbaseServiceImpl implements HbaseService {
                                 file = FileUtil.rename(file, fileMd5Name, false, true);
                             }
                             uploadRecordService.save(tableName, fileMd5Name, file);
+                            count.getAndIncrement();
                         } catch (Exception e) {
                             log.error(e, "fileName:{}", fileName);
                         }
@@ -150,7 +153,7 @@ public class HbaseServiceImpl implements HbaseService {
                 return "ok";
             }
         });
-        return true;
+        return count.get();
     }
 
     @Override
