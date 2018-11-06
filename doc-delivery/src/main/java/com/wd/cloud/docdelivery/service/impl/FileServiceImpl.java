@@ -3,9 +3,14 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
+import com.sun.media.jfxmedia.logging.Logger;
 import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
@@ -15,10 +20,14 @@ import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author He Zhigang
@@ -27,6 +36,8 @@ import java.util.Date;
  */
 @Service("fileService")
 public class FileServiceImpl implements FileService {
+
+    private static final Log log = LogFactory.get();
 
     @Autowired
     GlobalConfig globalConfig;
@@ -90,5 +101,30 @@ public class FileServiceImpl implements FileService {
     @Override
     public String getDownloadUrl(Long helpRecordId) {
         return globalConfig.getCloudDomain() + "/doc-delivery/file/download/" + helpRecordId;
+    }
+
+    @Override
+    public int buildFileId() {
+        AtomicInteger count = new AtomicInteger();
+        Pageable pageable = PageRequest.of(0, 1000);
+        Page<DocFile> docFiles = docFileRepository.findAll(pageable);
+        count = updateFileId(docFiles,count);
+        while (docFiles.hasNext()){
+            docFiles = docFileRepository.findAll(docFiles.nextPageable());
+            count = updateFileId(docFiles,count);
+        }
+        log.info("共更新{}条数据",count.get());
+        return count.get();
+    }
+
+    private AtomicInteger updateFileId(Page<DocFile> docFiles,AtomicInteger count) {
+        docFiles.forEach(docFile -> {
+            String md5 = StrUtil.subBefore(docFile.getFileName(), ".", true);
+            String path = "doc-delivery";
+            docFile.setFileId(SecureUtil.md5(md5 + path));
+            docFileRepository.save(docFile);
+            count.getAndIncrement();
+        });
+        return count;
     }
 }

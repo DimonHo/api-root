@@ -11,13 +11,13 @@ import java.util.Set;
  * @Description:
  */
 @Entity
-@Table(name = "edu_org")
-public class EduOrg extends AbstractEntity {
+@Table(name = "org")
+public class Org extends AbstractEntity {
 
     private String orgFlag;
     private String orgName;
 
-    @OneToMany(mappedBy = "eduOrg")
+    @OneToMany(mappedBy = "org")
     private Set<IpRange> ipRanges;
 
 }

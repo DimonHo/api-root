@@ -13,9 +13,9 @@ import javax.persistence.Table;
 @Table(name = "ip_range")
 public class IpRange extends AbstractEntity {
     @ManyToOne
-    private EduOrg eduOrg;
-    private String ipFrom;
-    private String ipTo;
+    private Org org;
+    private String begin;
+    private String end;
 
     @Override
     public boolean equals(Object o) {
@@ -28,20 +28,20 @@ public class IpRange extends AbstractEntity {
 
         IpRange ipRange = (IpRange) o;
 
-        if (eduOrg != null ? !eduOrg.equals(ipRange.eduOrg) : ipRange.eduOrg != null) {
+        if (org != null ? !org.equals(ipRange.org) : ipRange.org != null) {
             return false;
         }
-        if (ipFrom != null ? !ipFrom.equals(ipRange.ipFrom) : ipRange.ipFrom != null) {
+        if (begin != null ? !begin.equals(ipRange.begin) : ipRange.begin != null) {
             return false;
         }
-        return ipTo != null ? ipTo.equals(ipRange.ipTo) : ipRange.ipTo == null;
+        return end != null ? end.equals(ipRange.end) : ipRange.end == null;
     }
 
     @Override
     public int hashCode() {
-        int result = eduOrg != null ? eduOrg.hashCode() : 0;
-        result = 31 * result + (ipFrom != null ? ipFrom.hashCode() : 0);
-        result = 31 * result + (ipTo != null ? ipTo.hashCode() : 0);
+        int result = org != null ? org.hashCode() : 0;
+        result = 31 * result + (begin != null ? begin.hashCode() : 0);
+        result = 31 * result + (end != null ? end.hashCode() : 0);
         return result;
     }
 }
