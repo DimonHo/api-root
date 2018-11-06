@@ -6,6 +6,9 @@
     <version>${parent.version}</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <netJson.version>2.4</netJson.version>
+    </properties>
     <parent>
         <groupId>com.wd.cloud</groupId>
         <artifactId>api-root</artifactId>
@@ -40,6 +43,13 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <classifier>jdk15</classifier>
+            <version>${netJson.version}</version>
         </dependency>
     </dependencies>
 
