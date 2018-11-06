@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -19,6 +20,7 @@ public class TjDaySetting extends AbstractEntity{
     /**
      * 机构ID
      */
+    @Column(name = "org_id")
     private Long orgId;
 
     private int pvCount;
@@ -28,7 +30,8 @@ public class TjDaySetting extends AbstractEntity{
     private Time avgTime;
 
     private String createUser;
-    private Long pId;
+    @Column(name = "pid")
+    private Long pid;
     private boolean history;
 
     public Long getOrgId() {
@@ -94,12 +97,12 @@ public class TjDaySetting extends AbstractEntity{
         return this;
     }
 
-    public Long getpId() {
-        return pId;
+    public Long getPid() {
+        return pid;
     }
 
-    public TjDaySetting setpId(Long pId) {
-        this.pId = pId;
+    public TjDaySetting setPid(Long pid) {
+        this.pid = pid;
         return this;
     }
 

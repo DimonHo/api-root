@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -15,11 +16,12 @@ import java.sql.Time;
 @Table(name = "tj_spis_data", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"org_id","tj_date"})
 })
-public class TjSpisData {
+public class TjSpisData extends AbstractEntity {
 
     /**
      * 机构ID
      */
+    @Column(name = "org_id")
     private Long orgId;
 
     private int pvCount;
@@ -30,5 +32,69 @@ public class TjSpisData {
     /**
      * 时间，精确到分钟
      */
+    @Column(name = "tj_date")
     private Date tjDate;
+
+    public Long getOrgId() {
+        return orgId;
+    }
+
+    public TjSpisData setOrgId(Long orgId) {
+        this.orgId = orgId;
+        return this;
+    }
+
+    public int getPvCount() {
+        return pvCount;
+    }
+
+    public TjSpisData setPvCount(int pvCount) {
+        this.pvCount = pvCount;
+        return this;
+    }
+
+    public int getScCount() {
+        return scCount;
+    }
+
+    public TjSpisData setScCount(int scCount) {
+        this.scCount = scCount;
+        return this;
+    }
+
+    public int getDcCount() {
+        return dcCount;
+    }
+
+    public TjSpisData setDcCount(int dcCount) {
+        this.dcCount = dcCount;
+        return this;
+    }
+
+    public int getDdcCount() {
+        return ddcCount;
+    }
+
+    public TjSpisData setDdcCount(int ddcCount) {
+        this.ddcCount = ddcCount;
+        return this;
+    }
+
+    public Time getAvgTime() {
+        return avgTime;
+    }
+
+    public TjSpisData setAvgTime(Time avgTime) {
+        this.avgTime = avgTime;
+        return this;
+    }
+
+    public Date getTjDate() {
+        return tjDate;
+    }
+
+    public TjSpisData setTjDate(Date tjDate) {
+        this.tjDate = tjDate;
+        return this;
+    }
 }

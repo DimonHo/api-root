@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -17,6 +18,7 @@ public class TjOrg extends AbstractEntity {
     /**
      * 机构ID
      */
+    @Column(name = "org_id")
     private Long orgId;
     /**
      * 机构名称
@@ -51,7 +53,7 @@ public class TjOrg extends AbstractEntity {
     /**
      * 历史数据Id
      */
-    private long pId;
+    private long pid;
 
     private boolean history;
 
@@ -127,12 +129,12 @@ public class TjOrg extends AbstractEntity {
         return this;
     }
 
-    public long getpId() {
-        return pId;
+    public long getPid() {
+        return pid;
     }
 
-    public TjOrg setpId(long pId) {
-        this.pId = pId;
+    public TjOrg setPid(long pid) {
+        this.pid = pid;
         return this;
     }
 

@@ -53,12 +53,6 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <classifier>jdk15</classifier>
-            <version>${netJson.version}</version>
-        </dependency>
     </dependencies>
 
 
