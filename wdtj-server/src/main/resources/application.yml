@@ -1,38 +1,3 @@
-server:
-  port: 10018
-  servlet:
-    context-path: /
-swagger:
-  enabled: true
-  title: 统计服务-开发环境
-  description: 统计服务API
-  version: 2.0
-  contact:
-    name: hezhigang
-    email: hezhigang@hnwdkj.com
-eureka:
-  instance:
-    prefer-ip-address: true
-    status-page-url: http://${spring.cloud.client.ip-address}:${server.port}/swagger-ui.html
-    health-check-url-path: /actuator/health
-  client:
-    healthcheck:
-      enabled: true
-    registry-fetch-interval-seconds: 5
-    serviceUrl:
-      defaultZone: http://192.168.1.101:8761/eureka/
-management:
-  security:
-    enabled: false
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-details: always
-######################################################################
-
 global:
   baidu:
     username: wdxxkj2014
@@ -41,6 +6,8 @@ global:
     account-type: 1
 
 spring:
+  application:
+    name: wdtj-server
   jpa:
     database: MYSQL
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect

@@ -52,6 +52,7 @@ public class ViewController {
     public ResponseModel getDay(@PathVariable Long orgId,
                                 @RequestParam Date beginDate,
                                 @RequestParam Date endDate){
+
         return ResponseModel.ok();
     }
 

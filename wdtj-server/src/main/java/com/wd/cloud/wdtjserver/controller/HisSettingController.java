@@ -1,12 +1,14 @@
 package com.wd.cloud.wdtjserver.controller;
-
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
+import com.wd.cloud.wdtjserver.service.TjService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -16,6 +18,9 @@ import java.util.Date;
  */
 @RestController
 public class HisSettingController {
+
+    @Autowired
+    TjService tjService;
 
     @ApiOperation(value = "设置历史基数", tags = {"后台设置"})
     @ApiImplicitParams({
@@ -28,7 +33,16 @@ public class HisSettingController {
                              @RequestBody QuotaModel quotaModel,
                              @RequestParam Date beginDate,
                              @RequestParam Date endDate) {
-        return ResponseModel.ok();
+        TjHisSetting tjHisSetting=new TjHisSetting();
+        tjHisSetting.setPvCount(quotaModel.getPvCount());
+        tjHisSetting.setScCount(quotaModel.getScCount());
+        tjHisSetting.setDcCount(quotaModel.getDcCount());
+        tjHisSetting.setDdcCount(quotaModel.getDdcCount());
+        tjHisSetting.setAvgTime(Time.valueOf(quotaModel.getAvgTime()));
+        tjHisSetting.setBeginDate(java.sql.Date.valueOf(beginDate+""));
+        tjHisSetting.setEndDate(java.sql.Date.valueOf(endDate+""));
+        TjHisSetting hisSetting = tjService.save(tjHisSetting);
+        return ResponseModel.ok().setBody(hisSetting);
     }
 
     @ApiOperation(value = "按月设置历史基数", tags = {"后台设置"})

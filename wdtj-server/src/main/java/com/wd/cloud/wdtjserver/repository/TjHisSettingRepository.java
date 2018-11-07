@@ -11,5 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TjHisSettingRepository extends JpaRepository<TjHisSetting,Long> {
 
-    TjHisSetting findByOrOrgId(long orgId);
+    TjHisSetting findByOrgIdAndHistoryIsFalse(long orgId);
+
+    TjHisSetting findByOrgIdAndHistoryIsTrue(long orgId);
 }

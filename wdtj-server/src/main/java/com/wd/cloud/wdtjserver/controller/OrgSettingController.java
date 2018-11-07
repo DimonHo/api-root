@@ -2,13 +2,14 @@ package com.wd.cloud.wdtjserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
+import com.wd.cloud.wdtjserver.service.TjService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -17,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class OrgSettingController {
+
+    @Autowired
+    TjService tjService;
 
     @ApiOperation(value = "设置机构参数", tags = {"后台设置"})
     @ApiImplicitParams({
@@ -35,7 +39,14 @@ public class OrgSettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showDc,
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
+
         return ResponseModel.ok();
+    }
+
+    @RequestMapping("/query")
+    public List<TjOrg> query(){
+        List<TjOrg> list = tjService.likeOrgName("中南大学");
+        return list;
     }
 
 }
