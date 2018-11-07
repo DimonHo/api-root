@@ -9,5 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @Description:
  */
 public interface TjOrgRepository extends JpaRepository<TjOrg, Long> {
-    TjOrg findByOrOrgId(long orgId);
+    //根据orgId查询
+    TjOrg findByOrgIdAndHistoryIsFalse(long orgId);
 }
