@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @date 2018/11/6
  * @Description:
  */
-public interface TjViewDataRepository extends JpaSpecificationExecutor<TjViewData> {
-    TjViewData findByOrOrgId(long orgId);
+public interface TjViewDataRepository extends JpaRepository<TjViewData, Long>,JpaSpecificationExecutor<TjViewData> {
+    TjViewData findByOrgId(long orgId);
 
 
 }
