@@ -7,10 +7,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 /**
  * @author He Zhigang
@@ -49,6 +47,34 @@ public class OrgSettingController {
         tjOrg.setShowAvgTime(showAvgTime);
         tjOrg = tjService.save(tjOrg);
         return ResponseModel.ok().setBody(tjOrg);
+    }
+
+    /**
+     * 根据机构名称查询
+     * @param orgName
+     * @return
+     */
+    @GetMapping("/setting/find")
+    public ResponseModel<TjOrg> find(@RequestParam String orgName){
+        return ResponseModel.ok();
+    }
+
+    /**
+     * 根据指标过滤
+     * @param showPv
+     * @param showSc
+     * @param showDc
+     * @param showDdc
+     * @param showAvgTime
+     * @return
+     */
+    @GetMapping("/setting/filter")
+    public ResponseModel<TjOrg> find(@RequestParam(required = false, defaultValue = "false") boolean showPv,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showSc,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showDc,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showDdc,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime){
+        return ResponseModel.ok();
     }
 
 }
