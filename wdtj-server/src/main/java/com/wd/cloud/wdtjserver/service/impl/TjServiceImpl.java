@@ -1,5 +1,7 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
@@ -28,6 +30,7 @@ import java.util.List;
  */
 @Service("tjService")
 public class TjServiceImpl implements TjService {
+    private static final Log log = LogFactory.get();
 
     @Autowired
     TjDaySettingRepository tjDaySettingRepository;
@@ -44,7 +47,7 @@ public class TjServiceImpl implements TjService {
         TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
         if (oldTjOrg == null) {
             tjOrg = tjOrgRepository.save(tjOrg);
-            System.out.println(tjOrg);
+            log.info(tjOrg.toString());
         } else {
             //修改History为true
             oldTjOrg.setHistory(true);
@@ -79,7 +82,7 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public List<TjViewData> serach(String sTime, String eTime) {
+    public List<TjViewData> serach(Long orgId,String sTime, String eTime) {
         List<TjViewData> tjViewDataList = null;
         Specification<TjViewData> querySpecifi = new Specification<TjViewData>() {
             @Override

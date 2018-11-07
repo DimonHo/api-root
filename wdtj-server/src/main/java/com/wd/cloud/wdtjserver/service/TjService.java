@@ -30,6 +30,6 @@ public interface TjService {
     //根据小时去查询
 
     //根据时间去查询数据(默认是按月数)
-    List<TjViewData> serach(String stime, String etime);
+    List<TjViewData> serach(Long orgId,String stime, String etime);
 
 }
