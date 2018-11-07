@@ -2,14 +2,10 @@ package com.wd.cloud.wdtjserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.service.TjService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -18,9 +14,6 @@ import java.util.List;
  */
 @RestController
 public class OrgSettingController {
-
-    @Autowired
-    TjService tjService;
 
     @ApiOperation(value = "设置机构参数", tags = {"后台设置"})
     @ApiImplicitParams({
@@ -39,14 +32,35 @@ public class OrgSettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showDc,
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
-
         return ResponseModel.ok();
     }
 
-    @RequestMapping("/query")
-    public List<TjOrg> query(){
-        List<TjOrg> list = tjService.likeOrgName("中南大学");
-        return list;
+    /**
+     * 根据机构名称查询
+     * @param orgName
+     * @return
+     */
+    @GetMapping("/setting/find")
+    public ResponseModel<TjOrg> find(@RequestParam String orgName){
+        return ResponseModel.ok();
+    }
+
+    /**
+     * 根据指标过滤
+     * @param showPv
+     * @param showSc
+     * @param showDc
+     * @param showDdc
+     * @param showAvgTime
+     * @return
+     */
+    @GetMapping("/setting/filter")
+    public ResponseModel<TjOrg> find(@RequestParam(required = false, defaultValue = "false") boolean showPv,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showSc,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showDc,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showDdc,
+                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime){
+        return ResponseModel.ok();
     }
 
 }
