@@ -33,7 +33,10 @@ public class TjHisSetting extends AbstractEntity {
     private Date beginDate;
     private Date endDate;
     private String createUser;
-    private Long pid;
+    /**
+     * 是否上锁，如果已上锁，则不可覆盖
+     */
+    private boolean locked;
     private boolean history;
 
     public Long getOrgId() {
@@ -117,12 +120,12 @@ public class TjHisSetting extends AbstractEntity {
         return this;
     }
 
-    public Long getPid() {
-        return pid;
+    public boolean isLocked() {
+        return locked;
     }
 
-    public TjHisSetting setPid(Long pid) {
-        this.pid = pid;
+    public TjHisSetting setLocked(boolean locked) {
+        this.locked = locked;
         return this;
     }
 
