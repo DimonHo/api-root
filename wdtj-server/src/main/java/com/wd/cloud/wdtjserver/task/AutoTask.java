@@ -18,4 +18,12 @@ public class AutoTask {
     public void auto(){
 
     }
+
+    /**
+     * 每分钟执行一次
+     */
+    @Scheduled(cron = "0/1 * * * * ?")
+    public void mergeData(){
+
+    }
 }
