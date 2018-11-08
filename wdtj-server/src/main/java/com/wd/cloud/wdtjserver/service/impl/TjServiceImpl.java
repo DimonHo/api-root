@@ -35,6 +35,10 @@ import java.util.List;
  */
 @Service("tjService")
 public class TjServiceImpl implements TjService {
+    private static final Log log = LogFactory.get();
+
+    @Autowired
+    TjDaySettingRepository tjDaySettingRepository;
 
     @Autowired
     TjOrgRepository tjOrgRepository;
@@ -50,12 +54,37 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public TjOrg save(TjOrg tjOrg) {
-        return null;
+        //根据学校ID查询是否有该学校
+        TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
+        if (oldTjOrg == null) {
+            tjOrg = tjOrgRepository.save(tjOrg);
+            log.info(tjOrg.toString());
+        } else {
+            //修改History为true
+            oldTjOrg.setHistory(true);
+            tjOrgRepository.save(oldTjOrg);
+            //根据history的值拿到对应的pid
+            tjOrg.setPid(oldTjOrg.getId());
+            tjOrg = tjOrgRepository.save(tjOrg);
+        }
+        return tjOrg;
     }
 
     @Override
     public TjDaySetting save(TjDaySetting tjDaySetting) {
-        return null;
+        //根据学校ID查询TjDaySetting是否有数据
+        TjDaySetting oldTjDaySetting = tjDaySettingRepository.findByOrgIdAndHistoryIsFalse(tjDaySetting.getOrgId());
+        if (oldTjDaySetting == null) {
+            //新增一条数据到TjDaySetting表
+            tjDaySetting = tjDaySettingRepository.save(tjDaySetting);
+        } else {
+            oldTjDaySetting.setHistory(true);
+            tjDaySettingRepository.save(oldTjDaySetting);
+            //根据history的值拿到对应的pid
+            tjDaySetting.setPid(oldTjDaySetting.getId());
+            tjDaySetting = tjDaySettingRepository.save(tjDaySetting);
+        }
+        return tjDaySetting;
     }
 
     @Override
@@ -72,5 +101,28 @@ public class TjServiceImpl implements TjService {
             tjHisSettingRepository.save(newtjHisSetting);
         }
         return null;
+    }
+
+    @Override
+    public List<TjViewData> serach(Long orgId, String sTime, String eTime) {
+        List<TjViewData> tjViewDataList = null;
+        Specification<TjViewData> querySpecifi = new Specification<TjViewData>() {
+            @Override
+            public Predicate toPredicate(Root<TjViewData> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<TjViewData> predicates = new ArrayList<>();
+                if (StringUtils.isNotBlank(sTime)) {
+                    //大于或等于传入时间
+                    predicates.add((TjViewData) cb.greaterThanOrEqualTo(root.get("tjDate").as(String.class), sTime));
+                }
+                if (StringUtils.isNotBlank(eTime)) {
+                    //小于或等于传入时间
+                    predicates.add((TjViewData) cb.lessThanOrEqualTo(root.get("tjDate").as(String.class), eTime));
+                }
+                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+
+            }
+        };
+        tjViewDataList = tjViewDataRepository.findAll(querySpecifi);
+        return tjViewDataList;
     }
 }

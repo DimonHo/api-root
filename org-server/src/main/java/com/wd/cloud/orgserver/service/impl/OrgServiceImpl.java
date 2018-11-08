@@ -1,8 +1,8 @@
 package com.wd.cloud.orgserver.service.impl;
 
-import com.wd.cloud.orgserver.entity.Org;
+import com.wd.cloud.orgserver.entity.OrgInfo;
 import com.wd.cloud.orgserver.repository.IpRangeRepository;
-import com.wd.cloud.orgserver.repository.OrgRepository;
+import com.wd.cloud.orgserver.repository.OrgInfoRepository;
 import com.wd.cloud.orgserver.service.OrgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,13 +16,13 @@ import org.springframework.stereotype.Service;
 public class OrgServiceImpl implements OrgService {
 
     @Autowired
-    OrgRepository orgRepository;
+    OrgInfoRepository orgInfoRepository;
 
     @Autowired
     IpRangeRepository ipRangeRepository;
 
     @Override
-    public Org getOrgInfoByFlag(String flag) {
-        return orgRepository.findByOrgFlag(flag).orElse(null);
+    public OrgInfo getOrgInfoByFlag(String flag) {
+        return orgInfoRepository.findByDefaultFlag(flag).orElse(null);
     }
 }

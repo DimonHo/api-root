@@ -1,11 +1,14 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
 
 /**
  * @author He Zhigang
@@ -33,7 +36,8 @@ public class TjSpisData extends AbstractEntity {
      * 时间，精确到分钟
      */
     @Column(name = "tj_date")
-    private Date tjDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Timestamp tjDate;
 
     public Long getOrgId() {
         return orgId;
@@ -89,11 +93,11 @@ public class TjSpisData extends AbstractEntity {
         return this;
     }
 
-    public Date getTjDate() {
+    public Timestamp getTjDate() {
         return tjDate;
     }
 
-    public TjSpisData setTjDate(Date tjDate) {
+    public TjSpisData setTjDate(Timestamp tjDate) {
         this.tjDate = tjDate;
         return this;
     }

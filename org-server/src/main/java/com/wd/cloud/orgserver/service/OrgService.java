@@ -1,6 +1,6 @@
 package com.wd.cloud.orgserver.service;
 
-import com.wd.cloud.orgserver.entity.Org;
+import com.wd.cloud.orgserver.entity.OrgInfo;
 
 /**
  * @author He Zhigang
@@ -9,5 +9,5 @@ import com.wd.cloud.orgserver.entity.Org;
  */
 public interface OrgService {
 
-    Org getOrgInfoByFlag(String flag);
+    OrgInfo getOrgInfoByFlag(String flag);
 }

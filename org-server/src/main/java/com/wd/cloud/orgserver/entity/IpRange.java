@@ -7,13 +7,13 @@ import javax.persistence.Table;
 /**
  * @author He Zhigang
  * @date 2018/8/10
- * @Description:
+ * @Description: IP范围
  */
 @Entity
 @Table(name = "ip_range")
 public class IpRange extends AbstractEntity {
     @ManyToOne
-    private Org org;
+    private OrgInfo orgInfo;
     private String begin;
     private String end;
 
@@ -28,7 +28,7 @@ public class IpRange extends AbstractEntity {
 
         IpRange ipRange = (IpRange) o;
 
-        if (org != null ? !org.equals(ipRange.org) : ipRange.org != null) {
+        if (orgInfo != null ? !orgInfo.equals(ipRange.orgInfo) : ipRange.orgInfo != null) {
             return false;
         }
         if (begin != null ? !begin.equals(ipRange.begin) : ipRange.begin != null) {
@@ -39,7 +39,7 @@ public class IpRange extends AbstractEntity {
 
     @Override
     public int hashCode() {
-        int result = org != null ? org.hashCode() : 0;
+        int result = orgInfo != null ? orgInfo.hashCode() : 0;
         result = 31 * result + (begin != null ? begin.hashCode() : 0);
         result = 31 * result + (end != null ? end.hashCode() : 0);
         return result;
