@@ -2,10 +2,13 @@ package com.wd.cloud.wdtjserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
+import com.wd.cloud.wdtjserver.service.TjService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 
 /**
  * @author He Zhigang
@@ -14,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 public class OrgSettingController {
+
+    @Autowired
+    TjService tjService;
 
     @ApiOperation(value = "设置机构参数", tags = {"后台设置"})
     @ApiImplicitParams({
@@ -32,7 +38,15 @@ public class OrgSettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showDc,
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
-        return ResponseModel.ok();
+        TjOrg tjOrg = new TjOrg();
+        tjOrg.setOrgId(orgId);
+        tjOrg.setShowPv(showPv);
+        tjOrg.setShowSc(showSc);
+        tjOrg.setShowDc(showDc);
+        tjOrg.setShowDdc(showDdc);
+        tjOrg.setShowAvgTime(showAvgTime);
+        tjOrg = tjService.save(tjOrg);
+        return ResponseModel.ok().setBody(tjOrg);
     }
 
     /**

@@ -1,15 +1,21 @@
 package com.wd.cloud.wdtjserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
+import com.wd.cloud.wdtjserver.service.TjService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 
 /**
  * @author He Zhigang
@@ -19,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DaySettingController {
 
+    @Autowired
+    TjService tjService;
+
     @ApiOperation(value = "设置日基数", tags = {"后台设置"})
     @ApiImplicitParams ({
         @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
@@ -26,8 +35,16 @@ public class DaySettingController {
     @PostMapping("/setting/day/{orgId}")
     public ResponseModel add(@PathVariable Long orgId,
                              @RequestBody QuotaModel quotaModel) {
-
-        return ResponseModel.ok();
-
+        TjDaySetting tjDaySetting = new TjDaySetting();
+        tjDaySetting.setOrgId(orgId);
+        tjDaySetting.setPvCount(quotaModel.getPvCount());
+        tjDaySetting.setScCount(quotaModel.getScCount());
+        tjDaySetting.setDcCount(quotaModel.getDcCount());
+        tjDaySetting.setDdcCount(quotaModel.getDdcCount());
+        String avgTime = quotaModel.getAvgTime();
+        Time time = Time.valueOf(avgTime);
+        tjDaySetting.setAvgTime(time);
+        tjDaySetting = tjService.save(tjDaySetting);
+        return ResponseModel.ok().setBody(tjDaySetting);
     }
 }
