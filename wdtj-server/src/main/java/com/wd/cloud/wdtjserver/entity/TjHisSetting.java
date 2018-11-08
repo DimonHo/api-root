@@ -1,11 +1,14 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
 
 /**
  * @author He Zhigang
@@ -30,8 +33,10 @@ public class TjHisSetting extends AbstractEntity {
     private int ddcCount;
     private Time avgTime;
 
-    private Date beginDate;
-    private Date endDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Timestamp beginDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Timestamp endDate;
     private String createUser;
     /**
      * 是否上锁，如果已上锁，则不可覆盖
@@ -93,20 +98,20 @@ public class TjHisSetting extends AbstractEntity {
         return this;
     }
 
-    public Date getBeginDate() {
+    public Timestamp getBeginDate() {
         return beginDate;
     }
 
-    public TjHisSetting setBeginDate(Date beginDate) {
+    public TjHisSetting setBeginDate(Timestamp beginDate) {
         this.beginDate = beginDate;
         return this;
     }
 
-    public Date getEndDate() {
+    public Timestamp getEndDate() {
         return endDate;
     }
 
-    public TjHisSetting setEndDate(Date endDate) {
+    public TjHisSetting setEndDate(Timestamp endDate) {
         this.endDate = endDate;
         return this;
     }

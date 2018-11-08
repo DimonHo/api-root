@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -24,11 +25,11 @@ public abstract class AbstractEntity implements Serializable {
 
     @LastModifiedDate
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    Date gmtModified;
+    Timestamp gmtModified;
 
     @CreatedDate
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    Date gmtCreate;
+    Timestamp gmtCreate;
 
     public Long getId() {
         return id;
@@ -42,7 +43,7 @@ public abstract class AbstractEntity implements Serializable {
         return gmtModified;
     }
 
-    public void setGmtModified(Date gmtModified) {
+    public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
     }
 
@@ -50,7 +51,7 @@ public abstract class AbstractEntity implements Serializable {
         return gmtCreate;
     }
 
-    public void setGmtCreate(Date gmtCreate) {
+    public void setGmtCreate(Timestamp gmtCreate) {
         this.gmtCreate = gmtCreate;
     }
 }

@@ -1,7 +1,7 @@
 package com.wd.cloud.orgserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.orgserver.entity.Org;
+import com.wd.cloud.orgserver.entity.OrgInfo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -74,7 +74,7 @@ public class OrgController {
      * @return
      */
     @GetMapping("/get")
-    public ResponseModel<Org> getOrg(@RequestParam String ip){
+    public ResponseModel<OrgInfo> getOrg(@RequestParam String ip){
         return ResponseModel.ok();
     }
 }

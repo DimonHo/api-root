@@ -1,11 +1,13 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
 
 /**
  * @author He Zhigang
@@ -14,9 +16,9 @@ import java.sql.Time;
  */
 @Entity
 @Table(name = "tj_view_data", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id","tj_date"})
+        @UniqueConstraint(columnNames = {"org_id", "tj_date"})
 })
-public class TjViewData extends AbstractEntity{
+public class TjViewData extends AbstractEntity {
 
     /**
      * 机构ID
@@ -34,7 +36,8 @@ public class TjViewData extends AbstractEntity{
      * 时间
      */
     @Column(name = "tj_date")
-    private Date tjDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Timestamp tjDate;
 
     public Long getOrgId() {
         return orgId;
@@ -90,11 +93,11 @@ public class TjViewData extends AbstractEntity{
         return this;
     }
 
-    public Date getTjDate() {
+    public Timestamp getTjDate() {
         return tjDate;
     }
 
-    public TjViewData setTjDate(Date tjDate) {
+    public TjViewData setTjDate(Timestamp tjDate) {
         this.tjDate = tjDate;
         return this;
     }

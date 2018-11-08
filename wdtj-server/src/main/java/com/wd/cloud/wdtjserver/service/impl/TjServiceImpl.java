@@ -20,7 +20,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -82,7 +81,7 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public List<TjViewData> serach(Long orgId,String sTime, String eTime) {
+    public List<TjViewData> serach(Long orgId, String sTime, String eTime) {
         List<TjViewData> tjViewDataList = null;
         Specification<TjViewData> querySpecifi = new Specification<TjViewData>() {
             @Override
