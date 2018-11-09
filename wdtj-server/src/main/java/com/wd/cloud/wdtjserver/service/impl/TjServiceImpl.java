@@ -1,30 +1,22 @@
 package com.wd.cloud.wdtjserver.service.impl;
-
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.repository.TjDaySettingRepository;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.repository.TjHisSettingRepository;
-import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.service.TjService;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.*;
 
 import java.util.List;
 
@@ -45,6 +37,9 @@ public class TjServiceImpl implements TjService {
 
     @Autowired
     TjHisSettingRepository tjHisSettingRepository;
+
+    @Autowired
+    TjViewDataRepository tjViewDataRepository;
 
     @Override
     public List<TjOrg> likeOrgName(String orgName) {
@@ -89,40 +84,68 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public TjHisSetting save(TjHisSetting tjHisSetting) {
-        TjHisSetting oldtjHisSetting = tjHisSettingRepository.findByOrgIdAndHistoryIsFalse(tjHisSetting.getOrgId());
-        if(oldtjHisSetting==null){
-            tjHisSettingRepository.save(tjHisSetting);
-        }else {
-            tjHisSetting.setHistory(true);
-            tjHisSettingRepository.save(oldtjHisSetting);
-            TjHisSetting newtjHisSetting=new TjHisSetting();
-            newtjHisSetting.setPid(tjHisSetting.getOrgId());
-            newtjHisSetting=tjHisSettingRepository.findByOrgIdAndHistoryIsTrue(tjHisSetting.getOrgId());
-            tjHisSettingRepository.save(newtjHisSetting);
-        }
-        return null;
+        List<TjHisSetting> old_tjHisSettings=tjHisSettingRepository.findByOrgId(tjHisSetting.getOrgId());
+       if(old_tjHisSettings.size()>0){
+           boolean is = true;
+           for(TjHisSetting old_tjHis:old_tjHisSettings){
+               is = DateUtil.isIn(tjHisSetting.getBeginTime(),old_tjHis.getBeginTime(),old_tjHis.getEndTime()) && old_tjHis.isLocked()?false:true;
+               is = DateUtil.isIn(tjHisSetting.getEndTime(),old_tjHis.getBeginTime(),old_tjHis.getEndTime()) && old_tjHis.isLocked()?false:true;
+           }
+           if(is==true){
+               tjHisSettingRepository.save(tjHisSetting);
+           }else {
+               log.info("时间段重合了，请重新输入时间段");
+           }
+       }else {
+           tjHisSettingRepository.save(tjHisSetting);
+       }
+       return tjHisSetting;
+    }
+
+
+
+    @Override
+    public  List<Map<String,Object>> findByTjDateAndOrgIdTime(Date beginDate, Date endDate, long orgId) {
+        Map<String, Object> date = getDate(beginDate, endDate);
+
+        List<Map<String,Object>> list = tjViewDataRepository.findByTjDateAndOrgIdTime(date.get("sqlDate_begin").toString(), date.get("sqlDate_end").toString(), orgId);
+        return list;
     }
 
     @Override
-    public List<TjViewData> serach(Long orgId, String sTime, String eTime) {
-        List<TjViewData> tjViewDataList = null;
-        Specification<TjViewData> querySpecifi = new Specification<TjViewData>() {
-            @Override
-            public Predicate toPredicate(Root<TjViewData> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<TjViewData> predicates = new ArrayList<>();
-                if (StringUtils.isNotBlank(sTime)) {
-                    //大于或等于传入时间
-                    predicates.add((TjViewData) cb.greaterThanOrEqualTo(root.get("tjDate").as(String.class), sTime));
-                }
-                if (StringUtils.isNotBlank(eTime)) {
-                    //小于或等于传入时间
-                    predicates.add((TjViewData) cb.lessThanOrEqualTo(root.get("tjDate").as(String.class), eTime));
-                }
-                return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-
-            }
-        };
-        tjViewDataList = tjViewDataRepository.findAll(querySpecifi);
-        return tjViewDataList;
+    public List<Map<String,Object>> findByTjDateAndOrgIdDay(Date beginDate, Date endDate, long orgId) {
+        Map<String, Object> date = getDate(beginDate, endDate);
+        List<Map<String,Object>> list = tjViewDataRepository.findByTjDateAndOrgIdDay(date.get("sqlDate_begin").toString(), date.get("sqlDate_end").toString(), orgId);
+        return list;
     }
+
+    @Override
+    public List<Map<String,Object>> findByTjDateAndOrgIdMonth(Date beginDate, Date endDate, long orgId) {
+        Map<String, Object> date = getDate(beginDate, endDate);
+        List<Map<String,Object>> list = tjViewDataRepository.findByTjDateAndOrgIdMonth(date.get("sqlDate_begin").toString(),date.get("sqlDate_end").toString(),orgId);
+        return list;
+    }
+
+    @Override
+    public List<Map<String,Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId) {
+        Map<String, Object> date = getDate(beginDate, endDate);
+        List<Map<String,Object>> list  = tjViewDataRepository.findByTjDateAndOrgIdYear(date.get("sqlDate_begin").toString(),date.get("sqlDate_end").toString(),orgId);
+        return list;
+    }
+
+
+    public Map<String,Object> getDate(Date beginDate, Date endDate){
+        java.util.Date utilDate_begin=new Date(beginDate+"");
+        java.util.Date utilDate_end=new Date(endDate+"");
+        java.sql.Date sqlDate_begin=new java.sql.Date(utilDate_begin.getTime());
+        java.sql.Date sqlDate_end=new java.sql.Date(utilDate_end.getTime());
+        Map<String,Object> map=new HashMap<>();
+        map.put("sqlDate_begin",sqlDate_begin);
+        map.put("sqlDate_end",sqlDate_end);
+        return map;
+    }
+
+
+
+
 }

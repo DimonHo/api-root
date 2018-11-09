@@ -4,6 +4,7 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
 import com.wd.cloud.wdtjserver.service.TjService;
+import com.wd.cloud.wdtjserver.utils.QuotaModelUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -36,15 +37,12 @@ public class DaySettingController {
     public ResponseModel add(@PathVariable Long orgId,
                              @RequestBody QuotaModel quotaModel) {
         TjDaySetting tjDaySetting = new TjDaySetting();
-        tjDaySetting.setOrgId(orgId);
-        tjDaySetting.setPvCount(quotaModel.getPvCount());
-        tjDaySetting.setScCount(quotaModel.getScCount());
-        tjDaySetting.setDcCount(quotaModel.getDcCount());
-        tjDaySetting.setDdcCount(quotaModel.getDdcCount());
-        String avgTime = quotaModel.getAvgTime();
-        Time time = Time.valueOf(avgTime);
-        tjDaySetting.setAvgTime(time);
+        tjDaySetting = QuotaModelUtils.quotaModel(orgId,quotaModel);
         tjDaySetting = tjService.save(tjDaySetting);
         return ResponseModel.ok().setBody(tjDaySetting);
     }
+
+
+
+
 }

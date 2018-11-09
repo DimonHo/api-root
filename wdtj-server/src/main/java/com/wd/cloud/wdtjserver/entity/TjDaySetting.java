@@ -97,6 +97,7 @@ public class TjDaySetting extends AbstractEntity{
         return this;
     }
 
+
     public Long getPid() {
         return pid;
     }

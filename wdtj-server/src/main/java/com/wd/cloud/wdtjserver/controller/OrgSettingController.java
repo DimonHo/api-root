@@ -9,6 +9,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 /**
  * @author He Zhigang
@@ -56,7 +58,8 @@ public class OrgSettingController {
      */
     @GetMapping("/setting/find")
     public ResponseModel<TjOrg> find(@RequestParam String orgName){
-        return ResponseModel.ok();
+        List<TjOrg> list = tjService.likeOrgName(orgName);
+        return ResponseModel.ok().setBody(list);
     }
 
     /**
