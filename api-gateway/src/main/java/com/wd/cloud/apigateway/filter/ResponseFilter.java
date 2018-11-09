@@ -37,7 +37,7 @@ public class ResponseFilter extends ZuulFilter {
 
     @Override
     public Object run() throws ZuulException {
-        //开启该过滤器可能造成下载文件损坏
+        //如果是文件下载，此处会读取文件流导致客户端读取的文件流不完整而出现下载文件损坏。
         InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
         String body = IoUtil.read(bodyStream, CharsetUtil.UTF_8);
         log.info("http响应::> {}", body);

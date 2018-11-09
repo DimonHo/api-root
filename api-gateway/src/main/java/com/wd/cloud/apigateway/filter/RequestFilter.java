@@ -35,7 +35,7 @@ public class RequestFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return true;
+        return false;
     }
 
     @Override
@@ -60,13 +60,14 @@ public class RequestFilter extends ZuulFilter {
         log.info("http请求:: > {} {} {} {}", req.getMethod(), req.getRequestURI(), params, req.getProtocol());
         Enumeration<String> headers = req.getHeaderNames();
         while (headers.hasMoreElements()) {
-            String name = (String) headers.nextElement();
+            String name = headers.nextElement();
             String value = req.getHeader(name);
             log.info("http请求头信息:: > {}:{}", name, value);
         }
         if (!ctx.isChunkedRequestBody()) {
             ServletInputStream inp = null;
             try {
+                //如果是文件上传，此处会读取文件流导致后面的服务获取不到完整的文件流从而报EOF异常。
                 inp = ctx.getRequest().getInputStream();
                 if (inp != null) {
                     String body = IoUtil.read(inp, "utf-8");
