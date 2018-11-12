@@ -3,12 +3,11 @@ package com.wd.cloud.wdtjserver.service;
 import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
-import com.wd.cloud.wdtjserver.model.QuotaModel;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * @author He Zhigang
@@ -16,6 +15,8 @@ import java.util.Map;
  * @Description:
  */
 public interface TjService {
+    //查询学校
+    List<TjOrg> likeOrgName(String orgName);
 
     TjOrg save(TjOrg tjOrg);
 
@@ -24,12 +25,21 @@ public interface TjService {
     TjHisSetting save(TjHisSetting tjHisSetting);
 
 
-    //根据年去查询
-    //根据月去查询
-    //根据天去查询
-    //根据小时去查询
+    //按时查询
+    List<Map<String,Object>> findByTjDateAndOrgIdTime(Date beginDate,Date endDate,long orgId);
+    //按天查询
+    List<Map<String,Object>> findByTjDateAndOrgIdDay(Date beginDate,Date endDate,long orgId);
 
-    //根据时间去查询数据(默认是按月数)
-    List<TjViewData> serach(Long orgId,String stime, String etime);
+    //按月查询
+    List<Map<String,Object>> findByTjDateAndOrgIdMonth(Date beginDate,Date endDate,long orgId);
+
+    //按年查询
+    List<Map<String,Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId);
+
+    public List<TjDaySetting> findByHistoryIsFalse();
+    //根据传入的boolean值查询
+    List<TjOrg> findByBoole(boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime);
+
+    void search(TjHisSetting tjHisSetting);
 
 }

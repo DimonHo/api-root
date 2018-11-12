@@ -5,7 +5,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -16,9 +15,7 @@ import java.sql.Timestamp;
  * @Description:
  */
 @Entity
-@Table(name = "tj_his_setting", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id","pid"})
-})
+@Table(name = "tj_his_setting")
 public class TjHisSetting extends AbstractEntity {
 
     /**
@@ -26,7 +23,6 @@ public class TjHisSetting extends AbstractEntity {
      */
     @Column(name = "org_id")
     private Long orgId;
-
     private int pvCount;
     private int scCount;
     private int dcCount;
@@ -34,9 +30,9 @@ public class TjHisSetting extends AbstractEntity {
     private Time avgTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Timestamp beginDate;
+    private Timestamp beginTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Timestamp endDate;
+    private Timestamp endTime;
     private String createUser;
     /**
      * 是否上锁，如果已上锁，则不可覆盖
@@ -98,21 +94,21 @@ public class TjHisSetting extends AbstractEntity {
         return this;
     }
 
-    public Timestamp getBeginDate() {
-        return beginDate;
+    public Timestamp getBeginTime() {
+        return beginTime;
     }
 
-    public TjHisSetting setBeginDate(Timestamp beginDate) {
-        this.beginDate = beginDate;
+    public TjHisSetting setBeginTime(Timestamp beginTime) {
+        this.beginTime = beginTime;
         return this;
     }
 
-    public Timestamp getEndDate() {
-        return endDate;
+    public Timestamp getEndTime() {
+        return endTime;
     }
 
-    public TjHisSetting setEndDate(Timestamp endDate) {
-        this.endDate = endDate;
+    public TjHisSetting setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
         return this;
     }
 

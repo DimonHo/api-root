@@ -4,6 +4,8 @@ import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2018/11/6
@@ -11,5 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TjHisSettingRepository extends JpaRepository<TjHisSetting,Long> {
 
-    TjHisSetting findByOrOrgId(long orgId);
+    List<TjHisSetting> findByOrgId(long orgId);
+
 }

@@ -13,7 +13,7 @@ public class Proportion {
     /**
      * 比率
      */
-    private double proportion;
+    private double proportions;
 
     public int[] getOptions() {
         return options;
@@ -24,12 +24,12 @@ public class Proportion {
         return this;
     }
 
-    public double getProportion() {
-        return proportion;
+    public double getProportions() {
+        return proportions;
     }
 
-    public Proportion setProportion(double proportion) {
-        this.proportion = proportion;
+    public Proportion setProportions(double proportions) {
+        this.proportions = proportions;
         return this;
     }
 }

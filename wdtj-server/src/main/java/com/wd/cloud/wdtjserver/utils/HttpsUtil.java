@@ -63,7 +63,6 @@ public class HttpsUtil {
         SSLContext sc = SSLContext.getInstance("SSL");
         sc.init(null, new TrustManager[] { new TrustAnyTrustManager() },
                 new java.security.SecureRandom());
-
         URL console = new URL(url);
         HttpsURLConnection conn = (HttpsURLConnection) console.openConnection();
         conn.setSSLSocketFactory(sc.getSocketFactory());
