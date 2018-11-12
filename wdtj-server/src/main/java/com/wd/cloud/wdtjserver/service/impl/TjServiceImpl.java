@@ -2,6 +2,7 @@ package com.wd.cloud.wdtjserver.service.impl;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.wdtjserver.config.GlobalConfig;
 import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
@@ -10,6 +11,7 @@ import com.wd.cloud.wdtjserver.repository.TjDaySettingRepository;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.TjService;
+import io.swagger.annotations.ApiImplicitParam;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -39,6 +41,9 @@ public class TjServiceImpl implements TjService {
 
     @Autowired
     TjViewDataRepository tjViewDataRepository;
+
+    @Autowired
+    GlobalConfig globalConfig;
 
     @Override
     public TjOrg save(TjOrg tjOrg) {
