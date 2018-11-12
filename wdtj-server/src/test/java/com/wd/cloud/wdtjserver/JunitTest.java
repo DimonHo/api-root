@@ -1,5 +1,7 @@
 package com.wd.cloud.wdtjserver;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.Console;
 import com.wd.cloud.wdtjserver.config.GlobalConfig;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
@@ -8,6 +10,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,12 +21,12 @@ import java.util.TreeMap;
  */
 public class JunitTest {
 
-    @Autowired
-    GlobalConfig global;
     @Test
     public void testRandom(){
-        DateUtil.getPro(DateUtil.parse("2018-11-01 00"),DateUtil.parse("2018-11-30 00"));
-        //Console.log(RandomUtils.random(24*60,1000));
+        //Console.log(DateUtil.getTomorrowMap());
+        List<DateTime> dateList = DateUtil.rangeToList(DateUtil.beginOfDay(DateUtil.tomorrow()),DateUtil.endOfDay(DateUtil.tomorrow()), DateField.MINUTE);
+        Console.log(dateList);
+        //Console.log(DateUtil.getMonthDaysJson(DateUtil.parse("2018-11-01"),DateUtil.parse("2018-11-30")));
     }
 
 //    public Map<String,Map<String, Map<String,Double>>> getMonthDaysMap(Date beginDate, Date endDate){

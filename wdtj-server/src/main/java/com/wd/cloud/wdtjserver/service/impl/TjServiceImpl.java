@@ -10,9 +10,8 @@ import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.repository.*;
 import com.wd.cloud.wdtjserver.service.TjService;
-import com.wd.cloud.wdtjserver.utils.DateUtils;
-import com.wd.cloud.wdtjserver.utils.FindDates;
-import com.wd.cloud.wdtjserver.utils.TimeUtils;
+import io.micrometer.core.instrument.util.TimeUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.bouncycastle.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -112,36 +111,31 @@ public class TjServiceImpl implements TjService {
         return tjHisSetting;
     }
 
-
-
     @Override
-    public  List<Map<String,Object>> findByTjDateAndOrgIdTime(Date beginDate, Date endDate, long orgId) {
-        Map<String, Object> date = getDate(beginDate, endDate);
-
-        List<Map<String,Object>> list = tjViewDataRepository.findByTjDateAndOrgIdTime(date.get("sqlDate_begin").toString(), date.get("sqlDate_end").toString(), orgId);
-        return list;
+    public List<Map<String, Object>> findByTjDateAndOrgIdTime(Date beginDate, Date endDate, long orgId) {
+        return null;
     }
 
     @Override
-    public List<Map<String,Object>> findByTjDateAndOrgIdDay(Date beginDate, Date endDate, long orgId) {
-        Map<String, Object> date = getDate(beginDate, endDate);
-        List<Map<String,Object>> list = tjViewDataRepository.findByTjDateAndOrgIdDay(date.get("sqlDate_begin").toString(), date.get("sqlDate_end").toString(), orgId);
-        return list;
+    public List<Map<String, Object>> findByTjDateAndOrgIdDay(Date beginDate, Date endDate, long orgId) {
+        return null;
     }
 
     @Override
-    public List<Map<String,Object>> findByTjDateAndOrgIdMonth(Date beginDate, Date endDate, long orgId) {
-        Map<String, Object> date = getDate(beginDate, endDate);
-        List<Map<String,Object>> list = tjViewDataRepository.findByTjDateAndOrgIdMonth(date.get("sqlDate_begin").toString(),date.get("sqlDate_end").toString(),orgId);
-        return list;
+    public List<Map<String, Object>> findByTjDateAndOrgIdMonth(Date beginDate, Date endDate, long orgId) {
+        return null;
     }
 
     @Override
-    public List<Map<String,Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId) {
-        Map<String, Object> date = getDate(beginDate, endDate);
-        List<Map<String,Object>> list  = tjViewDataRepository.findByTjDateAndOrgIdYear(date.get("sqlDate_begin").toString(),date.get("sqlDate_end").toString(),orgId);
-        return list;
+    public List<Map<String, Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId) {
+        return null;
     }
+
+    @Override
+    public List<TjDaySetting> findByHistoryIsFalse() {
+        return null;
+    }
+
 
     @Override
     public List<TjOrg> findByBoole(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime) {
@@ -151,199 +145,9 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public void search(TjHisSetting tjHisSetting) {
-        //访问量
-        int pvCount = tjHisSetting.getPvCount();
-        //搜索量
-        int scCount = tjHisSetting.getScCount();
-        //下载量
-        int dcCount = tjHisSetting.getDcCount();
-        //文献传递量
-        int ddcCount = tjHisSetting.getDdcCount();
-        //平均访问时长
-        Time avgTime = tjHisSetting.getAvgTime();
 
-        //传入开始时间和结束时间间隔
-        long between = DateUtil.between(tjHisSetting.getBeginTime(), tjHisSetting.getEndTime(), DateUnit.HOUR);
-        //高峰月份
-        int[] optionsHighMonth = globalConfig.getHighMonths().getOptions();
-        double proportionHigh = globalConfig.getHighMonths().getProportions();
-        //低峰月份
-        int[] optionsLowMonth = globalConfig.getLowMonths().getOptions();
-        double proportionLow = globalConfig.getLowMonths().getProportions();
-        //
-        Map<String, Object> map = TimeUtils.get(tjHisSetting.getEndTime(), tjHisSetting.getBeginTime());
-        System.out.println("ggggggggggggggggggggggggggggg"+map);
-        Integer result = Integer.parseInt( map.get("result").toString());
-        //计算相隔时间间隔每天的量
-        long avrDay=pvCount/between;
-        //高峰日
-        int[] optionsHighDay = globalConfig.getHighDays().getOptions();
-        double proportionHighDay = globalConfig.getHighDays().getProportions();
-        //低峰日
-        int[] optionsLowDay = globalConfig.getLowDays().getOptions();
-        double proportionLowDay = globalConfig.getLowDays().getProportions();
-        //高峰时
-        int[] optionsHighHour = globalConfig.getHighHours().getOptions();
-        double proportionHighHour = globalConfig.getHighHours().getProportions();
-        //低峰时
-        int[] optionsLowHour = globalConfig.getLowHours().getOptions();
-        double proportionLowHour = globalConfig.getLowHours().getProportions();
-        for(int i=0;i<result;i++){
-            long monthDay=Integer.parseInt(map.get("day"+i).toString());
-            Integer month=Integer.parseInt(map.get("month"+i).toString());
-            DateTime endMonth = DateUtil.endOfMonth(tjHisSetting.getBeginTime());
-            List<String> strings=new ArrayList<>();
-            try {
-               strings = FindDates.get(tjHisSetting.getBeginTime().toString(), endMonth.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            Integer day=0;
-            for(String s:strings){
-                Integer hour=0;
-               day=Integer.parseInt(s.substring(8,10));
-               for(int h=0;h<23;h++){
-                   hour=h;
-                   //获得高峰月份
-                   for(int j=0;j<optionsHighMonth.length;j++){
-                       int dayMonth=optionsHighMonth[j];
-                       //默认情况下一个月多少量
-                       double monthCountNormal=avrDay * monthDay;
-                       if(month==dayMonth){
-                           //高峰月的量
-                           monthCountNormal=monthCountNormal*proportionHigh;
-                           getDay(optionsHighDay, proportionHighDay, optionsLowDay, proportionLowDay, optionsHighHour, proportionHighHour, optionsLowHour, proportionLowHour, monthDay, day, hour, monthCountNormal);
-                       }
-                   }
-                   //获得低峰月份
-                   for(int k=0;k<optionsLowMonth.length;k++){
-                       int dayMonth=optionsLowMonth[k];
-                       //默认情况下一个月多少量
-                       double monthCountNormal=avrDay * monthDay;
-                       if(month==dayMonth){
-                           monthCountNormal=monthCountNormal*proportionLow;
-                           getDay(optionsHighDay, proportionHighDay, optionsLowDay, proportionLowDay, optionsHighHour, proportionHighHour, optionsLowHour, proportionLowHour, monthDay, day, hour, monthCountNormal);
-                       }
-                   }
-               }
-
-            }
-
-        }
     }
 
-    private void getDay(int[] optionsHighDay, double proportionHighDay, int[] optionsLowDay, double proportionLowDay, int[] optionsHighHour, double proportionHighHour, int[] optionsLowHour, double proportionLowHour, long monthDay, Integer day, Integer hour, double monthCountNormal) {
-        //默认一天多少量
-        double dayCountNormal=monthCountNormal/monthDay;
-        //高峰日
-        for(int d=0;d<optionsHighDay.length;d++){
-            int dayDay=optionsHighDay[d];
-            //高峰日
-            if(day==dayDay){
-                dayCountNormal=dayCountNormal*proportionHighDay;
-                getHours(optionsHighHour, proportionHighHour, optionsLowHour, proportionLowHour, hour, dayCountNormal);
-            }
-        }
-        //低峰日
-        for(int d=0;d<optionsLowDay.length;d++){
-            int dayDay=optionsLowDay[d];
-            //低峰日
-            if(day==dayDay){
-                dayCountNormal=dayCountNormal*proportionLowDay;
-                getHours(optionsHighHour, proportionHighHour, optionsLowHour, proportionLowHour, hour, dayCountNormal);
-            }
-        }
-    }
-
-    private void getHours(int[] optionsHighHour, double proportionHighHour, int[] optionsLowHour, double proportionLowHour, Integer hour, double dayCountNormal) {
-        //默认一小时的量
-        double hourCountNormal=dayCountNormal/24;
-        //高峰时
-        for(int h=0;h<optionsHighHour.length;h++){
-            int hourDay=optionsHighHour[h];
-            if(hour==hourDay){
-                hourCountNormal=hourCountNormal*proportionHighHour;
-            }
-        }
-        //低峰时
-        for(int h=0;h<optionsLowHour.length;h++){
-            int hourDay=optionsLowHour[h];
-            if(hour==hourDay){
-                hourCountNormal=hourCountNormal*proportionLowHour;
-            }
-        }
-    }
-
-    public Map<String,Object> getDate(Date beginDate, Date endDate){
-        java.util.Date utilDate_begin=new Date(beginDate+"");
-        java.util.Date utilDate_end=new Date(endDate+"");
-        java.sql.Date sqlDate_begin=new java.sql.Date(utilDate_begin.getTime());
-        java.sql.Date sqlDate_end=new java.sql.Date(utilDate_end.getTime());
-        Map<String,Object> map=new HashMap<>();
-        map.put("sqlDate_begin",sqlDate_begin);
-        map.put("sqlDate_end",sqlDate_end);
-        return map;
-    }
-
-    @Override
-    public List<TjDaySetting> findByHistoryIsFalse() {
-        /**
-         * 查询History为false的数据
-         */
-        List<TjDaySetting> byHistoryIsFalse = tjDaySettingRepository.findByHistoryIsFalse();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //获取当前时间
-        String format = simpleDateFormat.toString();
-        for (TjDaySetting listMap : byHistoryIsFalse) {
-            TjDaySetting tjDaySetting = listMap;
-
-            //获取当前时间的小时
-            int datehour = DateUtil.hour(new Date(), true);
-            //获取当天
-            Integer dateDay = Integer.parseInt(format.substring(8, 10));
-            //获取本月
-            Integer dateMonth = Integer.parseInt(format.substring(5, 7));
-            //学校ID
-            long orgId = tjDaySetting.getOrgId();
-            //下载量
-            int dcCount = tjDaySetting.getDcCount();
-
-            //文献传递量
-            int ddcCount = tjDaySetting.getDdcCount();
-            //访问量
-            int pvCount = tjDaySetting.getPvCount();
-            //搜索量
-            int scCount = tjDaySetting.getScCount();
-
-            //得到每小时平均分配多少条数据
-            double usDcCount = dcCount / 24;
-            double usDdcCount = ddcCount / 24;
-            double usPvCount = pvCount / 24;
-            double usScCount = scCount / 24;
-
-            //获取第二天的时间
-            String date = DateUtils.getNextDay(new Date().toString());
-
-
-            int optionsHighMonth[] = globalConfig.getHighMonths().getOptions();
-            //获取该天的小时数
-            for (int h = 0; h < 24; h++) {
-                for (int o = 0;o<=optionsHighMonth.length;o++){
-                    if (optionsHighMonth[o] == h ){
-
-                    }
-                }
-
-                //获取该小时的分钟数
-                for (int m = 0;m<60;m++){
-
-                }
-            }
-
-
-        }
-        return byHistoryIsFalse;
-    }
 
 
 }
