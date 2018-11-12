@@ -285,24 +285,18 @@ public class TjServiceImpl implements TjService {
         return map;
     }
 
-    @Override
     public List<TjDaySetting> findByHistoryIsFalse() {
         /**
          * 查询History为false的数据
          */
         List<TjDaySetting> byHistoryIsFalse = tjDaySettingRepository.findByHistoryIsFalse();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //获取当前时间
-        String format = simpleDateFormat.toString();
+        //获取第二天的时间
+        String date = DateUtils.getNextDay(new Date().toString());
+        Integer dateDay = Integer.parseInt(date.substring(8, 10));
+        //获取本月
+        Integer dateMonth = Integer.parseInt(date.substring(5, 7));
         for (TjDaySetting listMap : byHistoryIsFalse) {
             TjDaySetting tjDaySetting = listMap;
-
-            //获取当前时间的小时
-            int datehour = DateUtil.hour(new Date(), true);
-            //获取当天
-            Integer dateDay = Integer.parseInt(format.substring(8, 10));
-            //获取本月
-            Integer dateMonth = Integer.parseInt(format.substring(5, 7));
             //学校ID
             long orgId = tjDaySetting.getOrgId();
             //下载量
@@ -320,11 +314,6 @@ public class TjServiceImpl implements TjService {
             double usDdcCount = ddcCount / 24;
             double usPvCount = pvCount / 24;
             double usScCount = scCount / 24;
-
-            //获取第二天的时间
-            String date = DateUtils.getNextDay(new Date().toString());
-
-
             int optionsHighMonth[] = globalConfig.getHighMonths().getOptions();
             //获取该天的小时数
             for (int h = 0; h < 24; h++) {
@@ -344,6 +333,5 @@ public class TjServiceImpl implements TjService {
         }
         return byHistoryIsFalse;
     }
-
 
 }
