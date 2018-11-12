@@ -36,6 +36,9 @@ public interface TjService {
     //按年查询
     List<Map<String,Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId);
 
+    //根据传入的boolean值查询
+    List<TjOrg> findByBoole(boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime);
 
+    void search(TjHisSetting tjHisSetting);
 
 }

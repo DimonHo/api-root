@@ -1,12 +1,13 @@
 package com.wd.cloud.wdtjserver.controller;
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.config.GlobalConfig;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
 import com.wd.cloud.wdtjserver.service.TjService;
+import com.wd.cloud.wdtjserver.utils.TimeUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.sql.Time;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +28,8 @@ public class HisSettingController {
 
     @Autowired
     TjService tjService;
+
+
 
     @ApiOperation(value = "设置历史基数", tags = {"后台设置"})
     @ApiImplicitParams({
@@ -51,7 +53,7 @@ public class HisSettingController {
             tjHisSetting.setEndTime(hisQuotaModel.getEndTime());
             TjHisSetting hisSetting = tjService.save(tjHisSetting);
         }
-
+        tjService.search(tjHisSetting);
         return ResponseModel.ok().setBody(tjHisSetting);
     }
 

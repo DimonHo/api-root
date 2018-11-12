@@ -17,5 +17,7 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long> {
 
     List<TjOrg> findByOrgNameLike(String name);
 
+    List<TjOrg> findByShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime);
+
 
 }
