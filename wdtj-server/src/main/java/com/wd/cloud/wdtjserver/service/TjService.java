@@ -36,6 +36,5 @@ public interface TjService {
     //按年查询
     List<Map<String,Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId);
 
-
-
+    public List<TjDaySetting> findByHistoryIsFalse();
 }

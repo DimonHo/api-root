@@ -15,5 +15,6 @@ public interface TjDaySettingRepository extends JpaRepository<TjDaySetting, Long
     //根据orgId查询
     TjDaySetting findByOrgIdAndHistoryIsFalse(long orgId);
 
-
+    //查询history为false的数据
+    List<TjDaySetting> findByHistoryIsFalse();
 }
