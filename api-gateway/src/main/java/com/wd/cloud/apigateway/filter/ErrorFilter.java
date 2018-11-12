@@ -38,8 +38,6 @@ public class ErrorFilter extends ZuulFilter {
         responseModel.put("error", true);
         responseModel.put("status", -1);
         responseModel.put("message", "未知错误！！！");
-
-
         RequestContext.getCurrentContext().setResponseBody(responseModel.toString());
         return null;
     }
