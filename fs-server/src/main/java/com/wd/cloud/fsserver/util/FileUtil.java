@@ -1,5 +1,6 @@
 package com.wd.cloud.fsserver.util;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.IoUtil;
@@ -39,7 +40,9 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      */
     public static String fileMd5(InputStream fileStream) {
         log.info("开始计算文件的MD5...");
+        long start = System.currentTimeMillis();
         String fileMd5 = DigestUtil.md5Hex(fileStream);
+        log.info("计算MD5耗时：{}毫秒",DateUtil.spendMs(start));
         IoUtil.close(fileStream);
         log.info("文件的MD5计算完成。");
         return fileMd5;

@@ -1,10 +1,12 @@
 package com.wd.cloud.fsserver.controller;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.fsserver.entity.UploadRecord;
+import com.wd.cloud.fsserver.model.BlockFileModel;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.util.HttpHeaderUtil;
@@ -68,7 +70,7 @@ public class BaseController {
 
 
     /**
-     * 自定义上传
+     * 普通上传
      *
      * @param file
      * @param dir
@@ -94,7 +96,7 @@ public class BaseController {
     }
 
     /**
-     * 自定义上传
+     * 普通多文件上传
      *
      * @param files
      * @param dir

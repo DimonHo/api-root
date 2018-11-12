@@ -1,6 +1,7 @@
 package com.wd.cloud.fsserver.service;
 
 import com.wd.cloud.fsserver.entity.UploadRecord;
+import com.wd.cloud.fsserver.model.BlockFileModel;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -16,5 +17,5 @@ public interface FileService {
 
     File getFile(String unid);
 
-
+    boolean checkChunkExists(String fileMd5,int chunkIndex,long chunkSize);
 }
