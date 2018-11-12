@@ -43,6 +43,11 @@ public class DaySettingController {
     }
 
 
-
+    @PostMapping("/setting/aaa/")
+    public ResponseModel aaa(){
+        TjDaySetting tjDaySetting = new TjDaySetting();
+        tjDaySetting = (TjDaySetting)tjService.findByHistoryIsFalse();
+        return ResponseModel.ok().setBody(tjDaySetting);
+    }
 
 }

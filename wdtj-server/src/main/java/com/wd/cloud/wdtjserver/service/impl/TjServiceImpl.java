@@ -13,12 +13,14 @@ import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.repository.TjHisSettingRepository;
 import com.wd.cloud.wdtjserver.service.TjService;
+import com.wd.cloud.wdtjserver.utils.DateUtils;
 import com.wd.cloud.wdtjserver.utils.FindDates;
 import com.wd.cloud.wdtjserver.utils.TimeUtils;
 import org.bouncycastle.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
@@ -48,6 +50,9 @@ public class TjServiceImpl implements TjService {
 
     @Autowired
     GlobalConfig globalConfig;
+
+    @Autowired
+    TjTaskDataRepository tjTaskDataRepository;
 
     @Override
     public List<TjOrg> likeOrgName(String orgName) {
@@ -92,22 +97,22 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public TjHisSetting save(TjHisSetting tjHisSetting) {
-        List<TjHisSetting> old_tjHisSettings=tjHisSettingRepository.findByOrgId(tjHisSetting.getOrgId());
-       if(old_tjHisSettings.size()>0){
-           boolean is = true;
-           for(TjHisSetting old_tjHis:old_tjHisSettings){
-               is = DateUtil.isIn(tjHisSetting.getBeginTime(),old_tjHis.getBeginTime(),old_tjHis.getEndTime()) && old_tjHis.isLocked()?false:true;
-               is = DateUtil.isIn(tjHisSetting.getEndTime(),old_tjHis.getBeginTime(),old_tjHis.getEndTime()) && old_tjHis.isLocked()?false:true;
-           }
-           if(is==true){
-               tjHisSettingRepository.save(tjHisSetting);
-           }else {
-               log.info("时间段重合了，请重新输入时间段");
-           }
-       }else {
-           tjHisSettingRepository.save(tjHisSetting);
-       }
-       return tjHisSetting;
+        List<TjHisSetting> old_tjHisSettings = tjHisSettingRepository.findByOrgId(tjHisSetting.getOrgId());
+        if (old_tjHisSettings.size() > 0) {
+            boolean is = true;
+            for (TjHisSetting old_tjHis : old_tjHisSettings) {
+                is = DateUtil.isIn(tjHisSetting.getBeginTime(), old_tjHis.getBeginTime(), old_tjHis.getEndTime()) && old_tjHis.isLocked() ? false : true;
+                is = DateUtil.isIn(tjHisSetting.getEndTime(), old_tjHis.getBeginTime(), old_tjHis.getEndTime()) && old_tjHis.isLocked() ? false : true;
+            }
+            if (is == true) {
+                tjHisSettingRepository.save(tjHisSetting);
+            } else {
+                log.info("时间段重合了，请重新输入时间段");
+            }
+        } else {
+            tjHisSettingRepository.save(tjHisSetting);
+        }
+        return tjHisSetting;
     }
 
 
@@ -282,4 +287,66 @@ public class TjServiceImpl implements TjService {
         map.put("sqlDate_end",sqlDate_end);
         return map;
     }
+
+    @Override
+    public List<TjDaySetting> findByHistoryIsFalse() {
+        /**
+         * 查询History为false的数据
+         */
+        List<TjDaySetting> byHistoryIsFalse = tjDaySettingRepository.findByHistoryIsFalse();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //获取当前时间
+        String format = simpleDateFormat.toString();
+        for (TjDaySetting listMap : byHistoryIsFalse) {
+            TjDaySetting tjDaySetting = listMap;
+
+            //获取当前时间的小时
+            int datehour = DateUtil.hour(new Date(), true);
+            //获取当天
+            Integer dateDay = Integer.parseInt(format.substring(8, 10));
+            //获取本月
+            Integer dateMonth = Integer.parseInt(format.substring(5, 7));
+            //学校ID
+            long orgId = tjDaySetting.getOrgId();
+            //下载量
+            int dcCount = tjDaySetting.getDcCount();
+
+            //文献传递量
+            int ddcCount = tjDaySetting.getDdcCount();
+            //访问量
+            int pvCount = tjDaySetting.getPvCount();
+            //搜索量
+            int scCount = tjDaySetting.getScCount();
+
+            //得到每小时平均分配多少条数据
+            double usDcCount = dcCount / 24;
+            double usDdcCount = ddcCount / 24;
+            double usPvCount = pvCount / 24;
+            double usScCount = scCount / 24;
+
+            //获取第二天的时间
+            String date = DateUtils.getNextDay(new Date().toString());
+
+
+            int optionsHighMonth[] = globalConfig.getHighMonths().getOptions();
+            //获取该天的小时数
+            for (int h = 0; h < 24; h++) {
+                for (int o = 0;o<=optionsHighMonth.length;o++){
+                    if (optionsHighMonth[o] == h ){
+
+                    }
+                }
+
+                //获取该小时的分钟数
+                for (int m = 0;m<60;m++){
+
+                }
+            }
+
+
+        }
+        return byHistoryIsFalse;
+    }
+
+
 }
