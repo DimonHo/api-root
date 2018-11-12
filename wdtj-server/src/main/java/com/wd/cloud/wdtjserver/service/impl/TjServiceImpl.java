@@ -8,10 +8,7 @@ import com.wd.cloud.wdtjserver.config.GlobalConfig;
 import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.repository.TjDaySettingRepository;
-import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
-import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
-import com.wd.cloud.wdtjserver.repository.TjHisSettingRepository;
+import com.wd.cloud.wdtjserver.repository.*;
 import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.DateUtils;
 import com.wd.cloud.wdtjserver.utils.FindDates;
@@ -169,10 +166,10 @@ public class TjServiceImpl implements TjService {
         long between = DateUtil.between(tjHisSetting.getBeginTime(), tjHisSetting.getEndTime(), DateUnit.HOUR);
         //高峰月份
         int[] optionsHighMonth = globalConfig.getHighMonths().getOptions();
-        double proportionHigh = globalConfig.getHighMonths().getProportion();
+        double proportionHigh = globalConfig.getHighMonths().getProportions();
         //低峰月份
         int[] optionsLowMonth = globalConfig.getLowMonths().getOptions();
-        double proportionLow = globalConfig.getLowMonths().getProportion();
+        double proportionLow = globalConfig.getLowMonths().getProportions();
         //
         Map<String, Object> map = TimeUtils.get(tjHisSetting.getEndTime(), tjHisSetting.getBeginTime());
         System.out.println("ggggggggggggggggggggggggggggg"+map);
@@ -181,16 +178,16 @@ public class TjServiceImpl implements TjService {
         long avrDay=pvCount/between;
         //高峰日
         int[] optionsHighDay = globalConfig.getHighDays().getOptions();
-        double proportionHighDay = globalConfig.getHighDays().getProportion();
+        double proportionHighDay = globalConfig.getHighDays().getProportions();
         //低峰日
         int[] optionsLowDay = globalConfig.getLowDays().getOptions();
-        double proportionLowDay = globalConfig.getLowDays().getProportion();
+        double proportionLowDay = globalConfig.getLowDays().getProportions();
         //高峰时
         int[] optionsHighHour = globalConfig.getHighHours().getOptions();
-        double proportionHighHour = globalConfig.getHighHours().getProportion();
+        double proportionHighHour = globalConfig.getHighHours().getProportions();
         //低峰时
         int[] optionsLowHour = globalConfig.getLowHours().getOptions();
-        double proportionLowHour = globalConfig.getLowHours().getProportion();
+        double proportionLowHour = globalConfig.getLowHours().getProportions();
         for(int i=0;i<result;i++){
             long monthDay=Integer.parseInt(map.get("day"+i).toString());
             Integer month=Integer.parseInt(map.get("month"+i).toString());
