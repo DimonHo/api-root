@@ -17,7 +17,7 @@ public class OrgInfo extends AbstractEntity {
     /**
      * 机构名称
      */
-    private String orgName;
+    private String name;
 
     /**
      * 机构默认标识
