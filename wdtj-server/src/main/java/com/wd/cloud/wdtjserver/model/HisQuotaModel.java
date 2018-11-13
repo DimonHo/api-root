@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -14,24 +15,24 @@ import java.sql.Timestamp;
 public class HisQuotaModel extends QuotaModel {
 
     @ApiModelProperty(value = "开始时间")
-    private Timestamp beginTime;
+    private Date beginTime;
     @ApiModelProperty(value = "结束时间")
-    private Timestamp endTime;
+    private Date endTime;
 
-    public Timestamp getBeginTime() {
+    public Date getBeginTime() {
         return beginTime;
     }
 
-    public HisQuotaModel setBeginTime(Timestamp beginTime) {
+    public HisQuotaModel setBeginTime(Date beginTime) {
         this.beginTime = beginTime;
         return this;
     }
 
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public HisQuotaModel setEndTime(Timestamp endTime) {
+    public HisQuotaModel setEndTime(Date endTime) {
         this.endTime = endTime;
         return this;
     }
