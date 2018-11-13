@@ -55,7 +55,6 @@ public class TjOrg extends AbstractEntity {
      */
     private long pid;
 
-    @Column()
     private boolean history;
 
     public Long getOrgId() {

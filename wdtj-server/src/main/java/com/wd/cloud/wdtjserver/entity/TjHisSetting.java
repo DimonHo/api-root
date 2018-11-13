@@ -29,9 +29,9 @@ public class TjHisSetting extends AbstractEntity {
     private int ddcCount;
     private Time avgTime;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp beginTime;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp endTime;
     private String createUser;
     /**

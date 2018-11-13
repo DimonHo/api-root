@@ -5,6 +5,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
 import com.wd.cloud.fsserver.entity.UploadRecord;
+import com.wd.cloud.fsserver.model.BlockFileModel;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.HbaseService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
@@ -86,6 +87,11 @@ public class FileServiceImpl implements FileService {
             }
         }
         return file;
+    }
+
+    @Override
+    public boolean checkChunkExists(String fileMd5,int chunkIndex,long chunkSize) {
+        return false;
     }
 
 }

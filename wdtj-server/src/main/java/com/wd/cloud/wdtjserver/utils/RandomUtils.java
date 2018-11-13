@@ -1,5 +1,7 @@
 package com.wd.cloud.wdtjserver.utils;
 
+import cn.hutool.core.lang.Console;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,6 +30,11 @@ public class RandomUtils {
             data = list.get(i) * 1.0 * total / all;
             result.add(data.intValue());
         }
+        int sum = 0;
+        for (int j:result){
+            sum +=j;
+        }
+        Console.log("总和：{}",sum);
         return result;
     }
 

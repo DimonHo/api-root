@@ -3,6 +3,7 @@ package com.wd.cloud.orgserver.repository;
 import com.wd.cloud.orgserver.entity.OrgInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**

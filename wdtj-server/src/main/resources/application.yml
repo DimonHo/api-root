@@ -37,25 +37,6 @@ global:
     password: hr@hnwdkj.com
     token: bcb491d69976e38bb84793606ec7169e
     account-type: 1
-  tj:
-    high-hours: # 0-23
-      options: [8,9,10,11,14,15,16]
-      proportion: 3.2
-    low-hours: # 0-23
-      options: [1,2,3,4,5,6,23]
-      proportion: 0.3
-    high-days: # 0-23
-      options: [1,2,3,11,14,15,16]
-      proportion: 3.2
-    low-days: # 0-23
-      options: [7,8,9]
-      proportion: 0.2
-    high-months: #1-12
-      options: [4,5,6,9,10,11]
-      proportion: 2.8
-    low-months:
-      options: [1,7,8,12]
-      proportion: 0.5
 spring:
   jpa:
     database: MYSQL
