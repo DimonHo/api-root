@@ -1,5 +1,8 @@
 package com.wd.cloud.wdtjserver.model;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.sql.Timestamp;
 
 /**
@@ -7,9 +10,12 @@ import java.sql.Timestamp;
  * @date 2018/11/8 0008
  * @Description:
  */
-public class HisQuotaModel extends QuotaModel{
+@ApiModel(value = "历史统计指标对象")
+public class HisQuotaModel extends QuotaModel {
 
+    @ApiModelProperty(value = "开始时间")
     private Timestamp beginTime;
+    @ApiModelProperty(value = "结束时间")
     private Timestamp endTime;
 
     public Timestamp getBeginTime() {

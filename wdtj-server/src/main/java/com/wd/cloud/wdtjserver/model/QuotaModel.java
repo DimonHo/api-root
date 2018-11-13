@@ -3,6 +3,8 @@ package com.wd.cloud.wdtjserver.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.sql.Time;
+
 /**
  * @author He Zhigang
  * @date 2018/11/6
@@ -19,8 +21,8 @@ public class QuotaModel {
     private int dcCount;
     @ApiModelProperty(value = "文献传递量", example = "10")
     private int ddcCount;
-    @ApiModelProperty(value = "平均访问时长", example = "00:05:21")
-    private String avgTime;
+    @ApiModelProperty(value = "平均访问时长")
+    private Time avgTime;
 
     public int getPvCount() {
         return pvCount;
@@ -58,11 +60,11 @@ public class QuotaModel {
         return this;
     }
 
-    public String getAvgTime() {
+    public Time getAvgTime() {
         return avgTime;
     }
 
-    public QuotaModel setAvgTime(String avgTime) {
+    public QuotaModel setAvgTime(Time avgTime) {
         this.avgTime = avgTime;
         return this;
     }

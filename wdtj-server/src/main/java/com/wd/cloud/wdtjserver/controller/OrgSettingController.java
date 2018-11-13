@@ -41,29 +41,25 @@ public class OrgSettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
         TjOrg tjOrg = new TjOrg();
-        tjOrg.setOrgId(orgId);
-        tjOrg.setShowPv(showPv);
-        tjOrg.setShowSc(showSc);
-        tjOrg.setShowDc(showDc);
-        tjOrg.setShowDdc(showDdc);
-        tjOrg.setShowAvgTime(showAvgTime);
-        tjOrg = tjService.save(tjOrg);
-        return ResponseModel.ok().setBody(tjOrg);
+        tjOrg.setOrgId(orgId).setShowPv(showPv).setShowSc(showSc).setShowDc(showDc).setShowDdc(showDdc).setShowAvgTime(showAvgTime);
+        return ResponseModel.ok().setBody(tjService.save(tjOrg));
     }
 
     /**
      * 根据机构名称查询
+     *
      * @param orgName
      * @return
      */
     @GetMapping("/setting/find")
-    public ResponseModel<TjOrg> find(@RequestParam String orgName){
-        List<TjOrg> list = tjService.likeOrgName(orgName);
-        return ResponseModel.ok().setBody(list);
+    public ResponseModel<TjOrg> find(@RequestParam String orgName) {
+        List<TjOrg> orgList = tjService.likeOrgName(orgName);
+        return ResponseModel.ok().setBody(orgList);
     }
 
     /**
      * 根据指标过滤
+     *
      * @param showPv
      * @param showSc
      * @param showDc
@@ -76,8 +72,8 @@ public class OrgSettingController {
                                      @RequestParam(required = false, defaultValue = "false") boolean showSc,
                                      @RequestParam(required = false, defaultValue = "false") boolean showDc,
                                      @RequestParam(required = false, defaultValue = "false") boolean showDdc,
-                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime){
-        return ResponseModel.ok();
+                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
+        return ResponseModel.ok().setBody(tjService.filterByQuota(showPv, showSc, showDc, showDdc, showAvgTime));
     }
 
 }

@@ -1,10 +1,11 @@
 package com.wd.cloud.wdtjserver.utils;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.RandomUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author He Zhigang
@@ -31,11 +32,37 @@ public class RandomUtils {
             result.add(data.intValue());
         }
         int sum = 0;
-        for (int j:result){
-            sum +=j;
+        for (int j : result) {
+            sum += j;
         }
-        Console.log("总和：{}",sum);
+        Console.log("总和：{}", sum);
         return result;
+    }
+
+    /**
+     * 根据总量和权重生成数据
+     *
+     * @param dateTimeFloatMap
+     * @param total
+     * @return
+     */
+    public static Map<DateTime, Integer> random(Map<DateTime, Float> dateTimeFloatMap, int total) {
+        Map<DateTime, Integer> randomResult = new TreeMap<>();
+        List<Integer> randomList = new ArrayList<>();
+        randomList.add(0);
+        dateTimeFloatMap.forEach((k, v) -> {
+            randomList.add(RandomUtil.randomInt(total));
+        });
+        randomList.remove(randomList.size() - 1);
+        randomList.add(total);
+        List<Integer> randomListSort = randomList.stream().sorted().collect(Collectors.toList());
+        List<Integer> newRandomList = new ArrayList<>();
+        for (int i = 1; i < randomListSort.size(); i++) {
+            int e = randomListSort.get(i) - randomListSort.get(i - 1);
+            newRandomList.add(e);
+        }
+        Console.log(newRandomList);
+        return null;
     }
 
 }

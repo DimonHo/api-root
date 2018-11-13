@@ -13,11 +13,12 @@ import java.util.List;
 public interface TjOrgRepository extends JpaRepository<TjOrg, Long> {
     //根据orgId查询
     TjOrg findByOrgIdAndHistoryIsFalse(long orgId);
+
     TjOrg findByOrgId(long orgId);
 
     List<TjOrg> findByOrgNameLike(String name);
 
-    List<TjOrg> findByShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime);
+    List<TjOrg> findByShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime);
 
 
 }

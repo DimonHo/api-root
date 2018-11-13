@@ -7,7 +7,10 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +26,7 @@ import java.util.Map;
 public class ViewController {
     @Autowired
     TjService tjService;
+
     @ApiOperation(value = "按年展示数据", tags = {"前台数据"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path"),
@@ -32,7 +36,7 @@ public class ViewController {
     @GetMapping("/view/year/{orgId}")
     public ResponseModel getYear(@PathVariable Long orgId,
                                  @RequestParam Date beginDate,
-                                 @RequestParam Date endDate){
+                                 @RequestParam Date endDate) {
         List<TjViewData> tjViewData = new ArrayList<>();
         List<Map<String, Object>> listYear = tjService.findByTjDateAndOrgIdYear(beginDate, endDate, orgId);
         return ResponseModel.ok().setBody(listYear);
@@ -47,7 +51,7 @@ public class ViewController {
     @GetMapping("/view/month/{orgId}")
     public ResponseModel getMonth(@PathVariable Long orgId,
                                   @RequestParam Date beginDate,
-                                  @RequestParam Date endDate){
+                                  @RequestParam Date endDate) {
         List<Map<String, Object>> listMonth = tjService.findByTjDateAndOrgIdMonth(beginDate, endDate, orgId);
         return ResponseModel.ok().setBody(listMonth);
 
@@ -62,8 +66,8 @@ public class ViewController {
     @GetMapping("/view/day/{orgId}")
     public ResponseModel getDay(@PathVariable Long orgId,
                                 @RequestParam Date beginDate,
-                                @RequestParam Date endDate){
-        List<Map<String,Object>> listDay = tjService.findByTjDateAndOrgIdDay(beginDate,endDate,orgId);
+                                @RequestParam Date endDate) {
+        List<Map<String, Object>> listDay = tjService.findByTjDateAndOrgIdDay(beginDate, endDate, orgId);
         return ResponseModel.ok().setBody(listDay);
 
     }
@@ -77,7 +81,7 @@ public class ViewController {
     @GetMapping("/view/hour/{orgId}")
     public ResponseModel getHour(@PathVariable Long orgId,
                                  @RequestParam Date beginDate,
-                                 @RequestParam Date endDate){
+                                 @RequestParam Date endDate) {
         List<Map<String, Object>> listHour = tjService.findByTjDateAndOrgIdTime(beginDate, endDate, orgId);
         return ResponseModel.ok().setBody(listHour);
     }

@@ -41,39 +41,45 @@ public class AutoTask {
     @Scheduled(cron = "0 0 0 * * ?")
     public void auto() {
         Map<String, Float> settingMap = new TreeMap();
+        // 获取所有比率设置，组装map
         tjDateSettingRepository.findAll().forEach(tjDateSetting -> {
-            settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getProportion());
+            settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
         });
-
-        List<DateTime> dateList = DateUtil.rangeToList(DateUtil.beginOfDay(DateUtil.tomorrow()), DateUtil.endOfDay(DateUtil.tomorrow()), DateField.MINUTE);
-        Map<DateTime, Float> dateTimeDoubleMap = new TreeMap();
-
-        dateList.forEach(dateTime -> {
-            String monthKey = "1-" + (DateUtil.month(dateTime) + 1);
-            String hoursKey = "4-" + DateUtil.hour(dateTime, true);
-            float monthProportion = settingMap.get(monthKey) == null ? 1.0F : settingMap.get(monthKey);
-            float hourProportion = settingMap.get(hoursKey) == null ? 1.0F : settingMap.get(hoursKey);
-            float proportion = monthProportion * hourProportion;
-
-            dateTimeDoubleMap.put(dateTime, proportion);
+        // 获取明天所有的分钟数列表
+        List<DateTime> minuteList = DateUtil.rangeToList(DateUtil.beginOfDay(DateUtil.tomorrow()), DateUtil.endOfDay(DateUtil.tomorrow()), DateField.MINUTE);
+        Map<DateTime, Float> minuteWeightMap = new TreeMap();
+        //计算每分钟比率值放入map中
+        minuteList.forEach(minuteTime -> {
+            String monthKey = "1-" + (DateUtil.month(minuteTime) + 1);
+            String hoursKey = "4-" + DateUtil.hour(minuteTime, true);
+            float monthWeight = settingMap.get(monthKey) == null ? 1.0F : settingMap.get(monthKey);
+            float hourWeight = settingMap.get(hoursKey) == null ? 1.0F : settingMap.get(hoursKey);
+            float weight = monthWeight * hourWeight;
+            minuteWeightMap.put(minuteTime, weight);
         });
+        // 生成task数据
         List<TjTaskData> tjTaskDataList = new ArrayList();
+        float dayMinutes = 24 * 60;
+        // 查询所有机构的日基数
         tjDaySettingRepository.findByHistoryIsFalse().forEach(tjDaySetting -> {
-            float avgPvCountFromMinute = tjDaySetting.getPvCount() / (24 * 60);
-            float avgScCountFromMinute = tjDaySetting.getScCount() / (24 * 60);
-            float avgDcCountFromMinute = tjDaySetting.getDcCount() / (24 * 60);
-            float avgDdcCountFromMinute = tjDaySetting.getDdcCount() / (24 * 60);
-            dateTimeDoubleMap.forEach((date, proportion) -> {
+            // 计算分钟平均值
+            float avgPvCountFromMinute = tjDaySetting.getPvCount() / dayMinutes;
+            float avgScCountFromMinute = tjDaySetting.getScCount() / dayMinutes;
+            float avgDcCountFromMinute = tjDaySetting.getDcCount() / dayMinutes;
+            float avgDdcCountFromMinute = tjDaySetting.getDdcCount() / dayMinutes;
+            //根据比率计算随机值
+            minuteWeightMap.forEach((date, weight) -> {
                 TjTaskData tjTaskData = new TjTaskData();
-                int pvCount = Math.round(avgPvCountFromMinute * proportion + RandomUtil.randomInt(-20, 20));
-                int scCount = Math.round(avgScCountFromMinute * proportion + RandomUtil.randomInt(-3, 3));
-                int dcCount = Math.round(avgDcCountFromMinute * proportion + RandomUtil.randomInt(-3, 3));
-                int ddcCount = Math.round(avgDdcCountFromMinute * proportion + RandomUtil.randomInt(-3, 3));
+                int pvCount = (int) Math.round(avgPvCountFromMinute * weight * RandomUtil.randomDouble(2));
+                int scCount = (int) Math.round(avgScCountFromMinute * weight + RandomUtil.randomDouble(-2, 2));
+                int dcCount = (int) Math.round(avgDcCountFromMinute * weight + RandomUtil.randomDouble(-2, 2));
+                int ddcCount = (int) Math.round(avgDdcCountFromMinute * weight + RandomUtil.randomDouble(-2, 2));
+                long avgTime = Math.round(tjDaySetting.getAvgTime().getTime() * weight + RandomUtil.randomLong(-100000, 100000));
                 tjTaskData.setPvCount(pvCount < 0 ? 0 : pvCount);
                 tjTaskData.setScCount(scCount < 0 ? 0 : scCount);
                 tjTaskData.setDcCount(dcCount < 0 ? 0 : dcCount);
                 tjTaskData.setDdcCount(ddcCount < 0 ? 0 : ddcCount);
-                tjTaskData.setAvgTime(new Time(tjDaySetting.getAvgTime().getTime()+RandomUtil.randomLong(-10000,100000)));
+                tjTaskData.setAvgTime(new Time(avgTime));
                 tjTaskData.setOrgId(tjDaySetting.getOrgId());
                 tjTaskData.setTjDate(date.toTimestamp());
                 tjTaskDataList.add(tjTaskData);

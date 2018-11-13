@@ -1,16 +1,12 @@
 package com.wd.cloud.wdtjserver;
 
-import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.Console;
-import com.wd.cloud.wdtjserver.config.GlobalConfig;
+import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtils;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,10 +18,33 @@ import java.util.TreeMap;
 public class JunitTest {
 
     @Test
-    public void testRandom(){
+    public void test1() {
+        Map<DateTime, Float> map = new TreeMap<>();
+        DateTime now = DateUtil.date();
+        for (int i = 0; i < 24; i++) {
+            map.put(DateUtil.offsetMinute(now, 1), 0.1F);
+            now = DateUtil.offsetMinute(now, 1);
+        }
+
+
+        RandomUtils.random(map, 10000);
+    }
+
+
+    @Test
+    public void testRandom() {
+        DateIntervalModel model1 = new DateIntervalModel(DateUtil.parse("2018-11-01"), DateUtil.parse("2018-11-30"));
+        DateIntervalModel model2 = new DateIntervalModel(DateUtil.parse("2018-11-11"), DateUtil.parse("2018-12-30"));
+
+        Console.log(DateUtil.overlapDate(model1, model2));
+
+        int a = 100;
+        float b = 24 * 60;
+        float c = a / b;
+        Console.log(c);
         //Console.log(DateUtil.getTomorrowMap());
-        List<DateTime> dateList = DateUtil.rangeToList(DateUtil.beginOfDay(DateUtil.tomorrow()),DateUtil.endOfDay(DateUtil.tomorrow()), DateField.MINUTE);
-        Console.log(dateList);
+        //List<DateTime> dateList = DateUtil.rangeToList(DateUtil.beginOfDay(DateUtil.tomorrow()),DateUtil.endOfDay(DateUtil.tomorrow()), DateField.MINUTE);
+        //Console.log(dateList);
         //Console.log(DateUtil.getMonthDaysJson(DateUtil.parse("2018-11-01"),DateUtil.parse("2018-11-30")));
     }
 
