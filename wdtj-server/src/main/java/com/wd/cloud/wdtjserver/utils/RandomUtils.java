@@ -142,11 +142,11 @@ public class RandomUtils {
         return result;
     }
 
-    public static void main(String[] args) {
-        System.out.println(random(60,100));
-        for (int i = 0; i < 1000; i++) {
-            System.out.println(random2(6,8000, Arrays.asList(0.1,0.2,0.3,0.1,0.2,0.1),0.2));
-        }
-    }
+//    public static void main(String[] args) {
+//        System.out.println(random(60,100));
+//        for (int i = 0; i < 1000; i++) {
+//            System.out.println(random2(6,8000, Arrays.asList(0.1,0.2,0.3,0.1,0.2,0.1),0.2));
+//        }
+//    }
 
 }
