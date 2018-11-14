@@ -9,7 +9,7 @@ import com.wd.cloud.commons.model.ResponseModel;
  */
 public class IpSettingController {
 
-    public ResponseModel addIpRang(Long orgId, String beginIp, String endIp){
+    public ResponseModel addIpRang(Long orgId, String beginIp, String endIp) {
         return ResponseModel.ok();
     }
 }

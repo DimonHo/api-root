@@ -20,14 +20,14 @@ public class GiveRecord extends AbstractEntity {
      * 一个求助可能有多个应助，但只有一个应助有效，失败的应助作为应助记录存在
      */
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JsonIgnore
     private HelpRecord helpRecord;
 
     /**
      * 文件ID
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     private DocFile docFile;
     /**
      * 应助者ID

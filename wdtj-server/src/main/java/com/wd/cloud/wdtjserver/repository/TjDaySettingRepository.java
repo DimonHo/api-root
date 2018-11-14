@@ -4,7 +4,6 @@ import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author He Zhigang

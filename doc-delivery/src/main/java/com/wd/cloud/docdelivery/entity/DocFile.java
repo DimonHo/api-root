@@ -21,8 +21,7 @@ public class DocFile extends AbstractEntity {
 
     private String fileName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
+    @ManyToOne
     private Literature literature;
 
     private Long auditorId;

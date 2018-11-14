@@ -1,6 +1,6 @@
 package com.wd.cloud.orgserver.service;
 
-import com.wd.cloud.orgserver.entity.OrgInfo;
+import com.wd.cloud.orgserver.entity.Org;
 
 import java.util.List;
 
@@ -11,7 +11,9 @@ import java.util.List;
  */
 public interface OrgInfoService {
 
-    List<OrgInfo> getAllOrg(String sort);
+    List<Org> getAllOrg(String sortFiled);
 
-    OrgInfo getOrgInfoByFlag(String flag);
+    Org get(Long id);
+
+    Org getOrgInfoByFlag(String flag);
 }

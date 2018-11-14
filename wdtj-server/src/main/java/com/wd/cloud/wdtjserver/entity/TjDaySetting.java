@@ -13,9 +13,9 @@ import java.sql.Time;
  */
 @Entity
 @Table(name = "tj_day_setting", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id","pid"})
+        @UniqueConstraint(columnNames = {"org_id", "pid"})
 })
-public class TjDaySetting extends AbstractEntity{
+public class TjDaySetting extends AbstractEntity {
 
     /**
      * 机构ID

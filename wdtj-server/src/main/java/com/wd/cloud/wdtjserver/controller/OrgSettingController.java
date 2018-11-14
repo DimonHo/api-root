@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.controller;
 
+import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.service.TjService;
@@ -32,7 +33,7 @@ public class OrgSettingController {
             @ApiImplicitParam(name = "showDdc", value = "是否显示文献传递量", dataType = "boolean", paramType = "query"),
             @ApiImplicitParam(name = "showAvgTime", value = "是否显示平均访问时长", dataType = "boolean", paramType = "query")
     })
-    @PostMapping("/setting/org/{orgId}")
+    @PostMapping("/org/{orgId}")
     public ResponseModel<TjOrg> add(
             @PathVariable Long orgId,
             @RequestParam(required = false, defaultValue = "false") boolean showPv,
@@ -41,29 +42,42 @@ public class OrgSettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
         TjOrg tjOrg = new TjOrg();
-        tjOrg.setOrgId(orgId);
-        tjOrg.setShowPv(showPv);
-        tjOrg.setShowSc(showSc);
-        tjOrg.setShowDc(showDc);
-        tjOrg.setShowDdc(showDdc);
-        tjOrg.setShowAvgTime(showAvgTime);
+        tjOrg.setOrgId(orgId).setShowPv(showPv).setShowSc(showSc).setShowDc(showDc).setShowDdc(showDdc).setShowAvgTime(showAvgTime);
         tjOrg = tjService.save(tjOrg);
-        return ResponseModel.ok().setBody(tjOrg);
+        if (tjOrg != null){
+            return ResponseModel.ok().setBody(tjOrg);
+        }
+        return ResponseModel.fail(StatusEnum.NOT_FOUND);
+
     }
 
     /**
      * 根据机构名称查询
+     *
      * @param orgName
      * @return
      */
-    @GetMapping("/setting/find")
-    public ResponseModel<TjOrg> find(@RequestParam String orgName){
-        List<TjOrg> list = tjService.likeOrgName(orgName);
-        return ResponseModel.ok().setBody(list);
+    @GetMapping("/org/find")
+    public ResponseModel<TjOrg> find(@RequestParam String orgName) {
+        List<TjOrg> orgList = tjService.likeOrgName(orgName);
+        return ResponseModel.ok().setBody(orgList);
+    }
+
+    /**
+     * 根据机构名称查询
+     *
+     * @param orgName
+     * @return
+     */
+    @GetMapping("/org/all")
+    public ResponseModel<TjOrg> all(@RequestParam String orgName) {
+        List<TjOrg> orgList = tjService.likeOrgName(orgName);
+        return ResponseModel.ok().setBody(orgList);
     }
 
     /**
      * 根据指标过滤
+     *
      * @param showPv
      * @param showSc
      * @param showDc
@@ -71,13 +85,13 @@ public class OrgSettingController {
      * @param showAvgTime
      * @return
      */
-    @GetMapping("/setting/filter")
+    @GetMapping("/org/filter")
     public ResponseModel<TjOrg> find(@RequestParam(required = false, defaultValue = "false") boolean showPv,
                                      @RequestParam(required = false, defaultValue = "false") boolean showSc,
                                      @RequestParam(required = false, defaultValue = "false") boolean showDc,
                                      @RequestParam(required = false, defaultValue = "false") boolean showDdc,
-                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime){
-        return ResponseModel.ok();
+                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
+        return ResponseModel.ok().setBody(tjService.filterByQuota(showPv, showSc, showDc, showDdc, showAvgTime));
     }
 
 }

@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 
@@ -17,9 +16,9 @@ import java.sql.Timestamp;
  */
 @Entity
 @Table(name = "tj_task_data", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id","tj_date"})
+        @UniqueConstraint(columnNames = {"org_id", "tj_date"})
 })
-public class TjTaskData extends AbstractEntity{
+public class TjTaskData extends AbstractEntity {
 
     /**
      * 机构ID

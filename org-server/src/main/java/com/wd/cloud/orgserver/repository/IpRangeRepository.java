@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @date 2018/11/5
  * @Description:
  */
-public interface IpRangeRepository extends JpaRepository<IpRange,Long> {
+public interface IpRangeRepository extends JpaRepository<IpRange, Long> {
 }

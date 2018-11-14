@@ -1,7 +1,5 @@
 package com.wd.cloud.wdtjserver.entity;
 
-import org.springframework.cloud.sleuth.instrument.web.ClientSampler;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -13,10 +11,10 @@ import javax.persistence.UniqueConstraint;
  * @Description:
  */
 @Entity
-@Table(name = "tj_date_setting",uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"date_index","date_type"})
+@Table(name = "tj_date_setting", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"date_index", "date_type"})
 })
-public class TjDateSetting extends AbstractEntity{
+public class TjDateSetting extends AbstractEntity {
 
     /**
      * date:1, 15, 6
@@ -31,9 +29,9 @@ public class TjDateSetting extends AbstractEntity{
     private int dateType;
 
     /**
-     * 比率0.3
+     * 权重
      */
-    private Float proportion;
+    private Float weight;
 
     public int getDateIndex() {
         return dateIndex;
@@ -53,12 +51,12 @@ public class TjDateSetting extends AbstractEntity{
         return this;
     }
 
-    public Float getProportion() {
-        return proportion;
+    public Float getWeight() {
+        return weight;
     }
 
-    public TjDateSetting setProportion(Float proportion) {
-        this.proportion = proportion;
+    public TjDateSetting setWeight(Float weight) {
+        this.weight = weight;
         return this;
     }
 }

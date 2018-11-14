@@ -5,9 +5,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -30,9 +30,9 @@ public class TjHisSetting extends AbstractEntity {
     private Time avgTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Timestamp beginTime;
+    private Date beginTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Timestamp endTime;
+    private Date endTime;
     private String createUser;
     /**
      * 是否上锁，如果已上锁，则不可覆盖
@@ -94,20 +94,20 @@ public class TjHisSetting extends AbstractEntity {
         return this;
     }
 
-    public Timestamp getBeginTime() {
+    public Date getBeginTime() {
         return beginTime;
     }
 
-    public TjHisSetting setBeginTime(Timestamp beginTime) {
+    public TjHisSetting setBeginTime(Date beginTime) {
         this.beginTime = beginTime;
         return this;
     }
 
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public TjHisSetting setEndTime(Timestamp endTime) {
+    public TjHisSetting setEndTime(Date endTime) {
         this.endTime = endTime;
         return this;
     }
