@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface OrgInfoService {
 
-    List<Org> getAllOrg(String sort);
+    List<Org> getAllOrg(String sortFiled);
 
     Org get(Long id);
 

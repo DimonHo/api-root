@@ -1,7 +1,7 @@
 package com.wd.cloud.orgserver.entity;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -38,11 +38,11 @@ public class OrgSetting extends AbstractEntity {
     /**
      * 过滤数据库列表
      */
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(name = "org_setting_collection",
             joinColumns = {@JoinColumn(name = "collection_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "org_setting_id", referencedColumnName ="id")})
-    private Set<Collection> filterDbs;
+            inverseJoinColumns = {@JoinColumn(name = "org_setting_id", referencedColumnName = "id")})
+    private List<Collection> filterDbs;
 
     public Org getOrg() {
         return org;
@@ -89,11 +89,11 @@ public class OrgSetting extends AbstractEntity {
         return this;
     }
 
-    public Set<Collection> getFilterDbs() {
+    public List<Collection> getFilterDbs() {
         return filterDbs;
     }
 
-    public OrgSetting setFilterDbs(Set<Collection> filterDbs) {
+    public OrgSetting setFilterDbs(List<Collection> filterDbs) {
         this.filterDbs = filterDbs;
         return this;
     }

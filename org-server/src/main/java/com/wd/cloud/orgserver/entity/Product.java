@@ -3,7 +3,7 @@ package com.wd.cloud.orgserver.entity;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "product")
-public class Product extends AbstractEntity{
+public class Product extends AbstractEntity {
 
     /**
      * 产品名称
@@ -25,7 +25,7 @@ public class Product extends AbstractEntity{
     private String url;
 
     @OneToMany(mappedBy = "product")
-    private Set<OrgProduct> orgProducts;
+    private List<OrgProduct> orgProducts;
 
     public String getName() {
         return name;
@@ -45,11 +45,11 @@ public class Product extends AbstractEntity{
         return this;
     }
 
-    public Set<OrgProduct> getOrgProducts() {
+    public List<OrgProduct> getOrgProducts() {
         return orgProducts;
     }
 
-    public Product setOrgProducts(Set<OrgProduct> orgProducts) {
+    public Product setOrgProducts(List<OrgProduct> orgProducts) {
         this.orgProducts = orgProducts;
         return this;
     }

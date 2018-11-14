@@ -1,6 +1,9 @@
 package com.wd.cloud.orgserver.entity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.sql.Date;
 
 /**
@@ -10,7 +13,7 @@ import java.sql.Date;
  */
 @Entity
 @Table(name = "org_product")
-public class OrgProduct extends AbstractEntity{
+public class OrgProduct extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "org_id")

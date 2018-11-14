@@ -13,10 +13,13 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "ip_range")
 public class IpRange extends AbstractEntity {
+
     @ManyToOne
     @JoinColumn(name = "org_id")
     private Org org;
+
     private String begin;
+
     private String end;
 
     public Org getOrg() {

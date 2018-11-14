@@ -5,8 +5,8 @@ import com.wd.cloud.orgserver.repository.IpRangeRepository;
 import com.wd.cloud.orgserver.repository.OrgRepository;
 import com.wd.cloud.orgserver.service.OrgInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +16,7 @@ import java.util.List;
  * @Description:
  */
 @Service("orgService")
+@Transactional(rollbackFor = Exception.class)
 public class OrgInfoServiceImpl implements OrgInfoService {
 
     @Autowired
@@ -25,8 +26,8 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     IpRangeRepository ipRangeRepository;
 
     @Override
-    public List<Org> getAllOrg(String sort) {
-        return orgRepository.findAll(Sort.by(sort));
+    public List<Org> getAllOrg(String sortFiled) {
+        return orgRepository.getAllOrderByName();
     }
 
     @Override

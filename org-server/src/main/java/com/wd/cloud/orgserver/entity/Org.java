@@ -1,7 +1,7 @@
 package com.wd.cloud.orgserver.entity;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -42,25 +42,26 @@ public class Org extends AbstractEntity {
      */
     private String city;
 
-    @OneToMany(mappedBy = "org",cascade=CascadeType.ALL,fetch = FetchType.EAGER)
-    private Set<IpRange> ipRanges;
+    @OrderBy("begin ASC, end DESC")
+    @OneToMany(mappedBy = "org")
+    private List<IpRange> ipRanges;
 
-    @OneToMany(mappedBy = "org",cascade=CascadeType.ALL,fetch = FetchType.EAGER)
-    private Set<OrgLinkman> orgLinkmans;
+    @OneToMany(mappedBy = "org")
+    private List<OrgLinkman> orgLinkmans;
 
-    @OneToMany(mappedBy = "org",cascade=CascadeType.ALL,fetch = FetchType.EAGER)
-    private Set<OrgDepartment> orgDepartments;
+    @OneToMany(mappedBy = "org")
+    private List<OrgDepartment> orgDepartments;
 
-    @OneToOne(mappedBy = "org",cascade=CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "org")
     private OrgSetting orgSetting;
     /**
      * 机构产品列表
      */
-    @OneToMany(mappedBy = "org",cascade=CascadeType.ALL,fetch = FetchType.EAGER)
-    private Set<OrgProduct> orgProducts;
+    @OneToMany(mappedBy = "org")
+    private List<OrgProduct> orgProducts;
 
-    @OneToMany(mappedBy = "org",cascade=CascadeType.ALL,fetch = FetchType.EAGER)
-    private Set<OrgCollection> orgCollections;
+    @OneToMany(mappedBy = "org")
+    private List<OrgCollection> orgCollections;
 
     public String getName() {
         return name;
@@ -116,11 +117,29 @@ public class Org extends AbstractEntity {
         return this;
     }
 
-    public Set<OrgDepartment> getOrgDepartments() {
+    public List<IpRange> getIpRanges() {
+        return ipRanges;
+    }
+
+    public Org setIpRanges(List<IpRange> ipRanges) {
+        this.ipRanges = ipRanges;
+        return this;
+    }
+
+    public List<OrgLinkman> getOrgLinkmans() {
+        return orgLinkmans;
+    }
+
+    public Org setOrgLinkmans(List<OrgLinkman> orgLinkmans) {
+        this.orgLinkmans = orgLinkmans;
+        return this;
+    }
+
+    public List<OrgDepartment> getOrgDepartments() {
         return orgDepartments;
     }
 
-    public Org setOrgDepartments(Set<OrgDepartment> orgDepartments) {
+    public Org setOrgDepartments(List<OrgDepartment> orgDepartments) {
         this.orgDepartments = orgDepartments;
         return this;
     }
@@ -134,38 +153,20 @@ public class Org extends AbstractEntity {
         return this;
     }
 
-    public Set<IpRange> getIpRanges() {
-        return ipRanges;
-    }
-
-    public Org setIpRanges(Set<IpRange> ipRanges) {
-        this.ipRanges = ipRanges;
-        return this;
-    }
-
-    public Set<OrgProduct> getOrgProducts() {
+    public List<OrgProduct> getOrgProducts() {
         return orgProducts;
     }
 
-    public Org setOrgProducts(Set<OrgProduct> orgProducts) {
+    public Org setOrgProducts(List<OrgProduct> orgProducts) {
         this.orgProducts = orgProducts;
         return this;
     }
 
-    public Set<OrgLinkman> getOrgLinkmans() {
-        return orgLinkmans;
-    }
-
-    public Org setOrgLinkmans(Set<OrgLinkman> orgLinkmans) {
-        this.orgLinkmans = orgLinkmans;
-        return this;
-    }
-
-    public Set<OrgCollection> getOrgCollections() {
+    public List<OrgCollection> getOrgCollections() {
         return orgCollections;
     }
 
-    public Org setOrgCollections(Set<OrgCollection> orgCollections) {
+    public Org setOrgCollections(List<OrgCollection> orgCollections) {
         this.orgCollections = orgCollections;
         return this;
     }

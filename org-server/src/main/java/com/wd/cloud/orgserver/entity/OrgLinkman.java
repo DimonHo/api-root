@@ -12,7 +12,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "org_linkman")
-public class OrgLinkman extends AbstractEntity{
+public class OrgLinkman extends AbstractEntity {
 
     /**
      * 联系人名称

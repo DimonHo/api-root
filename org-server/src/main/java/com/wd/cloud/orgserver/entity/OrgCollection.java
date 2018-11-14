@@ -1,6 +1,9 @@
 package com.wd.cloud.orgserver.entity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 /**
  * @author He Zhigang
@@ -9,15 +12,15 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "org_collection")
-public class OrgCollection extends AbstractEntity{
+public class OrgCollection extends AbstractEntity {
 
-    @ManyToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "org_id")
     private Org org;
     /**
      * 馆藏数据库
      */
-    @ManyToOne(cascade=CascadeType.ALL, fetch= FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "collection_id")
     private Collection collection;
     /**

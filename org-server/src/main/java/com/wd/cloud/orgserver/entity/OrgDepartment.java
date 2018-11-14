@@ -12,7 +12,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "org_department")
-public class OrgDepartment extends AbstractEntity{
+public class OrgDepartment extends AbstractEntity {
 
     /**
      * 所属上级院系

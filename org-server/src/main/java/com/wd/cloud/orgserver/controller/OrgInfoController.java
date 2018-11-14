@@ -65,7 +65,7 @@ public class OrgInfoController {
     @GetMapping("/orginfo/{id}")
     public ResponseModel getOrg(@PathVariable Long id) {
         Org org = orgInfoService.get(id);
-        if (org != null){
+        if (org != null) {
             return ResponseModel.ok().setBody(org);
         }
         return ResponseModel.fail().setMessage("未找到对应的机构!");
@@ -73,8 +73,9 @@ public class OrgInfoController {
 
     /**
      * 获取所有机构
-     * @sort 排序字段，默认为name
+     *
      * @return
+     * @sort 排序字段，默认为name
      */
     @GetMapping("/orginfo/all")
     public ResponseModel getAll(@RequestParam(required = false, defaultValue = "name") String sort) {

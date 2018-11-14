@@ -1,7 +1,7 @@
 package com.wd.cloud.orgserver.entity;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -19,13 +19,13 @@ public class Collection extends AbstractEntity {
     private String url;
 
     @OneToMany(mappedBy = "collection")
-    private Set<OrgCollection> orgCollections;
+    private List<OrgCollection> orgCollections;
 
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(name = "org_setting_collection",
             joinColumns = {@JoinColumn(name = "org_setting_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "collection_id", referencedColumnName ="id")})
-    private Set<OrgSetting> orgSettings;
+            inverseJoinColumns = {@JoinColumn(name = "collection_id", referencedColumnName = "id")})
+    private List<OrgSetting> orgSettings;
 
     public String getName() {
         return name;
@@ -45,20 +45,20 @@ public class Collection extends AbstractEntity {
         return this;
     }
 
-    public Set<OrgCollection> getOrgCollections() {
+    public List<OrgCollection> getOrgCollections() {
         return orgCollections;
     }
 
-    public Collection setOrgCollections(Set<OrgCollection> orgCollections) {
+    public Collection setOrgCollections(List<OrgCollection> orgCollections) {
         this.orgCollections = orgCollections;
         return this;
     }
 
-    public Set<OrgSetting> getOrgSettings() {
+    public List<OrgSetting> getOrgSettings() {
         return orgSettings;
     }
 
-    public Collection setOrgSettings(Set<OrgSetting> orgSettings) {
+    public Collection setOrgSettings(List<OrgSetting> orgSettings) {
         this.orgSettings = orgSettings;
         return this;
     }
