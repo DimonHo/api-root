@@ -35,6 +35,9 @@ public interface TjService {
      */
     List<TjOrg> likeOrgName(String orgName);
 
+
+    List<TjOrg> getAll(String sortField);
+
     /**
      * 过滤机构设置信息
      *

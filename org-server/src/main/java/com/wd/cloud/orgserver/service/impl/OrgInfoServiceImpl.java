@@ -28,7 +28,7 @@ public class OrgInfoServiceImpl implements OrgInfoService {
 
     @Override
     public List<Org> getAllOrg(String sortFiled) {
-        if ("name".equals(sortFiled)){
+        if ("name".equals(sortFiled)) {
             return orgRepository.getAllOrderByName();
         }
         return orgRepository.findAll(Sort.by(sortFiled));

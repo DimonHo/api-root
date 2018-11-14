@@ -3,8 +3,12 @@ package com.wd.cloud.wdtjserver.service.impl;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.apifeign.OrgServerApi;
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjDaySetting;
 import com.wd.cloud.wdtjserver.entity.TjHisSetting;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
@@ -15,6 +19,7 @@ import com.wd.cloud.wdtjserver.repository.*;
 import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
@@ -48,22 +53,39 @@ public class TjServiceImpl implements TjService {
     @Autowired
     TjTaskDataRepository tjTaskDataRepository;
 
+    @Autowired
+    OrgServerApi orgServerApi;
+
     @Override
     public TjOrg save(TjOrg tjOrg) {
-        //根据学校ID查询是否有该学校
-        TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
-        if (oldTjOrg != null) {
-            //修改History为true
-            oldTjOrg.setHistory(true);
-            tjOrg.setPid(oldTjOrg.getId());
-            tjOrgRepository.save(oldTjOrg);
+        ResponseModel responseModel = orgServerApi.getOrg(tjOrg.getOrgId());
+        if (!responseModel.isError()){
+            //根据学校ID查询是否有该学校
+            TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
+            if (oldTjOrg != null) {
+                //修改History为true
+                oldTjOrg.setHistory(true);
+                tjOrg.setPid(oldTjOrg.getId());
+                tjOrgRepository.save(oldTjOrg);
+            }
+            tjOrg.setOrgName(JSONUtil.parseObj(responseModel.getBody(),true).getStr("name"));
+            return tjOrgRepository.save(tjOrg);
         }
-        return tjOrgRepository.save(tjOrg);
+        return null;
+
     }
 
     @Override
     public List<TjOrg> likeOrgName(String orgName) {
         return tjOrgRepository.findByOrgNameLike("%" + orgName + "%");
+    }
+
+    @Override
+    public List<TjOrg> getAll(String sortField) {
+        if ("orgName".equals(sortField)) {
+            tjOrgRepository.getAllOrderByOrgName();
+        }
+        return tjOrgRepository.findAll(Sort.by(sortField));
     }
 
     @Override
@@ -85,8 +107,7 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public TjHisSetting save(TjHisSetting tjHisSetting) {
-        tjHisSetting = tjHisSettingRepository.save(tjHisSetting);
-        return tjHisSetting;
+        return tjHisSettingRepository.save(tjHisSetting);
     }
 
     @Override
