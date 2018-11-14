@@ -42,25 +42,45 @@ public class Org extends AbstractEntity {
      */
     private String city;
 
+    /**
+     * 是否激活使用0：否，1：是
+     */
+    private boolean enabled;
+
+    /**
+     * 机构IP范围
+     */
     @OrderBy("begin ASC, end DESC")
-    @OneToMany(mappedBy = "org")
+    @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
     private List<IpRange> ipRanges;
 
-    @OneToMany(mappedBy = "org")
+    /**
+     * 机构联系人
+     */
+    @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
     private List<OrgLinkman> orgLinkmans;
 
-    @OneToMany(mappedBy = "org")
+    /**
+     * 机构部门/院系
+     */
+    @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
     private List<OrgDepartment> orgDepartments;
 
-    @OneToOne(mappedBy = "org")
+    /**
+     * 机构设置
+     */
+    @OneToOne(mappedBy = "org", fetch = FetchType.LAZY)
     private OrgSetting orgSetting;
     /**
      * 机构产品列表
      */
-    @OneToMany(mappedBy = "org")
+    @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
     private List<OrgProduct> orgProducts;
 
-    @OneToMany(mappedBy = "org")
+    /**
+     * 机构馆藏数据库
+     */
+    @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
     private List<OrgCollection> orgCollections;
 
     public String getName() {
@@ -168,6 +188,15 @@ public class Org extends AbstractEntity {
 
     public Org setOrgCollections(List<OrgCollection> orgCollections) {
         this.orgCollections = orgCollections;
+        return this;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public Org setEnabled(boolean enabled) {
+        this.enabled = enabled;
         return this;
     }
 }

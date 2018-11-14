@@ -2,7 +2,7 @@ package com.wd.cloud.orgserver.config;
 
 import org.hibernate.dialect.MySQL5Dialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
-import org.hibernate.type.StringType;
+import org.hibernate.type.StandardBasicTypes;
 
 /**
  * @author He Zhigang
@@ -13,6 +13,6 @@ public class WdSQLDialect extends MySQL5Dialect {
 
     public WdSQLDialect() {
         super();
-        registerFunction("convert_gbk", new SQLFunctionTemplate(StringType.INSTANCE, "convert(?1 using gbk)"));
+        registerFunction("convert_gbk", new SQLFunctionTemplate(StandardBasicTypes.STRING, "convert(?1 using gbk)"));
     }
 }
