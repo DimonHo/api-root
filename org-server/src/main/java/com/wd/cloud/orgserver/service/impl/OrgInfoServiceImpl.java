@@ -5,11 +5,10 @@ import com.wd.cloud.orgserver.repository.IpRangeRepository;
 import com.wd.cloud.orgserver.repository.OrgRepository;
 import com.wd.cloud.orgserver.service.OrgInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -27,11 +26,8 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     IpRangeRepository ipRangeRepository;
 
     @Override
-    public List<Org> getAllOrg(String sortFiled) {
-        if ("name".equals(sortFiled)) {
-            return orgRepository.getAllOrderByName();
-        }
-        return orgRepository.findAll(Sort.by(sortFiled));
+    public Page<Org> getAllOrg(Pageable pageable) {
+        return orgRepository.findAll(pageable);
     }
 
     @Override

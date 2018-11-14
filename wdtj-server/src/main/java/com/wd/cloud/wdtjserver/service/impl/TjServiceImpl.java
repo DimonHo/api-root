@@ -3,7 +3,7 @@ package com.wd.cloud.wdtjserver.service.impl;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.json.JSONObject;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -19,7 +19,8 @@ import com.wd.cloud.wdtjserver.repository.*;
 import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
@@ -34,32 +35,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service("tjService")
 public class TjServiceImpl implements TjService {
     private static final Log log = LogFactory.get();
-
+    private static final String FIELD_ORG_NAME = "orgName";
     @Autowired
     TjDaySettingRepository tjDaySettingRepository;
-
     @Autowired
     TjOrgRepository tjOrgRepository;
-
     @Autowired
     TjHisSettingRepository tjHisSettingRepository;
-
     @Autowired
     TjViewDataRepository tjViewDataRepository;
-
     @Autowired
     TjDateSettingRepository tjDateSettingRepository;
-
     @Autowired
     TjTaskDataRepository tjTaskDataRepository;
-
     @Autowired
     OrgServerApi orgServerApi;
 
     @Override
     public TjOrg save(TjOrg tjOrg) {
         ResponseModel responseModel = orgServerApi.getOrg(tjOrg.getOrgId());
-        if (!responseModel.isError()){
+        if (!responseModel.isError()) {
             //根据学校ID查询是否有该学校
             TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
             if (oldTjOrg != null) {
@@ -68,7 +63,7 @@ public class TjServiceImpl implements TjService {
                 tjOrg.setPid(oldTjOrg.getId());
                 tjOrgRepository.save(oldTjOrg);
             }
-            tjOrg.setOrgName(JSONUtil.parseObj(responseModel.getBody(),true).getStr("name"));
+            tjOrg.setOrgName(JSONUtil.parseObj(responseModel.getBody(), true).getStr("name"));
             return tjOrgRepository.save(tjOrg);
         }
         return null;
@@ -76,21 +71,33 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public List<TjOrg> likeOrgName(String orgName) {
-        return tjOrgRepository.findByOrgNameLike("%" + orgName + "%");
-    }
-
-    @Override
-    public List<TjOrg> getAll(String sortField) {
-        if ("orgName".equals(sortField)) {
-            tjOrgRepository.getAllOrderByOrgName();
+    public Page<TjOrg> likeOrgName(String orgName, boolean history, Pageable pageable) {
+        //如果查询条件为空，那么返回全部符合history状态的记录
+        if (StrUtil.isBlank(orgName)) {
+            return tjOrgRepository.findByHistory(history, pageable);
         }
-        return tjOrgRepository.findAll(Sort.by(sortField));
+        return tjOrgRepository.findByHistoryAndOrgNameLike(history, "%" + orgName + "%", pageable);
     }
 
     @Override
-    public List<TjOrg> filterByQuota(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime) {
-        return tjOrgRepository.findByShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(showPv, showSc, showDc, showDdc, showAvgTime);
+    public Page<TjOrg> getEnabledFromAll(Pageable pageable) {
+        return tjOrgRepository.findAllByHistory(false, pageable);
+    }
+
+    @Override
+    public Page<TjOrg> getHistoryFromAll(Pageable pageable) {
+
+        return tjOrgRepository.findAllByHistory(true, pageable);
+    }
+
+    @Override
+    public Page<TjOrg> getAll(Pageable pageable) {
+        return tjOrgRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<TjOrg> filterByQuota(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, Pageable pageable) {
+        return tjOrgRepository.findByHistoryIsFalseAndShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(showPv, showSc, showDc, showDdc, showAvgTime, pageable);
     }
 
     @Override

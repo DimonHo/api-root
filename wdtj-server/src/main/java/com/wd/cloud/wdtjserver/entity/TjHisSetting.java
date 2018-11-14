@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.Date;
 
 /**

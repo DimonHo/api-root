@@ -1,8 +1,8 @@
 package com.wd.cloud.orgserver.service;
 
 import com.wd.cloud.orgserver.entity.Org;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author He Zhigang
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface OrgInfoService {
 
-    List<Org> getAllOrg(String sortFiled);
+    Page<Org> getAllOrg(Pageable pageable);
 
     Org get(Long id);
 

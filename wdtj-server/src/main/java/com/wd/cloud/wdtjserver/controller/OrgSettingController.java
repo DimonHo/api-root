@@ -8,9 +8,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 /**
@@ -44,7 +46,7 @@ public class OrgSettingController {
         TjOrg tjOrg = new TjOrg();
         tjOrg.setOrgId(orgId).setShowPv(showPv).setShowSc(showSc).setShowDc(showDc).setShowDdc(showDdc).setShowAvgTime(showAvgTime);
         tjOrg = tjService.save(tjOrg);
-        if (tjOrg != null){
+        if (tjOrg != null) {
             return ResponseModel.ok().setBody(tjOrg);
         }
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
@@ -57,22 +59,41 @@ public class OrgSettingController {
      * @param orgName
      * @return
      */
+    @ApiOperation(value = "根据机构名称模糊查询", tags = {"后台设置"})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "history", value = "是否是历史记录", dataType = "Boolean", paramType = "query")
+    })
     @GetMapping("/org/find")
-    public ResponseModel<TjOrg> find(@RequestParam String orgName) {
-        List<TjOrg> orgList = tjService.likeOrgName(orgName);
+    public ResponseModel<Page> find(@RequestParam(required = false) String orgName,
+                                    @RequestParam(required = false, defaultValue = "false") boolean history,
+                                    @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjOrg> orgList = tjService.likeOrgName(orgName, history, pageable);
         return ResponseModel.ok().setBody(orgList);
     }
 
     /**
-     * 根据机构名称查询
+     * 获取所有已生效的机构列表
      *
-     * @param orgName
      * @return
      */
+    @ApiOperation(value = "获取所有已生效的机构列表", tags = {"后台设置"})
     @GetMapping("/org/all")
-    public ResponseModel<TjOrg> all(@RequestParam String orgName) {
-        List<TjOrg> orgList = tjService.likeOrgName(orgName);
-        return ResponseModel.ok().setBody(orgList);
+    public ResponseModel<Page> all(@PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjOrg> orgEnableList = tjService.getEnabledFromAll(pageable);
+        return ResponseModel.ok().setBody(orgEnableList);
+    }
+
+    /**
+     * 获取所有历史的机构列表
+     *
+     * @return
+     */
+    @ApiOperation(value = "获取所有历史的机构列表", tags = {"后台设置"})
+    @GetMapping("/org/his")
+    public ResponseModel<Page> history(@PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjOrg> orgHisList = tjService.getHistoryFromAll(pageable);
+        return ResponseModel.ok().setBody(orgHisList);
     }
 
     /**
@@ -85,13 +106,22 @@ public class OrgSettingController {
      * @param showAvgTime
      * @return
      */
+    @ApiOperation(value = "根据指标过滤机构设置列表", tags = {"后台设置"})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "showPv", value = "是否有访问量指标", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "showSc", value = "是否有搜索量指标", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "showDc", value = "是否有下载量指标", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "showDdc", value = "是否有文献传递量指标", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "showAvgTime", value = "是否有平均访问时长指标", dataType = "Boolean", paramType = "query")
+    })
     @GetMapping("/org/filter")
     public ResponseModel<TjOrg> find(@RequestParam(required = false, defaultValue = "false") boolean showPv,
                                      @RequestParam(required = false, defaultValue = "false") boolean showSc,
                                      @RequestParam(required = false, defaultValue = "false") boolean showDc,
                                      @RequestParam(required = false, defaultValue = "false") boolean showDdc,
-                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
-        return ResponseModel.ok().setBody(tjService.filterByQuota(showPv, showSc, showDc, showDdc, showAvgTime));
+                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime,
+                                     @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseModel.ok().setBody(tjService.filterByQuota(showPv, showSc, showDc, showDdc, showAvgTime, pageable));
     }
 
 }

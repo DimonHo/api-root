@@ -65,38 +65,38 @@ public class RandomUtils {
         return null;
     }
 
-    public static List<Integer> random2(int num, int total,List<Double> weights,double waveRate) {
+    public static List<Integer> random2(int num, int total, List<Double> weights, double waveRate) {
         List<Integer> list = new ArrayList<Integer>();
         int rand;
-        long all=0;
+        long all = 0;
         Random random = new Random();
         double rate;
         for (int i = 0; i < num; i++) {
-            rate = random.nextGaussian()*weights.get(i)*total*waveRate;
-            rand = (int)(rate+Math.ceil(weights.get(i)*total));
+            rate = random.nextGaussian() * weights.get(i) * total * waveRate;
+            rand = (int) (rate + Math.ceil(weights.get(i) * total));
             list.add(rand);
-            all+=rand;
+            all += rand;
         }
 
         List<Integer> result = new ArrayList<Integer>();
         Double data;
         long sum = 0;
         for (int i = 0; i < num; i++) {
-            data = list.get(i)*1.0*total/all;
-            rand = (int)Math.ceil(data);
+            data = list.get(i) * 1.0 * total / all;
+            rand = (int) Math.ceil(data);
             result.add(rand);
-            sum+=rand;
+            sum += rand;
         }
 //		List<Integer> result = new ArrayList<Integer>(Arrays.asList(12, 20, 31, 11, 21, 10));
         System.out.println(sum);
         System.out.println(result);
-        if (sum!=total) {
+        if (sum != total) {
             Map<Integer, Double> map = new HashMap<Integer, Double>();
             for (int i = 0; i < num; i++) {
-                rate = weights.get(i)*total-result.get(i);
+                rate = weights.get(i) * total - result.get(i);
                 map.put(i, rate);
             }
-            List<Map.Entry<Integer, Double>> enList = new ArrayList<Map.Entry<Integer,Double>>(map.entrySet());
+            List<Map.Entry<Integer, Double>> enList = new ArrayList<Map.Entry<Integer, Double>>(map.entrySet());
             Collections.sort(enList, new Comparator<Map.Entry<Integer, Double>>() {
                 public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2) {
                     return o1.getValue().compareTo(o2.getValue());
@@ -104,36 +104,33 @@ public class RandomUtils {
             });
 
             long diff = sum - total;
-            if (diff<0) {
-                int j = enList.size()-1;
-                while (diff<0) {
-                    if (j<0) {
-                        j = enList.size()-1;
+            if (diff < 0) {
+                int j = enList.size() - 1;
+                while (diff < 0) {
+                    if (j < 0) {
+                        j = enList.size() - 1;
                     }
-                    if (enList.get(j).getValue()>0) {
+                    if (enList.get(j).getValue() > 0) {
                         rand = result.get(enList.get(j).getKey());
-                        result.set(enList.get(j).getKey(), rand-1);
+                        result.set(enList.get(j).getKey(), rand - 1);
                         j--;
                         diff++;
-                    }
-                    else {
-                        j = enList.size()-1;
+                    } else {
+                        j = enList.size() - 1;
                     }
                 }
-            }
-            else {
+            } else {
                 int j = 0;
-                while (diff>0) {
-                    if (j == enList.size()-1) {
+                while (diff > 0) {
+                    if (j == enList.size() - 1) {
                         j = 0;
                     }
-                    if (enList.get(j).getValue()<0) {
+                    if (enList.get(j).getValue() < 0) {
                         rand = result.get(enList.get(j).getKey());
-                        result.set(enList.get(j).getKey(), rand-1);
+                        result.set(enList.get(j).getKey(), rand - 1);
                         j++;
                         diff--;
-                    }
-                    else {
+                    } else {
                         j = 0;
                     }
                 }

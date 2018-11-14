@@ -6,6 +6,8 @@ import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
@@ -33,10 +35,31 @@ public interface TjService {
      * @param orgName
      * @return
      */
-    List<TjOrg> likeOrgName(String orgName);
+    Page<TjOrg> likeOrgName(String orgName, boolean history, Pageable pageable);
 
+    /**
+     * 获取已生效的机构设置列表
+     *
+     * @param pageable
+     * @return
+     */
+    Page<TjOrg> getEnabledFromAll(Pageable pageable);
 
-    List<TjOrg> getAll(String sortField);
+    /**
+     * 获取历史设置列表
+     *
+     * @param pageable
+     * @return
+     */
+    Page<TjOrg> getHistoryFromAll(Pageable pageable);
+
+    /**
+     * 获取所有机构设置列表
+     *
+     * @param pageable
+     * @return
+     */
+    Page<TjOrg> getAll(Pageable pageable);
 
     /**
      * 过滤机构设置信息
@@ -48,7 +71,7 @@ public interface TjService {
      * @param showAvgTime
      * @return
      */
-    List<TjOrg> filterByQuota(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime);
+    Page<TjOrg> filterByQuota(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, Pageable pageable);
 
 
     /**
