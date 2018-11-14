@@ -1,6 +1,6 @@
 package com.wd.cloud.orgserver.entity;
 
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.sql.Date;
 
 /**
@@ -8,15 +8,19 @@ import java.sql.Date;
  * @date 2018/11/6
  * @Description: 机构产品信息
  */
-public class OrgProduct {
+@Entity
+@Table(name = "org_product")
+public class OrgProduct extends AbstractEntity{
 
     @ManyToOne
-    private OrgInfo orgInfo;
+    @JoinColumn(name = "org_id")
+    private Org org;
 
     /**
      * 产品
      */
     @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
     /**
@@ -34,12 +38,12 @@ public class OrgProduct {
      */
     private Integer status;
 
-    public OrgInfo getOrgInfo() {
-        return orgInfo;
+    public Org getOrg() {
+        return org;
     }
 
-    public OrgProduct setOrgInfo(OrgInfo orgInfo) {
-        this.orgInfo = orgInfo;
+    public OrgProduct setOrg(Org org) {
+        this.org = org;
         return this;
     }
 
@@ -90,7 +94,7 @@ public class OrgProduct {
 
         OrgProduct that = (OrgProduct) o;
 
-        if (orgInfo != null ? !orgInfo.equals(that.orgInfo) : that.orgInfo != null) {
+        if (org != null ? !org.equals(that.org) : that.org != null) {
             return false;
         }
         if (product != null ? !product.equals(that.product) : that.product != null) {
@@ -107,7 +111,7 @@ public class OrgProduct {
 
     @Override
     public int hashCode() {
-        int result = orgInfo != null ? orgInfo.hashCode() : 0;
+        int result = org != null ? org.hashCode() : 0;
         result = 31 * result + (product != null ? product.hashCode() : 0);
         result = 31 * result + (beginDate != null ? beginDate.hashCode() : 0);
         result = 31 * result + (endDate != null ? endDate.hashCode() : 0);

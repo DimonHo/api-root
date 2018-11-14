@@ -24,7 +24,33 @@ public class Product extends AbstractEntity{
      */
     private String url;
 
-    @OneToMany
+    @OneToMany(mappedBy = "product")
     private Set<OrgProduct> orgProducts;
 
+    public String getName() {
+        return name;
+    }
+
+    public Product setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public Product setUrl(String url) {
+        this.url = url;
+        return this;
+    }
+
+    public Set<OrgProduct> getOrgProducts() {
+        return orgProducts;
+    }
+
+    public Product setOrgProducts(Set<OrgProduct> orgProducts) {
+        this.orgProducts = orgProducts;
+        return this;
+    }
 }

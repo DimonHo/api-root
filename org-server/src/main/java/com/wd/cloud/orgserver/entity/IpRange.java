@@ -1,6 +1,7 @@
 package com.wd.cloud.orgserver.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -13,9 +14,37 @@ import javax.persistence.Table;
 @Table(name = "ip_range")
 public class IpRange extends AbstractEntity {
     @ManyToOne
-    private OrgInfo orgInfo;
+    @JoinColumn(name = "org_id")
+    private Org org;
     private String begin;
     private String end;
+
+    public Org getOrg() {
+        return org;
+    }
+
+    public IpRange setOrg(Org org) {
+        this.org = org;
+        return this;
+    }
+
+    public String getBegin() {
+        return begin;
+    }
+
+    public IpRange setBegin(String begin) {
+        this.begin = begin;
+        return this;
+    }
+
+    public String getEnd() {
+        return end;
+    }
+
+    public IpRange setEnd(String end) {
+        this.end = end;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -28,7 +57,7 @@ public class IpRange extends AbstractEntity {
 
         IpRange ipRange = (IpRange) o;
 
-        if (orgInfo != null ? !orgInfo.equals(ipRange.orgInfo) : ipRange.orgInfo != null) {
+        if (org != null ? !org.equals(ipRange.org) : ipRange.org != null) {
             return false;
         }
         if (begin != null ? !begin.equals(ipRange.begin) : ipRange.begin != null) {
@@ -39,7 +68,7 @@ public class IpRange extends AbstractEntity {
 
     @Override
     public int hashCode() {
-        int result = orgInfo != null ? orgInfo.hashCode() : 0;
+        int result = org != null ? org.hashCode() : 0;
         result = 31 * result + (begin != null ? begin.hashCode() : 0);
         result = 31 * result + (end != null ? end.hashCode() : 0);
         return result;

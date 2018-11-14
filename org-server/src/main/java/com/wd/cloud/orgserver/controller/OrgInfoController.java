@@ -1,7 +1,7 @@
 package com.wd.cloud.orgserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.orgserver.entity.OrgInfo;
+import com.wd.cloud.orgserver.entity.Org;
 import com.wd.cloud.orgserver.service.OrgInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.List;
  * @Description:
  */
 @RestController
-@RequestMapping("/org")
+@RequestMapping("/")
 public class OrgInfoController {
 
     @Autowired
@@ -25,8 +25,8 @@ public class OrgInfoController {
      *
      * @return
      */
-    @PostMapping("/add")
-    public ResponseModel addOrg(String orgName) {
+    @PostMapping("/orginfo")
+    public ResponseModel addOrg(@RequestParam String orgName) {
         return ResponseModel.ok();
     }
 
@@ -36,7 +36,7 @@ public class OrgInfoController {
      * @param id
      * @return
      */
-    @DeleteMapping("/remove/{id}")
+    @DeleteMapping("/orginfo/{id}")
     public ResponseModel removeOrg(Long id) {
         return ResponseModel.ok();
     }
@@ -49,7 +49,7 @@ public class OrgInfoController {
      * @param orgFlag
      * @return
      */
-    @PatchMapping("/modify/{id}")
+    @PatchMapping("/orginfo/{id}")
     public ResponseModel modifyOrg(@PathVariable Long id,
                                    @RequestParam String orgName,
                                    @RequestParam String orgFlag) {
@@ -62,9 +62,13 @@ public class OrgInfoController {
      * @param id
      * @return
      */
-    @GetMapping("/get/{id}")
-    public ResponseModel getOrg(Long id) {
-        return ResponseModel.ok();
+    @GetMapping("/orginfo/{id}")
+    public ResponseModel getOrg(@PathVariable Long id) {
+        Org org = orgInfoService.get(id);
+        if (org != null){
+            return ResponseModel.ok().setBody(org);
+        }
+        return ResponseModel.fail().setMessage("未找到对应的机构!");
     }
 
     /**
@@ -72,10 +76,10 @@ public class OrgInfoController {
      * @sort 排序字段，默认为name
      * @return
      */
-    @GetMapping("/all")
+    @GetMapping("/orginfo/all")
     public ResponseModel getAll(@RequestParam(required = false, defaultValue = "name") String sort) {
-        List<OrgInfo> orgInfos = orgInfoService.getAllOrg(sort);
-        return ResponseModel.ok().setBody(orgInfos);
+        List<Org> orgs = orgInfoService.getAllOrg(sort);
+        return ResponseModel.ok().setBody(orgs);
     }
 
     /**
@@ -84,8 +88,8 @@ public class OrgInfoController {
      * @param ip
      * @return
      */
-    @GetMapping("/get")
-    public ResponseModel<OrgInfo> getOrg(@RequestParam String ip) {
+    @GetMapping("/orginfo/find")
+    public ResponseModel<Org> getOrg(@RequestParam String ip) {
         return ResponseModel.ok();
     }
 }
