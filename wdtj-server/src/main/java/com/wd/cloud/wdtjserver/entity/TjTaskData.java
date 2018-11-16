@@ -8,6 +8,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -36,7 +37,7 @@ public class TjTaskData extends AbstractEntity {
      */
     @Column(name = "tj_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Timestamp tjDate;
+    private Date tjDate;
 
     public Long getOrgId() {
         return orgId;
@@ -92,11 +93,11 @@ public class TjTaskData extends AbstractEntity {
         return this;
     }
 
-    public Timestamp getTjDate() {
+    public Date getTjDate() {
         return tjDate;
     }
 
-    public TjTaskData setTjDate(Timestamp tjDate) {
+    public TjTaskData setTjDate(Date tjDate) {
         this.tjDate = tjDate;
         return this;
     }

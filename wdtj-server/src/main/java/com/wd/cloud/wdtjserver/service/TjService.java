@@ -1,9 +1,8 @@
 package com.wd.cloud.wdtjserver.service;
 
-import com.wd.cloud.wdtjserver.entity.TjDaySetting;
-import com.wd.cloud.wdtjserver.entity.TjHisSetting;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
+import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import org.springframework.data.domain.Page;
@@ -77,18 +76,18 @@ public interface TjService {
     /**
      * 保存/更新 机构日基数设置
      *
-     * @param tjDaySetting
+     * @param tjQuota
      * @return
      */
-    TjDaySetting save(TjDaySetting tjDaySetting);
+    TjQuota save(TjQuota tjQuota);
 
     /**
      * 保存/更新 机构历史数据
      *
-     * @param tjHisSetting
+     * @param tjHisQuota
      * @return
      */
-    TjHisSetting save(TjHisSetting tjHisSetting);
+    TjHisQuota save(TjHisQuota tjHisQuota);
 
     /**
      * 添加生成历史数据
@@ -97,8 +96,10 @@ public interface TjService {
      * @param hisQuotaModels
      * @return
      */
-    List<DateIntervalModel> saveTjHisSettings(Long orgId, List<HisQuotaModel> hisQuotaModels);
+    Map<String, DateIntervalModel> checkInterval(Long orgId, List<HisQuotaModel> hisQuotaModels);
 
+
+    List<TjHisQuota> save(Long orgId, List<HisQuotaModel> hisQuotaModels);
 
     /**
      * 获取机构时间段内（时）的统计数据
@@ -145,16 +146,36 @@ public interface TjService {
      *
      * @return
      */
-    List<TjDaySetting> findByHistoryIsFalse();
+    List<TjQuota> findByHistoryIsFalse();
 
 
     /**
      * 历史统计数据查询
      *
-     * @param tjHisSetting
+     * @param tjHisQuota
      */
-    void search(TjHisSetting tjHisSetting);
+    void search(TjHisQuota tjHisQuota);
+
+    /**
+     * 获取一个历史设置记录
+     * @param hisId
+     * @return
+     */
+    TjHisQuota get(Long hisId);
+
+    /**
+     * 查询机构的历史设置记录
+     * @param orgId
+     * @return
+     */
+    List<TjHisQuota> findHisSettingByOrg(Long orgId);
+
+    /**
+     * 生成历史数据详情
+     * @param tjHisQuota
+     * @return
+     */
+    boolean buildTjHisData(TjHisQuota tjHisQuota);
 
 
-    List<TjViewData> buildTjHisData(TjHisSetting tjHisSetting);
 }

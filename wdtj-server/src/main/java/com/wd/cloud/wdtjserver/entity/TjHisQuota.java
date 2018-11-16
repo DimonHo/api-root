@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "tj_his_setting")
-public class TjHisSetting extends AbstractEntity {
+public class TjHisQuota extends AbstractEntity {
 
     /**
      * 机构ID
@@ -32,18 +32,31 @@ public class TjHisSetting extends AbstractEntity {
     private Date beginTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
+
     private String createUser;
     /**
      * 是否上锁，如果已上锁，则不可覆盖
      */
+    @Column(name = "is_locked", columnDefinition = "bit default 0 COMMENT '是否已经被锁定无法修改'")
     private boolean locked;
+
+    /**
+     * 是否是历史的记录
+     */
+    @Column(name = "is_history", columnDefinition = "bit default 0 COMMENT '是否是历史记录（作废），0:否，1：是'")
     private boolean history;
+
+    /**
+     * 是否已生成
+     */
+    @Column(name = "is_built", columnDefinition = "bit default 0 COMMENT '是否已经生成过数据，0：否，1：是'")
+    private boolean built;
 
     public Long getOrgId() {
         return orgId;
     }
 
-    public TjHisSetting setOrgId(Long orgId) {
+    public TjHisQuota setOrgId(Long orgId) {
         this.orgId = orgId;
         return this;
     }
@@ -52,7 +65,7 @@ public class TjHisSetting extends AbstractEntity {
         return pvCount;
     }
 
-    public TjHisSetting setPvCount(int pvCount) {
+    public TjHisQuota setPvCount(int pvCount) {
         this.pvCount = pvCount;
         return this;
     }
@@ -61,7 +74,7 @@ public class TjHisSetting extends AbstractEntity {
         return scCount;
     }
 
-    public TjHisSetting setScCount(int scCount) {
+    public TjHisQuota setScCount(int scCount) {
         this.scCount = scCount;
         return this;
     }
@@ -70,7 +83,7 @@ public class TjHisSetting extends AbstractEntity {
         return dcCount;
     }
 
-    public TjHisSetting setDcCount(int dcCount) {
+    public TjHisQuota setDcCount(int dcCount) {
         this.dcCount = dcCount;
         return this;
     }
@@ -79,7 +92,7 @@ public class TjHisSetting extends AbstractEntity {
         return ddcCount;
     }
 
-    public TjHisSetting setDdcCount(int ddcCount) {
+    public TjHisQuota setDdcCount(int ddcCount) {
         this.ddcCount = ddcCount;
         return this;
     }
@@ -88,7 +101,7 @@ public class TjHisSetting extends AbstractEntity {
         return avgTime;
     }
 
-    public TjHisSetting setAvgTime(Time avgTime) {
+    public TjHisQuota setAvgTime(Time avgTime) {
         this.avgTime = avgTime;
         return this;
     }
@@ -97,7 +110,7 @@ public class TjHisSetting extends AbstractEntity {
         return beginTime;
     }
 
-    public TjHisSetting setBeginTime(Date beginTime) {
+    public TjHisQuota setBeginTime(Date beginTime) {
         this.beginTime = beginTime;
         return this;
     }
@@ -106,7 +119,7 @@ public class TjHisSetting extends AbstractEntity {
         return endTime;
     }
 
-    public TjHisSetting setEndTime(Date endTime) {
+    public TjHisQuota setEndTime(Date endTime) {
         this.endTime = endTime;
         return this;
     }
@@ -115,7 +128,7 @@ public class TjHisSetting extends AbstractEntity {
         return createUser;
     }
 
-    public TjHisSetting setCreateUser(String createUser) {
+    public TjHisQuota setCreateUser(String createUser) {
         this.createUser = createUser;
         return this;
     }
@@ -124,7 +137,7 @@ public class TjHisSetting extends AbstractEntity {
         return locked;
     }
 
-    public TjHisSetting setLocked(boolean locked) {
+    public TjHisQuota setLocked(boolean locked) {
         this.locked = locked;
         return this;
     }
@@ -133,8 +146,17 @@ public class TjHisSetting extends AbstractEntity {
         return history;
     }
 
-    public TjHisSetting setHistory(boolean history) {
+    public TjHisQuota setHistory(boolean history) {
         this.history = history;
+        return this;
+    }
+
+    public boolean isBuilt() {
+        return built;
+    }
+
+    public TjHisQuota setBuilt(boolean built) {
+        this.built = built;
         return this;
     }
 }

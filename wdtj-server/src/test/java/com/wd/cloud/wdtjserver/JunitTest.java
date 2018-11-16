@@ -1,14 +1,13 @@
 package com.wd.cloud.wdtjserver;
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.Console;
+import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
+import com.wd.cloud.wdtjserver.service.TjService;
+import com.wd.cloud.wdtjserver.service.impl.TjServiceImpl;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
-import com.wd.cloud.wdtjserver.utils.RandomUtils;
+import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.junit.Test;
-
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * @author He Zhigang
@@ -18,16 +17,39 @@ import java.util.TreeMap;
 public class JunitTest {
 
     @Test
+    public void test2() {
+        Console.log(RandomUtil.randomListFromFinalTotal(-4, 7));
+    }
+
+    @Test
+    public void test3(){
+        double a = 23.1123523412;
+        double b = 23.1123523412;
+
+        Console.log(a == b);
+        Console.log(DateUtil.parse("2018-11-01").equals(DateUtil.parse("2018-11-01").toJdkDate()));
+    }
+
+    @Test
     public void test1() {
-        Map<DateTime, Float> map = new TreeMap<>();
-        DateTime now = DateUtil.date();
-        for (int i = 0; i < 24; i++) {
-            map.put(DateUtil.offsetMinute(now, 1), 0.1F);
-            now = DateUtil.offsetMinute(now, 1);
-        }
-
-
-        RandomUtils.random(map, 10000);
+//        Map<DateTime, Double> map = new TreeMap<>();
+//        DateTime now = DateUtil.date();
+//        for (int i = 0; i < 24; i++) {
+//            map.put(DateUtil.offsetMinute(now, 1), RandomUtil.randomDouble(2));
+//            now = DateUtil.offsetMinute(now, 1);
+//        }
+        TjService tjService = new TjServiceImpl();
+        TjHisQuota tjHisQuota = new TjHisQuota();
+        tjHisQuota.setPvCount(50000);
+        tjHisQuota.setBeginTime(DateUtil.parse("2018-11-01"));
+        tjHisQuota.setBeginTime(DateUtil.parse("2018-11-30"));
+        tjService.buildTjHisData(tjHisQuota);
+//        Map<DateTime, Integer> result = RandomUtil.randomMapFromWeight(100000, map, 0.4);
+//        int count = 0;
+//        for (Map.Entry<DateTime, Integer> entry : result.entrySet()) {
+//            count += entry.getValue();
+//        }
+//        Console.log(count);
     }
 
 

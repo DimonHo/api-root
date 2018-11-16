@@ -7,10 +7,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +20,7 @@ import java.util.Map;
  * @Descriptiwon:
  */
 @RestController
+@RequestMapping("/view")
 public class ViewController {
     @Autowired
     TjService tjService;
@@ -33,7 +31,7 @@ public class ViewController {
             @ApiImplicitParam(name = "beginDate", value = "起始时间", dataType = "Date", paramType = "query"),
             @ApiImplicitParam(name = "endDate", value = "结束时间", dataType = "Date", paramType = "query")
     })
-    @GetMapping("/view/year/{orgId}")
+    @GetMapping("/year/{orgId}")
     public ResponseModel getYear(@PathVariable Long orgId,
                                  @RequestParam Date beginDate,
                                  @RequestParam Date endDate) {
@@ -48,7 +46,7 @@ public class ViewController {
             @ApiImplicitParam(name = "beginDate", value = "起始时间", dataType = "Date", paramType = "query"),
             @ApiImplicitParam(name = "endDate", value = "结束时间", dataType = "Date", paramType = "query")
     })
-    @GetMapping("/view/month/{orgId}")
+    @GetMapping("/month/{orgId}")
     public ResponseModel getMonth(@PathVariable Long orgId,
                                   @RequestParam Date beginDate,
                                   @RequestParam Date endDate) {
@@ -63,7 +61,7 @@ public class ViewController {
             @ApiImplicitParam(name = "beginDate", value = "起始时间", dataType = "Date", paramType = "query"),
             @ApiImplicitParam(name = "endDate", value = "结束时间", dataType = "Date", paramType = "query")
     })
-    @GetMapping("/view/day/{orgId}")
+    @GetMapping("/day/{orgId}")
     public ResponseModel getDay(@PathVariable Long orgId,
                                 @RequestParam Date beginDate,
                                 @RequestParam Date endDate) {
@@ -78,7 +76,7 @@ public class ViewController {
             @ApiImplicitParam(name = "beginDate", value = "起始时间", dataType = "Date", paramType = "query"),
             @ApiImplicitParam(name = "endDate", value = "结束时间", dataType = "Date", paramType = "query")
     })
-    @GetMapping("/view/hour/{orgId}")
+    @GetMapping("/hour/{orgId}")
     public ResponseModel getHour(@PathVariable Long orgId,
                                  @RequestParam Date beginDate,
                                  @RequestParam Date endDate) {

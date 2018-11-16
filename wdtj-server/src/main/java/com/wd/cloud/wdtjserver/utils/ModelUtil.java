@@ -1,7 +1,7 @@
 package com.wd.cloud.wdtjserver.utils;
 
-import com.wd.cloud.wdtjserver.entity.TjDaySetting;
-import com.wd.cloud.wdtjserver.entity.TjHisSetting;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
+import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
 
@@ -12,25 +12,25 @@ import com.wd.cloud.wdtjserver.model.QuotaModel;
  */
 public class ModelUtil {
 
-    public static TjDaySetting build(QuotaModel quotaModel) {
-        TjDaySetting tjDaySetting = new TjDaySetting();
-        tjDaySetting.setPvCount(quotaModel.getPvCount())
+    public static TjQuota build(QuotaModel quotaModel) {
+        TjQuota tjQuota = new TjQuota();
+        tjQuota.setPvCount(quotaModel.getPvCount())
                 .setDcCount(quotaModel.getDcCount())
                 .setDdcCount(quotaModel.getDdcCount())
                 .setScCount(quotaModel.getScCount())
                 .setAvgTime(quotaModel.getAvgTime());
-        return tjDaySetting;
+        return tjQuota;
     }
 
-    public static TjHisSetting build(HisQuotaModel hisQuotaModel) {
-        TjHisSetting tjHisSetting = new TjHisSetting();
-        tjHisSetting.setPvCount(hisQuotaModel.getPvCount())
+    public static TjHisQuota build(HisQuotaModel hisQuotaModel) {
+        TjHisQuota tjHisQuota = new TjHisQuota();
+        tjHisQuota.setPvCount(hisQuotaModel.getPvCount())
                 .setDcCount(hisQuotaModel.getDcCount())
                 .setDdcCount(hisQuotaModel.getDdcCount())
                 .setScCount(hisQuotaModel.getScCount())
                 .setAvgTime(hisQuotaModel.getAvgTime())
                 .setBeginTime(hisQuotaModel.getBeginTime())
                 .setEndTime(hisQuotaModel.getEndTime());
-        return tjHisSetting;
+        return tjHisQuota;
     }
 }

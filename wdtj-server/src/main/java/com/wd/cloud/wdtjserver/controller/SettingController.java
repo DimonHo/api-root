@@ -2,8 +2,14 @@ package com.wd.cloud.wdtjserver.controller;
 
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
+import com.wd.cloud.wdtjserver.model.DateIntervalModel;
+import com.wd.cloud.wdtjserver.model.HisQuotaModel;
+import com.wd.cloud.wdtjserver.model.QuotaModel;
 import com.wd.cloud.wdtjserver.service.TjService;
+import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -21,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
  * @Description:
  */
 @RestController
-public class OrgSettingController {
+public class SettingController {
 
     @Autowired
     TjService tjService;
@@ -123,5 +131,51 @@ public class OrgSettingController {
                                      @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseModel.ok().setBody(tjService.filterByQuota(showPv, showSc, showDc, showDdc, showAvgTime, pageable));
     }
+
+
+    @ApiOperation(value = "设置日基数", tags = {"后台设置"})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
+    })
+    @PostMapping("/quota/{orgId}")
+    public ResponseModel add(@PathVariable Long orgId,
+                             @RequestBody QuotaModel quotaModel) {
+        TjQuota tjQuota = ModelUtil.build(quotaModel);
+        tjQuota.setOrgId(orgId);
+        return ResponseModel.ok().setBody(tjService.save(tjQuota));
+    }
+
+    @ApiOperation(value = "设置历史基数", tags = {"后台设置"})
+    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
+    @PostMapping("/his/{orgId}")
+    public ResponseModel add(@PathVariable Long orgId,
+                             @RequestBody List<HisQuotaModel> hisQuotaModels) {
+        // 检查时间区间是否允许修改
+        Map<String, DateIntervalModel> overlapsMap = tjService.checkInterval(orgId, hisQuotaModels);
+        if (overlapsMap.size() > 0) {
+            return ResponseModel.fail().setBody(overlapsMap);
+        }
+        List<TjHisQuota> tjHisQuotas = tjService.save(orgId, hisQuotaModels);
+        return ResponseModel.ok().setBody(tjHisQuotas);
+    }
+
+    @ApiOperation(value = "生成历史详细记录", tags = {"后台设置"})
+    @ApiImplicitParam(name = "hisId", value = "历史记录Id", dataType = "Long", paramType = "path")
+    @PatchMapping("/his/build/{hisId}")
+    public ResponseModel build(@PathVariable Long hisId){
+        TjHisQuota tjHisQuota = tjService.get(hisId);
+        if (tjHisQuota == null){
+            return ResponseModel.fail(StatusEnum.NOT_FOUND);
+        }else if (tjHisQuota.isLocked()){
+            return ResponseModel.fail().setMessage("该记录已生成且已锁定");
+        }
+        tjService.buildTjHisData(tjHisQuota);
+        return ResponseModel.ok();
+    }
+
+
+
+
+
 
 }

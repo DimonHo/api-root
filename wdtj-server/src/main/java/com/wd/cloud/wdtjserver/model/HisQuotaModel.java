@@ -8,9 +8,9 @@ import java.util.Date;
 /**
  * @author He Zhigang
  * @date 2018/11/8 0008
- * @Description:
+ * @Description: 历史统计指标模型
  */
-@ApiModel(value = "历史统计指标对象")
+@ApiModel(value = "历史统计指标模型")
 public class HisQuotaModel extends QuotaModel {
 
     @ApiModelProperty(value = "开始时间")
