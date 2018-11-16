@@ -74,7 +74,7 @@ public class SettingController {
     })
     @GetMapping("/org/find")
     public ResponseModel<Page> find(@RequestParam(required = false) String orgName,
-                                    @RequestParam(required = false, defaultValue = "false") boolean history,
+                                    @RequestParam(required = false) Boolean history,
                                     @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
         Page<TjOrg> orgList = tjService.likeOrgName(orgName, history, pageable);
         return ResponseModel.ok().setBody(orgList);
@@ -123,11 +123,11 @@ public class SettingController {
             @ApiImplicitParam(name = "showAvgTime", value = "是否有平均访问时长指标", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/org/filter")
-    public ResponseModel<TjOrg> find(@RequestParam(required = false, defaultValue = "false") boolean showPv,
-                                     @RequestParam(required = false, defaultValue = "false") boolean showSc,
-                                     @RequestParam(required = false, defaultValue = "false") boolean showDc,
-                                     @RequestParam(required = false, defaultValue = "false") boolean showDdc,
-                                     @RequestParam(required = false, defaultValue = "false") boolean showAvgTime,
+    public ResponseModel<TjOrg> find(@RequestParam(required = false) Boolean showPv,
+                                     @RequestParam(required = false) Boolean showSc,
+                                     @RequestParam(required = false) Boolean showDc,
+                                     @RequestParam(required = false) Boolean showDdc,
+                                     @RequestParam(required = false) Boolean showAvgTime,
                                      @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseModel.ok().setBody(tjService.filterByQuota(showPv, showSc, showDc, showDdc, showAvgTime, pageable));
     }
@@ -138,12 +138,44 @@ public class SettingController {
             @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
     })
     @PostMapping("/quota/{orgId}")
-    public ResponseModel add(@PathVariable Long orgId,
-                             @RequestBody QuotaModel quotaModel) {
+    public ResponseModel addQuota(@PathVariable Long orgId,
+                                  @RequestBody QuotaModel quotaModel) {
         TjQuota tjQuota = ModelUtil.build(quotaModel);
         tjQuota.setOrgId(orgId);
         return ResponseModel.ok().setBody(tjService.save(tjQuota));
     }
+
+    @ApiOperation(value = "获取所有机构日基数设置", tags = {"后台设置"})
+    @GetMapping("/quota/all")
+    public ResponseModel findOrgQuotaAll(@RequestParam(required = false) Boolean history,
+                                         @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjQuota> tjQuotas = tjService.findAll(history, pageable);
+        return ResponseModel.ok().setBody(tjQuotas);
+    }
+
+    @ApiOperation(value = "获取机构正在使用的日基数设置", tags = {"后台设置"})
+    @GetMapping("/quota/{orgId}")
+    public ResponseModel findOrgQuota(@PathVariable Long orgId,
+                                      @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        TjQuota tjQuota = tjService.findOrgQuota(orgId);
+        return ResponseModel.ok().setBody(tjQuota);
+    }
+
+    @ApiOperation(value = "获取机构历史日基数设置", tags = {"后台设置"})
+    @GetMapping("/quota/{orgId}/his")
+    public ResponseModel findOrgQuotaHis(@PathVariable Long orgId,
+                                         @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjQuota> tjQuotas = tjService.findOrgQuota(orgId, true, pageable);
+        return ResponseModel.ok().setBody(tjQuotas);
+    }
+
+    @GetMapping("/quota//{orgId}/all")
+    public ResponseModel findQuota(@PathVariable Long orgId,
+                                   @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjQuota> tjQuotas = tjService.findOrgQuota(orgId, null, pageable);
+        return ResponseModel.ok().setBody(tjQuotas);
+    }
+
 
     @ApiOperation(value = "设置历史基数", tags = {"后台设置"})
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
@@ -162,20 +194,16 @@ public class SettingController {
     @ApiOperation(value = "生成历史详细记录", tags = {"后台设置"})
     @ApiImplicitParam(name = "hisId", value = "历史记录Id", dataType = "Long", paramType = "path")
     @PatchMapping("/his/build/{hisId}")
-    public ResponseModel build(@PathVariable Long hisId){
+    public ResponseModel build(@PathVariable Long hisId) {
         TjHisQuota tjHisQuota = tjService.get(hisId);
-        if (tjHisQuota == null){
+        if (tjHisQuota == null) {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
-        }else if (tjHisQuota.isLocked()){
+        } else if (tjHisQuota.isLocked()) {
             return ResponseModel.fail().setMessage("该记录已生成且已锁定");
         }
         tjService.buildTjHisData(tjHisQuota);
         return ResponseModel.ok();
     }
-
-
-
-
 
 
 }

@@ -18,6 +18,7 @@ import com.wd.cloud.wdtjserver.model.WeightModel;
 import com.wd.cloud.wdtjserver.repository.*;
 import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
+import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -94,8 +95,8 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public Page<TjOrg> filterByQuota(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, Pageable pageable) {
-        return tjOrgRepository.findByHistoryIsFalseAndShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(showPv, showSc, showDc, showDdc, showAvgTime, pageable);
+    public Page<TjOrg> filterByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable) {
+        return tjOrgRepository.findAll(JpaQueryUtil.buildTjOrgQuery(showPv,showSc,showDc,showDdc,showAvgTime),pageable);
     }
 
     @Override
@@ -108,6 +109,29 @@ public class TjServiceImpl implements TjService {
             tjQuotaRepository.save(oldTjQuota);
         }
         return tjQuotaRepository.save(tjQuota);
+    }
+
+    @Override
+    public TjQuota findOrgQuota(Long orgId) {
+        return tjQuotaRepository.findByOrgIdAndHistoryIsFalse(orgId);
+    }
+
+    @Override
+    public Page<TjQuota> findOrgQuota(Long orgId, Boolean history,Pageable pageable) {
+        if (history == null){
+            return tjQuotaRepository.findByOrgId(orgId ,pageable);
+        }else{
+            return tjQuotaRepository.findByOrgIdAndHistory(orgId,history,pageable);
+        }
+
+    }
+
+    @Override
+    public Page<TjQuota> findAll(Boolean history, Pageable pageable) {
+        if (history != null){
+            return tjQuotaRepository.findByHistory(history,pageable);
+        }
+        return tjQuotaRepository.findAll(pageable);
     }
 
     @Override

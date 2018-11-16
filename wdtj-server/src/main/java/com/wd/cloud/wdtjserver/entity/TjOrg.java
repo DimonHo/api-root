@@ -53,7 +53,7 @@ public class TjOrg extends AbstractEntity {
     /**
      * 历史数据Id
      */
-    private long pid;
+    private Long pid;
 
     private boolean history;
 
@@ -129,11 +129,11 @@ public class TjOrg extends AbstractEntity {
         return this;
     }
 
-    public long getPid() {
+    public Long getPid() {
         return pid;
     }
 
-    public TjOrg setPid(long pid) {
+    public TjOrg setPid(Long pid) {
         this.pid = pid;
         return this;
     }

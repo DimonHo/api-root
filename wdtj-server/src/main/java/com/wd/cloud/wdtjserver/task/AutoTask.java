@@ -2,6 +2,7 @@ package com.wd.cloud.wdtjserver.task;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import com.wd.cloud.wdtjserver.model.WeightModel;
 import com.wd.cloud.wdtjserver.repository.TjDateSettingRepository;
@@ -10,6 +11,9 @@ import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -67,8 +71,19 @@ public class AutoTask {
             minuteWeightMap.put(weightModel, tjTaskData);
         });
 
-        tjQuotaRepository.findByHistoryIsFalse().forEach(tjDaySetting -> {
-            List<TjTaskData> taskDataList = RandomUtil.buildDayDataFromWeight(tjDaySetting, minuteWeightMap, 0.3);
+        Pageable pageable = PageRequest.of(0, 100);
+        Page<TjQuota> tjQuotas = tjQuotaRepository.findByHistoryIsFalse(pageable);
+        buildData(minuteWeightMap, tjQuotas);
+        // 下一页
+        while (tjQuotas.hasNext()) {
+            tjQuotas = tjQuotaRepository.findByHistoryIsFalse(tjQuotas.nextPageable());
+            buildData(minuteWeightMap, tjQuotas);
+        }
+    }
+
+    private void buildData(Map<WeightModel, TjTaskData> minuteWeightMap, Page<TjQuota> tjQuotas) {
+        tjQuotas.getContent().forEach(tjQuota -> {
+            List<TjTaskData> taskDataList = RandomUtil.buildDayDataFromWeight(tjQuota, minuteWeightMap, 0.3);
             tjTaskDataRepository.saveAll(taskDataList);
         });
     }

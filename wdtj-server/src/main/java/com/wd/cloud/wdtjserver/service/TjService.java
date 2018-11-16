@@ -1,8 +1,8 @@
 package com.wd.cloud.wdtjserver.service;
 
-import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import org.springframework.data.domain.Page;
@@ -70,7 +70,7 @@ public interface TjService {
      * @param showAvgTime
      * @return
      */
-    Page<TjOrg> filterByQuota(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, Pageable pageable);
+    Page<TjOrg> filterByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable);
 
 
     /**
@@ -80,6 +80,26 @@ public interface TjService {
      * @return
      */
     TjQuota save(TjQuota tjQuota);
+
+
+    /**
+     *
+     * @param orgId
+     * @return
+     */
+    TjQuota findOrgQuota(Long orgId);
+
+    /**
+     * @param orgId
+     * @return
+     */
+    Page<TjQuota> findOrgQuota(Long orgId,Boolean history, Pageable pageable);
+
+    /**
+     * @param history
+     * @return
+     */
+    Page<TjQuota> findAll(Boolean history, Pageable pageable);
 
     /**
      * 保存/更新 机构历史数据
@@ -158,6 +178,7 @@ public interface TjService {
 
     /**
      * 获取一个历史设置记录
+     *
      * @param hisId
      * @return
      */
@@ -165,6 +186,7 @@ public interface TjService {
 
     /**
      * 查询机构的历史设置记录
+     *
      * @param orgId
      * @return
      */
@@ -172,6 +194,7 @@ public interface TjService {
 
     /**
      * 生成历史数据详情
+     *
      * @param tjHisQuota
      * @return
      */
