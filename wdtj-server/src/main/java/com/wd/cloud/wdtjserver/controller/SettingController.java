@@ -61,12 +61,7 @@ public class SettingController {
 
     }
 
-    /**
-     * 根据机构名称查询
-     *
-     * @param orgName
-     * @return
-     */
+
     @ApiOperation(value = "根据机构名称模糊查询", tags = {"后台设置"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
@@ -80,40 +75,23 @@ public class SettingController {
         return ResponseModel.ok().setBody(orgList);
     }
 
-    /**
-     * 获取所有已生效的机构列表
-     *
-     * @return
-     */
+
     @ApiOperation(value = "获取所有已生效的机构列表", tags = {"后台设置"})
     @GetMapping("/org/all")
-    public ResponseModel<Page> all(@PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+    public ResponseModel<Page> all(@PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<TjOrg> orgEnableList = tjService.getEnabledFromAll(pageable);
         return ResponseModel.ok().setBody(orgEnableList);
     }
 
-    /**
-     * 获取所有历史的机构列表
-     *
-     * @return
-     */
+
     @ApiOperation(value = "获取所有历史的机构列表", tags = {"后台设置"})
     @GetMapping("/org/his")
-    public ResponseModel<Page> history(@PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
+    public ResponseModel<Page> history(@PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<TjOrg> orgHisList = tjService.getHistoryFromAll(pageable);
         return ResponseModel.ok().setBody(orgHisList);
     }
 
-    /**
-     * 根据指标过滤
-     *
-     * @param showPv
-     * @param showSc
-     * @param showDc
-     * @param showDdc
-     * @param showAvgTime
-     * @return
-     */
+
     @ApiOperation(value = "根据指标过滤机构设置列表", tags = {"后台设置"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "showPv", value = "是否有访问量指标", dataType = "Boolean", paramType = "query"),

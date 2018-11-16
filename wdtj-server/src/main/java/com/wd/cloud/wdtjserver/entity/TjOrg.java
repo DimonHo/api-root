@@ -55,7 +55,14 @@ public class TjOrg extends AbstractEntity {
      */
     private Long pid;
 
+    @Column(name = "is_history",columnDefinition = "bit default 0 COMMENT '是否是历史记录 0：否，1：是'")
     private boolean history;
+
+    /**
+     * 是否禁用
+     */
+    @Column(name = "is_forbade",columnDefinition = "bit default 0 COMMENT '是否被禁用 0：否，1：是'")
+    private boolean forbade;
 
     public Long getOrgId() {
         return orgId;
@@ -144,6 +151,15 @@ public class TjOrg extends AbstractEntity {
 
     public TjOrg setHistory(boolean history) {
         this.history = history;
+        return this;
+    }
+
+    public boolean isForbade() {
+        return forbade;
+    }
+
+    public TjOrg setForbade(boolean forbade) {
+        this.forbade = forbade;
         return this;
     }
 }

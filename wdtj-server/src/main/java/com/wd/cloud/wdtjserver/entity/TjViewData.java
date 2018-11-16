@@ -37,7 +37,7 @@ public class TjViewData extends AbstractEntity {
      * 时间
      */
     @Column(name = "tj_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date tjDate;
 
     public Long getOrgId() {

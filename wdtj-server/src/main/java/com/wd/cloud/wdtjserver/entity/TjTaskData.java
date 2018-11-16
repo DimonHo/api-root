@@ -36,7 +36,7 @@ public class TjTaskData extends AbstractEntity {
      * 时间，精确到分钟
      */
     @Column(name = "tj_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date tjDate;
 
     public Long getOrgId() {

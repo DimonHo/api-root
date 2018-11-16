@@ -122,59 +122,12 @@ public interface TjService {
     List<TjHisQuota> save(Long orgId, List<HisQuotaModel> hisQuotaModels);
 
     /**
-     * 获取机构时间段内（时）的统计数据
-     *
-     * @param beginDate
-     * @param endDate
-     * @param orgId
-     * @return
-     */
-    List<Map<String, Object>> findByTjDateAndOrgIdTime(Date beginDate, Date endDate, long orgId);
-
-    /**
-     * 获取机构时间段内（天）的统计数据
-     *
-     * @param beginDate
-     * @param endDate
-     * @param orgId
-     * @return
-     */
-    List<Map<String, Object>> findByTjDateAndOrgIdDay(Date beginDate, Date endDate, long orgId);
-
-    /**
-     * 获取机构时间段内（月）的统计数据
-     *
-     * @param beginDate
-     * @param endDate
-     * @param orgId
-     * @return
-     */
-    List<Map<String, Object>> findByTjDateAndOrgIdMonth(Date beginDate, Date endDate, long orgId);
-
-    /**
-     * 获取机构时间段内（年）的统计数据
-     *
-     * @param beginDate
-     * @param endDate
-     * @param orgId
-     * @return
-     */
-    List<Map<String, Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId);
-
-    /**
      * 查询日基数设置列表
      *
      * @return
      */
     List<TjQuota> findByHistoryIsFalse();
 
-
-    /**
-     * 历史统计数据查询
-     *
-     * @param tjHisQuota
-     */
-    void search(TjHisQuota tjHisQuota);
 
     /**
      * 获取一个历史设置记录

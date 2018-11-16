@@ -30,8 +30,11 @@ public class TjQuota extends AbstractEntity {
     private Time avgTime;
 
     private String createUser;
+
     @Column(name = "pid")
     private Long pid;
+
+    @Column(name = "is_history",columnDefinition = "bit default 0 COMMENT '是否历史记录 0：否，1：是'")
     private boolean history;
 
     public Long getOrgId() {

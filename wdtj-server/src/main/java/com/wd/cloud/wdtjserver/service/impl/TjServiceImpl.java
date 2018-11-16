@@ -53,6 +53,7 @@ public class TjServiceImpl implements TjService {
     @Override
     public TjOrg save(TjOrg tjOrg) {
         ResponseModel responseModel = orgServerApi.getOrg(tjOrg.getOrgId());
+        String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
         if (!responseModel.isError()) {
             //根据学校ID查询是否有该学校
             TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
@@ -62,7 +63,7 @@ public class TjServiceImpl implements TjService {
                 tjOrg.setPid(oldTjOrg.getId());
                 tjOrgRepository.save(oldTjOrg);
             }
-            tjOrg.setOrgName(JSONUtil.parseObj(responseModel.getBody(), true).getStr("name"));
+            tjOrg.setOrgName(orgName);
             return tjOrgRepository.save(tjOrg);
         }
         return null;
@@ -140,34 +141,8 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public List<Map<String, Object>> findByTjDateAndOrgIdTime(Date beginDate, Date endDate, long orgId) {
-        return null;
-    }
-
-    @Override
-    public List<Map<String, Object>> findByTjDateAndOrgIdDay(Date beginDate, Date endDate, long orgId) {
-        return null;
-    }
-
-    @Override
-    public List<Map<String, Object>> findByTjDateAndOrgIdMonth(Date beginDate, Date endDate, long orgId) {
-        return null;
-    }
-
-    @Override
-    public List<Map<String, Object>> findByTjDateAndOrgIdYear(Date beginDate, Date endDate, long orgId) {
-        return null;
-    }
-
-    @Override
     public List<TjQuota> findByHistoryIsFalse() {
         return null;
-    }
-
-
-    @Override
-    public void search(TjHisQuota tjHisQuota) {
-
     }
 
     @Override
