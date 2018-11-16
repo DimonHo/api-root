@@ -66,11 +66,7 @@ public interface TjService {
     Page<TjOrg> filterByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable);
 
 
-
-
-
     /**
-     *
      * @param orgId
      * @return
      */
@@ -80,14 +76,13 @@ public interface TjService {
      * @param orgId
      * @return
      */
-    Page<TjQuota> findOrgQuota(Long orgId,Boolean history, Pageable pageable);
+    Page<TjQuota> findOrgQuota(Long orgId, Boolean history, Pageable pageable);
 
     /**
      * @param history
      * @return
      */
     Page<TjQuota> findAll(Boolean history, Pageable pageable);
-
 
 
     /**
@@ -100,15 +95,22 @@ public interface TjService {
     Map<String, DateIntervalModel> checkInterval(Long orgId, List<HisQuotaModel> hisQuotaModels);
 
 
+    TjHisQuota getHisQuota(Long hisId);
 
     /**
-     * 获取一个历史设置记录
+     * 获取机构历史设置记录
      *
-     * @param hisId
+     * @param orgId
      * @return
      */
-    TjHisQuota get(Long hisId);
+    Page<TjHisQuota> getHisQuotaByOrg(Long orgId, Pageable pageable);
 
+    /**
+     *
+     * @param pageable
+     * @return
+     */
+    Page<TjHisQuota> getAllHisQuota(Pageable pageable);
 
     /**
      * 生成历史数据详情
@@ -119,12 +121,11 @@ public interface TjService {
     boolean buildTjHisData(TjHisQuota tjHisQuota);
 
     /**
-     *
      * @param orgId
      * @param beginTime
      * @param entTime
      * @return
      */
-    Page<TjViewData> getViewDate(Long orgId,Date beginTime,Date entTime);
+    Page<TjViewData> getViewDate(Long orgId, Date beginTime, Date entTime);
 
 }

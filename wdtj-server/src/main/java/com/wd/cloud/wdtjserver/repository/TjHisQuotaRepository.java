@@ -1,6 +1,8 @@
 package com.wd.cloud.wdtjserver.repository;
 
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,33 +16,33 @@ public interface TjHisQuotaRepository extends JpaRepository<TjHisQuota, Long> {
 
     /**
      * 机构历史所有数据
+     *
      * @param orgId
      * @return
      */
+    Page<TjHisQuota> findByOrgId(long orgId, Pageable pageable);
+
     List<TjHisQuota> findByOrgId(long orgId);
 
     /**
-     *
      * @param orgId
      * @param locked
      * @return
      */
-    List<TjHisQuota> findByOrgIdAndLocked(Long orgId, boolean locked);
+    Page<TjHisQuota> findByOrgIdAndLocked(Long orgId, boolean locked, Pageable pageable);
 
     /**
-     *
      * @param orgId
      * @param built
      * @return
      */
-    List<TjHisQuota> findByOrgIdAndBuilt(Long orgId, boolean built);
+    Page<TjHisQuota> findByOrgIdAndBuilt(Long orgId, boolean built, Pageable pageable);
 
     /**
-     *
      * @param orgId
      * @param history
      * @return
      */
-    List<TjHisQuota> findByOrgIdAndHistory(Long orgId, boolean history);
+    Page<TjHisQuota> findByOrgIdAndHistory(Long orgId, boolean history, Pageable pageable);
 
 }

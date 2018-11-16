@@ -67,8 +67,8 @@ public class SettingController {
     @ApiOperation(value = "禁用某机构", tags = {"后台设置"})
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "String", paramType = "path")
     @PatchMapping("/org/{orgId}")
-    public ResponseModel forbadeOrg(@PathVariable Long orgId){
-        if (settingService.forbade(orgId)){
+    public ResponseModel forbadeOrg(@PathVariable Long orgId) {
+        if (settingService.forbade(orgId)) {
             return ResponseModel.ok();
         }
         return ResponseModel.fail();
@@ -185,11 +185,27 @@ public class SettingController {
         return ResponseModel.ok().setBody(tjHisQuotas);
     }
 
+    @ApiOperation(value = "机构历史指标记录", tags = {"后台设置"})
+    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
+    @GetMapping("/his/{orgId}")
+    public ResponseModel findHisByOrg(@PathVariable Long orgId,
+                                      @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<TjHisQuota> tjHisQuotas = tjService.getHisQuotaByOrg(orgId, pageable);
+        return ResponseModel.ok().setBody(tjHisQuotas);
+    }
+
+
+    @ApiOperation(value = "所有历史指标记录", tags = {"后台设置"})
+    @GetMapping("/his/all")
+    public ResponseModel findHisAll(@PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseModel.ok().setBody(tjService.getAllHisQuota(pageable));
+    }
+
     @ApiOperation(value = "生成历史详细记录", tags = {"后台设置"})
     @ApiImplicitParam(name = "hisId", value = "历史记录Id", dataType = "Long", paramType = "path")
     @PatchMapping("/his/build/{hisId}")
     public ResponseModel build(@PathVariable Long hisId) {
-        TjHisQuota tjHisQuota = tjService.get(hisId);
+        TjHisQuota tjHisQuota = tjService.getHisQuota(hisId);
         if (tjHisQuota == null) {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         } else if (tjHisQuota.isLocked()) {

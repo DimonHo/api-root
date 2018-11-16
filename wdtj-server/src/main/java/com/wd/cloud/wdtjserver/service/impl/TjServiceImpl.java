@@ -104,8 +104,18 @@ public class TjServiceImpl implements TjService {
 
 
     @Override
-    public TjHisQuota get(Long hisId) {
+    public TjHisQuota getHisQuota(Long hisId) {
         return tjHisQuotaRepository.getOne(hisId);
+    }
+
+    @Override
+    public Page<TjHisQuota> getHisQuotaByOrg(Long orgId, Pageable pageable) {
+        return tjHisQuotaRepository.findByOrgId(orgId, pageable);
+    }
+
+    @Override
+    public Page<TjHisQuota> getAllHisQuota(Pageable pageable) {
+        return tjHisQuotaRepository.findAll(pageable);
     }
 
 
