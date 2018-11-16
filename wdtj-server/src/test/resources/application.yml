@@ -43,7 +43,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
   datasource:
     url: jdbc:mysql://192.168.1.36:3306/${spring.application.name}?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
     username: root

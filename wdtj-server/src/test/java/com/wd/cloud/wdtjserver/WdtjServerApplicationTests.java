@@ -20,16 +20,7 @@ public class WdtjServerApplicationTests {
 
     @Test
     public void contextLoads() {
-        TjHisQuota tjHisQuota = new TjHisQuota();
-        tjHisQuota.setOrgId(1L)
-                .setBeginTime(DateUtil.parseDateTime("2018-10-01 00:00:00"))
-                .setEndTime(DateUtil.parseDateTime("2018-10-31  23:59:00"))
-                .setPvCount(50000)
-                .setScCount(30000)
-                .setDcCount(5600)
-                .setDdcCount(7800)
-                .setAvgTime(new Time(520000));
-        tjService.buildTjHisData(tjHisQuota);
+
     }
 
 }

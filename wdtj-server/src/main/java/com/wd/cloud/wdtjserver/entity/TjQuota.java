@@ -12,7 +12,7 @@ import java.sql.Time;
  * @Description: 日基数设置表
  */
 @Entity
-@Table(name = "tj_day_setting", uniqueConstraints = {
+@Table(name = "tj_quota", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"org_id", "pid"})
 })
 public class TjQuota extends AbstractEntity {

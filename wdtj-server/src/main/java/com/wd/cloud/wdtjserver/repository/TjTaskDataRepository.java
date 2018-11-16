@@ -9,5 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @Description:
  */
 public interface TjTaskDataRepository extends JpaRepository<TjTaskData, Long> {
-    TjTaskData findByOrOrgId(long orgId);
+
+    TjTaskData findByOrgId(long orgId);
 }

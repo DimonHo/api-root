@@ -14,7 +14,7 @@ import java.util.Date;
  * @Description:
  */
 @Entity
-@Table(name = "tj_his_setting")
+@Table(name = "tj_his_quota")
 public class TjHisQuota extends AbstractEntity {
 
     /**
