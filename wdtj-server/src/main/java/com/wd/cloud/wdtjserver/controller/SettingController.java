@@ -8,6 +8,7 @@ import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
+import com.wd.cloud.wdtjserver.service.SettingService;
 import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import io.swagger.annotations.ApiImplicitParam;
@@ -34,6 +35,9 @@ public class SettingController {
     @Autowired
     TjService tjService;
 
+    @Autowired
+    SettingService settingService;
+
     @ApiOperation(value = "设置机构参数", tags = {"后台设置"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path"),
@@ -44,7 +48,7 @@ public class SettingController {
             @ApiImplicitParam(name = "showAvgTime", value = "是否显示平均访问时长", dataType = "boolean", paramType = "query")
     })
     @PostMapping("/org/{orgId}")
-    public ResponseModel<TjOrg> add(
+    public ResponseModel add(
             @PathVariable Long orgId,
             @RequestParam(required = false, defaultValue = "false") boolean showPv,
             @RequestParam(required = false, defaultValue = "false") boolean showSc,
@@ -53,12 +57,21 @@ public class SettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
         TjOrg tjOrg = new TjOrg();
         tjOrg.setOrgId(orgId).setShowPv(showPv).setShowSc(showSc).setShowDc(showDc).setShowDdc(showDdc).setShowAvgTime(showAvgTime);
-        tjOrg = tjService.save(tjOrg);
+        tjOrg = settingService.save(tjOrg);
         if (tjOrg != null) {
             return ResponseModel.ok().setBody(tjOrg);
         }
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
+    }
 
+    @ApiOperation(value = "禁用某机构", tags = {"后台设置"})
+    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "String", paramType = "path")
+    @PatchMapping("/org/{orgId}")
+    public ResponseModel forbadeOrg(@PathVariable Long orgId){
+        if (settingService.forbade(orgId)){
+            return ResponseModel.ok();
+        }
+        return ResponseModel.fail();
     }
 
 
@@ -118,7 +131,7 @@ public class SettingController {
                                   @RequestBody QuotaModel quotaModel) {
         TjQuota tjQuota = ModelUtil.build(quotaModel);
         tjQuota.setOrgId(orgId);
-        return ResponseModel.ok().setBody(tjService.save(tjQuota));
+        return ResponseModel.ok().setBody(settingService.save(tjQuota));
     }
 
     @ApiOperation(value = "获取所有机构日基数设置", tags = {"后台设置"})
@@ -168,7 +181,7 @@ public class SettingController {
         if (overlapsMap.size() > 0) {
             return ResponseModel.fail().setBody(overlapsMap);
         }
-        List<TjHisQuota> tjHisQuotas = tjService.save(orgId, hisQuotaModels);
+        List<TjHisQuota> tjHisQuotas = settingService.save(orgId, hisQuotaModels);
         return ResponseModel.ok().setBody(tjHisQuotas);
     }
 

@@ -3,6 +3,7 @@ package com.wd.cloud.wdtjserver.service;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
+import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import org.springframework.data.domain.Page;
@@ -19,14 +20,6 @@ import java.util.Map;
  * @Description:
  */
 public interface TjService {
-
-    /**
-     * 保存/更新机构设置
-     *
-     * @param tjOrg
-     * @return
-     */
-    TjOrg save(TjOrg tjOrg);
 
     /**
      * 模糊查询机构名称
@@ -73,13 +66,7 @@ public interface TjService {
     Page<TjOrg> filterByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable);
 
 
-    /**
-     * 保存/更新 机构日基数设置
-     *
-     * @param tjQuota
-     * @return
-     */
-    TjQuota save(TjQuota tjQuota);
+
 
 
     /**
@@ -101,13 +88,7 @@ public interface TjService {
      */
     Page<TjQuota> findAll(Boolean history, Pageable pageable);
 
-    /**
-     * 保存/更新 机构历史数据
-     *
-     * @param tjHisQuota
-     * @return
-     */
-    TjHisQuota save(TjHisQuota tjHisQuota);
+
 
     /**
      * 添加生成历史数据
@@ -119,15 +100,6 @@ public interface TjService {
     Map<String, DateIntervalModel> checkInterval(Long orgId, List<HisQuotaModel> hisQuotaModels);
 
 
-    List<TjHisQuota> save(Long orgId, List<HisQuotaModel> hisQuotaModels);
-
-    /**
-     * 查询日基数设置列表
-     *
-     * @return
-     */
-    List<TjQuota> findByHistoryIsFalse();
-
 
     /**
      * 获取一个历史设置记录
@@ -137,13 +109,6 @@ public interface TjService {
      */
     TjHisQuota get(Long hisId);
 
-    /**
-     * 查询机构的历史设置记录
-     *
-     * @param orgId
-     * @return
-     */
-    List<TjHisQuota> findHisSettingByOrg(Long orgId);
 
     /**
      * 生成历史数据详情
@@ -153,5 +118,13 @@ public interface TjService {
      */
     boolean buildTjHisData(TjHisQuota tjHisQuota);
 
+    /**
+     *
+     * @param orgId
+     * @param beginTime
+     * @param entTime
+     * @return
+     */
+    Page<TjViewData> getViewDate(Long orgId,Date beginTime,Date entTime);
 
 }

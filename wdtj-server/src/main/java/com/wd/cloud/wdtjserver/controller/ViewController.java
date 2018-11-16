@@ -25,6 +25,7 @@ public class ViewController {
                                  @RequestParam Date beginTime,
                                  @RequestParam Date endTime) {
 
+
         return ResponseModel.ok();
     }
 }

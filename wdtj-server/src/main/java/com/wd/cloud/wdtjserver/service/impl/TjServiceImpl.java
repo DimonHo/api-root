@@ -3,14 +3,11 @@ package com.wd.cloud.wdtjserver.service.impl;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.apifeign.OrgServerApi;
-import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
@@ -24,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -33,6 +31,7 @@ import java.util.*;
  * @Description:
  */
 @Service("tjService")
+@Transactional(rollbackFor = Exception.class)
 public class TjServiceImpl implements TjService {
     private static final Log log = LogFactory.get();
     @Autowired
@@ -47,28 +46,7 @@ public class TjServiceImpl implements TjService {
     TjDateSettingRepository tjDateSettingRepository;
     @Autowired
     TjTaskDataRepository tjTaskDataRepository;
-    @Autowired
-    OrgServerApi orgServerApi;
 
-    @Override
-    public TjOrg save(TjOrg tjOrg) {
-        ResponseModel responseModel = orgServerApi.getOrg(tjOrg.getOrgId());
-        String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
-        if (!responseModel.isError()) {
-            //根据学校ID查询是否有该学校
-            TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
-            if (oldTjOrg != null) {
-                //修改History为true
-                oldTjOrg.setHistory(true);
-                tjOrg.setPid(oldTjOrg.getId());
-                tjOrgRepository.save(oldTjOrg);
-            }
-            tjOrg.setOrgName(orgName);
-            return tjOrgRepository.save(tjOrg);
-        }
-        return null;
-
-    }
 
     @Override
     public Page<TjOrg> likeOrgName(String orgName, boolean history, Pageable pageable) {
@@ -97,20 +75,9 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public Page<TjOrg> filterByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable) {
-        return tjOrgRepository.findAll(JpaQueryUtil.buildTjOrgQuery(showPv,showSc,showDc,showDdc,showAvgTime),pageable);
+        return tjOrgRepository.findAll(JpaQueryUtil.buildTjOrgQuery(showPv, showSc, showDc, showDdc, showAvgTime), pageable);
     }
 
-    @Override
-    public TjQuota save(TjQuota tjQuota) {
-        //根据学校ID查询TjDaySetting是否有数据
-        TjQuota oldTjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjQuota.getOrgId());
-        if (oldTjQuota != null) {
-            oldTjQuota.setHistory(true);
-            tjQuota.setPid(oldTjQuota.getId());
-            tjQuotaRepository.save(oldTjQuota);
-        }
-        return tjQuotaRepository.save(tjQuota);
-    }
 
     @Override
     public TjQuota findOrgQuota(Long orgId) {
@@ -118,42 +85,29 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public Page<TjQuota> findOrgQuota(Long orgId, Boolean history,Pageable pageable) {
-        if (history == null){
-            return tjQuotaRepository.findByOrgId(orgId ,pageable);
-        }else{
-            return tjQuotaRepository.findByOrgIdAndHistory(orgId,history,pageable);
+    public Page<TjQuota> findOrgQuota(Long orgId, Boolean history, Pageable pageable) {
+        if (history == null) {
+            return tjQuotaRepository.findByOrgId(orgId, pageable);
+        } else {
+            return tjQuotaRepository.findByOrgIdAndHistory(orgId, history, pageable);
         }
 
     }
 
     @Override
     public Page<TjQuota> findAll(Boolean history, Pageable pageable) {
-        if (history != null){
-            return tjQuotaRepository.findByHistory(history,pageable);
+        if (history != null) {
+            return tjQuotaRepository.findByHistory(history, pageable);
         }
         return tjQuotaRepository.findAll(pageable);
     }
 
-    @Override
-    public TjHisQuota save(TjHisQuota tjHisQuota) {
-        return tjHisQuotaRepository.save(tjHisQuota);
-    }
-
-    @Override
-    public List<TjQuota> findByHistoryIsFalse() {
-        return null;
-    }
 
     @Override
     public TjHisQuota get(Long hisId) {
         return tjHisQuotaRepository.getOne(hisId);
     }
 
-    @Override
-    public List<TjHisQuota> findHisSettingByOrg(Long orgId) {
-        return tjHisQuotaRepository.findByOrgId(orgId);
-    }
 
     @Override
     public Map<String, DateIntervalModel> checkInterval(Long orgId, List<HisQuotaModel> hisQuotaModels) {
@@ -175,24 +129,6 @@ public class TjServiceImpl implements TjService {
         return overlapMap;
     }
 
-    @Override
-    public List<TjHisQuota> save(Long orgId, List<HisQuotaModel> hisQuotaModels) {
-        List<TjHisQuota> tjHisQuotas = new ArrayList<>();
-        hisQuotaModels.forEach(hisQuotaModel -> {
-            TjHisQuota tjHisQuota = new TjHisQuota();
-            tjHisQuota.setAvgTime(hisQuotaModel.getAvgTime())
-                    .setBeginTime(hisQuotaModel.getBeginTime())
-                    .setEndTime(hisQuotaModel.getEndTime())
-                    .setPvCount(hisQuotaModel.getPvCount())
-                    .setScCount(hisQuotaModel.getScCount())
-                    .setDcCount(hisQuotaModel.getDcCount())
-                    .setDdcCount(hisQuotaModel.getDdcCount())
-                    .setOrgId(orgId);
-            tjHisQuotas.add(tjHisQuota);
-        });
-        return tjHisQuotaRepository.saveAll(tjHisQuotas);
-    }
-
 
     /**
      * 生成历史数据
@@ -201,6 +137,7 @@ public class TjServiceImpl implements TjService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean buildTjHisData(TjHisQuota tjHisQuota) {
         Map<String, Float> settingMap = new TreeMap<>();
         // 获取所有比率设置，组装map
@@ -227,14 +164,32 @@ public class TjServiceImpl implements TjService {
             weightModel.setValue(weight);
             TjViewData tjViewData = new TjViewData();
             tjViewData.setTjDate(minuteTime);
+            tjViewData.setOrgId(tjHisQuota.getOrgId());
             minuteWeightMap.put(weightModel, tjViewData);
         });
-        // 生成历史数据
+
+        // 生成随机历史数据
+        long start = System.currentTimeMillis();
         List<TjViewData> tjViewDataList = RandomUtil.buildHisDataFromWeight(tjHisQuota, minuteWeightMap, 0.3);
-        tjViewDataRepository.saveAll(tjViewDataList);
+        log.info("生成{}条随机历史数据,耗时：{} 毫秒", tjViewDataList.size(), DateUtil.spendMs(start));
+        log.info("开始随机历史数据插入...");
+        start = System.currentTimeMillis();
+        int index = 0;
+        while (index < tjViewDataList.size()) {
+            int tempIndex = index + 5000;
+            tjViewDataRepository.saveAll(tjViewDataList.subList(index, tempIndex > tjViewDataList.size() ? tjViewDataList.size() : tempIndex));
+            index = tempIndex;
+        }
         // 修改状态
         tjHisQuota.setBuilt(true);
         tjHisQuotaRepository.save(tjHisQuota);
+        log.info("随机历史数据插入数据库完毕,耗时：{} 毫秒", DateUtil.spendMs(start));
         return true;
+    }
+
+    @Override
+    public Page<TjViewData> getViewDate(Long orgId, Date beginTime, Date entTime) {
+        //tjViewDataRepository.findByTjDateAndOrgIdDay()
+        return null;
     }
 }
