@@ -120,7 +120,7 @@ public class SettingController {
                                      @RequestParam(required = false) Boolean showDdc,
                                      @RequestParam(required = false) Boolean showAvgTime,
                                      @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseModel.ok().setBody(tjService.filterByQuota(showPv, showSc, showDc, showDdc, showAvgTime, pageable));
+        return ResponseModel.ok().setBody(tjService.filterOrgByQuota(showPv, showSc, showDc, showDdc, showAvgTime, pageable));
     }
 
 

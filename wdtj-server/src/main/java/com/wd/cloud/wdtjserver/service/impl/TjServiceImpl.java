@@ -49,12 +49,8 @@ public class TjServiceImpl implements TjService {
 
 
     @Override
-    public Page<TjOrg> likeOrgName(String orgName, boolean history, Pageable pageable) {
-        //如果查询条件为空，那么返回全部符合history状态的记录
-        if (StrUtil.isBlank(orgName)) {
-            return tjOrgRepository.findByHistory(history, pageable);
-        }
-        return tjOrgRepository.findByHistoryAndOrgNameLike(history, "%" + orgName + "%", pageable);
+    public Page<TjOrg> likeOrgName(String orgName, Boolean history, Pageable pageable) {
+        return tjOrgRepository.findAll(JpaQueryUtil.buildQeuryForTjOrg(orgName,history),pageable);
     }
 
     @Override
@@ -74,8 +70,8 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public Page<TjOrg> filterByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable) {
-        return tjOrgRepository.findAll(JpaQueryUtil.buildTjOrgQuery(showPv, showSc, showDc, showDdc, showAvgTime), pageable);
+    public Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable) {
+        return tjOrgRepository.findAll(JpaQueryUtil.buildFilterForTjOrg(showPv, showSc, showDc, showDdc, showAvgTime,null), pageable);
     }
 
 

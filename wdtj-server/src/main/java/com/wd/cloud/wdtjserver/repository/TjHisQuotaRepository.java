@@ -4,6 +4,7 @@ import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * @date 2018/11/6
  * @Description:
  */
-public interface TjHisQuotaRepository extends JpaRepository<TjHisQuota, Long> {
+public interface TjHisQuotaRepository extends JpaRepository<TjHisQuota, Long>, JpaSpecificationExecutor<TjHisQuota> {
 
     /**
      * 机构历史所有数据

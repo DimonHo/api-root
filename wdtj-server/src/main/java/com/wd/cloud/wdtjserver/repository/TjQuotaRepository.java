@@ -4,15 +4,14 @@ import com.wd.cloud.wdtjserver.entity.TjQuota;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * @author He Zhigang
  * @date 2018/11/6
  * @Description: 日基数设置DAO
  */
-public interface TjQuotaRepository extends JpaRepository<TjQuota, Long> {
+public interface TjQuotaRepository extends JpaRepository<TjQuota, Long>, JpaSpecificationExecutor<TjQuota> {
 
     /**
      * 查询机构日基数有效设置,一个机构有且只有一个有效设置

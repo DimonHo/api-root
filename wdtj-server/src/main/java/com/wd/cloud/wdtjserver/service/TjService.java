@@ -27,7 +27,7 @@ public interface TjService {
      * @param orgName
      * @return
      */
-    Page<TjOrg> likeOrgName(String orgName, boolean history, Pageable pageable);
+    Page<TjOrg> likeOrgName(String orgName, Boolean history, Pageable pageable);
 
     /**
      * 获取已生效的机构设置列表
@@ -63,7 +63,7 @@ public interface TjService {
      * @param showAvgTime
      * @return
      */
-    Page<TjOrg> filterByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable);
+    Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable);
 
 
     /**
