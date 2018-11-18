@@ -83,9 +83,9 @@ public class SettingController {
     @GetMapping("/org/find")
     public ResponseModel<Page> find(@RequestParam(required = false) String orgName,
                                     @RequestParam(required = false) Boolean history,
-                                    @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<TjOrg> orgList = tjService.likeOrgName(orgName, history, pageable);
-        return ResponseModel.ok().setBody(orgList);
+                                    @PageableDefault(sort = {"orgName"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjOrg> orgPage = tjService.likeOrgName(orgName, history, pageable);
+        return ResponseModel.ok().setBody(orgPage);
     }
 
 
