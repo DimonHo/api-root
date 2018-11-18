@@ -2,6 +2,7 @@ package com.wd.cloud.wdtjserver.task;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
+import com.wd.cloud.wdtjserver.entity.TjDataPk;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import com.wd.cloud.wdtjserver.model.WeightModel;
@@ -67,7 +68,6 @@ public class AutoTask {
             double weight = monthWeight * dayWeight * weekWeight * hourWeight;
             weightModel.setValue(weight);
             TjTaskData tjTaskData = new TjTaskData();
-            tjTaskData.setTjDate(minuteTime);
             minuteWeightMap.put(weightModel, tjTaskData);
         });
 

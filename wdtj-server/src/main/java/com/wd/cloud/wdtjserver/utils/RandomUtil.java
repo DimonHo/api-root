@@ -1,10 +1,6 @@
 package com.wd.cloud.wdtjserver.utils;
 
-import cn.hutool.core.lang.Console;
-import com.wd.cloud.wdtjserver.entity.TjHisQuota;
-import com.wd.cloud.wdtjserver.entity.TjQuota;
-import com.wd.cloud.wdtjserver.entity.TjTaskData;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
+import com.wd.cloud.wdtjserver.entity.*;
 import com.wd.cloud.wdtjserver.model.WeightModel;
 
 import java.sql.Time;
@@ -222,7 +218,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             int randomDdc = getRandomIntFromAvg(ddcAvg, weight, ratio);
             randomDdc = randomPv == 0 ? 0 : randomDdc;
 
-            Time randomVisitTime = getRandomVisitTime(tjQuota.getAvgTime(),weight,ratio);
+            Time randomVisitTime = getRandomVisitTime(tjQuota.getAvgTime(), weight, ratio);
             randomVisitTime = randomPv == 0 ? new Time(0) : randomVisitTime;
 
             entry.getValue().setPvCount(randomPv);
@@ -234,13 +230,15 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             entry.getValue().setDdcCount(randomDdc);
 
             entry.getValue().setVisitTime(randomVisitTime);
+
+            entry.getValue().setId(new TjDataPk(tjQuota.getOrgId(), DateUtil.parse(entry.getKey().getName())));
         }
         return new ArrayList<>(weightMap.values());
     }
 
     /**
      * @param ratio  浮动比例
-     * @param avg  平均值
+     * @param avg    平均值
      * @param weight 权重值
      * @return
      */
@@ -253,12 +251,13 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
     /**
      * 获取访问时长
+     *
      * @param avgTime
      * @param weight
      * @param ratio
      * @return
      */
-    public static Time getRandomVisitTime(Time avgTime, double weight, double ratio){
+    public static Time getRandomVisitTime(Time avgTime, double weight, double ratio) {
         double min = avgTime.getTime() * weight * (1 - ratio);
         double max = avgTime.getTime() * weight * (1 + ratio);
         //如果最大值不大于1，最大值设为1

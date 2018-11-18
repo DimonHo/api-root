@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.repository;
 
+import com.wd.cloud.wdtjserver.entity.TjDataPk;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -8,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @date 2018/11/6
  * @Description:
  */
-public interface TjTaskDataRepository extends JpaRepository<TjTaskData, Long> {
+public interface TjTaskDataRepository extends JpaRepository<TjTaskData, TjDataPk> {
 
-    TjTaskData findByOrgId(long orgId);
+    TjTaskData findByIdOrgId(long orgId);
 }

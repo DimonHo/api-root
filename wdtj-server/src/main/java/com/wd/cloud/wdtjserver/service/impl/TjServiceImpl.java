@@ -5,10 +5,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.wdtjserver.entity.TjHisQuota;
-import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.entity.TjQuota;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
+import com.wd.cloud.wdtjserver.entity.*;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.WeightModel;
@@ -169,8 +166,9 @@ public class TjServiceImpl implements TjService {
             double weight = monthWeight * dayWeight * weekWeight * hourWeight;
             weightModel.setValue(weight);
             TjViewData tjViewData = new TjViewData();
-            tjViewData.setTjDate(minuteTime);
-            tjViewData.setOrgId(tjHisQuota.getOrgId());
+            TjDataPk tjDataPk = new TjDataPk();
+            tjDataPk.setOrgId(tjHisQuota.getOrgId()).setTjDate(minuteTime);
+            tjViewData.setId(tjDataPk);
             minuteWeightMap.put(weightModel, tjViewData);
         });
 

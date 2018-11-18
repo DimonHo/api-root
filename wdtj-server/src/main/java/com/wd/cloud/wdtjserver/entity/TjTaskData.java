@@ -16,37 +16,15 @@ import java.util.Date;
  * @Description: 根据日基数算法每天生成数据
  */
 @Entity
-@Table(name = "tj_task_data", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id", "tj_date"})
-})
-public class TjTaskData extends AbstractEntity {
+@Table(name = "tj_task_data")
+public class TjTaskData extends AbstractTjDataEntity {
 
-    /**
-     * 机构ID
-     */
-    @Column(name = "org_id")
-    private Long orgId;
 
     private int pvCount;
     private int scCount;
     private int dcCount;
     private int ddcCount;
-    private Time visitTime;
-    /**
-     * 时间，精确到分钟
-     */
-    @Column(name = "tj_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date tjDate;
-
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public TjTaskData setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
+    private Time visitTime = new Time(0);
 
     public int getPvCount() {
         return pvCount;
@@ -93,12 +71,4 @@ public class TjTaskData extends AbstractEntity {
         return this;
     }
 
-    public Date getTjDate() {
-        return tjDate;
-    }
-
-    public TjTaskData setTjDate(Date tjDate) {
-        this.tjDate = tjDate;
-        return this;
-    }
 }

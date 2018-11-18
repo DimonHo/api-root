@@ -1,14 +1,8 @@
 package com.wd.cloud.wdtjserver.entity;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -16,37 +10,14 @@ import java.util.Date;
  * @Description: spis访问的真实数据
  */
 @Entity
-@Table(name = "tj_spis_data", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id", "tj_date"})
-})
-public class TjSpisData extends AbstractEntity {
-
-    /**
-     * 机构ID
-     */
-    @Column(name = "org_id")
-    private Long orgId;
+@Table(name = "tj_spis_data")
+public class TjSpisData extends AbstractTjDataEntity{
 
     private int pvCount;
     private int scCount;
     private int dcCount;
     private int ddcCount;
-    private Time visitTime;
-    /**
-     * 时间，精确到分钟
-     */
-    @Column(name = "tj_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date tjDate;
-
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public TjSpisData setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
+    private Time visitTime = new Time(0);
 
     public int getPvCount() {
         return pvCount;
@@ -93,12 +64,4 @@ public class TjSpisData extends AbstractEntity {
         return this;
     }
 
-    public Date getTjDate() {
-        return tjDate;
-    }
-
-    public TjSpisData setTjDate(Date tjDate) {
-        this.tjDate = tjDate;
-        return this;
-    }
 }
