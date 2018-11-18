@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.utils;
 
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
@@ -22,20 +23,21 @@ public class JpaQueryUtil {
 
     /**
      * 机构名称模糊查询
+     *
      * @param orgName
      * @param history
      * @return
      */
-    public static Specification<TjOrg> buildQeuryForTjOrg(String orgName, Boolean history){
+    public static Specification<TjOrg> buildQeuryForTjOrg(String orgName, Boolean history) {
         return new Specification<TjOrg>() {
             @Override
             public Predicate toPredicate(Root<TjOrg> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> wheres = new ArrayList<Predicate>();
-                if (orgName != null) {
-                    wheres.add(criteriaBuilder.like(root.get("orgName").as(String.class), orgName));
+                if (StrUtil.isNotBlank(orgName)) {
+                    wheres.add(criteriaBuilder.like(root.get("orgName"), "%" + orgName + "%"));
                 }
                 if (history != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("history").as(Boolean.class), history));
+                    wheres.add(criteriaBuilder.equal(root.get("history"), history));
                 }
                 Predicate[] predicates = new Predicate[wheres.size()];
                 return criteriaBuilder.and(wheres.toArray(predicates));
@@ -43,40 +45,40 @@ public class JpaQueryUtil {
         };
     }
 
-   /**
-    * 根据指标状态过滤机构
-    *
-    * @param showPv
-    * @param showSc
-    * @param showDc
-    * @param showDdc
-    * @param showAvgTime
-    * @param forbade
-    * @return
-    */
-    public static Specification<TjOrg> buildFilterForTjOrg(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime,Boolean forbade) {
+    /**
+     * 根据指标状态过滤机构
+     *
+     * @param showPv
+     * @param showSc
+     * @param showDc
+     * @param showDdc
+     * @param showAvgTime
+     * @param forbade
+     * @return
+     */
+    public static Specification<TjOrg> buildFilterForTjOrg(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade) {
         return new Specification<TjOrg>() {
             @Override
             public Predicate toPredicate(Root<TjOrg> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> wheres = new ArrayList<Predicate>();
 
                 if (showPv != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("showPv").as(Boolean.class), showPv));
+                    wheres.add(criteriaBuilder.equal(root.get("showPv"), showPv));
                 }
                 if (showSc != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("showSc").as(Boolean.class), showSc));
+                    wheres.add(criteriaBuilder.equal(root.get("showSc"), showSc));
                 }
                 if (showDc != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("showDc").as(Boolean.class), showDc));
+                    wheres.add(criteriaBuilder.equal(root.get("showDc"), showDc));
                 }
                 if (showDdc != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("showDdc").as(Boolean.class), showDdc));
+                    wheres.add(criteriaBuilder.equal(root.get("showDdc"), showDdc));
                 }
                 if (showAvgTime != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("showAvgTime").as(Boolean.class), showAvgTime));
+                    wheres.add(criteriaBuilder.equal(root.get("showAvgTime"), showAvgTime));
                 }
                 if (forbade != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("forbade").as(Boolean.class), forbade));
+                    wheres.add(criteriaBuilder.equal(root.get("forbade"), forbade));
                 }
 
                 Predicate[] predicates = new Predicate[wheres.size()];
@@ -93,19 +95,19 @@ public class JpaQueryUtil {
                 List<Predicate> wheres = new ArrayList<Predicate>();
 
                 if (orgId != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("orgId").as(Long.class), orgId));
+                    wheres.add(criteriaBuilder.equal(root.get("orgId"), orgId));
                 }
                 if (history != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("history").as(Boolean.class), history));
+                    wheres.add(criteriaBuilder.equal(root.get("history"), history));
                 }
-                if (createUser != null){
-                    wheres.add(criteriaBuilder.equal(root.get("createUser").as(String.class), createUser));
+                if (createUser != null) {
+                    wheres.add(criteriaBuilder.equal(root.get("createUser"), createUser));
                 }
-                if (gmtCreate != null){
-                    wheres.add(criteriaBuilder.greaterThan(root.get("gmtCreate").as(Date.class),gmtCreate));
+                if (gmtCreate != null) {
+                    wheres.add(criteriaBuilder.greaterThan(root.get("gmtCreate"), gmtCreate));
                 }
-                if (gmtModified != null){
-                    wheres.add(criteriaBuilder.greaterThan(root.get("gmtModified").as(Date.class),gmtModified));
+                if (gmtModified != null) {
+                    wheres.add(criteriaBuilder.greaterThan(root.get("gmtModified"), gmtModified));
                 }
 
                 Predicate[] predicates = new Predicate[wheres.size()];
@@ -115,26 +117,26 @@ public class JpaQueryUtil {
     }
 
 
-    public static Specification<TjHisQuota> buildFilterForTjQuota(Long orgId, Boolean history,Boolean locked,Boolean built, String createUser) {
+    public static Specification<TjHisQuota> buildFilterForTjQuota(Long orgId, Boolean history, Boolean locked, Boolean built, String createUser) {
         return new Specification<TjHisQuota>() {
             @Override
             public Predicate toPredicate(Root<TjHisQuota> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> wheres = new ArrayList<Predicate>();
 
                 if (orgId != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("orgId").as(Long.class), orgId));
+                    wheres.add(criteriaBuilder.equal(root.get("orgId"), orgId));
                 }
                 if (history != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("history").as(Boolean.class), history));
+                    wheres.add(criteriaBuilder.equal(root.get("history"), history));
                 }
                 if (locked != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("locked").as(Boolean.class), locked));
+                    wheres.add(criteriaBuilder.equal(root.get("locked"), locked));
                 }
                 if (built != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("built").as(Boolean.class), built));
+                    wheres.add(criteriaBuilder.equal(root.get("built"), built));
                 }
-                if (createUser != null){
-                    wheres.add(criteriaBuilder.equal(root.get("createUser").as(String.class), createUser));
+                if (createUser != null) {
+                    wheres.add(criteriaBuilder.equal(root.get("createUser"), createUser));
                 }
 
                 Predicate[] predicates = new Predicate[wheres.size()];

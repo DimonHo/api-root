@@ -111,7 +111,8 @@ public class SettingController {
             @ApiImplicitParam(name = "showSc", value = "是否有搜索量指标", dataType = "Boolean", paramType = "query"),
             @ApiImplicitParam(name = "showDc", value = "是否有下载量指标", dataType = "Boolean", paramType = "query"),
             @ApiImplicitParam(name = "showDdc", value = "是否有文献传递量指标", dataType = "Boolean", paramType = "query"),
-            @ApiImplicitParam(name = "showAvgTime", value = "是否有平均访问时长指标", dataType = "Boolean", paramType = "query")
+            @ApiImplicitParam(name = "showAvgTime", value = "是否有平均访问时长指标", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "forbade", value = "是否禁用", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/org/filter")
     public ResponseModel<TjOrg> find(@RequestParam(required = false) Boolean showPv,
@@ -119,8 +120,9 @@ public class SettingController {
                                      @RequestParam(required = false) Boolean showDc,
                                      @RequestParam(required = false) Boolean showDdc,
                                      @RequestParam(required = false) Boolean showAvgTime,
+                                     @RequestParam(required = false) Boolean forbade,
                                      @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseModel.ok().setBody(tjService.filterOrgByQuota(showPv, showSc, showDc, showDdc, showAvgTime, pageable));
+        return ResponseModel.ok().setBody(tjService.filterOrgByQuota(showPv, showSc, showDc, showDdc, showAvgTime, forbade, pageable));
     }
 
 

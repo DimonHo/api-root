@@ -61,9 +61,10 @@ public interface TjService {
      * @param showDc
      * @param showDdc
      * @param showAvgTime
+     * @param forbade
      * @return
      */
-    Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Pageable pageable);
+    Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade, Pageable pageable);
 
 
     /**
@@ -106,7 +107,6 @@ public interface TjService {
     Page<TjHisQuota> getHisQuotaByOrg(Long orgId, Pageable pageable);
 
     /**
-     *
      * @param pageable
      * @return
      */
