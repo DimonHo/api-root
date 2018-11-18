@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
+import com.wd.cloud.wdtjserver.entity.TjViewData;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -138,6 +139,28 @@ public class JpaQueryUtil {
                 if (createUser != null) {
                     wheres.add(criteriaBuilder.equal(root.get("createUser"), createUser));
                 }
+
+                Predicate[] predicates = new Predicate[wheres.size()];
+                return criteriaBuilder.and(wheres.toArray(predicates));
+            }
+        };
+    }
+
+
+    public static Specification<TjViewData> buildFilterForTjViewData(Long orgId, Date beginTime, Date endTime, int type) {
+        return new Specification<TjViewData>() {
+            @Override
+            public Predicate toPredicate(Root<TjViewData> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> wheres = new ArrayList<Predicate>();
+
+                if (orgId != null) {
+                    wheres.add(criteriaBuilder.equal(root.get("orgId"), orgId));
+                }
+                if (beginTime != null) {
+                    wheres.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("beginTime"), beginTime),
+                            criteriaBuilder.lessThanOrEqualTo(root.get("endTime"), endTime != null ? endTime : new Date())));
+                }
+
 
                 Predicate[] predicates = new Predicate[wheres.size()];
                 return criteriaBuilder.and(wheres.toArray(predicates));

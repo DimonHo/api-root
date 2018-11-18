@@ -64,7 +64,7 @@ public class SettingController {
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }
 
-    @ApiOperation(value = "禁用某机构", tags = {"后台设置"})
+    @ApiOperation(value = "禁用/解除禁用某机构", tags = {"后台设置"})
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "String", paramType = "path")
     @PatchMapping("/org/{orgId}")
     public ResponseModel forbadeOrg(@PathVariable Long orgId) {

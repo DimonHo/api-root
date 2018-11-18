@@ -31,7 +31,7 @@ public class TjTaskData extends AbstractEntity {
     private int scCount;
     private int dcCount;
     private int ddcCount;
-    private Time avgTime;
+    private Time visitTime;
     /**
      * 时间，精确到分钟
      */
@@ -84,12 +84,12 @@ public class TjTaskData extends AbstractEntity {
         return this;
     }
 
-    public Time getAvgTime() {
-        return avgTime;
+    public Time getVisitTime() {
+        return visitTime;
     }
 
-    public TjTaskData setAvgTime(Time avgTime) {
-        this.avgTime = avgTime;
+    public TjTaskData setVisitTime(Time visitTime) {
+        this.visitTime = visitTime;
         return this;
     }
 

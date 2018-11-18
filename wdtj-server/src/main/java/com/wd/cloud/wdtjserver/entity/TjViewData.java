@@ -31,7 +31,11 @@ public class TjViewData extends AbstractEntity {
     private int scCount;
     private int dcCount;
     private int ddcCount;
-    private Time avgTime;
+
+    /**
+     * 访问时长
+     */
+    private Time visitTime = new Time(0);
 
     /**
      * 时间
@@ -85,12 +89,12 @@ public class TjViewData extends AbstractEntity {
         return this;
     }
 
-    public Time getAvgTime() {
-        return avgTime;
+    public Time getVisitTime() {
+        return visitTime;
     }
 
-    public TjViewData setAvgTime(Time avgTime) {
-        this.avgTime = avgTime;
+    public TjViewData setVisitTime(Time visitTime) {
+        this.visitTime = visitTime;
         return this;
     }
 
@@ -130,7 +134,7 @@ public class TjViewData extends AbstractEntity {
         if (orgId != null ? !orgId.equals(that.orgId) : that.orgId != null) {
             return false;
         }
-        if (avgTime != null ? !avgTime.equals(that.avgTime) : that.avgTime != null) {
+        if (visitTime != null ? !visitTime.equals(that.visitTime) : that.visitTime != null) {
             return false;
         }
         return tjDate != null ? tjDate.equals(that.tjDate) : that.tjDate == null;
@@ -143,7 +147,7 @@ public class TjViewData extends AbstractEntity {
         result = 31 * result + scCount;
         result = 31 * result + dcCount;
         result = 31 * result + ddcCount;
-        result = 31 * result + (avgTime != null ? avgTime.hashCode() : 0);
+        result = 31 * result + (visitTime != null ? visitTime.hashCode() : 0);
         result = 31 * result + (tjDate != null ? tjDate.hashCode() : 0);
         return result;
     }

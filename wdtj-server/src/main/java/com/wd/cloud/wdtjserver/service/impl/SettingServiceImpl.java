@@ -64,12 +64,14 @@ public class SettingServiceImpl implements SettingService {
     public boolean forbade(Long orgId) {
         TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
         if (tjOrg != null){
-            tjOrg.setForbade(true);
+            // 禁用和解除禁用切换
+            tjOrg.setForbade(!tjOrg.isForbade());
             tjOrgRepository.save(tjOrg);
             return true;
         }
         return false;
     }
+
 
     @Override
     public TjQuota save(TjQuota tjQuota) {
