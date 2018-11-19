@@ -2,9 +2,7 @@ package com.wd.cloud.orgserver.repository;
 
 import com.wd.cloud.orgserver.entity.Org;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,9 +11,6 @@ import java.util.Optional;
  * @Description:
  */
 public interface OrgRepository extends JpaRepository<Org, Long> {
-
-    @Query("FROM Org order by convert_gbk(name) asc")
-    List<Org> getAllOrderByName();
 
     Optional<Org> findByFlag(String flag);
 

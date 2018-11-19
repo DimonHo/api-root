@@ -3,15 +3,14 @@ package com.wd.cloud.wdtjserver.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 /**
  * @author He Zhigang
  * @date 2018/11/8 0008
- * @Description:
+ * @Description: 历史统计指标模型
  */
-@ApiModel(value = "历史统计指标对象")
+@ApiModel(value = "历史统计指标模型")
 public class HisQuotaModel extends QuotaModel {
 
     @ApiModelProperty(value = "开始时间")

@@ -1,13 +1,8 @@
 package com.wd.cloud.wdtjserver.entity;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.sql.Time;
-import java.sql.Timestamp;
 
 /**
  * @author He Zhigang
@@ -15,38 +10,16 @@ import java.sql.Timestamp;
  * @Description: 展示给用户的最终数据
  */
 @Entity
-@Table(name = "tj_view_data", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id", "tj_date"})
-})
-public class TjViewData extends AbstractEntity {
-
-    /**
-     * 机构ID
-     */
-    @Column(name = "org_id")
-    private Long orgId;
+@Table(name = "tj_view_data")
+public class TjViewData extends AbstractTjDataEntity {
 
     private int pvCount;
     private int scCount;
     private int dcCount;
     private int ddcCount;
-    private Time avgTime;
 
-    /**
-     * 时间
-     */
-    @Column(name = "tj_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Timestamp tjDate;
+    private Time visitTime = new Time(0);
 
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public TjViewData setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
 
     public int getPvCount() {
         return pvCount;
@@ -84,21 +57,13 @@ public class TjViewData extends AbstractEntity {
         return this;
     }
 
-    public Time getAvgTime() {
-        return avgTime;
+    public Time getVisitTime() {
+        return visitTime;
     }
 
-    public TjViewData setAvgTime(Time avgTime) {
-        this.avgTime = avgTime;
+    public TjViewData setVisitTime(Time visitTime) {
+        this.visitTime = visitTime;
         return this;
     }
 
-    public Timestamp getTjDate() {
-        return tjDate;
-    }
-
-    public TjViewData setTjDate(Timestamp tjDate) {
-        this.tjDate = tjDate;
-        return this;
-    }
 }

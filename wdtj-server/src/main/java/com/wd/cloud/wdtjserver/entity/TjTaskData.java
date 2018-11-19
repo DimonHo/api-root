@@ -8,6 +8,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -15,37 +16,15 @@ import java.sql.Timestamp;
  * @Description: 根据日基数算法每天生成数据
  */
 @Entity
-@Table(name = "tj_task_data", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id", "tj_date"})
-})
-public class TjTaskData extends AbstractEntity {
+@Table(name = "tj_task_data")
+public class TjTaskData extends AbstractTjDataEntity {
 
-    /**
-     * 机构ID
-     */
-    @Column(name = "org_id")
-    private Long orgId;
 
     private int pvCount;
     private int scCount;
     private int dcCount;
     private int ddcCount;
-    private Time avgTime;
-    /**
-     * 时间，精确到分钟
-     */
-    @Column(name = "tj_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Timestamp tjDate;
-
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public TjTaskData setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
+    private Time visitTime = new Time(0);
 
     public int getPvCount() {
         return pvCount;
@@ -83,21 +62,13 @@ public class TjTaskData extends AbstractEntity {
         return this;
     }
 
-    public Time getAvgTime() {
-        return avgTime;
+    public Time getVisitTime() {
+        return visitTime;
     }
 
-    public TjTaskData setAvgTime(Time avgTime) {
-        this.avgTime = avgTime;
+    public TjTaskData setVisitTime(Time visitTime) {
+        this.visitTime = visitTime;
         return this;
     }
 
-    public Timestamp getTjDate() {
-        return tjDate;
-    }
-
-    public TjTaskData setTjDate(Timestamp tjDate) {
-        this.tjDate = tjDate;
-        return this;
-    }
 }

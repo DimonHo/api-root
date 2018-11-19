@@ -12,10 +12,10 @@ import java.sql.Time;
  * @Description: 日基数设置表
  */
 @Entity
-@Table(name = "tj_day_setting", uniqueConstraints = {
+@Table(name = "tj_quota", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"org_id", "pid"})
 })
-public class TjDaySetting extends AbstractEntity {
+public class TjQuota extends AbstractEntity {
 
     /**
      * 机构ID
@@ -30,15 +30,18 @@ public class TjDaySetting extends AbstractEntity {
     private Time avgTime;
 
     private String createUser;
+
     @Column(name = "pid")
     private Long pid;
+
+    @Column(name = "is_history",columnDefinition = "bit default 0 COMMENT '是否历史记录 0：否，1：是'")
     private boolean history;
 
     public Long getOrgId() {
         return orgId;
     }
 
-    public TjDaySetting setOrgId(Long orgId) {
+    public TjQuota setOrgId(Long orgId) {
         this.orgId = orgId;
         return this;
     }
@@ -47,7 +50,7 @@ public class TjDaySetting extends AbstractEntity {
         return pvCount;
     }
 
-    public TjDaySetting setPvCount(int pvCount) {
+    public TjQuota setPvCount(int pvCount) {
         this.pvCount = pvCount;
         return this;
     }
@@ -56,7 +59,7 @@ public class TjDaySetting extends AbstractEntity {
         return scCount;
     }
 
-    public TjDaySetting setScCount(int scCount) {
+    public TjQuota setScCount(int scCount) {
         this.scCount = scCount;
         return this;
     }
@@ -65,7 +68,7 @@ public class TjDaySetting extends AbstractEntity {
         return dcCount;
     }
 
-    public TjDaySetting setDcCount(int dcCount) {
+    public TjQuota setDcCount(int dcCount) {
         this.dcCount = dcCount;
         return this;
     }
@@ -74,7 +77,7 @@ public class TjDaySetting extends AbstractEntity {
         return ddcCount;
     }
 
-    public TjDaySetting setDdcCount(int ddcCount) {
+    public TjQuota setDdcCount(int ddcCount) {
         this.ddcCount = ddcCount;
         return this;
     }
@@ -83,7 +86,7 @@ public class TjDaySetting extends AbstractEntity {
         return avgTime;
     }
 
-    public TjDaySetting setAvgTime(Time avgTime) {
+    public TjQuota setAvgTime(Time avgTime) {
         this.avgTime = avgTime;
         return this;
     }
@@ -92,7 +95,7 @@ public class TjDaySetting extends AbstractEntity {
         return createUser;
     }
 
-    public TjDaySetting setCreateUser(String createUser) {
+    public TjQuota setCreateUser(String createUser) {
         this.createUser = createUser;
         return this;
     }
@@ -102,7 +105,7 @@ public class TjDaySetting extends AbstractEntity {
         return pid;
     }
 
-    public TjDaySetting setPid(Long pid) {
+    public TjQuota setPid(Long pid) {
         this.pid = pid;
         return this;
     }
@@ -111,7 +114,7 @@ public class TjDaySetting extends AbstractEntity {
         return history;
     }
 
-    public TjDaySetting setHistory(boolean history) {
+    public TjQuota setHistory(boolean history) {
         this.history = history;
         return this;
     }

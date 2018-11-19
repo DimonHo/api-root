@@ -8,9 +8,9 @@ import java.sql.Time;
 /**
  * @author He Zhigang
  * @date 2018/11/6
- * @Description:
+ * @Description: 统计指标模型
  */
-@ApiModel(value = "统计指标对象")
+@ApiModel(value = "统计指标模型")
 public class QuotaModel {
 
     @ApiModelProperty(value = "访问量", example = "10")

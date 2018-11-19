@@ -2,18 +2,22 @@ package com.wd.cloud.wdtjserver.task;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.util.RandomUtil;
+import com.wd.cloud.wdtjserver.entity.TjDataPk;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
+import com.wd.cloud.wdtjserver.model.WeightModel;
 import com.wd.cloud.wdtjserver.repository.TjDateSettingRepository;
-import com.wd.cloud.wdtjserver.repository.TjDaySettingRepository;
+import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
+import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.sql.Time;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -30,7 +34,7 @@ public class AutoTask {
     TjDateSettingRepository tjDateSettingRepository;
 
     @Autowired
-    TjDaySettingRepository tjDaySettingRepository;
+    TjQuotaRepository tjQuotaRepository;
 
     @Autowired
     TjTaskDataRepository tjTaskDataRepository;
@@ -40,52 +44,48 @@ public class AutoTask {
      */
     @Scheduled(cron = "0 0 0 * * ?")
     public void auto() {
-        Map<String, Float> settingMap = new TreeMap();
+        Map<String, Float> settingMap = new TreeMap<>();
         // 获取所有比率设置，组装map
         tjDateSettingRepository.findAll().forEach(tjDateSetting -> {
             settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
         });
         // 获取明天所有的分钟数列表
         List<DateTime> minuteList = DateUtil.rangeToList(DateUtil.beginOfDay(DateUtil.tomorrow()), DateUtil.endOfDay(DateUtil.tomorrow()), DateField.MINUTE);
-        Map<DateTime, Float> minuteWeightMap = new TreeMap();
+        Map<WeightModel, TjTaskData> minuteWeightMap = new TreeMap<>();
         //计算每分钟比率值放入map中
         minuteList.forEach(minuteTime -> {
+            WeightModel weightModel = new WeightModel();
+            weightModel.setName(minuteTime.toString());
             String monthKey = "1-" + (DateUtil.month(minuteTime) + 1);
+            String dayKey = "2-" + (DateUtil.dayOfMonth(minuteTime));
+            // 周日-周六：1 - 7
+            String weekKey = "3-" + (DateUtil.dayOfWeek(minuteTime));
             String hoursKey = "4-" + DateUtil.hour(minuteTime, true);
-            float monthWeight = settingMap.get(monthKey) == null ? 1.0F : settingMap.get(monthKey);
-            float hourWeight = settingMap.get(hoursKey) == null ? 1.0F : settingMap.get(hoursKey);
-            float weight = monthWeight * hourWeight;
-            minuteWeightMap.put(minuteTime, weight);
+            double monthWeight = settingMap.get(monthKey) == null ? 1.0 : settingMap.get(monthKey);
+            double dayWeight = settingMap.get(dayKey) == null ? 1.0 : settingMap.get(dayKey);
+            double weekWeight = settingMap.get(weekKey) == null ? 1.0 : settingMap.get(weekKey);
+            double hourWeight = settingMap.get(hoursKey) == null ? 1.0 : settingMap.get(hoursKey);
+            double weight = monthWeight * dayWeight * weekWeight * hourWeight;
+            weightModel.setValue(weight);
+            TjTaskData tjTaskData = new TjTaskData();
+            minuteWeightMap.put(weightModel, tjTaskData);
         });
-        // 生成task数据
-        List<TjTaskData> tjTaskDataList = new ArrayList();
-        float dayMinutes = 24 * 60;
-        // 查询所有机构的日基数
-        tjDaySettingRepository.findByHistoryIsFalse().forEach(tjDaySetting -> {
-            // 计算分钟平均值
-            float avgPvCountFromMinute = tjDaySetting.getPvCount() / dayMinutes;
-            float avgScCountFromMinute = tjDaySetting.getScCount() / dayMinutes;
-            float avgDcCountFromMinute = tjDaySetting.getDcCount() / dayMinutes;
-            float avgDdcCountFromMinute = tjDaySetting.getDdcCount() / dayMinutes;
-            //根据比率计算随机值
-            minuteWeightMap.forEach((date, weight) -> {
-                TjTaskData tjTaskData = new TjTaskData();
-                int pvCount = (int) Math.round(avgPvCountFromMinute * weight * RandomUtil.randomDouble(2));
-                int scCount = (int) Math.round(avgScCountFromMinute * weight + RandomUtil.randomDouble(-2, 2));
-                int dcCount = (int) Math.round(avgDcCountFromMinute * weight + RandomUtil.randomDouble(-2, 2));
-                int ddcCount = (int) Math.round(avgDdcCountFromMinute * weight + RandomUtil.randomDouble(-2, 2));
-                long avgTime = Math.round(tjDaySetting.getAvgTime().getTime() * weight + RandomUtil.randomLong(-100000, 100000));
-                tjTaskData.setPvCount(pvCount < 0 ? 0 : pvCount);
-                tjTaskData.setScCount(scCount < 0 ? 0 : scCount);
-                tjTaskData.setDcCount(dcCount < 0 ? 0 : dcCount);
-                tjTaskData.setDdcCount(ddcCount < 0 ? 0 : ddcCount);
-                tjTaskData.setAvgTime(new Time(avgTime));
-                tjTaskData.setOrgId(tjDaySetting.getOrgId());
-                tjTaskData.setTjDate(date.toTimestamp());
-                tjTaskDataList.add(tjTaskData);
-            });
+
+        Pageable pageable = PageRequest.of(0, 100);
+        Page<TjQuota> tjQuotas = tjQuotaRepository.findByHistoryIsFalse(pageable);
+        buildData(minuteWeightMap, tjQuotas);
+        // 下一页
+        while (tjQuotas.hasNext()) {
+            tjQuotas = tjQuotaRepository.findByHistoryIsFalse(tjQuotas.nextPageable());
+            buildData(minuteWeightMap, tjQuotas);
+        }
+    }
+
+    private void buildData(Map<WeightModel, TjTaskData> minuteWeightMap, Page<TjQuota> tjQuotas) {
+        tjQuotas.getContent().forEach(tjQuota -> {
+            List<TjTaskData> taskDataList = RandomUtil.buildDayDataFromWeight(tjQuota, minuteWeightMap, 0.3);
+            tjTaskDataRepository.saveAll(taskDataList);
         });
-        tjTaskDataRepository.saveAll(tjTaskDataList);
     }
 
     /**
