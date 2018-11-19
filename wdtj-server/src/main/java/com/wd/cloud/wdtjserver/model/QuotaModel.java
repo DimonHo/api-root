@@ -3,6 +3,9 @@ package com.wd.cloud.wdtjserver.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.sql.Time;
 
 /**
@@ -10,19 +13,40 @@ import java.sql.Time;
  * @date 2018/11/6
  * @Description: 统计指标模型
  */
+
 @ApiModel(value = "统计指标模型")
 public class QuotaModel {
 
-    @ApiModelProperty(value = "访问量", example = "10")
+    @Min(0)
+    @NotNull
+    @ApiModelProperty(value = "浏览量", example = "10")
     private int pvCount;
+
+    @Min(0)
     @ApiModelProperty(value = "搜索量", example = "10")
     private int scCount;
+
+    @Min(0)
     @ApiModelProperty(value = "下载量", example = "10")
     private int dcCount;
+
+    @Min(0)
     @ApiModelProperty(value = "文献传递量", example = "10")
     private int ddcCount;
+
     @ApiModelProperty(value = "平均访问时长")
     private Time avgTime;
+
+    @Min(0)
+    @ApiModelProperty(value = "访客数量")
+    private int uvCount;
+
+    @Min(0)
+    @ApiModelProperty(value = "访问次数")
+    private int ucCount;
+
+//    @ApiModelProperty(value = "平均访问时长")
+//    private long avgMillis;
 
     public int getPvCount() {
         return pvCount;
@@ -68,4 +92,31 @@ public class QuotaModel {
         this.avgTime = avgTime;
         return this;
     }
+
+    public int getUvCount() {
+        return uvCount;
+    }
+
+    public QuotaModel setUvCount(int uvCount) {
+        this.uvCount = uvCount;
+        return this;
+    }
+
+    public int getUcCount() {
+        return ucCount;
+    }
+
+    public QuotaModel setUcCount(int ucCount) {
+        this.ucCount = ucCount;
+        return this;
+    }
+
+    //    public long getAvgMillis() {
+//        return avgMillis;
+//    }
+//
+//    public QuotaModel setAvgMillis(long avgMillis) {
+//        this.avgMillis = avgMillis;
+//        return this;
+//    }
 }

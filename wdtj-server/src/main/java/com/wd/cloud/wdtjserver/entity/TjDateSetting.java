@@ -31,7 +31,7 @@ public class TjDateSetting extends AbstractEntity {
     /**
      * 权重
      */
-    private Float weight;
+    private Double weight;
 
     public int getDateIndex() {
         return dateIndex;
@@ -51,11 +51,11 @@ public class TjDateSetting extends AbstractEntity {
         return this;
     }
 
-    public Float getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
-    public TjDateSetting setWeight(Float weight) {
+    public TjDateSetting setWeight(Double weight) {
         this.weight = weight;
         return this;
     }

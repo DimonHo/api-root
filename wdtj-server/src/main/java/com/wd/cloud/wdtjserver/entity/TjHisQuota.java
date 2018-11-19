@@ -22,11 +22,20 @@ public class TjHisQuota extends AbstractEntity {
      */
     @Column(name = "org_id")
     private Long orgId;
+
     private int pvCount;
+
     private int scCount;
+
     private int dcCount;
+
     private int ddcCount;
-    private Time avgTime;
+
+    private int uvCount;
+
+    private int ucCount;
+
+    private long avgTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date beginTime;
@@ -97,11 +106,29 @@ public class TjHisQuota extends AbstractEntity {
         return this;
     }
 
-    public Time getAvgTime() {
+    public int getUvCount() {
+        return uvCount;
+    }
+
+    public TjHisQuota setUvCount(int uvCount) {
+        this.uvCount = uvCount;
+        return this;
+    }
+
+    public int getUcCount() {
+        return ucCount;
+    }
+
+    public TjHisQuota setUcCount(int ucCount) {
+        this.ucCount = ucCount;
+        return this;
+    }
+
+    public long getAvgTime() {
         return avgTime;
     }
 
-    public TjHisQuota setAvgTime(Time avgTime) {
+    public TjHisQuota setAvgTime(long avgTime) {
         this.avgTime = avgTime;
         return this;
     }

@@ -6,6 +6,7 @@ import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
+import com.wd.cloud.wdtjserver.model.ViewDataModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -126,6 +127,6 @@ public interface TjService {
      * @param entTime
      * @return
      */
-    Page<TjViewData> getViewDate(Long orgId, Date beginTime, Date entTime);
+    ViewDataModel getViewDate(Long orgId, String beginTime, String entTime, int viewType);
 
 }

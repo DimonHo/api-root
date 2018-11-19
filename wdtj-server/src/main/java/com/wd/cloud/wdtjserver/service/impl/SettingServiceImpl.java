@@ -12,6 +12,7 @@ import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.service.SettingService;
+import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,15 +62,39 @@ public class SettingServiceImpl implements SettingService {
     }
 
     @Override
-    public boolean forbade(Long orgId) {
+    public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime) {
+        ResponseModel responseModel = orgServerApi.getOrg(orgId);
+        String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
+        if (!responseModel.isError()) {
+            //根据学校ID查询是否有该学校
+            TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
+            TjOrg newTjOrg = new TjOrg();
+            if (oldTjOrg != null) {
+                //修改History为true
+                oldTjOrg.setHistory(true);
+                newTjOrg.setPid(oldTjOrg.getId());
+                tjOrgRepository.save(oldTjOrg);
+            }
+            newTjOrg.setOrgName(orgName)
+                    .setShowPv(showPv)
+                    .setShowSc(showSc)
+                    .setShowDc(showDc)
+                    .setShowDdc(showDdc)
+                    .setShowAvgTime(showAvgTime);
+            return tjOrgRepository.save(newTjOrg);
+        }
+        return null;
+    }
+
+    @Override
+    public TjOrg forbade(Long orgId) {
         TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
         if (tjOrg != null){
             // 禁用和解除禁用切换
             tjOrg.setForbade(!tjOrg.isForbade());
-            tjOrgRepository.save(tjOrg);
-            return true;
+            tjOrg = tjOrgRepository.save(tjOrg);
         }
-        return false;
+        return tjOrg;
     }
 
 
@@ -91,20 +116,7 @@ public class SettingServiceImpl implements SettingService {
     }
 
     @Override
-    public List<TjHisQuota> save(Long orgId, List<HisQuotaModel> hisQuotaModels) {
-        List<TjHisQuota> tjHisQuotas = new ArrayList<>();
-        hisQuotaModels.forEach(hisQuotaModel -> {
-            TjHisQuota tjHisQuota = new TjHisQuota();
-            tjHisQuota.setAvgTime(hisQuotaModel.getAvgTime())
-                    .setBeginTime(hisQuotaModel.getBeginTime())
-                    .setEndTime(hisQuotaModel.getEndTime())
-                    .setPvCount(hisQuotaModel.getPvCount())
-                    .setScCount(hisQuotaModel.getScCount())
-                    .setDcCount(hisQuotaModel.getDcCount())
-                    .setDdcCount(hisQuotaModel.getDdcCount())
-                    .setOrgId(orgId);
-            tjHisQuotas.add(tjHisQuota);
-        });
+    public List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas) {
         return tjHisQuotaRepository.saveAll(tjHisQuotas);
     }
 

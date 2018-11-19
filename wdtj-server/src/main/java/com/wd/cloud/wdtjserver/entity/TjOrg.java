@@ -25,9 +25,20 @@ public class TjOrg extends AbstractEntity {
      */
     private String orgName;
     /**
-     * 是否显示访问量
+     * 是否显示浏览量
      */
     private boolean showPv;
+
+    /**
+     * 是否显示访客数量
+     */
+    private boolean showUv;
+
+    /**
+     * 是否显示访问次数
+     */
+    private boolean showUc;
+
     /**
      * 是否显示下载量
      */
@@ -41,7 +52,7 @@ public class TjOrg extends AbstractEntity {
      */
     private boolean showDdc;
     /**
-     * 是否显示访问量
+     * 是否显示访问量 = 总访问时长/访问次数 (avgTime = sum(visitTime)/ucCount)
      */
     private boolean showAvgTime;
 
@@ -88,6 +99,24 @@ public class TjOrg extends AbstractEntity {
 
     public TjOrg setShowPv(boolean showPv) {
         this.showPv = showPv;
+        return this;
+    }
+
+    public boolean isShowUv() {
+        return showUv;
+    }
+
+    public TjOrg setShowUv(boolean showUv) {
+        this.showUv = showUv;
+        return this;
+    }
+
+    public boolean isShowUc() {
+        return showUc;
+    }
+
+    public TjOrg setShowUc(boolean showUc) {
+        this.showUc = showUc;
         return this;
     }
 

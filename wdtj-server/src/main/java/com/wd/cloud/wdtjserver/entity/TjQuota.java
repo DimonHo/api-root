@@ -9,7 +9,9 @@ import java.sql.Time;
 /**
  * @author He Zhigang
  * @date 2018/11/6
- * @Description: 日基数设置表
+ * @Description: 日基数设置表 pv >= sc & uc >= uv
+ * 1. 浏览量 >= 搜索量 和 访问次数 >= 访客数量
+ * 2. 平均访问时长 = 总时长/访问次数
  */
 @Entity
 @Table(name = "tj_quota", uniqueConstraints = {
@@ -24,10 +26,20 @@ public class TjQuota extends AbstractEntity {
     private Long orgId;
 
     private int pvCount;
+
     private int scCount;
+
     private int dcCount;
+
+
     private int ddcCount;
-    private Time avgTime;
+
+    private int uvCount;
+
+
+    private int ucCount;
+
+    private long avgTime;
 
     private String createUser;
 
@@ -82,11 +94,11 @@ public class TjQuota extends AbstractEntity {
         return this;
     }
 
-    public Time getAvgTime() {
+    public long getAvgTime() {
         return avgTime;
     }
 
-    public TjQuota setAvgTime(Time avgTime) {
+    public TjQuota setAvgTime(long avgTime) {
         this.avgTime = avgTime;
         return this;
     }
@@ -116,6 +128,24 @@ public class TjQuota extends AbstractEntity {
 
     public TjQuota setHistory(boolean history) {
         this.history = history;
+        return this;
+    }
+
+    public int getUvCount() {
+        return uvCount;
+    }
+
+    public TjQuota setUvCount(int uvCount) {
+        this.uvCount = uvCount;
+        return this;
+    }
+
+    public int getUcCount() {
+        return ucCount;
+    }
+
+    public TjQuota setUcCount(int ucCount) {
+        this.ucCount = ucCount;
         return this;
     }
 }

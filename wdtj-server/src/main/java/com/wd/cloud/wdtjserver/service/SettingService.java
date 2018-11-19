@@ -22,12 +22,14 @@ public interface SettingService {
      */
     TjOrg save(TjOrg tjOrg);
 
+    TjOrg saveTjOrg(long orgId,boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime);
+
     /**
      * 禁止机构
      * @param orgId
      * @return
      */
-    boolean forbade(Long orgId);
+    TjOrg forbade(Long orgId);
 
 
     /**
@@ -49,9 +51,8 @@ public interface SettingService {
     /**
      * 保存/更新 机构历史数据
      *
-     * @param orgId
-     * @param hisQuotaModels
+     * @param tjHisQuotas
      * @return
      */
-    List<TjHisQuota> save(Long orgId, List<HisQuotaModel> hisQuotaModels);
+    List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas);
 }

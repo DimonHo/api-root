@@ -22,10 +22,9 @@ public class ViewController {
     @ApiOperation(value = "获取机构统计数据", tags = {"数据展示"})
     @GetMapping("/{orgId}")
     public ResponseModel getData(@PathVariable Long orgId,
-                                 @RequestParam Date beginTime,
-                                 @RequestParam Date endTime) {
-
-
-        return ResponseModel.ok();
+                                 @RequestParam String beginTime,
+                                 @RequestParam String endTime,
+                                 @RequestParam(required = false,defaultValue = "1") int viewType) {
+        return ResponseModel.ok().setBody(tjService.getViewDate(orgId,beginTime,endTime,viewType));
     }
 }

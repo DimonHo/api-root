@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,9 +56,7 @@ public class SettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showDc,
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
-        TjOrg tjOrg = new TjOrg();
-        tjOrg.setOrgId(orgId).setShowPv(showPv).setShowSc(showSc).setShowDc(showDc).setShowDdc(showDdc).setShowAvgTime(showAvgTime);
-        tjOrg = settingService.save(tjOrg);
+        TjOrg tjOrg = settingService.saveTjOrg(orgId,showPv,showSc,showDc,showDdc,showAvgTime);
         if (tjOrg != null) {
             return ResponseModel.ok().setBody(tjOrg);
         }
@@ -68,10 +67,11 @@ public class SettingController {
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "String", paramType = "path")
     @PatchMapping("/org/{orgId}")
     public ResponseModel forbadeOrg(@PathVariable Long orgId) {
-        if (settingService.forbade(orgId)) {
-            return ResponseModel.ok();
+        TjOrg tjOrg = settingService.forbade(orgId);
+        if (tjOrg != null) {
+            return ResponseModel.ok().setBody(tjOrg);
         }
-        return ResponseModel.fail();
+        return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }
 
 
@@ -183,8 +183,11 @@ public class SettingController {
         if (overlapsMap.size() > 0) {
             return ResponseModel.fail().setBody(overlapsMap);
         }
-        List<TjHisQuota> tjHisQuotas = settingService.save(orgId, hisQuotaModels);
-        return ResponseModel.ok().setBody(tjHisQuotas);
+        List<TjHisQuota> tjHisQuotas = new ArrayList<>();
+        hisQuotaModels.forEach(hisQuotaModel -> {
+            tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgId(orgId));
+        });
+        return ResponseModel.ok().setBody(settingService.save(tjHisQuotas));
     }
 
     @ApiOperation(value = "机构历史指标记录", tags = {"后台设置"})
