@@ -147,4 +147,7 @@ public interface FrontService {
     Page<HelpRecord> search(String keyword, Pageable pageable);
 
     String checkExistsGiveing(long giverId);
+
+
+    int getDeliveryCount(String school,String date);
 }

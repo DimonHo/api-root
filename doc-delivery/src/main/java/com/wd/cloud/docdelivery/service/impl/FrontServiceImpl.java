@@ -268,4 +268,10 @@ public class FrontServiceImpl implements FrontService {
         }
     }
 
+    @Override
+    public int getDeliveryCount(String school, String date) {
+        String substring = date.substring(0,16);
+        return helpRecordRepository.findByHelperScnameAndGmtCreateLike(school,substring);
+    }
+
 }

@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2018/11/6
@@ -30,6 +32,8 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long>, JpaSpecific
      * @return
      */
     Page<TjOrg> findByHistory(boolean history, Pageable pageable);
+
+    List<TjOrg> findByHistoryIsFalse();
 
     /**
      * 根据orgId查询生效的设置
