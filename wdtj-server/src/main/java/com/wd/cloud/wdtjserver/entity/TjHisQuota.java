@@ -35,7 +35,7 @@ public class TjHisQuota extends AbstractEntity {
 
     private int ucCount;
 
-    private long avgTime;
+    private Time avgTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date beginTime;
@@ -124,11 +124,11 @@ public class TjHisQuota extends AbstractEntity {
         return this;
     }
 
-    public long getAvgTime() {
+    public Time getAvgTime() {
         return avgTime;
     }
 
-    public TjHisQuota setAvgTime(long avgTime) {
+    public TjHisQuota setAvgTime(Time avgTime) {
         this.avgTime = avgTime;
         return this;
     }

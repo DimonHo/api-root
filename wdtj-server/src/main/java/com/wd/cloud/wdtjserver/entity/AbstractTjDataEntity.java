@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -10,6 +11,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -36,7 +38,7 @@ public abstract class AbstractTjDataEntity implements Serializable {
 
     int ucCount;
 
-    long visitTime;
+    Time visitTime = DateUtil.createTime(0);
 
     @LastModifiedDate
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -109,11 +111,11 @@ public abstract class AbstractTjDataEntity implements Serializable {
         return this;
     }
 
-    public long getVisitTime() {
+    public Time getVisitTime() {
         return visitTime;
     }
 
-    public AbstractTjDataEntity setVisitTime(long visitTime) {
+    public AbstractTjDataEntity setVisitTime(Time visitTime) {
         this.visitTime = visitTime;
         return this;
     }

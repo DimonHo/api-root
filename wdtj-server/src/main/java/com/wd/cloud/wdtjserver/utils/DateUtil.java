@@ -51,13 +51,13 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
     }
 
     /**
-     * 获取当前小时的所有分钟
+     * 获取当前小时的所有分钟，结果包含开始和结束时间
      * @param date
      * @return
      */
     public static List<DateTime> rangeMinuteFromHours(Date date) {
 
-        return DateUtil.rangeToList(date, DateUtil.offsetHour(date, 1), DateField.MINUTE);
+        return DateUtil.rangeToList(date, DateUtil.offsetMinute(date, 59), DateField.MINUTE);
     }
 
     /**

@@ -20,7 +20,7 @@ public class ModelUtil {
                 .setScCount(quotaModel.getScCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.5, 1)) : quotaModel.getScCount())
                 .setUvCount(quotaModel.getUvCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.5, 1)) : quotaModel.getUvCount())
                 .setUcCount(quotaModel.getUcCount() == 0 ? RandomUtil.randomInt(tjQuota.getUvCount(), quotaModel.getPvCount()) : quotaModel.getUcCount())
-                .setAvgTime(DateUtil.getTimeMillis(quotaModel.getAvgTime()));
+                .setAvgTime(quotaModel.getAvgTime());
         return tjQuota;
     }
 
@@ -32,9 +32,9 @@ public class ModelUtil {
                 .setScCount(hisQuotaModel.getScCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.3, 1)) : hisQuotaModel.getScCount())
                 .setUvCount(hisQuotaModel.getUvCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.3, 1)) : hisQuotaModel.getUvCount())
                 .setUcCount(hisQuotaModel.getUcCount() == 0 ? RandomUtil.randomInt(tjHisQuota.getUvCount(), hisQuotaModel.getPvCount()) : hisQuotaModel.getUcCount())
-                .setAvgTime(DateUtil.getTimeMillis(hisQuotaModel.getAvgTime()))
-                .setBeginTime(DateUtil.parseDateForMinute(hisQuotaModel.getBeginTime()))
-                .setEndTime(DateUtil.parseDateForMinute(hisQuotaModel.getEndTime()));
+                .setAvgTime(hisQuotaModel.getAvgTime())
+                .setBeginTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getBeginTime())))
+                .setEndTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getEndTime())));
         return tjHisQuota;
     }
 }

@@ -39,7 +39,7 @@ public class TjQuota extends AbstractEntity {
 
     private int ucCount;
 
-    private long avgTime;
+    private Time avgTime;
 
     private String createUser;
 
@@ -94,11 +94,11 @@ public class TjQuota extends AbstractEntity {
         return this;
     }
 
-    public long getAvgTime() {
+    public Time getAvgTime() {
         return avgTime;
     }
 
-    public TjQuota setAvgTime(long avgTime) {
+    public TjQuota setAvgTime(Time avgTime) {
         this.avgTime = avgTime;
         return this;
     }

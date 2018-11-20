@@ -1,23 +1,19 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
 import cn.hutool.json.JSONUtil;
-import com.netflix.discovery.converters.Auto;
 import com.wd.cloud.apifeign.OrgServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
-import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.service.SettingService;
-import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -75,7 +71,8 @@ public class SettingServiceImpl implements SettingService {
                 newTjOrg.setPid(oldTjOrg.getId());
                 tjOrgRepository.save(oldTjOrg);
             }
-            newTjOrg.setOrgName(orgName)
+            newTjOrg.setOrgId(orgId)
+                    .setOrgName(orgName)
                     .setShowPv(showPv)
                     .setShowSc(showSc)
                     .setShowDc(showDc)
@@ -89,7 +86,7 @@ public class SettingServiceImpl implements SettingService {
     @Override
     public TjOrg forbade(Long orgId) {
         TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
-        if (tjOrg != null){
+        if (tjOrg != null) {
             // 禁用和解除禁用切换
             tjOrg.setForbade(!tjOrg.isForbade());
             tjOrg = tjOrgRepository.save(tjOrg);
