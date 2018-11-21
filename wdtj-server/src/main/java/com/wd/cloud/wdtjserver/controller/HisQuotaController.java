@@ -35,6 +35,7 @@ public class HisQuotaController {
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
     @PostMapping("/his/{orgId}")
     public ResponseModel add(@PathVariable Long orgId,
+                             @RequestParam String createUser,
                              @RequestBody List<HisQuotaModel> hisQuotaModels) {
         // 检查时间区间是否允许修改
         Map<String, DateIntervalModel> overlapsMap = hisQuotaService.checkInterval(orgId, hisQuotaModels);
@@ -43,9 +44,13 @@ public class HisQuotaController {
         }
         List<TjHisQuota> tjHisQuotas = new ArrayList<>();
         hisQuotaModels.forEach(hisQuotaModel -> {
-            tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgId(orgId));
+            tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgId(orgId).setCreateUser(createUser));
         });
-        return ResponseModel.ok().setBody(hisQuotaService.save(tjHisQuotas));
+        List<TjHisQuota> body = hisQuotaService.save(tjHisQuotas);
+        if (body == null) {
+            return ResponseModel.fail().setMessage("数据保存失败");
+        }
+        return ResponseModel.ok().setBody(body);
     }
 
     @ApiOperation(value = "机构历史指标记录", tags = {"后台设置"})

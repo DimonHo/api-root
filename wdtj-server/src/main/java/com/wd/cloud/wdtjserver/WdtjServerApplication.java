@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaAuditing
 @EnableSwagger2Doc
 @SpringCloudApplication
-@EnableFeignClients(basePackages = {"com.wd.cloud.apifeign"})
+@EnableFeignClients(basePackages = {"com.wd.cloud.wdtjserver.feign"})
 public class WdtjServerApplication {
 
     public static void main(String[] args) {

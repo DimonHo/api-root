@@ -31,11 +31,15 @@ public class QuotaController {
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
     @PostMapping("/quota/{orgId}")
     public ResponseModel addQuota(@PathVariable Long orgId,
+                                  @RequestParam String createUser,
                                   @Valid QuotaModel quotaModel) {
-
         TjQuota tjQuota = ModelUtil.build(quotaModel);
-        tjQuota.setOrgId(orgId);
-        return ResponseModel.ok().setBody(quotaService.save(tjQuota));
+        tjQuota.setOrgId(orgId).setCreateUser(createUser);
+        TjQuota body = quotaService.save(tjQuota);
+        if (body == null) {
+            ResponseModel.fail().setMessage("数据保存失败");
+        }
+        return ResponseModel.ok().setBody(body);
     }
 
     @ApiOperation(value = "获取所有机构日基数设置", tags = {"后台设置"})

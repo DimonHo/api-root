@@ -9,6 +9,10 @@ import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2018/11/10
@@ -17,12 +21,25 @@ import org.junit.Test;
 public class JunitTest {
 
     @Test
-    public void test2() {
-        Console.log(RandomUtil.randomListFromFinalTotal(-4, 7));
+    public void testWeight() {
+        Console.log(Arrays.stream(new int[]{-3,123,1123,1123,33,0}).max().orElse(0));
     }
 
     @Test
-    public void test3(){
+    public void testTime() {
+
+        List<Long> arr = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Console.log(RandomUtil.randomInt(1));
+        }
+        while (arr.size() > 0) {
+            Console.log(RandomUtil.randomLongEles(arr, 3, true).orElse(new ArrayList<>()));
+        }
+    }
+
+
+    @Test
+    public void test3() {
         double a = 23.1123523412;
         double b = 23.1123523412;
 
@@ -43,7 +60,7 @@ public class JunitTest {
         tjHisQuota.setPvCount(50000);
         tjHisQuota.setBeginTime(DateUtil.parse("2018-11-01"));
         tjHisQuota.setBeginTime(DateUtil.parse("2018-11-30"));
-        tjService.buildTjHisData(tjHisQuota);
+        //tjService.buildTjHisData(tjHisQuota);
 //        Map<DateTime, Integer> result = RandomUtil.randomMapFromWeight(100000, map, 0.4);
 //        int count = 0;
 //        for (Map.Entry<DateTime, Integer> entry : result.entrySet()) {

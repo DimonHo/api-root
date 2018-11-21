@@ -1,0 +1,75 @@
+server:
+  port: 10018
+  servlet:
+    context-path: /
+swagger:
+  enabled: true
+  title: 统计服务-开发环境
+  description: 统计服务API
+  version: 2.0
+  contact:
+    name: hezhigang
+    email: hezhigang@hnwdkj.com
+eureka:
+  instance:
+    prefer-ip-address: true
+    status-page-url: http://${spring.cloud.client.ip-address}:${server.port}/swagger-ui.html
+    health-check-url-path: /actuator/health
+  client:
+    healthcheck:
+      enabled: true
+    registry-fetch-interval-seconds: 5
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+######################################################################
+
+global:
+  baidu:
+    username: wdxxkj2014
+    password: hr@hnwdkj.com
+    token: bcb491d69976e38bb84793606ec7169e
+    account-type: 1
+spring:
+  zipkin:
+    baseUrl: http://192.168.1.104:10003
+  sleuth:
+    sampler:
+      probability: 1
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  jpa:
+    database: MYSQL
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://192.168.1.36:3306/${spring.application.name}?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    dbcp2:
+      max-open-prepared-statements: 20
+      pool-prepared-statements: true
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      validation-query: "select 'x'"
+      min-evictable-idle-time-millis: 300000
+      time-between-eviction-runs-millis: 60000
+      min-idle: 30
+      max-idle: 50
+      max-wait-millis: 1000
+      initial-size: 1
+      max-total: 200

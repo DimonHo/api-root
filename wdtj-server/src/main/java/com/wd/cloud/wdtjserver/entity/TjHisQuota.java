@@ -23,6 +23,8 @@ public class TjHisQuota extends AbstractEntity {
     @Column(name = "org_id")
     private Long orgId;
 
+    private String orgName;
+
     private int pvCount;
 
     private int scCount;
@@ -67,6 +69,15 @@ public class TjHisQuota extends AbstractEntity {
 
     public TjHisQuota setOrgId(Long orgId) {
         this.orgId = orgId;
+        return this;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public TjHisQuota setOrgName(String orgName) {
+        this.orgName = orgName;
         return this;
     }
 

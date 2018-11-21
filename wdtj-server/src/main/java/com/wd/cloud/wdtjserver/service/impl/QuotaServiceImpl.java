@@ -1,8 +1,11 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
+import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.service.QuotaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +26,25 @@ public class QuotaServiceImpl implements QuotaService {
     @Autowired
     TjQuotaRepository tjQuotaRepository;
 
+    @Autowired
+    OrgServerApi orgServerApi;
+
     @Override
     public TjQuota save(TjQuota tjQuota) {
-        //根据学校ID查询TjDaySetting是否有数据
-        TjQuota oldTjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjQuota.getOrgId());
-        if (oldTjQuota != null) {
-            oldTjQuota.setHistory(true);
-            tjQuota.setPid(oldTjQuota.getId());
-            tjQuotaRepository.save(oldTjQuota);
+        ResponseModel responseModel = orgServerApi.getOrg(tjQuota.getOrgId());
+        if (!responseModel.isError()){
+            String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
+            tjQuota.setOrgName(orgName);
+            //根据学校ID查询TjDaySetting是否有数据
+            TjQuota oldTjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjQuota.getOrgId());
+            if (oldTjQuota != null) {
+                oldTjQuota.setHistory(true);
+                tjQuota.setPid(oldTjQuota.getId());
+                tjQuotaRepository.save(oldTjQuota);
+            }
+            return tjQuotaRepository.save(tjQuota);
         }
-        return tjQuotaRepository.save(tjQuota);
+        return null;
     }
 
     @Override

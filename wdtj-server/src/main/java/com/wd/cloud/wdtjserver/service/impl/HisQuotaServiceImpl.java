@@ -3,11 +3,14 @@ package com.wd.cloud.wdtjserver.service.impl;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.WeightRandom;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
+import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.HourTotalModel;
@@ -46,14 +49,29 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     @Autowired
     TjViewDataRepository tjViewDataRepository;
 
+    @Autowired
+    OrgServerApi orgServerApi;
+
     @Override
     public TjHisQuota save(TjHisQuota tjHisQuota) {
-        return tjHisQuotaRepository.save(tjHisQuota);
+        ResponseModel responseModel = orgServerApi.getOrg(tjHisQuota.getOrgId());
+        if (!responseModel.isError()) {
+            String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
+            tjHisQuota.setOrgName(orgName);
+            return tjHisQuotaRepository.save(tjHisQuota);
+        }
+        return null;
     }
 
     @Override
     public List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas) {
-        return tjHisQuotaRepository.saveAll(tjHisQuotas);
+        ResponseModel responseModel = orgServerApi.getOrg(tjHisQuotas.get(0).getOrgId());
+        if (!responseModel.isError()) {
+            String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
+            tjHisQuotas.forEach(tjHisQuota -> tjHisQuota.setOrgName(orgName));
+            return tjHisQuotaRepository.saveAll(tjHisQuotas);
+        }
+        return null;
     }
 
 

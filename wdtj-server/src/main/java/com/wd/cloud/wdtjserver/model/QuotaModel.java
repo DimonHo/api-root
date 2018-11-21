@@ -33,19 +33,16 @@ public class QuotaModel {
     @ApiModelProperty(value = "文献传递量", example = "10")
     private int ddcCount;
 
-    @ApiModelProperty(value = "平均访问时长")
+    @ApiModelProperty(value = "平均访问时长", example = "00:00:00")
     private Time avgTime;
 
     @Min(0)
-    @ApiModelProperty(value = "访客数量")
+    @ApiModelProperty(value = "访客数量", example = "10")
     private int uvCount;
 
     @Min(0)
-    @ApiModelProperty(value = "访问次数")
+    @ApiModelProperty(value = "访问次数", example = "10")
     private int ucCount;
-
-//    @ApiModelProperty(value = "平均访问时长")
-//    private long avgMillis;
 
     public int getPvCount() {
         return pvCount;

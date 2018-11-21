@@ -3,11 +3,10 @@ package com.wd.cloud.wdtjserver.service.impl;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.apifeign.OrgServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
+import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
@@ -18,8 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -57,7 +54,7 @@ public class SettingServiceImpl implements SettingService {
             }
             tjOrg.setOrgName(orgName);
             TjQuota tjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
-            if (tjQuota == null){
+            if (tjQuota == null) {
                 tjQuota = new TjQuota();
                 tjQuotaRepository.save(tjQuota);
             }
@@ -68,7 +65,7 @@ public class SettingServiceImpl implements SettingService {
     }
 
     @Override
-    public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime,String createUser) {
+    public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser) {
         ResponseModel responseModel = orgServerApi.getOrg(orgId);
         String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
         if (!responseModel.isError()) {
@@ -91,8 +88,10 @@ public class SettingServiceImpl implements SettingService {
                     .setShowAvgTime(showAvgTime);
 
             TjQuota tjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(orgId);
-            if (tjQuota == null){
+            if (tjQuota == null) {
                 tjQuota = new TjQuota();
+                tjQuota.setOrgId(orgId);
+                tjQuota.setOrgName(orgName);
                 tjQuotaRepository.save(tjQuota);
             }
 
@@ -138,9 +137,6 @@ public class SettingServiceImpl implements SettingService {
     public Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade, Pageable pageable) {
         return tjOrgRepository.findAll(JpaQueryUtil.buildFilterForTjOrg(showPv, showSc, showDc, showDdc, showAvgTime, forbade), pageable);
     }
-
-
-
 
 
 }

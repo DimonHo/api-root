@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * @author He Zhigang
  * @date 2018/11/19
- * @Description: 小时数指标
+ * @Description: 小时数指标总量
  */
 public class HourTotalModel {
 
