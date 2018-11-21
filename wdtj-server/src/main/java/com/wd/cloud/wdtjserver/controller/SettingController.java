@@ -63,16 +63,16 @@ public class SettingController {
     }
 
 
-    @ApiOperation(value = "根据机构名称模糊查询", tags = {"后台设置"})
+    @ApiOperation(value = "机构名称或操作人模糊查询", tags = {"后台设置"})
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "query", value = "机构名称", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "history", value = "是否是历史记录", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/org/find")
-    public ResponseModel<Page> find(@RequestParam(required = false) String orgName,
+    public ResponseModel<Page> find(@RequestParam(required = false) String query,
                                     @RequestParam(required = false) Boolean history,
                                     @PageableDefault(sort = {"orgName"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<TjOrg> orgPage = settingService.likeOrgName(orgName, history, pageable);
+        Page<TjOrg> orgPage = settingService.likeQuery(query, history, pageable);
         return ResponseModel.ok().setBody(orgPage);
     }
 

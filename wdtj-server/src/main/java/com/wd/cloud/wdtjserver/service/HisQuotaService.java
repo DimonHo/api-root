@@ -54,6 +54,14 @@ public interface HisQuotaService {
     Page<TjHisQuota> getHisQuotaByOrg(Long orgId, Pageable pageable);
 
     /**
+     * 模糊查询
+     *
+     * @param query
+     * @return
+     */
+    Page<TjHisQuota> likeQuery(String query, Boolean history, Pageable pageable);
+
+    /**
      * @param pageable
      * @return
      */

@@ -4,13 +4,16 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.service.QuotaService;
+import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,5 +71,10 @@ public class QuotaServiceImpl implements QuotaService {
             return tjQuotaRepository.findByHistory(history, pageable);
         }
         return tjQuotaRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<TjQuota> likeQuery(String query, Boolean history, Pageable pageable) {
+        return tjQuotaRepository.findByOrgNameContainingOrCreateUserContaining(query,query,pageable);
     }
 }

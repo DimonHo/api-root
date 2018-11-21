@@ -113,8 +113,8 @@ public class SettingServiceImpl implements SettingService {
 
 
     @Override
-    public Page<TjOrg> likeOrgName(String orgName, Boolean history, Pageable pageable) {
-        return tjOrgRepository.findAll(JpaQueryUtil.buildQeuryForTjOrg(orgName, history), pageable);
+    public Page<TjOrg> likeQuery(String query, Boolean history, Pageable pageable) {
+        return tjOrgRepository.findByOrgNameContainingOrCreateUserContaining(query, query, pageable);
     }
 
     @Override

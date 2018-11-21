@@ -86,6 +86,11 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     }
 
     @Override
+    public Page<TjHisQuota> likeQuery(String query, Boolean history, Pageable pageable) {
+        return tjHisQuotaRepository.findByOrgNameContainingOrCreateUserContaining(query,query,pageable);
+    }
+
+    @Override
     public Page<TjHisQuota> getAllHisQuota(Pageable pageable) {
         return tjHisQuotaRepository.findAll(pageable);
     }

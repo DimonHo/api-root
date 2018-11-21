@@ -1,11 +1,13 @@
 package com.wd.cloud.wdtjserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
 import com.wd.cloud.wdtjserver.service.QuotaService;
 import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,7 +30,10 @@ public class QuotaController {
     QuotaService quotaService;
 
     @ApiOperation(value = "设置日基数", tags = {"后台设置"})
-    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path"),
+            @ApiImplicitParam(name = "createUser", value = "创建人名称", dataType = "String", paramType = "query")
+    })
     @PostMapping("/quota/{orgId}")
     public ResponseModel addQuota(@PathVariable Long orgId,
                                   @RequestParam String createUser,
@@ -76,5 +81,19 @@ public class QuotaController {
                                    @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<TjQuota> tjQuotas = quotaService.findOrgQuota(orgId, null, pageable);
         return ResponseModel.ok().setBody(tjQuotas);
+    }
+
+
+    @ApiOperation(value = "机构名称或操作人模糊查询", tags = {"后台设置"})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "query", value = "机构名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "history", value = "是否是历史记录", dataType = "Boolean", paramType = "query")
+    })
+    @GetMapping("/quota/find")
+    public ResponseModel<Page> find(@RequestParam(required = false) String query,
+                                    @RequestParam(required = false) Boolean history,
+                                    @PageableDefault(sort = {"orgName"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<TjQuota> orgPage = quotaService.likeQuery(query, history, pageable);
+        return ResponseModel.ok().setBody(orgPage);
     }
 }

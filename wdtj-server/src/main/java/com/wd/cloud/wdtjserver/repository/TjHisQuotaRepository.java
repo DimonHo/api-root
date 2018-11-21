@@ -1,6 +1,7 @@
 package com.wd.cloud.wdtjserver.repository;
 
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
+import com.wd.cloud.wdtjserver.entity.TjOrg;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -45,5 +46,14 @@ public interface TjHisQuotaRepository extends JpaRepository<TjHisQuota, Long>, J
      * @return
      */
     Page<TjHisQuota> findByOrgIdAndHistory(Long orgId, boolean history, Pageable pageable);
+
+    /**
+     * 根据机构名称或创建用户模糊查询
+     * @param orgName
+     * @param createUser
+     * @param pageable
+     * @return
+     */
+    Page<TjHisQuota> findByOrgNameContainingOrCreateUserContaining(String orgName, String createUser, Pageable pageable);
 
 }

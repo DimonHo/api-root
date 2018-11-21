@@ -44,12 +44,12 @@ public interface SettingService {
     TjOrg forbade(Long orgId);
 
     /**
-     * 模糊查询机构名称
+     * 模糊查询
      *
-     * @param orgName
+     * @param query
      * @return
      */
-    Page<TjOrg> likeOrgName(String orgName, Boolean history, Pageable pageable);
+    Page<TjOrg> likeQuery(String query, Boolean history, Pageable pageable);
 
     /**
      * 获取已生效的机构设置列表

@@ -29,13 +29,16 @@ public class JpaQueryUtil {
      * @param history
      * @return
      */
-    public static Specification<TjOrg> buildQeuryForTjOrg(String orgName, Boolean history) {
+    public static Specification<TjOrg> buildQueryForTjOrg(String orgName,String createUser, Boolean history) {
         return new Specification<TjOrg>() {
             @Override
             public Predicate toPredicate(Root<TjOrg> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> wheres = new ArrayList<Predicate>();
                 if (StrUtil.isNotBlank(orgName)) {
-                    wheres.add(criteriaBuilder.like(root.get("orgName"), "%" + orgName + "%"));
+                    wheres.add(criteriaBuilder.or(criteriaBuilder.like(root.get("orgName"), "%" + orgName + "%")));
+                }
+                if (StrUtil.isNotBlank(createUser)){
+                    wheres.add(criteriaBuilder.or(criteriaBuilder.like(root.get("createUser"), "%" + createUser + "%")));
                 }
                 if (history != null) {
                     wheres.add(criteriaBuilder.equal(root.get("history"), history));
@@ -89,7 +92,7 @@ public class JpaQueryUtil {
     }
 
 
-    public static Specification<TjQuota> buildFilterForTjQuota(Long orgId, Boolean history, String createUser, Date gmtCreate, Date gmtModified) {
+    public static Specification<TjQuota> buildQueryForTjQuota(Long orgId, Boolean history,String orgName, String createUser, Date gmtCreate, Date gmtModified) {
         return new Specification<TjQuota>() {
             @Override
             public Predicate toPredicate(Root<TjQuota> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -101,8 +104,11 @@ public class JpaQueryUtil {
                 if (history != null) {
                     wheres.add(criteriaBuilder.equal(root.get("history"), history));
                 }
+                if (StrUtil.isNotBlank(orgName)){
+                    wheres.add(criteriaBuilder.or(criteriaBuilder.like(root.get("orgName"), "%" + orgName + "%")));
+                }
                 if (createUser != null) {
-                    wheres.add(criteriaBuilder.equal(root.get("createUser"), createUser));
+                    wheres.add(criteriaBuilder.or(criteriaBuilder.like(root.get("createUser"), "%" + createUser + "%")));
                 }
                 if (gmtCreate != null) {
                     wheres.add(criteriaBuilder.greaterThan(root.get("gmtCreate"), gmtCreate));

@@ -37,4 +37,12 @@ public interface QuotaService {
      * @return
      */
     Page<TjQuota> findAll(Boolean history, Pageable pageable);
+
+    /**
+     * 模糊查询
+     *
+     * @param query
+     * @return
+     */
+    Page<TjQuota> likeQuery(String query, Boolean history, Pageable pageable);
 }

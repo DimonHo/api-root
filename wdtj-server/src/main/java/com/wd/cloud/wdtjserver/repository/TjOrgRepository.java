@@ -65,6 +65,12 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long>, JpaSpecific
      */
     Page<TjOrg> findByHistoryIsFalseAndShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, Pageable pageable);
 
-
-    Page<TjOrg> findByOrgIdOrCreateUserLike(Long orgId, String createUser, Pageable pageable);
+    /**
+     * 根据机构名称或创建用户模糊查询
+     * @param orgName
+     * @param createUser
+     * @param pageable
+     * @return
+     */
+    Page<TjOrg> findByOrgNameContainingOrCreateUserContaining(String orgName, String createUser, Pageable pageable);
 }
