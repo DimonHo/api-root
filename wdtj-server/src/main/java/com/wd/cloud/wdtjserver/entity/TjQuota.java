@@ -1,5 +1,7 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import com.wd.cloud.wdtjserver.utils.DateUtil;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -39,7 +41,7 @@ public class TjQuota extends AbstractEntity {
 
     private int ucCount;
 
-    private Time avgTime;
+    private Time avgTime = DateUtil.createTime(0);
 
     private String createUser;
 

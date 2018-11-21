@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
@@ -37,7 +38,7 @@ public class TjHisQuota extends AbstractEntity {
 
     private int ucCount;
 
-    private Time avgTime;
+    private Time avgTime  = DateUtil.createTime(0);;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date beginTime;
