@@ -47,4 +47,6 @@ public interface TjQuotaRepository extends JpaRepository<TjQuota, Long>, JpaSpec
     Page<TjQuota> findByHistory(Boolean history, Pageable pageable);
 
     Page<TjQuota> findByOrgIdAndHistory(Long orgId, Boolean history, Pageable pageable);
+
+    Page<TjQuota> findByOrgIdOrCreateUserLike(Long orgId, String createUser, Pageable pageable);
 }

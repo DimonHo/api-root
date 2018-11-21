@@ -4,6 +4,8 @@ import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -22,37 +24,68 @@ public interface SettingService {
      */
     TjOrg save(TjOrg tjOrg);
 
-    TjOrg saveTjOrg(long orgId,boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime);
+    /**
+     * 保存/更新机构设置
+     * @param orgId
+     * @param showPv
+     * @param showSc
+     * @param showDc
+     * @param showDdc
+     * @param showAvgTime
+     * @return
+     */
+    TjOrg saveTjOrg(long orgId,boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime,String createUser);
 
     /**
-     * 禁止机构
+     * 禁止/解除禁止机构
      * @param orgId
      * @return
      */
     TjOrg forbade(Long orgId);
 
-
     /**
-     * 保存/更新 机构日基数设置
+     * 模糊查询机构名称
      *
-     * @param tjQuota
+     * @param orgName
      * @return
      */
-    TjQuota save(TjQuota tjQuota);
+    Page<TjOrg> likeOrgName(String orgName, Boolean history, Pageable pageable);
 
     /**
-     * 保存/更新 机构历史数据
+     * 获取已生效的机构设置列表
      *
-     * @param tjHisQuota
+     * @param pageable
      * @return
      */
-    TjHisQuota save(TjHisQuota tjHisQuota);
+    Page<TjOrg> getEnabledFromAll(Pageable pageable);
 
     /**
-     * 保存/更新 机构历史数据
+     * 获取历史设置列表
      *
-     * @param tjHisQuotas
+     * @param pageable
      * @return
      */
-    List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas);
+    Page<TjOrg> getHistoryFromAll(Pageable pageable);
+
+    /**
+     * 获取所有机构设置列表
+     *
+     * @param pageable
+     * @return
+     */
+    Page<TjOrg> getAll(Pageable pageable);
+
+    /**
+     * 过滤机构设置信息
+     *
+     * @param showPv
+     * @param showSc
+     * @param showDc
+     * @param showDdc
+     * @param showAvgTime
+     * @param forbade
+     * @return
+     */
+    Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade, Pageable pageable);
+
 }

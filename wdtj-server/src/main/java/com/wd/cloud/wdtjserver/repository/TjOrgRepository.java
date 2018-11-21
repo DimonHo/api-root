@@ -66,4 +66,5 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long>, JpaSpecific
     Page<TjOrg> findByHistoryIsFalseAndShowPvAndShowScAndShowDcAndShowDdcAndShowAvgTime(boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, Pageable pageable);
 
 
+    Page<TjOrg> findByOrgIdOrCreateUserLike(Long orgId, String createUser, Pageable pageable);
 }

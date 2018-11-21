@@ -1,6 +1,8 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
 import cn.hutool.json.JSONUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.wd.cloud.apifeign.OrgServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
@@ -10,7 +12,10 @@ import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.service.SettingService;
+import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +29,7 @@ import java.util.List;
 @Service("settingService")
 @Transactional(rollbackFor = Exception.class)
 public class SettingServiceImpl implements SettingService {
-
+    private static final Log log = LogFactory.get();
     @Autowired
     TjOrgRepository tjOrgRepository;
 
@@ -51,6 +56,11 @@ public class SettingServiceImpl implements SettingService {
                 tjOrgRepository.save(oldTjOrg);
             }
             tjOrg.setOrgName(orgName);
+            TjQuota tjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
+            if (tjQuota == null){
+                tjQuota = new TjQuota();
+                tjQuotaRepository.save(tjQuota);
+            }
             return tjOrgRepository.save(tjOrg);
         }
         return null;
@@ -58,7 +68,7 @@ public class SettingServiceImpl implements SettingService {
     }
 
     @Override
-    public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime) {
+    public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime,String createUser) {
         ResponseModel responseModel = orgServerApi.getOrg(orgId);
         String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
         if (!responseModel.isError()) {
@@ -73,11 +83,19 @@ public class SettingServiceImpl implements SettingService {
             }
             newTjOrg.setOrgId(orgId)
                     .setOrgName(orgName)
+                    .setCreateUser(createUser)
                     .setShowPv(showPv)
                     .setShowSc(showSc)
                     .setShowDc(showDc)
                     .setShowDdc(showDdc)
                     .setShowAvgTime(showAvgTime);
+
+            TjQuota tjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(orgId);
+            if (tjQuota == null){
+                tjQuota = new TjQuota();
+                tjQuotaRepository.save(tjQuota);
+            }
+
             return tjOrgRepository.save(newTjOrg);
         }
         return null;
@@ -96,26 +114,33 @@ public class SettingServiceImpl implements SettingService {
 
 
     @Override
-    public TjQuota save(TjQuota tjQuota) {
-        //根据学校ID查询TjDaySetting是否有数据
-        TjQuota oldTjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjQuota.getOrgId());
-        if (oldTjQuota != null) {
-            oldTjQuota.setHistory(true);
-            tjQuota.setPid(oldTjQuota.getId());
-            tjQuotaRepository.save(oldTjQuota);
-        }
-        return tjQuotaRepository.save(tjQuota);
+    public Page<TjOrg> likeOrgName(String orgName, Boolean history, Pageable pageable) {
+        return tjOrgRepository.findAll(JpaQueryUtil.buildQeuryForTjOrg(orgName, history), pageable);
     }
 
     @Override
-    public TjHisQuota save(TjHisQuota tjHisQuota) {
-        return tjHisQuotaRepository.save(tjHisQuota);
+    public Page<TjOrg> getEnabledFromAll(Pageable pageable) {
+        return tjOrgRepository.findAllByHistory(false, pageable);
     }
 
     @Override
-    public List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas) {
-        return tjHisQuotaRepository.saveAll(tjHisQuotas);
+    public Page<TjOrg> getHistoryFromAll(Pageable pageable) {
+
+        return tjOrgRepository.findAllByHistory(true, pageable);
     }
+
+    @Override
+    public Page<TjOrg> getAll(Pageable pageable) {
+        return tjOrgRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade, Pageable pageable) {
+        return tjOrgRepository.findAll(JpaQueryUtil.buildFilterForTjOrg(showPv, showSc, showDc, showDdc, showAvgTime, forbade), pageable);
+    }
+
+
+
 
 
 }

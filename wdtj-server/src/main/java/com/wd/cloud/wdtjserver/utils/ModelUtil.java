@@ -1,9 +1,16 @@
 package com.wd.cloud.wdtjserver.utils;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.lang.WeightRandom;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
+import com.wd.cloud.wdtjserver.model.HourTotalModel;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -36,5 +43,17 @@ public class ModelUtil {
                 .setBeginTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getBeginTime())))
                 .setEndTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getEndTime())));
         return tjHisQuota;
+    }
+
+    public static Map<DateTime, HourTotalModel> createResultMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, Long orgId) {
+        Map<DateTime, HourTotalModel> hourTotalModelHashMap = new HashMap<>();
+        hoursWeightList.forEach(hoursWeight -> {
+            HourTotalModel hourTotalModel = new HourTotalModel();
+            //设置orgId和hourDate
+            hourTotalModel.setOrgId(orgId);
+            hourTotalModel.setHourDate(hoursWeight.getObj());
+            hourTotalModelHashMap.put(hoursWeight.getObj(), hourTotalModel);
+        });
+        return hourTotalModelHashMap;
     }
 }
