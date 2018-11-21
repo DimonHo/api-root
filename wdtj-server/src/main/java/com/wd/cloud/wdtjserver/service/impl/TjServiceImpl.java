@@ -5,10 +5,12 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.wdtjserver.model.ViewDataModel;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.TjService;
+import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Time;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import java.util.Map;
 @Service("tjService")
 @Transactional(rollbackFor = Exception.class)
 public class TjServiceImpl implements TjService {
+
     private static final Log log = LogFactory.get();
 
     @Autowired
@@ -49,15 +52,15 @@ public class TjServiceImpl implements TjService {
         long sumUc = 0;
         for (Map<String, Object> viewData : viewDatas) {
             viewDataModel.getTjDate().add((String) viewData.get("tjDate"));
-            viewDataModel.getPvCount().add((Integer) viewData.get("pvCount"));
-            viewDataModel.getScCount().add((Integer) viewData.get("scCount"));
-            viewDataModel.getDcCount().add((Integer) viewData.get("dcCount"));
-            viewDataModel.getDcCount().add((Integer) viewData.get("ddcCount"));
-            viewDataModel.getUvCount().add((Integer) viewData.get("uvCount"));
-            viewDataModel.getUcCount().add((Integer) viewData.get("ucCount"));
-            sumTime += (Long) viewData.get("sumTime");
-            sumUc += (Long) viewData.get("ucCount");
-            viewDataModel.getAvgTime().add(new Time(sumTime / sumUc));
+            viewDataModel.getPvCount().add((BigDecimal) viewData.get("pvCount"));
+            viewDataModel.getScCount().add((BigDecimal) viewData.get("scCount"));
+            viewDataModel.getDcCount().add((BigDecimal) viewData.get("dcCount"));
+            viewDataModel.getDdcCount().add((BigDecimal) viewData.get("ddcCount"));
+            viewDataModel.getUvCount().add((BigDecimal) viewData.get("uvCount"));
+            viewDataModel.getUcCount().add((BigDecimal) viewData.get("ucCount"));
+            sumTime += ((BigDecimal)viewData.get("sumTime")).longValue();
+            sumUc += ((BigDecimal) viewData.get("ucCount")).longValue();
+            viewDataModel.getAvgTime().add(DateUtil.createTime(Math.round(sumTime / sumUc)));
         }
 
         return viewDataModel;
