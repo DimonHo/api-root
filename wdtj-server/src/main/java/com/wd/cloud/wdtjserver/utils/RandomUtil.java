@@ -159,8 +159,8 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             if (ucTotal > 0) {
                 tjDataEntityMap.get(minuteDate).setUcCount(tjDataEntityMap.get(minuteDate).getUcCount() + 1);
                 long randomVisitTime = RandomUtil.randomLongEle(avgTimeList, true).orElse(0L);
-                randomVisitTime += DateUtil.getTimeMillis(tjDataEntityMap.get(minuteDate).getVisitTime());
-                tjDataEntityMap.get(minuteDate).setVisitTime(DateUtil.createTime(randomVisitTime));
+                randomVisitTime += tjDataEntityMap.get(minuteDate).getVisitTime();
+                tjDataEntityMap.get(minuteDate).setVisitTime(randomVisitTime);
                 ucTotal--;
             }
             if (dcTotal > 0) {

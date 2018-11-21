@@ -38,7 +38,7 @@ public abstract class AbstractTjDataEntity implements Serializable {
 
     int ucCount;
 
-    Time visitTime = DateUtil.createTime(0);
+    long visitTime;
 
     @LastModifiedDate
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -111,11 +111,11 @@ public abstract class AbstractTjDataEntity implements Serializable {
         return this;
     }
 
-    public Time getVisitTime() {
+    public long getVisitTime() {
         return visitTime;
     }
 
-    public AbstractTjDataEntity setVisitTime(Time visitTime) {
+    public AbstractTjDataEntity setVisitTime(long visitTime) {
         this.visitTime = visitTime;
         return this;
     }
