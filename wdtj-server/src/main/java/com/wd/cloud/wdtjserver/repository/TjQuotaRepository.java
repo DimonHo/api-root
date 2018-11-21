@@ -48,12 +48,4 @@ public interface TjQuotaRepository extends JpaRepository<TjQuota, Long>, JpaSpec
 
     Page<TjQuota> findByOrgIdAndHistory(Long orgId, Boolean history, Pageable pageable);
 
-    /**
-     * 根据机构名称或创建用户模糊查询
-     * @param orgName
-     * @param createUser
-     * @param pageable
-     * @return
-     */
-    Page<TjQuota> findByOrgNameContainingOrCreateUserContaining(String orgName, String createUser, Pageable pageable);
 }

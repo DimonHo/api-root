@@ -1,25 +1,17 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DateTime;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.wdtjserver.entity.*;
-import com.wd.cloud.wdtjserver.model.*;
-import com.wd.cloud.wdtjserver.repository.*;
+import com.wd.cloud.wdtjserver.model.ViewDataModel;
+import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.TjService;
-import com.wd.cloud.wdtjserver.utils.DateUtil;
-import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
-import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Time;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -33,8 +25,6 @@ public class TjServiceImpl implements TjService {
 
     @Autowired
     TjViewDataRepository tjViewDataRepository;
-
-
 
     @Override
     public ViewDataModel getViewDate(Long orgId, String beginTime, String endTime, int viewType) {

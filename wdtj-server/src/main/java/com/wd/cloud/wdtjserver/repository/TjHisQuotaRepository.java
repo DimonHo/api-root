@@ -47,13 +47,4 @@ public interface TjHisQuotaRepository extends JpaRepository<TjHisQuota, Long>, J
      */
     Page<TjHisQuota> findByOrgIdAndHistory(Long orgId, boolean history, Pageable pageable);
 
-    /**
-     * 根据机构名称或创建用户模糊查询
-     * @param orgName
-     * @param createUser
-     * @param pageable
-     * @return
-     */
-    Page<TjHisQuota> findByOrgNameContainingOrCreateUserContaining(String orgName, String createUser, Pageable pageable);
-
 }

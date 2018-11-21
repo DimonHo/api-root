@@ -15,6 +15,7 @@ import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,7 +115,10 @@ public class SettingServiceImpl implements SettingService {
 
     @Override
     public Page<TjOrg> likeQuery(String query, Boolean history, Pageable pageable) {
-        return tjOrgRepository.findByOrgNameContainingOrCreateUserContaining(query, query, pageable);
+        Specification<TjOrg> specification = JpaQueryUtil.buildLikeQuery(query, history);
+
+        return tjOrgRepository.findAll(specification, pageable);
+
     }
 
     @Override
@@ -135,7 +139,8 @@ public class SettingServiceImpl implements SettingService {
 
     @Override
     public Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade, Pageable pageable) {
-        return tjOrgRepository.findAll(JpaQueryUtil.buildFilterForTjOrg(showPv, showSc, showDc, showDdc, showAvgTime, forbade), pageable);
+        Specification<TjOrg> specification = JpaQueryUtil.buildFilterForTjOrg(showPv, showSc, showDc, showDdc, showAvgTime, forbade);
+        return tjOrgRepository.findAll(specification, pageable);
     }
 
 

@@ -75,6 +75,7 @@ public class QuotaServiceImpl implements QuotaService {
 
     @Override
     public Page<TjQuota> likeQuery(String query, Boolean history, Pageable pageable) {
-        return tjQuotaRepository.findByOrgNameContainingOrCreateUserContaining(query,query,pageable);
+        Specification<TjQuota> specification = JpaQueryUtil.buildLikeQuery(query, history);
+        return tjQuotaRepository.findAll(specification, pageable);
     }
 }

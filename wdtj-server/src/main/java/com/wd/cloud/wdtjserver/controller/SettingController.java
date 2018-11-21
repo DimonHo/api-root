@@ -65,7 +65,7 @@ public class SettingController {
 
     @ApiOperation(value = "机构名称或操作人模糊查询", tags = {"后台设置"})
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "query", value = "机构名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "query", value = "查询条件", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "history", value = "是否是历史记录", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/org/find")

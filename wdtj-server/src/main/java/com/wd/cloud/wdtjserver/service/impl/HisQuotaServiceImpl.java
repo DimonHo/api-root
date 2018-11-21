@@ -9,6 +9,7 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
+import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
@@ -19,11 +20,13 @@ import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.HisQuotaService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
+import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
 import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,7 +90,8 @@ public class HisQuotaServiceImpl implements HisQuotaService {
 
     @Override
     public Page<TjHisQuota> likeQuery(String query, Boolean history, Pageable pageable) {
-        return tjHisQuotaRepository.findByOrgNameContainingOrCreateUserContaining(query,query,pageable);
+        Specification<TjHisQuota> specification = JpaQueryUtil.buildLikeQuery(query, history);
+        return tjHisQuotaRepository.findAll(specification, pageable);
     }
 
     @Override
