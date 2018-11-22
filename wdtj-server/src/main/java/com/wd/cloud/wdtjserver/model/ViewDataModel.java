@@ -32,7 +32,7 @@ public class ViewDataModel {
 
     private List<BigDecimal> ucCount = new ArrayList<>();
 
-    private List<Time> avgTime = new ArrayList<>();
+    private List<BigDecimal> avgTime = new ArrayList<>();
 
     public Long getOrgId() {
         return orgId;
@@ -106,11 +106,11 @@ public class ViewDataModel {
         return this;
     }
 
-    public List<Time> getAvgTime() {
+    public List<BigDecimal> getAvgTime() {
         return avgTime;
     }
 
-    public ViewDataModel setAvgTime(List<Time> avgTime) {
+    public ViewDataModel setAvgTime(List<BigDecimal> avgTime) {
         this.avgTime = avgTime;
         return this;
     }

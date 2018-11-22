@@ -5,13 +5,12 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.wdtjserver.model.ViewDataModel;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.TjService;
-import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.sql.Time;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
@@ -48,8 +47,6 @@ public class TjServiceImpl implements TjService {
         }
         ViewDataModel viewDataModel = new ViewDataModel();
         viewDataModel.setOrgId(orgId);
-        long sumTime = 0;
-        long sumUc = 0;
         for (Map<String, Object> viewData : viewDatas) {
             viewDataModel.getTjDate().add((String) viewData.get("tjDate"));
             viewDataModel.getPvCount().add((BigDecimal) viewData.get("pvCount"));
@@ -57,10 +54,10 @@ public class TjServiceImpl implements TjService {
             viewDataModel.getDcCount().add((BigDecimal) viewData.get("dcCount"));
             viewDataModel.getDdcCount().add((BigDecimal) viewData.get("ddcCount"));
             viewDataModel.getUvCount().add((BigDecimal) viewData.get("uvCount"));
-            viewDataModel.getUcCount().add((BigDecimal) viewData.get("ucCount"));
-            sumTime += ((BigDecimal)viewData.get("sumTime")).longValue();
-            sumUc += ((BigDecimal) viewData.get("ucCount")).longValue();
-            viewDataModel.getAvgTime().add(DateUtil.createTime(Math.round(sumTime / sumUc)));
+            BigDecimal sumTime = (BigDecimal) viewData.get("sumTime");
+            BigDecimal sumUc = (BigDecimal) viewData.get("ucCount");
+            viewDataModel.getUcCount().add(sumUc);
+            viewDataModel.getAvgTime().add(sumTime.divide(sumUc, 0, RoundingMode.HALF_UP));
         }
 
         return viewDataModel;

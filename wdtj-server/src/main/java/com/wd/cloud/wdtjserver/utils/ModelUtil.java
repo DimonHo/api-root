@@ -24,8 +24,8 @@ public class ModelUtil {
         tjQuota.setPvCount(quotaModel.getPvCount())
                 .setDcCount(quotaModel.getDcCount())
                 .setDdcCount(quotaModel.getDdcCount())
-                .setScCount(quotaModel.getScCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.5, 1)) : quotaModel.getScCount())
-                .setUvCount(quotaModel.getUvCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.5, 1)) : quotaModel.getUvCount())
+                .setScCount(quotaModel.getScCount())
+                .setUvCount(quotaModel.getUvCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.3, 1)) : quotaModel.getUvCount())
                 .setUcCount(quotaModel.getUcCount() == 0 ? RandomUtil.randomInt(tjQuota.getUvCount(), quotaModel.getPvCount()) : quotaModel.getUcCount())
                 .setAvgTime(quotaModel.getAvgTime());
         return tjQuota;
@@ -36,7 +36,7 @@ public class ModelUtil {
         tjHisQuota.setPvCount(hisQuotaModel.getPvCount())
                 .setDcCount(hisQuotaModel.getDcCount())
                 .setDdcCount(hisQuotaModel.getDdcCount())
-                .setScCount(hisQuotaModel.getScCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.3, 1)) : hisQuotaModel.getScCount())
+                .setScCount(hisQuotaModel.getScCount())
                 .setUvCount(hisQuotaModel.getUvCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.3, 1)) : hisQuotaModel.getUvCount())
                 .setUcCount(hisQuotaModel.getUcCount() == 0 ? RandomUtil.randomInt(tjHisQuota.getUvCount(), hisQuotaModel.getPvCount()) : hisQuotaModel.getUcCount())
                 .setAvgTime(hisQuotaModel.getAvgTime())

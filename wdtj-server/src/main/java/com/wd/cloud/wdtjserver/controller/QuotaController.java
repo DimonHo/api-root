@@ -37,7 +37,7 @@ public class QuotaController {
     @PostMapping("/quota/{orgId}")
     public ResponseModel addQuota(@PathVariable Long orgId,
                                   @RequestParam String createUser,
-                                  @Valid QuotaModel quotaModel) {
+                                  @RequestBody @Valid QuotaModel quotaModel) {
         TjQuota tjQuota = ModelUtil.build(quotaModel);
         tjQuota.setOrgId(orgId).setCreateUser(createUser);
         TjQuota body = quotaService.save(tjQuota);
