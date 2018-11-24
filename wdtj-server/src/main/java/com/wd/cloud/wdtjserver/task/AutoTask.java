@@ -155,7 +155,7 @@ public class AutoTask {
     /**
      * 每分钟执行一次
      */
-    @Scheduled(cron = "0/1 * * * * ?")
+    @Scheduled(cron = "0/30 * * * * ?")
     public void mergeData() {
         try {
             DateUtil.formatTime(new Date());
