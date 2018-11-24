@@ -56,9 +56,9 @@ public class FileServiceImpl implements FileService {
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-//        if (checkTimeOut(helpRecord.getGmtModified())) {
-//            return null;
-//        }
+        if (checkTimeOut(helpRecord.getGmtModified())) {
+            return null;
+        }
         GiveRecord giveRecord = giveRecordRepository.findByHelpRecord(helpRecord);
         DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         return downloadFileModel;
