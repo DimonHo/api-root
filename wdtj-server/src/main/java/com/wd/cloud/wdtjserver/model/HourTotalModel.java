@@ -10,6 +10,8 @@ import java.util.Date;
 public class HourTotalModel {
 
     private Long orgId;
+
+    private String orgName;
     
     private Date hourDate;
     
@@ -33,6 +35,15 @@ public class HourTotalModel {
 
     public HourTotalModel setOrgId(Long orgId) {
         this.orgId = orgId;
+        return this;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public HourTotalModel setOrgName(String orgName) {
+        this.orgName = orgName;
         return this;
     }
 

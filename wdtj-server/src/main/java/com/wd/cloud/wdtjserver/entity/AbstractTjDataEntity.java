@@ -26,6 +26,8 @@ public abstract class AbstractTjDataEntity implements Serializable {
     @EmbeddedId
     TjDataPk id;
 
+    String orgName;
+
     int pvCount;
 
     int scCount;
@@ -50,6 +52,15 @@ public abstract class AbstractTjDataEntity implements Serializable {
 
     public TjDataPk getId() {
         return id;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public AbstractTjDataEntity setOrgName(String orgName) {
+        this.orgName = orgName;
+        return this;
     }
 
     public AbstractTjDataEntity setId(TjDataPk id) {

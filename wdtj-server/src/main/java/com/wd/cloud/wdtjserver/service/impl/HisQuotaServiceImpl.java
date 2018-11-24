@@ -9,7 +9,6 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
-import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
@@ -176,7 +175,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         int ucTotal = tjHisQuota.getUcCount();
 
         // key:时间（小时），value：HourTotalModel对象
-        Map<DateTime, HourTotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList,tjHisQuota.getOrgId());
+        Map<DateTime, HourTotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList, tjHisQuota.getOrgId(), tjHisQuota.getOrgName());
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * tjHisQuota.getUcCount();
         // 随机生成：size为访问次数且总和等于总时间的随机列表

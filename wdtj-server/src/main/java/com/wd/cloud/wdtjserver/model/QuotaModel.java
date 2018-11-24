@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.model;
 
+import com.wd.cloud.wdtjserver.utils.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -33,7 +34,7 @@ public class QuotaModel {
     private int ddcCount;
 
     @ApiModelProperty(value = "平均访问时长", example = "00:00:00")
-    private Time avgTime;
+    private Time avgTime = DateUtil.createTime(0);
 
     @Min(0)
     @ApiModelProperty(value = "访客数量", example = "10")

@@ -102,7 +102,7 @@ public class AutoTask {
 
     private Map<DateTime, HourTotalModel> getDateTimeHourTotalModelMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, TjQuota tjQuota) {
         // key:时间（小时），value：HourTotalModel对象
-        Map<DateTime, HourTotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList, tjQuota.getOrgId());
+        Map<DateTime, HourTotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList, tjQuota.getOrgId(), tjQuota.getOrgName());
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = DateUtil.getTimeMillis(tjQuota.getAvgTime()) * tjQuota.getUcCount();
         // 随机生成：size为访问次数且总和等于总时间的随机列表

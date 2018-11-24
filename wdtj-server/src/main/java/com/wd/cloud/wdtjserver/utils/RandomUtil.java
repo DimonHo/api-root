@@ -131,6 +131,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             }
             TjDataPk tjDataPk = new TjDataPk(hourTotalModel.getOrgId(), minuteDate);
             tjData.setId(tjDataPk);
+            tjData.setOrgName(hourTotalModel.getOrgName());
             tjDataEntityMap.put(minuteDate, tjData);
             WeightRandom.WeightObj<DateTime> weightObj = new WeightRandom.WeightObj<>(minuteDate, 1.0);
             weightObjs.add(weightObj);
