@@ -35,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -178,13 +179,6 @@ public class FrontendController {
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
-    @ApiOperation(value = "获取用户当天已求助记录的数量")
-    @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
-    @GetMapping("/help/count")
-    public ResponseModel getHelpCountToDay(@RequestParam String email) {
-
-        return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
-    }
 
     /**
      * 应助认领
@@ -320,11 +314,33 @@ public class FrontendController {
         return ResponseModel.ok().setBody(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
     }
 
-    @GetMapping("/deliveryCount")
-    public ResponseModel deliveryCount(@RequestParam String school,
-                         @RequestParam String date){
-        int delivery = frontService.getDeliveryCount(school, date);
-        return ResponseModel.ok().setBody(delivery);
+
+    @ApiOperation(value = "获取用户当天已求助记录的数量")
+    @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
+    @GetMapping("/help/count")
+    public ResponseModel getUserHelpCountToDay(@RequestParam String email) {
+
+        return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
+    }
+
+    @ApiOperation(value = "聚合统计求助记录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orgId", value = "机构ID", dataType = "Long", paramType = "query"),
+            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "date", value = "当前时间", dataType = "Date", paramType = "query"),
+            @ApiImplicitParam(name = "type", value = "统计类型0：按分钟统计，1：按小时统计，2按天统计，3，按月统计，4：按年统计", dataType = "Integer", paramType = "query")
+
+    })
+    @GetMapping("/help/count/org")
+    public ResponseModel getOrgHelpCountToMinute(@RequestParam(required = false) Long orgId,
+                                                 @RequestParam(required = false) String orgName,
+                                                 @RequestParam(required = false) Date date,
+                                                 @RequestParam(required = false, defaultValue = "0") Integer type) {
+        date = date != null ? date : new Date();
+        if (orgId == null && orgName == null){
+            return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
+        }
+        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId,orgName, date, type));
     }
 
 }

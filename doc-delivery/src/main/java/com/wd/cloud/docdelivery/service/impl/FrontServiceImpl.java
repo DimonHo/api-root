@@ -269,9 +269,30 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public int getDeliveryCount(String school, String date) {
-        String substring = date.substring(0,16);
-        return helpRecordRepository.findByHelperScnameAndGmtCreateLike(school,substring);
+    public int getCountByOrg(Long orgId, String orgName, Date date, int type) {
+        String dateFormat;
+        switch (type) {
+            case 1:
+                dateFormat = "%Y-%m-%d %H";
+                break;
+            case 2:
+                dateFormat = "%Y-%m-%d";
+                break;
+            case 3:
+                dateFormat = "%Y-%m";
+                break;
+            case 4:
+                dateFormat = "%Y";
+                break;
+            default:
+                dateFormat = "%Y-%m-%d %H:%i";
+                break;
+        }
+        // 优先根据orgId查询
+        if (orgId != null) {
+            return helpRecordRepository.countHelpRecordByOrgId(orgId, date, dateFormat);
+        }
+        return helpRecordRepository.countHelpRecordByOrgName(orgName, date, dateFormat);
     }
 
 }

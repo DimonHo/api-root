@@ -5,19 +5,11 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
-import com.wd.cloud.wdtjserver.entity.TjQuota;
-import com.wd.cloud.wdtjserver.entity.TjTaskData;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
-import com.wd.cloud.wdtjserver.model.HourTotalModel;
-import com.wd.cloud.wdtjserver.repository.TjDateSettingRepository;
-import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
-import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
-import com.wd.cloud.apifeign.DocServerApi;
-import com.wd.cloud.apifeign.SearchServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.*;
-import com.wd.cloud.wdtjserver.model.WeightModel;
+import com.wd.cloud.wdtjserver.feign.DocDeliveryApi;
+import com.wd.cloud.wdtjserver.feign.SearchServerApi;
+import com.wd.cloud.wdtjserver.model.HourTotalModel;
 import com.wd.cloud.wdtjserver.repository.*;
 import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
@@ -30,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,7 +52,7 @@ public class AutoTask {
     TjOrgRepository tjOrgRepository;
 
     @Autowired
-    DocServerApi docServerApi;
+    DocDeliveryApi docDeliveryApi;
 
     @Autowired
     SearchServerApi searchServerApi;
@@ -72,7 +65,7 @@ public class AutoTask {
      */
     @Scheduled(cron = "0 0 0 * * ?")
     public void auto() {
-        Map<String, Float> settingMap = new TreeMap<>();
+        Map<String, Double> settingMap = new TreeMap<>();
         // 获取所有比率设置，组装map
         tjDateSettingRepository.findAll().forEach(tjDateSetting -> {
             settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
@@ -124,7 +117,7 @@ public class AutoTask {
         int ucTotal = tjQuota.getUcCount() + (int) Math.round(tjQuota.getPvCount() * r);
         // 找出最大的指标
         int maxTotal = Arrays.stream(new int[]{pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal}).max().orElse(0);
-        for (int i=0;i<maxTotal;i++){
+        for (int i = 0; i < maxTotal; i++) {
             DateTime hourDate = RandomUtil.weightRandom(hoursWeightList).next();
             if (pvTotal > 0) {
                 hourTotalModelHashMap.get(hourDate).setPvTotal(hourTotalModelHashMap.get(hourDate).getPvTotal() + 1);
@@ -159,31 +152,34 @@ public class AutoTask {
     }
 
 
-
     /**
      * 每分钟执行一次
      */
     @Scheduled(cron = "0/1 * * * * ?")
     public void mergeData() {
         try {
+            DateUtil.formatTime(new Date());
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String date = df.format(new Date());
-            Time time = new Time(df.parse(date).getTime());
             String substring = date.substring(0, 16);
+            Date nowDate = new Date();
             List<TjOrg> tjOrgs = tjOrgRepository.findByHistoryIsFalse();
-            for (TjOrg tjOrg : tjOrgs){
-                List<Map<String, Object>> list =searchServerApi.indexVisit(tjOrg.getOrgId(), date);
-                int pv=Double.valueOf(list.get(0).get("pv").toString()).intValue();
-                int uv=Double.valueOf(list.get(0).get("uv").toString()).intValue();
+            for (TjOrg tjOrg : tjOrgs) {
+                ResponseModel<List<Map<String, Object>>> responseModel = searchServerApi.indexVisit(tjOrg.getOrgId(), date);
+                if (responseModel.isError()) {
+                    ResponseModel.fail().setMessage("调用搜索量接口失败");
+                }
+                int pv = Double.valueOf(responseModel.getBody().get(0).get("pv").toString()).intValue();
+                int uv = Double.valueOf(responseModel.getBody().get(0).get("uv").toString()).intValue();
 
-                ResponseModel downloads = searchServerApi.downloadsCount(tjOrg.getOrgName(),substring);
+                ResponseModel downloads = searchServerApi.downloadsCount(tjOrg.getOrgName(), substring);
                 if (downloads.isError()) {
                     ResponseModel.fail().setMessage("调用下载量接口失败");
                 }
 
-                ResponseModel delivery = docServerApi.deliveryCount(tjOrg.getOrgName(),substring);
+                ResponseModel delivery = docDeliveryApi.getOrgHelpCount(null, tjOrg.getOrgName(), nowDate, 0);
                 if (delivery.isError()) {
-                     ResponseModel.fail().setMessage("调用文献传递量失败");
+                    ResponseModel.fail().setMessage("调用文献传递量失败");
                 }
                 TjSpisData tjSpisData = new TjSpisData();
                 tjSpisData.setPvCount(pv);
@@ -193,7 +189,7 @@ public class AutoTask {
                 tjSpisDataRepository.save(tjSpisData);
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

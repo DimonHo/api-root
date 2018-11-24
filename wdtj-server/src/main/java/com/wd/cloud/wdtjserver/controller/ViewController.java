@@ -32,7 +32,7 @@ public class ViewController {
     public ResponseModel getData(@PathVariable Long orgId,
                                  @RequestParam String beginTime,
                                  @RequestParam String endTime,
-                                 @RequestParam(required = false,defaultValue = "1") int viewType) {
+                                 @RequestParam(required = false,defaultValue = "0") int viewType) {
         return ResponseModel.ok().setBody(tjService.getViewDate(orgId,beginTime,endTime,viewType));
     }
 }

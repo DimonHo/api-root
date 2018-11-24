@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.feign;
 
+import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import org.hibernate.annotations.Cache;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -18,12 +19,12 @@ public interface OrgServerApi extends com.wd.cloud.apifeign.OrgServerApi {
     class Fallback implements OrgServerApi {
         @Override
         public ResponseModel getAll(String sort) {
-            return ResponseModel.fail().setMessage("fallback:机构服务调用失败！");
+            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:org-server调用失败！");
         }
 
         @Override
         public ResponseModel getOrg(Long id) {
-            return ResponseModel.fail().setMessage("fallback:机构服务调用失败！");
+            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:org-server调用失败！");
         }
     }
 }

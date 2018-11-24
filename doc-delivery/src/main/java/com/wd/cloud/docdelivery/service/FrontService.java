@@ -7,6 +7,8 @@ import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Date;
+
 /**
  * @author He Zhigang
  * @date 2018/5/7
@@ -148,6 +150,5 @@ public interface FrontService {
 
     String checkExistsGiveing(long giverId);
 
-
-    int getDeliveryCount(String school,String date);
+    int getCountByOrg(Long orgId,String orgName, Date date, int type);
 }

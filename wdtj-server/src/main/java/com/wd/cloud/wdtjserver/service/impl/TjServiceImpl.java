@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
@@ -30,34 +29,39 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public ViewDataModel getViewDate(Long orgId, String beginTime, String endTime, int viewType) {
-        List<Map<String, Object>> viewDatas;
+        String format;
         switch (viewType) {
+            case 1:
+                format = "%Y-%m-%d %H";
+                break;
             case 2:
-                viewDatas = tjViewDataRepository.findByTjDateFromDay(orgId, beginTime, endTime);
+                format = "%Y-%m-%d";
                 break;
             case 3:
-                viewDatas = tjViewDataRepository.findByTjDateFromMonth(orgId, beginTime, endTime);
+                format = "%Y-%m";
                 break;
             case 4:
-                viewDatas = tjViewDataRepository.findByTjDateFromYear(orgId, beginTime, endTime);
+                format = "%Y";
                 break;
             default:
-                viewDatas = tjViewDataRepository.findByTjDateFromHours(orgId, beginTime, endTime);
+                format = "%Y-%m-%d %H:%i";
                 break;
         }
+        List<Map<String, Object>> viewDatas = tjViewDataRepository.groupByTjDate(orgId, beginTime, endTime, format);
         ViewDataModel viewDataModel = new ViewDataModel();
         viewDataModel.setOrgId(orgId);
         for (Map<String, Object> viewData : viewDatas) {
             viewDataModel.getTjDate().add((String) viewData.get("tjDate"));
-            viewDataModel.getPvCount().add((BigDecimal) viewData.get("pvCount"));
-            viewDataModel.getScCount().add((BigDecimal) viewData.get("scCount"));
-            viewDataModel.getDcCount().add((BigDecimal) viewData.get("dcCount"));
-            viewDataModel.getDdcCount().add((BigDecimal) viewData.get("ddcCount"));
-            viewDataModel.getUvCount().add((BigDecimal) viewData.get("uvCount"));
-            BigDecimal sumTime = (BigDecimal) viewData.get("sumTime");
-            BigDecimal sumUc = (BigDecimal) viewData.get("ucCount");
+            viewDataModel.getPvCount().add(((BigDecimal) viewData.get("pvCount")).intValue());
+            viewDataModel.getScCount().add(((BigDecimal) viewData.get("scCount")).intValue());
+            viewDataModel.getDcCount().add(((BigDecimal) viewData.get("dcCount")).intValue());
+            viewDataModel.getDdcCount().add(((BigDecimal) viewData.get("ddcCount")).intValue());
+            viewDataModel.getUvCount().add(((BigDecimal) viewData.get("uvCount")).intValue());
+            int sumTime = ((BigDecimal) viewData.get("sumTime")).intValue();
+            int sumUc = ((BigDecimal) viewData.get("ucCount")).intValue();
             viewDataModel.getUcCount().add(sumUc);
-            viewDataModel.getAvgTime().add(sumTime.divide(sumUc, 0, RoundingMode.HALF_UP));
+            int avgTime = sumUc == 0 ? sumTime : sumTime / sumUc;
+            viewDataModel.getAvgTime().add(avgTime);
         }
 
         return viewDataModel;

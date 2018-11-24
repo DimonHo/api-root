@@ -2,10 +2,7 @@ package com.wd.cloud.wdtjserver.model;
 
 import io.swagger.annotations.ApiModel;
 
-import java.math.BigDecimal;
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,19 +17,19 @@ public class ViewDataModel {
 
     private List<String> tjDate = new ArrayList<>();
 
-    private List<BigDecimal> pvCount = new ArrayList<>();
+    private List<Integer> pvCount = new ArrayList<>();
 
-    private List<BigDecimal> scCount = new ArrayList<>();
+    private List<Integer> scCount = new ArrayList<>();
 
-    private List<BigDecimal> dcCount = new ArrayList<>();
+    private List<Integer> dcCount = new ArrayList<>();
 
-    private List<BigDecimal> ddcCount = new ArrayList<>();
+    private List<Integer> ddcCount = new ArrayList<>();
 
-    private List<BigDecimal> uvCount = new ArrayList<>();
+    private List<Integer> uvCount = new ArrayList<>();
 
-    private List<BigDecimal> ucCount = new ArrayList<>();
+    private List<Integer> ucCount = new ArrayList<>();
 
-    private List<BigDecimal> avgTime = new ArrayList<>();
+    private List<Integer> avgTime = new ArrayList<>();
 
     public Long getOrgId() {
         return orgId;
@@ -52,65 +49,65 @@ public class ViewDataModel {
         return this;
     }
 
-    public List<BigDecimal> getPvCount() {
+    public List<Integer> getPvCount() {
         return pvCount;
     }
 
-    public ViewDataModel setPvCount(List<BigDecimal> pvCount) {
+    public ViewDataModel setPvCount(List<Integer> pvCount) {
         this.pvCount = pvCount;
         return this;
     }
 
-    public List<BigDecimal> getScCount() {
+    public List<Integer> getScCount() {
         return scCount;
     }
 
-    public ViewDataModel setScCount(List<BigDecimal> scCount) {
+    public ViewDataModel setScCount(List<Integer> scCount) {
         this.scCount = scCount;
         return this;
     }
 
-    public List<BigDecimal> getDcCount() {
+    public List<Integer> getDcCount() {
         return dcCount;
     }
 
-    public ViewDataModel setDcCount(List<BigDecimal> dcCount) {
+    public ViewDataModel setDcCount(List<Integer> dcCount) {
         this.dcCount = dcCount;
         return this;
     }
 
-    public List<BigDecimal> getDdcCount() {
+    public List<Integer> getDdcCount() {
         return ddcCount;
     }
 
-    public ViewDataModel setDdcCount(List<BigDecimal> ddcCount) {
+    public ViewDataModel setDdcCount(List<Integer> ddcCount) {
         this.ddcCount = ddcCount;
         return this;
     }
 
-    public List<BigDecimal> getUvCount() {
+    public List<Integer> getUvCount() {
         return uvCount;
     }
 
-    public ViewDataModel setUvCount(List<BigDecimal> uvCount) {
+    public ViewDataModel setUvCount(List<Integer> uvCount) {
         this.uvCount = uvCount;
         return this;
     }
 
-    public List<BigDecimal> getUcCount() {
+    public List<Integer> getUcCount() {
         return ucCount;
     }
 
-    public ViewDataModel setUcCount(List<BigDecimal> ucCount) {
+    public ViewDataModel setUcCount(List<Integer> ucCount) {
         this.ucCount = ucCount;
         return this;
     }
 
-    public List<BigDecimal> getAvgTime() {
+    public List<Integer> getAvgTime() {
         return avgTime;
     }
 
-    public ViewDataModel setAvgTime(List<BigDecimal> avgTime) {
+    public ViewDataModel setAvgTime(List<Integer> avgTime) {
         this.avgTime = avgTime;
         return this;
     }

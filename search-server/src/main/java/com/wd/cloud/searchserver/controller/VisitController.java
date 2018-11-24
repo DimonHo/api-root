@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.controller;
 
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.searchserver.service.FlowAnalysisServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +21,9 @@ public class VisitController {
     private FlowAnalysisServiceI flowAnalysisService;
 
     @GetMapping("/indexVisit")
-    public List<Map<String, Object>> indexVisit(@RequestParam Long orgId,
-                                           @RequestParam String tjDate){
+    public ResponseModel indexVisit(@RequestParam Long orgId,
+                                    @RequestParam String tjDate){
         List<Map<String, Object>> list =flowAnalysisService.visite(orgId, tjDate);
-        return list;
+        return ResponseModel.ok().setBody(list);
     }
 }

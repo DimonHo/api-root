@@ -2,20 +2,17 @@ package com.wd.cloud.apifeign;
 
 import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(value = "doc-delivery",fallback = DocServerApi.Fallback.class)
-public interface DocServerApi {
-    @GetMapping("/front/deliveryCount")
-    ResponseModel deliveryCount(@RequestParam(value = "school") String school,
-                                @RequestParam(value = "date") String date);
+import java.util.Date;
 
+@FeignClient(value = "doc-delivery")
+public interface DocDeliveryApi {
 
-    class Fallback implements DocServerApi{
-
-        @Override
-        public ResponseModel deliveryCount(String school, String date) {
-            return ResponseModel.fail();
-        }
-    }
+    @GetMapping("/help/count/org")
+    ResponseModel getOrgHelpCount(@RequestParam(value = "orgId", required = false) Long orgId,
+                                  @RequestParam(value = "orgName", required = false) String orgName,
+                                  @RequestParam(value = "date", required = false) Date date,
+                                  @RequestParam(value = "type", required = false) Integer type);
 }

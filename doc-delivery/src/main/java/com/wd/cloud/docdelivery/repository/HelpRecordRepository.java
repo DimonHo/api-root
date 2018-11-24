@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 
@@ -37,8 +37,18 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     List<HelpRecord> findByHelperEmailAndGmtCreateAfter(String email, Date date);
 
-    @Query(value = "select count(*) as delivery from help_record where helper_scname=?1 and gmt_create like ?2%", nativeQuery = true)
-    int findByHelperScnameAndGmtCreateLike(String school, String date);
+    /**
+     * 统计一个机构某分钟内的求助数量
+     * @param orgName
+     * @param createDate
+     * @param format date_format(date,"%Y-%m-%d %H:%i:%s")
+     * @return
+     */
+    @Query(value = "select count(*) as orgHelpCount from help_record where helper_scname=?1 and date_format(gmt_create,?3) = date_format(?2,?3)", nativeQuery = true)
+    int countHelpRecordByOrgName(String orgName, Date createDate, String format);
+
+    @Query(value = "select count(*) as orgHelpCount from help_record where helper_scid=?1 and date_format(gmt_create,?3) = date_format(?2,?3)", nativeQuery = true)
+    int countHelpRecordByOrgId(Long orgId, Date createDate, String format);
 
     /**
      * 根据求助用户ID查询
