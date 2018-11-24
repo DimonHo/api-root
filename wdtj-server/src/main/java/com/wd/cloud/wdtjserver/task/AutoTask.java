@@ -13,6 +13,13 @@ import com.wd.cloud.wdtjserver.model.HourTotalModel;
 import com.wd.cloud.wdtjserver.repository.TjDateSettingRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
+import com.wd.cloud.apifeign.DocServerApi;
+import com.wd.cloud.apifeign.SearchServerApi;
+import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.entity.*;
+import com.wd.cloud.wdtjserver.model.WeightModel;
+import com.wd.cloud.wdtjserver.repository.*;
+import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
@@ -45,12 +52,27 @@ public class AutoTask {
     @Autowired
     TjTaskDataRepository tjTaskDataRepository;
 
+    @Autowired
+    TjService tjService;
+
+    @Autowired
+    TjOrgRepository tjOrgRepository;
+
+    @Autowired
+    DocServerApi docServerApi;
+
+    @Autowired
+    SearchServerApi searchServerApi;
+
+    @Autowired
+    TjSpisDataRepository tjSpisDataRepository;
+
     /**
      * 每天凌晨0点执行一次
      */
     @Scheduled(cron = "0 0 0 * * ?")
     public void auto() {
-        Map<String, Double> settingMap = new TreeMap<>();
+        Map<String, Float> settingMap = new TreeMap<>();
         // 获取所有比率设置，组装map
         tjDateSettingRepository.findAll().forEach(tjDateSetting -> {
             settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
@@ -143,6 +165,38 @@ public class AutoTask {
      */
     @Scheduled(cron = "0/1 * * * * ?")
     public void mergeData() {
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String date = df.format(new Date());
+            Time time = new Time(df.parse(date).getTime());
+            String substring = date.substring(0, 16);
+            List<TjOrg> tjOrgs = tjOrgRepository.findByHistoryIsFalse();
+            for (TjOrg tjOrg : tjOrgs){
+                List<Map<String, Object>> list =searchServerApi.indexVisit(tjOrg.getOrgId(), date);
+                int pv=Double.valueOf(list.get(0).get("pv").toString()).intValue();
+                int uv=Double.valueOf(list.get(0).get("uv").toString()).intValue();
+
+                ResponseModel downloads = searchServerApi.downloadsCount(tjOrg.getOrgName(),substring);
+                if (downloads.isError()) {
+                    ResponseModel.fail().setMessage("调用下载量接口失败");
+                }
+
+                ResponseModel delivery = docServerApi.deliveryCount(tjOrg.getOrgName(),substring);
+                if (delivery.isError()) {
+                     ResponseModel.fail().setMessage("调用文献传递量失败");
+                }
+                TjSpisData tjSpisData = new TjSpisData();
+                tjSpisData.setPvCount(pv);
+                tjSpisData.setScCount(uv);
+                tjSpisData.setDcCount((Integer) delivery.getBody());
+                tjSpisData.setDdcCount((Integer) downloads.getBody());
+                tjSpisDataRepository.save(tjSpisData);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 }

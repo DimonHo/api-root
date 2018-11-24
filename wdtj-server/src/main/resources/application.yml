@@ -29,14 +29,12 @@ management:
   endpoint:
     health:
       show-details: always
+feign:
+  hystrix:
+    enabled: true
 ######################################################################
 
-global:
-  baidu:
-    username: wdxxkj2014
-    password: hr@hnwdkj.com
-    token: bcb491d69976e38bb84793606ec7169e
-    account-type: 1
+
 spring:
   zipkin:
     baseUrl: http://192.168.1.104:10003
@@ -49,7 +47,7 @@ spring:
   jpa:
     database: MYSQL
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: update
   datasource:

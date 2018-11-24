@@ -41,7 +41,7 @@ spring:
   jpa:
     database: MYSQL
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: none
   datasource:

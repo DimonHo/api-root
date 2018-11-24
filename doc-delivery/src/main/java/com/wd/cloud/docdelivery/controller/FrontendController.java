@@ -320,4 +320,11 @@ public class FrontendController {
         return ResponseModel.ok().setBody(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
     }
 
+    @GetMapping("/deliveryCount")
+    public ResponseModel deliveryCount(@RequestParam String school,
+                         @RequestParam String date){
+        int delivery = frontService.getDeliveryCount(school, date);
+        return ResponseModel.ok().setBody(delivery);
+    }
+
 }

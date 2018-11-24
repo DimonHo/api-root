@@ -37,6 +37,9 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     List<HelpRecord> findByHelperEmailAndGmtCreateAfter(String email, Date date);
 
+    @Query(value = "select count(*) as delivery from help_record where helper_scname=?1 and gmt_create like ?2%", nativeQuery = true)
+    int findByHelperScnameAndGmtCreateLike(String school, String date);
+
     /**
      * 根据求助用户ID查询
      *
