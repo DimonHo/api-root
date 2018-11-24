@@ -2,7 +2,9 @@ package com.wd.cloud.wdtjserver.service.impl;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.model.ViewDataModel;
+import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.TjService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,14 @@ public class TjServiceImpl implements TjService {
     private static final Log log = LogFactory.get();
 
     @Autowired
+    TjOrgRepository tjOrgRepository;
+
+    @Autowired
     TjViewDataRepository tjViewDataRepository;
 
     @Override
     public ViewDataModel getViewDate(Long orgId, String beginTime, String endTime, int viewType) {
+        TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
         String format;
         switch (viewType) {
             case 1:
@@ -52,16 +58,30 @@ public class TjServiceImpl implements TjService {
         viewDataModel.setOrgId(orgId);
         for (Map<String, Object> viewData : viewDatas) {
             viewDataModel.getTjDate().add((String) viewData.get("tjDate"));
-            viewDataModel.getPvCount().add(((BigDecimal) viewData.get("pvCount")).intValue());
-            viewDataModel.getScCount().add(((BigDecimal) viewData.get("scCount")).intValue());
-            viewDataModel.getDcCount().add(((BigDecimal) viewData.get("dcCount")).intValue());
-            viewDataModel.getDdcCount().add(((BigDecimal) viewData.get("ddcCount")).intValue());
-            viewDataModel.getUvCount().add(((BigDecimal) viewData.get("uvCount")).intValue());
+            if (tjOrg.isShowPv()) {
+                viewDataModel.getPvCount().add(((BigDecimal) viewData.get("pvCount")).intValue());
+            }
+            if (tjOrg.isShowSc()) {
+                viewDataModel.getScCount().add(((BigDecimal) viewData.get("scCount")).intValue());
+            }
+            if (tjOrg.isShowDc()) {
+                viewDataModel.getDcCount().add(((BigDecimal) viewData.get("dcCount")).intValue());
+            }
+            if (tjOrg.isShowDdc()) {
+                viewDataModel.getDdcCount().add(((BigDecimal) viewData.get("ddcCount")).intValue());
+            }
+            if (tjOrg.isShowUv()) {
+                viewDataModel.getUvCount().add(((BigDecimal) viewData.get("uvCount")).intValue());
+            }
             int sumTime = ((BigDecimal) viewData.get("sumTime")).intValue();
             int sumUc = ((BigDecimal) viewData.get("ucCount")).intValue();
-            viewDataModel.getUcCount().add(sumUc);
-            int avgTime = sumUc == 0 ? sumTime : sumTime / sumUc;
-            viewDataModel.getAvgTime().add(avgTime);
+            if (tjOrg.isShowUc()) {
+                viewDataModel.getUcCount().add(sumUc);
+            }
+            if (tjOrg.isShowAvgTime()) {
+                int avgTime = sumUc == 0 ? sumTime : sumTime / sumUc;
+                viewDataModel.getAvgTime().add(avgTime);
+            }
         }
 
         return viewDataModel;
