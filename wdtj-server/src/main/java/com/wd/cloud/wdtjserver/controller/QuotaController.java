@@ -42,7 +42,7 @@ public class QuotaController {
         tjQuota.setOrgId(orgId).setCreateUser(createUser);
         TjQuota body = quotaService.save(tjQuota);
         if (body == null) {
-            ResponseModel.fail().setMessage("数据保存失败");
+           return ResponseModel.fail().setMessage("数据保存失败");
         }
         return ResponseModel.ok().setBody(body);
     }

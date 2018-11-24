@@ -6,14 +6,13 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.sun.media.jfxmedia.logging.Logger;
-import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
+import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
@@ -57,9 +56,9 @@ public class FileServiceImpl implements FileService {
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        if (checkTimeOut(helpRecord.getGmtModified())) {
-            return null;
-        }
+//        if (checkTimeOut(helpRecord.getGmtModified())) {
+//            return null;
+//        }
         GiveRecord giveRecord = giveRecordRepository.findByHelpRecord(helpRecord);
         DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         return downloadFileModel;
@@ -80,10 +79,12 @@ public class FileServiceImpl implements FileService {
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
         ResponseModel<File> responseModel = fsServerApi.getFile(fileId);
-        if (!responseModel.isError()) {
-            downloadFileModel.setFile(responseModel.getBody());
-            downloadFileModel.setFileByte(FileUtil.readBytes(responseModel.getBody()));
+        if (responseModel.isError()) {
+            log.error("文件服务调用失败：{}", responseModel.getMessage());
+            return null;
         }
+        downloadFileModel.setFile(responseModel.getBody());
+        downloadFileModel.setFileByte(FileUtil.readBytes(responseModel.getBody()));
         String ext = StrUtil.subAfter(responseModel.getBody().getName(), ".", true);
         String downLoadFileName = docTitle + "." + ext;
         downloadFileModel.setDownloadFileName(downLoadFileName);
@@ -108,16 +109,16 @@ public class FileServiceImpl implements FileService {
         AtomicInteger count = new AtomicInteger();
         Pageable pageable = PageRequest.of(0, 1000);
         Page<DocFile> docFiles = docFileRepository.findAll(pageable);
-        count = updateFileId(docFiles,count);
-        while (docFiles.hasNext()){
+        count = updateFileId(docFiles, count);
+        while (docFiles.hasNext()) {
             docFiles = docFileRepository.findAll(docFiles.nextPageable());
-            count = updateFileId(docFiles,count);
+            count = updateFileId(docFiles, count);
         }
-        log.info("共更新{}条数据",count.get());
+        log.info("共更新{}条数据", count.get());
         return count.get();
     }
 
-    private AtomicInteger updateFileId(Page<DocFile> docFiles,AtomicInteger count) {
+    private AtomicInteger updateFileId(Page<DocFile> docFiles, AtomicInteger count) {
         docFiles.forEach(docFile -> {
             String md5 = StrUtil.subBefore(docFile.getFileName(), ".", true);
             String path = "doc-delivery";

@@ -4,7 +4,6 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
@@ -47,6 +46,7 @@ public class QuotaServiceImpl implements QuotaService {
             }
             return tjQuotaRepository.save(tjQuota);
         }
+        log.error("机构管理服务调用失败：{}", responseModel.getMessage());
         return null;
     }
 

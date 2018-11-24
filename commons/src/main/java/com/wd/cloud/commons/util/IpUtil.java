@@ -45,7 +45,6 @@ public class IpUtil {
         } else {
             return false;
         }
-
     }
 
 }

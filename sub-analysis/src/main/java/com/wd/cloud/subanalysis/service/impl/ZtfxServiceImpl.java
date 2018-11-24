@@ -277,7 +277,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
         SearchResponse resp = transportClient.prepareSearch(es.getIndex()).setTypes(es.getType()).setQuery(queryBuilder).get();
         if (resp.getHits().getTotalHits() > 0) {
             for (SearchHit hit : resp.getHits().getHits()) {
-                List<String> legends = (List) hit.getSource().get("legend");
+                List<String> legends = (List) hit.getSourceAsMap().get("legend");
                 return legends.subList(0, 5);
             }
         }
@@ -295,7 +295,7 @@ public class ZtfxServiceImpl implements ZtfxServiceI {
         if (hits != null) {
             for (SearchHit hit : hits) {
                 DocForKeyword docForKeyword = new DocForKeyword();
-                Map<String, Object> doc = hit.getSource();
+                Map<String, Object> doc = hit.getSourceAsMap();
                 docForKeyword.setDocTitile(doc.get("docTitle").toString());
                 docForKeyword.setAuthorList((List) doc.get("author"));
                 docForKeyword.setYearAndVolAndIssueAndPages(doc.get("year") + " Vol." + doc.get("volume") + " No." + doc.get("issue") + " page." + doc.get("pageNum"));

@@ -3,7 +3,6 @@ package com.wd.cloud.docdelivery.controller;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
@@ -13,6 +12,7 @@ import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
+import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -145,9 +145,10 @@ public class BackendController {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(helpRecordId);
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
-        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), null, file);
+        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
         log.info(responseModel.toString());
         if (responseModel.isError()) {
+            log.error("文件服务调用失败：{}",responseModel.getMessage());
             log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }

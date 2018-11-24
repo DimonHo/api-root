@@ -63,6 +63,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
             tjHisQuota.setOrgName(orgName);
             return tjHisQuotaRepository.save(tjHisQuota);
         }
+        log.error("机构管理服务调用失败：{}", responseModel.getMessage());
         return null;
     }
 

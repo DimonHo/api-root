@@ -61,6 +61,7 @@ public class SettingServiceImpl implements SettingService {
             }
             return tjOrgRepository.save(tjOrg);
         }
+        log.error("机构管理服务调用失败：{}", responseModel.getMessage());
         return null;
 
     }

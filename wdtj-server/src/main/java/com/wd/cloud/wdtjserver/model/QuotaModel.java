@@ -17,7 +17,6 @@ import java.sql.Time;
 public class QuotaModel {
 
     @Min(0)
-    @NotNull
     @ApiModelProperty(value = "浏览量", example = "10")
     private int pvCount;
 

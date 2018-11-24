@@ -86,7 +86,7 @@ public class DocumentGeneration implements DocumentGenerationI {
             headers.set("Content-Type", "multipart/form-data");
             headers.set("Accept", "application/json");
             HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(requestEntity, headers);
-            ResponseModel<cn.hutool.json.JSONObject> fileByte = fsServerApi.uploadFile("journalImage", null, resource);
+            ResponseModel<cn.hutool.json.JSONObject> fileByte = fsServerApi.uploadFile("journalImage", resource);
             fileByte.getBody();
             return fileByte.getBody().toString();
         } catch (Exception e) {

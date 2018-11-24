@@ -5,7 +5,6 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.apifeign.FsServerApi;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -16,6 +15,7 @@ import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
+import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
@@ -272,15 +272,13 @@ public class FrontendController {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
         //保存文件
-        DocFile docFile = null;
-        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), null, file);
-        log.info(responseModel.toString());
+        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
         if (responseModel.isError()) {
+            log.error("文件服务调用失败：{}", responseModel.getMessage());
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
         String filename = responseModel.getBody().getStr("fileId");
-        docFile = frontService.saveDocFile(helpRecord.getLiterature(), filename);
-
+        DocFile docFile = frontService.saveDocFile(helpRecord.getLiterature(), filename);
         //更新记录
         frontService.createGiveRecord(helpRecord, giverId, docFile, HttpUtil.getClientIP(request));
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");

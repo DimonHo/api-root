@@ -1,11 +1,9 @@
 package com.wd.cloud.wdtjserver.feign;
 
 import com.wd.cloud.commons.model.ResponseModel;
+import org.hibernate.annotations.Cache;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author He Zhigang
@@ -14,18 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @FeignClient(value = "org-server",
         fallback = OrgServerApi.Fallback.class)
-public interface OrgServerApi {
-
-    @GetMapping("/orginfo/all")
-    ResponseModel getAll(@RequestParam(value = "sort", required = false, defaultValue = "name") String sort);
-
-    @GetMapping("/orginfo/{id}")
-    ResponseModel getOrg(@PathVariable(value = "id") Long id);
-
+public interface OrgServerApi extends com.wd.cloud.apifeign.OrgServerApi {
 
     @Component
     class Fallback implements OrgServerApi {
-
         @Override
         public ResponseModel getAll(String sort) {
             return ResponseModel.fail().setMessage("fallback:机构服务调用失败！");

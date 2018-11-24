@@ -28,33 +28,31 @@ import java.util.List;
  * @Description:
  */
 @FeignClient(value = "fs-server",
-        configuration = FsServerApi.MultipartSupportConfig.class,
-        fallback = FsServerApi.Fallback.class)
+        configuration = FsServerApi.MultipartSupportConfig.class)
 public interface FsServerApi {
 
     @PostMapping(value = "/upload/{dir}", consumes = "multipart/form-data")
-    public ResponseModel<JSONObject> uploadFile(@PathVariable(value = "dir") String dir,
-                                                @RequestParam(value = "fileName", required = false) String fileName,
+    ResponseModel<JSONObject> uploadFile(@PathVariable(value = "dir") String dir,
                                                 @RequestPart(value = "file") MultipartFile file);
 
     @PostMapping(value = "/upload/{dir}", consumes = "multipart/form-data")
-    public ResponseModel<JSONObject> uploadFiles(@PathVariable(value = "dir") String dir,
+    ResponseModel<JSONObject> uploadFiles(@PathVariable(value = "dir") String dir,
                                                  @RequestPart(value = "files") MultipartFile[] files);
 
     @GetMapping(value = "/download/{unid}")
-    public ResponseEntity downloadFile(@PathVariable(value = "unid") String unid);
+    ResponseEntity downloadFile(@PathVariable(value = "unid") String unid);
 
     @GetMapping("/file/{unid}")
-    public ResponseModel<File> getFile(@PathVariable(value = "unid") String unid);
+    ResponseModel<File> getFile(@PathVariable(value = "unid") String unid);
 
     @GetMapping("/byte/{unid}")
-    public ResponseModel<byte[]> getFileByte(@PathVariable(value = "unid") String unid);
+    ResponseModel<byte[]> getFileByte(@PathVariable(value = "unid") String unid);
 
     @GetMapping("/async")
-    public ResponseModel hfToUploadRecord(@RequestParam(value = "tableName") String tableName);
+    ResponseModel hfToUploadRecord(@RequestParam(value = "tableName") String tableName);
 
     @GetMapping("/getunid")
-    public ResponseModel<String> getunid(@RequestParam(value = "tableName") String tableName, @RequestParam(value = "fileName") String fileName);
+    ResponseModel<String> getunid(@RequestParam(value = "tableName") String tableName, @RequestParam(value = "fileName") String fileName);
 
     class MultipartSupportConfig {
         @Autowired
@@ -82,47 +80,6 @@ public interface FsServerApi {
                     return httpMessageConverters;
                 }
             });
-        }
-    }
-
-    @Component
-    public class Fallback implements FsServerApi {
-
-        @Override
-        public ResponseModel<JSONObject> uploadFile(String dir, String fileName, MultipartFile file) {
-            return ResponseModel.fail();
-        }
-
-        @Override
-        public ResponseModel<JSONObject> uploadFiles(String dir, MultipartFile[] files) {
-            return ResponseModel.fail();
-        }
-
-        @Override
-        public ResponseEntity downloadFile(String unid) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .build();
-        }
-
-        @Override
-        public ResponseModel<File> getFile(String unid) {
-            return ResponseModel.fail();
-        }
-
-        @Override
-        public ResponseModel<byte[]> getFileByte(String unid) {
-            return ResponseModel.fail();
-        }
-
-        @Override
-        public ResponseModel hfToUploadRecord(String tableName) {
-            return ResponseModel.fail();
-        }
-
-        @Override
-        public ResponseModel<String> getunid(String tableName, String fileName) {
-            return ResponseModel.fail();
         }
     }
 }
