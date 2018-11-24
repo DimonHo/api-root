@@ -67,6 +67,11 @@ public class SettingServiceImpl implements SettingService {
     }
 
     @Override
+    public TjOrg getOrgInfo(Long orgId) {
+        return tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
+    }
+
+    @Override
     public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser) {
         ResponseModel responseModel = orgServerApi.getOrg(orgId);
         String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");

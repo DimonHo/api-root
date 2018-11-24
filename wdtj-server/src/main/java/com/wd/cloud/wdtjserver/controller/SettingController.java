@@ -51,6 +51,17 @@ public class SettingController {
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }
 
+    @ApiOperation(value = "获取机构参数", tags = {"后台设置"})
+    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
+    @GetMapping("/org/{orgId}")
+    public ResponseModel get(@PathVariable Long orgId){
+        TjOrg tjOrg = settingService.getOrgInfo(orgId);
+        if (tjOrg == null){
+            return ResponseModel.fail().setMessage("没有找到该机构");
+        }
+        return ResponseModel.ok().setBody(tjOrg);
+    }
+
     @ApiOperation(value = "禁用/解除禁用某机构", tags = {"后台设置"})
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "String", paramType = "path")
     @PatchMapping("/org/{orgId}")

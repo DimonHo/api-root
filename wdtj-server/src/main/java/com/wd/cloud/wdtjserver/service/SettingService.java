@@ -24,6 +24,14 @@ public interface SettingService {
      */
     TjOrg save(TjOrg tjOrg);
 
+
+    /**
+     * 获取机构信息
+     * @param orgId
+     * @return
+     */
+    TjOrg getOrgInfo(Long orgId);
+
     /**
      * 保存/更新机构设置
      * @param orgId

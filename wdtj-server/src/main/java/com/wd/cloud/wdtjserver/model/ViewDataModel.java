@@ -17,19 +17,33 @@ public class ViewDataModel {
 
     private List<String> tjDate = new ArrayList<>();
 
+    private Integer pvTotal;
+
     private List<Integer> pvCount = new ArrayList<>();
+
+    private Integer scTotal;
 
     private List<Integer> scCount = new ArrayList<>();
 
+    private Integer dcTotal;
+
     private List<Integer> dcCount = new ArrayList<>();
+
+    private Integer ddcTotal;
 
     private List<Integer> ddcCount = new ArrayList<>();
 
+    private Integer uvTotal;
+
     private List<Integer> uvCount = new ArrayList<>();
+
+    private Integer ucTotal;
 
     private List<Integer> ucCount = new ArrayList<>();
 
-    private List<Integer> avgTime = new ArrayList<>();
+    private Long avgTimeTotal;
+
+    private List<Long> avgTime = new ArrayList<>();
 
     public Long getOrgId() {
         return orgId;
@@ -103,11 +117,74 @@ public class ViewDataModel {
         return this;
     }
 
-    public List<Integer> getAvgTime() {
+    public Integer getPvTotal() {
+        return pvTotal;
+    }
+
+    public ViewDataModel setPvTotal(Integer pvTotal) {
+        this.pvTotal = pvTotal;
+        return this;
+    }
+
+    public Integer getScTotal() {
+        return scTotal;
+    }
+
+    public ViewDataModel setScTotal(Integer scTotal) {
+        this.scTotal = scTotal;
+        return this;
+    }
+
+    public Integer getDcTotal() {
+        return dcTotal;
+    }
+
+    public ViewDataModel setDcTotal(Integer dcTotal) {
+        this.dcTotal = dcTotal;
+        return this;
+    }
+
+    public Integer getDdcTotal() {
+        return ddcTotal;
+    }
+
+    public ViewDataModel setDdcTotal(Integer ddcTotal) {
+        this.ddcTotal = ddcTotal;
+        return this;
+    }
+
+    public Integer getUvTotal() {
+        return uvTotal;
+    }
+
+    public ViewDataModel setUvTotal(Integer uvTotal) {
+        this.uvTotal = uvTotal;
+        return this;
+    }
+
+    public Integer getUcTotal() {
+        return ucTotal;
+    }
+
+    public ViewDataModel setUcTotal(Integer ucTotal) {
+        this.ucTotal = ucTotal;
+        return this;
+    }
+
+    public Long getAvgTimeTotal() {
+        return avgTimeTotal;
+    }
+
+    public ViewDataModel setAvgTimeTotal(Long avgTimeTotal) {
+        this.avgTimeTotal = avgTimeTotal;
+        return this;
+    }
+
+    public List<Long> getAvgTime() {
         return avgTime;
     }
 
-    public ViewDataModel setAvgTime(List<Integer> avgTime) {
+    public ViewDataModel setAvgTime(List<Long> avgTime) {
         this.avgTime = avgTime;
         return this;
     }
