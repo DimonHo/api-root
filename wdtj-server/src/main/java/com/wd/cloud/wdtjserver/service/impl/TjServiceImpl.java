@@ -76,20 +76,21 @@ public class TjServiceImpl implements TjService {
             long sumTime = ((BigDecimal) viewData.get("sumTime")).longValue();
             long sumUc = ((BigDecimal) viewData.get("ucCount")).longValue();
             if (tjOrg.isShowUc()) {
-                viewDataModel.getUcCount().add((int)sumUc);
+                viewDataModel.getUcCount().add((int) sumUc);
             }
             if (tjOrg.isShowAvgTime()) {
                 long avgTime = sumUc == 0 ? sumTime : sumTime / sumUc;
                 viewDataModel.getAvgTime().add(avgTime);
             }
         }
-        viewDataModel.setPvTotal(viewDataModel.getPvCount().stream().reduce((a,b) -> a+b).orElse(0));
-        viewDataModel.setScTotal(viewDataModel.getScCount().stream().reduce((a,b) -> a+b).orElse(0));
-        viewDataModel.setDcTotal(viewDataModel.getDcCount().stream().reduce((a,b) -> a+b).orElse(0));
-        viewDataModel.setDdcTotal(viewDataModel.getDdcCount().stream().reduce((a,b) -> a+b).orElse(0));
-        viewDataModel.setUvTotal(viewDataModel.getUvCount().stream().reduce((a,b) -> a+b).orElse(0));
-        viewDataModel.setUcTotal(viewDataModel.getUcCount().stream().reduce((a,b) -> a+b).orElse(0));
-        viewDataModel.setAvgTimeTotal(viewDataModel.getAvgTime().stream().reduce((a,b) -> a+b).orElse(0L)/viewDataModel.getUcTotal());
+        viewDataModel.setPvTotal(viewDataModel.getPvCount().stream().reduce((a, b) -> a + b).orElse(0));
+        viewDataModel.setScTotal(viewDataModel.getScCount().stream().reduce((a, b) -> a + b).orElse(0));
+        viewDataModel.setDcTotal(viewDataModel.getDcCount().stream().reduce((a, b) -> a + b).orElse(0));
+        viewDataModel.setDdcTotal(viewDataModel.getDdcCount().stream().reduce((a, b) -> a + b).orElse(0));
+        viewDataModel.setUvTotal(viewDataModel.getUvCount().stream().reduce((a, b) -> a + b).orElse(0));
+        viewDataModel.setUcTotal(viewDataModel.getUcCount().stream().reduce((a, b) -> a + b).orElse(0));
+        long avgTotal = viewDataModel.getUcTotal() == 0 ? 0 : viewDataModel.getAvgTime().stream().reduce((a, b) -> a + b).orElse(0L) / viewDataModel.getUcTotal();
+        viewDataModel.setAvgTimeTotal(avgTotal);
         return viewDataModel;
     }
 }
