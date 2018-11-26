@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,8 +128,9 @@ public class HisQuotaServiceImpl implements HisQuotaService {
      * @param tjHisQuota
      * @return
      */
+    @Async
     @Override
-    public boolean buildTjHisData(TjHisQuota tjHisQuota) {
+    public Boolean buildTjHisData(TjHisQuota tjHisQuota) {
         Map<String, Double> settingMap = new HashMap<>();
         // 获取所有比率设置，组装map
         tjDateSettingRepository.findAll().forEach(tjDateSetting -> {

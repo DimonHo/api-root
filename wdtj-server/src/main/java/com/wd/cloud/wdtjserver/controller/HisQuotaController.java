@@ -1,5 +1,7 @@
 package com.wd.cloud.wdtjserver.controller;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
@@ -30,6 +32,8 @@ import java.util.Map;
 @RestController
 public class HisQuotaController {
 
+    private static final Log log = LogFactory.get();
+
     @Autowired
     HisQuotaService hisQuotaService;
 
@@ -55,10 +59,12 @@ public class HisQuotaController {
         if (body == null) {
             return ResponseModel.fail().setMessage("数据保存失败");
         }
+        log.info("开始生成历史数据");
         // 数据保存成功，自动生成历史数据
         body.forEach(tjHisQuota -> {
             hisQuotaService.buildTjHisData(tjHisQuota);
         });
+        log.info("生成历史数据完成");
         return ResponseModel.ok().setBody(body);
     }
 
