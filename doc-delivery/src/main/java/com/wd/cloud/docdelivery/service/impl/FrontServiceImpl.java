@@ -1,8 +1,8 @@
 package com.wd.cloud.docdelivery.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
+import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -270,24 +270,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public int getCountByOrg(Long orgId, String orgName, Date date, int type) {
-        String dateFormat;
-        switch (type) {
-            case 1:
-                dateFormat = "%Y-%m-%d %H";
-                break;
-            case 2:
-                dateFormat = "%Y-%m-%d";
-                break;
-            case 3:
-                dateFormat = "%Y-%m";
-                break;
-            case 4:
-                dateFormat = "%Y";
-                break;
-            default:
-                dateFormat = "%Y-%m-%d %H:%i";
-                break;
-        }
+        String dateFormat = DateUtil.formatMysqlStr(type);
         // 优先根据orgId查询
         if (orgId != null) {
             return helpRecordRepository.countHelpRecordByOrgId(orgId, date, dateFormat);

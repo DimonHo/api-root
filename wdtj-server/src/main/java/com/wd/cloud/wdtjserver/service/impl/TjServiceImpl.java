@@ -2,6 +2,7 @@ package com.wd.cloud.wdtjserver.service.impl;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.model.ViewDataModel;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
@@ -35,24 +36,7 @@ public class TjServiceImpl implements TjService {
     @Override
     public ViewDataModel getViewDate(Long orgId, String beginTime, String endTime, int viewType) {
         TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
-        String format;
-        switch (viewType) {
-            case 1:
-                format = "%Y-%m-%d %H";
-                break;
-            case 2:
-                format = "%Y-%m-%d";
-                break;
-            case 3:
-                format = "%Y-%m";
-                break;
-            case 4:
-                format = "%Y";
-                break;
-            default:
-                format = "%Y-%m-%d %H:%i";
-                break;
-        }
+        String format = DateUtil.formatMysqlStr(viewType);
         List<Map<String, Object>> viewDatas = tjViewDataRepository.groupByTjDate(orgId, beginTime, endTime, format);
         ViewDataModel viewDataModel = new ViewDataModel();
         viewDataModel.setOrgId(orgId);

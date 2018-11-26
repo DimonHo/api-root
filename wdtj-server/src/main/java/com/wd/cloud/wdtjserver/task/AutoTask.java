@@ -3,8 +3,10 @@ package com.wd.cloud.wdtjserver.task;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.WeightRandom;
+import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.netflix.discovery.converters.Auto;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.*;
 import com.wd.cloud.wdtjserver.feign.DocDeliveryApi;
@@ -15,6 +17,7 @@ import com.wd.cloud.wdtjserver.service.TjService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
+import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,9 @@ public class AutoTask {
 
     @Autowired
     TjTaskDataRepository tjTaskDataRepository;
+
+    @Autowired
+    TjViewDataRepository tjViewDataRepository;
 
     @Autowired
     TjService tjService;
@@ -157,42 +162,48 @@ public class AutoTask {
      */
     @Scheduled(cron = "0/30 * * * * ?")
     public void mergeData() {
-        try {
-            DateUtil.formatTime(new Date());
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String date = df.format(new Date());
-            String substring = date.substring(0, 16);
-            Date nowDate = new Date();
-            List<TjOrg> tjOrgs = tjOrgRepository.findByHistoryIsFalse();
-            for (TjOrg tjOrg : tjOrgs) {
-                ResponseModel<List<Map<String, Object>>> responseModel = searchServerApi.indexVisit(tjOrg.getOrgId(), date);
-                if (responseModel.isError()) {
-                    ResponseModel.fail().setMessage("调用搜索量接口失败");
-                }
-                int pv = Double.valueOf(responseModel.getBody().get(0).get("pv").toString()).intValue();
-                int uv = Double.valueOf(responseModel.getBody().get(0).get("uv").toString()).intValue();
-
-                ResponseModel downloads = searchServerApi.downloadsCount(tjOrg.getOrgName(), substring);
-                if (downloads.isError()) {
-                    ResponseModel.fail().setMessage("调用下载量接口失败");
-                }
-
-                ResponseModel delivery = docDeliveryApi.getOrgHelpCount(null, tjOrg.getOrgName(), nowDate, 0);
-                if (delivery.isError()) {
-                    ResponseModel.fail().setMessage("调用文献传递量失败");
-                }
-                TjSpisData tjSpisData = new TjSpisData();
-                tjSpisData.setPvCount(pv);
-                tjSpisData.setScCount(uv);
-                tjSpisData.setDcCount((Integer) delivery.getBody());
-                tjSpisData.setDdcCount((Integer) downloads.getBody());
-                tjSpisDataRepository.save(tjSpisData);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        // 获取前一分钟（search-server延迟一分钟）
+        Date minuteDate = DateUtil.offsetMinute(new Date(), -1);
+        ResponseModel<Map<String, JSONObject>> responseModel = searchServerApi.minuteTj(null, DateUtil.formatDateTime(minuteDate));
+        if (responseModel.isError()) {
+            log.error("获取搜索量失败:{}", responseModel.getMessage());
+            return;
         }
+        List<TjTaskData> taskDatas = tjTaskDataRepository.getByTjDate(minuteDate);
+        taskDatas.forEach(taskData -> {
+            int pvCount = responseModel.getBody().get(taskData.getOrgName()).getInt("pvCount");
+            int uvCount = responseModel.getBody().get(taskData.getOrgName()).getInt("uvCount");
+            long visitTime = (long) (responseModel.getBody().get(taskData.getOrgName()).getDouble("visitTime") * 1000);
 
+            ResponseModel<Integer> downloads = searchServerApi.downloadsCount(taskData.getOrgName(), DateUtil.formatDateTime(minuteDate));
+            if (downloads.isError()) {
+                log.error("获取下载量失败:{}", responseModel.getMessage());
+            }
+            ResponseModel<Integer> delivery = docDeliveryApi.getOrgHelpCount(null, taskData.getOrgName(), taskData.getId().getTjDate(), 0);
+            if (delivery.isError()) {
+                ResponseModel.fail().setMessage("调用文献传递量失败");
+            }
+            TjSpisData tjSpisData = new TjSpisData();
+            tjSpisData.setPvCount(pvCount)
+                    .setUvCount(uvCount)
+                    .setUcCount(uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0).setVisitTime(visitTime)
+                    .setDcCount(delivery.getBody())
+                    .setDdcCount(downloads.getBody())
+                    .setId(taskData.getId())
+                    .setOrgName(taskData.getOrgName());
 
+            TjViewData tjViewData = new TjViewData();
+            tjViewData.setPvCount(taskData.getPvCount() + tjSpisData.getPvCount())
+                    .setScCount(taskData.getScCount() + tjSpisData.getScCount())
+                    .setVisitTime(taskData.getVisitTime() + tjSpisData.getVisitTime())
+                    .setDcCount(taskData.getDcCount() + tjSpisData.getDcCount())
+                    .setDdcCount(taskData.getDdcCount() + tjSpisData.getDdcCount())
+                    .setUvCount(taskData.getUvCount() + tjSpisData.getUvCount())
+                    .setUcCount(taskData.getUcCount() + tjSpisData.getUcCount())
+                    .setId(taskData.getId())
+                    .setOrgName(taskData.getOrgName());
+            tjSpisDataRepository.save(tjSpisData);
+            tjViewDataRepository.save(tjViewData);
+        });
     }
 }

@@ -1,6 +1,12 @@
 package com.wd.cloud.searchserver.controller;
 
+import cn.hutool.json.JSONObject;
+import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.searchserver.service.BrowseSearchI;
 import com.wd.cloud.searchserver.util.*;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.DocWriteRequest;
@@ -38,10 +44,7 @@ import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -53,6 +56,39 @@ public class BrowseController {
 
     @Autowired
     TransportClient transportClient;
+
+    @Autowired
+    BrowseSearchI browseSearch;
+
+    @ApiOperation(value = "分钟数访问统计", tags = {"访问统计"})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orgName", value = "机构全称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "date", value = "时间点，默认为当前时间", dataType = "String", paramType = "query")
+    })
+    @GetMapping("/tj/minute")
+    public ResponseModel minuteTj(@RequestParam(required = false) String orgName,
+                                                          @RequestParam(required = false) String date) {
+        Date dateTime = date == null ? new Date() : com.wd.cloud.commons.util.DateUtil.parse(date);
+        String beginDate = cn.hutool.core.date.DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:00");
+        String endDate = cn.hutool.core.date.DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:59");
+        Map<String, JSONObject> body = browseSearch.tjData(orgName, beginDate, endDate);
+        return ResponseModel.ok().setBody(body);
+    }
+
+
+    @ApiOperation(value = "访问统计", tags = {"访问统计"})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orgName", value = "机构全称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "beginDate", value = "开始时间", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "endDate", value = "结束时间", dataType = "String", paramType = "query")
+    })
+    @GetMapping("/tj/range")
+    public ResponseModel rangeTj(@RequestParam(required = false) String orgName,
+                                           @RequestParam(required = false) String beginDate,
+                                           @RequestParam(required = false) String endDate) {
+        Map<String, JSONObject> body = browseSearch.tjData(orgName, beginDate, endDate);
+        return ResponseModel.ok().setBody(body);
+    }
 
 
     @RequestMapping("/indexInfo/{school}/{type}/{beginTime}/{endTime}/{day}")

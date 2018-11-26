@@ -10,10 +10,7 @@ import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.junit.Test;
 
 import java.sql.Time;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author He Zhigang
@@ -24,9 +21,12 @@ public class JunitTest {
 
     @Test
     public void testWeight() {
-        long ti = 1448 - TimeZone.getDefault().getRawOffset();
-        Console.log(new Time(ti));
-        Console.log(Arrays.stream(new int[]{-3,123,1123,1123,33,0}).max().orElse(0));
+        String beginTime = cn.hutool.core.date.DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:00");
+        String endTime = cn.hutool.core.date.DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:59");
+        Console.log("{},{}", beginTime, endTime);
+//        long ti = 1448 - TimeZone.getDefault().getRawOffset();
+//        Console.log(new Time(ti));
+//        Console.log(Arrays.stream(new int[]{-3, 123, 1123, 1123, 33, 0}).max().orElse(0));
     }
 
     @Test

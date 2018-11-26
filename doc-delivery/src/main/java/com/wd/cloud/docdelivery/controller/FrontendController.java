@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.controller;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -334,13 +335,13 @@ public class FrontendController {
     @GetMapping("/help/count/org")
     public ResponseModel getOrgHelpCountToMinute(@RequestParam(required = false) Long orgId,
                                                  @RequestParam(required = false) String orgName,
-                                                 @RequestParam(required = false) Date date,
+                                                 @RequestParam(required = false) String date,
                                                  @RequestParam(required = false, defaultValue = "0") Integer type) {
-        date = date != null ? date : new Date();
+        Date dateTime = date != null ? DateUtil.parse(date) : new Date();
         if (orgId == null && orgName == null){
             return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
         }
-        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId,orgName, date, type));
+        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId,orgName, dateTime, type));
     }
 
 }

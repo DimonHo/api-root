@@ -5,6 +5,8 @@ import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 /**
  * @author He Zhigang
  * @date 2018/11/24
@@ -17,7 +19,12 @@ public interface SearchServerApi extends com.wd.cloud.apifeign.SearchServerApi {
     class Fallback implements SearchServerApi {
 
         @Override
-        public ResponseModel indexVisit(Long orgId, String tjDate) {
+        public ResponseModel minuteTj(String orgName, String date) {
+            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！");
+        }
+
+        @Override
+        public ResponseModel rangeTj(String orgName, String beginDate, String endDate) {
             return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！");
         }
 
