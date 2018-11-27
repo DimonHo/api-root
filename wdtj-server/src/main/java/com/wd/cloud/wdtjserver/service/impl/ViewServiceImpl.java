@@ -7,7 +7,7 @@ import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.model.ViewDataModel;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
-import com.wd.cloud.wdtjserver.service.TjService;
+import com.wd.cloud.wdtjserver.service.ViewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Service("tjService")
 @Transactional(rollbackFor = Exception.class)
-public class TjServiceImpl implements TjService {
+public class ViewServiceImpl implements ViewService {
 
     private static final Log log = LogFactory.get();
 

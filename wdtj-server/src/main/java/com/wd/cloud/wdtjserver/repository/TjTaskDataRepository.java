@@ -5,9 +5,7 @@ import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -20,16 +18,18 @@ public interface TjTaskDataRepository extends JpaRepository<TjTaskData, TjDataPk
 
     /**
      * 获取当前这一分钟的task数据
+     *
      * @return
      */
-    @Query(value = "select * from tj_task_data where date_format(tj_date ,\"%Y-%m-%d %H:%i\") = now()", nativeQuery = true)
+    @Query(value = "select * from tj_task_data where date_format(tj_date ,\"%Y-%m-%d %H:%i\") = date_format(now() ,\"%Y-%m-%d %H:%i\")", nativeQuery = true)
     List<TjTaskData> getByTjDateNow();
 
     /**
      * 获取指定分钟的task数据
+     *
      * @return
      */
-    @Query(value = "select * from tj_task_data where date_format(tj_date ,\"%Y-%m-%d %H:%i\") = ?1", nativeQuery = true)
-    List<TjTaskData> getByTjDate(Date date);
+    @Query(value = "select * from tj_task_data where date_format(tj_date ,\"%Y-%m-%d %H:%i\") = date_format(?1 ,\"%Y-%m-%d %H:%i\")", nativeQuery = true)
+    List<TjTaskData> getByTjDate(String date);
 
 }

@@ -1,9 +1,7 @@
 package com.wd.cloud.wdtjserver.utils;
 
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.entity.TjQuota;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,7 +9,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,7 +32,7 @@ public class JpaQueryUtil {
             public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> wheres = new ArrayList<Predicate>();
                 if (StrUtil.isNotBlank(query)) {
-                    wheres.add(criteriaBuilder.or(criteriaBuilder.like(root.get("createUser"), "%" + query + "%"),criteriaBuilder.like(root.get("orgName"), "%" + query + "%")));
+                    wheres.add(criteriaBuilder.or(criteriaBuilder.like(root.get("createUser"), "%" + query + "%"), criteriaBuilder.like(root.get("orgName"), "%" + query + "%")));
                 }
                 if (history != null) {
                     wheres.add(criteriaBuilder.equal(root.get("history"), history));

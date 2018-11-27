@@ -1,13 +1,8 @@
 package com.wd.cloud.wdtjserver.service;
 
-import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
-import com.wd.cloud.wdtjserver.entity.TjQuota;
-import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -27,6 +22,7 @@ public interface SettingService {
 
     /**
      * 获取机构信息
+     *
      * @param orgId
      * @return
      */
@@ -34,6 +30,7 @@ public interface SettingService {
 
     /**
      * 保存/更新机构设置
+     *
      * @param orgId
      * @param showPv
      * @param showSc
@@ -42,10 +39,11 @@ public interface SettingService {
      * @param showAvgTime
      * @return
      */
-    TjOrg saveTjOrg(long orgId,boolean showPv,boolean showSc,boolean showDc,boolean showDdc,boolean showAvgTime,String createUser);
+    TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser);
 
     /**
      * 禁止/解除禁止机构
+     *
      * @param orgId
      * @return
      */

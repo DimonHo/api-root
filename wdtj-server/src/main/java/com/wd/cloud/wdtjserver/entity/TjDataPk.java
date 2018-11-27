@@ -19,7 +19,7 @@ public class TjDataPk implements Serializable {
     @Column(name = "tj_date")
     private Date tjDate;
 
-    public TjDataPk(){
+    public TjDataPk() {
     }
 
     public TjDataPk(Long orgId, Date tjDate) {

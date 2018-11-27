@@ -137,13 +137,13 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             weightObjs.add(weightObj);
         });
         // 找出最大的指标
-        int maxTotal = Arrays.stream(new int[]{pvTotal,scTotal,dcTotal,ddcTotal,uvTotal,ucTotal}).max().orElse(0);
+        int maxTotal = Arrays.stream(new int[]{pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal}).max().orElse(0);
 
         // 平均访问时长 = 总访问时长/访问次数
         long visitTimeTotal = hourTotalModel.getVisitTimeTotal();
         List<Long> avgTimeList = randomLongListFromFinalTotal(visitTimeTotal, ucTotal);
 
-        for (int i = 0; i < maxTotal ; i++) {
+        for (int i = 0; i < maxTotal; i++) {
             DateTime minuteDate = RandomUtil.weightRandom(weightObjs).next();
             if (pvTotal > 0) {
                 tjDataEntityMap.get(minuteDate).setPvCount(tjDataEntityMap.get(minuteDate).getPvCount() + 1);

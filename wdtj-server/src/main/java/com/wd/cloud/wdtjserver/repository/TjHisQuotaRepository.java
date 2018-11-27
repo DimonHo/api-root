@@ -1,7 +1,6 @@
 package com.wd.cloud.wdtjserver.repository;
 
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
-import com.wd.cloud.wdtjserver.entity.TjOrg;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

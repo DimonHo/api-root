@@ -1,17 +1,14 @@
 package com.wd.cloud.wdtjserver.entity;
 
-import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
-import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -54,17 +51,17 @@ public abstract class AbstractTjDataEntity implements Serializable {
         return id;
     }
 
+    public AbstractTjDataEntity setId(TjDataPk id) {
+        this.id = id;
+        return this;
+    }
+
     public String getOrgName() {
         return orgName;
     }
 
     public AbstractTjDataEntity setOrgName(String orgName) {
         this.orgName = orgName;
-        return this;
-    }
-
-    public AbstractTjDataEntity setId(TjDataPk id) {
-        this.id = id;
         return this;
     }
 

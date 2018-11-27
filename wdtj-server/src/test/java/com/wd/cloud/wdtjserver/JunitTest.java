@@ -3,14 +3,13 @@ package com.wd.cloud.wdtjserver;
 import cn.hutool.core.lang.Console;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
-import com.wd.cloud.wdtjserver.service.TjService;
-import com.wd.cloud.wdtjserver.service.impl.TjServiceImpl;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.junit.Test;
 
-import java.sql.Time;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -59,7 +58,6 @@ public class JunitTest {
 //            map.put(DateUtil.offsetMinute(now, 1), RandomUtil.randomDouble(2));
 //            now = DateUtil.offsetMinute(now, 1);
 //        }
-        TjService tjService = new TjServiceImpl();
         TjHisQuota tjHisQuota = new TjHisQuota();
         tjHisQuota.setPvCount(50000);
         tjHisQuota.setBeginTime(DateUtil.parse("2018-11-01"));

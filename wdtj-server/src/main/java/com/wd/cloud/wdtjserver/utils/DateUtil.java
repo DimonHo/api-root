@@ -5,7 +5,6 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
-import org.apache.commons.lang.time.DateUtils;
 
 import java.sql.Time;
 import java.util.Date;
@@ -42,6 +41,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
 
     /**
      * 获取当前小时的所有分钟
+     *
      * @param dateStr
      * @return
      */
@@ -52,6 +52,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
 
     /**
      * 获取当前小时的所有分钟，结果包含开始和结束时间
+     *
      * @param date
      * @return
      */

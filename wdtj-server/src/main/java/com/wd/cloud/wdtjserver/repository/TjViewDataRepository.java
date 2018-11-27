@@ -24,6 +24,6 @@ public interface TjViewDataRepository extends JpaRepository<TjViewData, TjDataPk
      * @return
      */
     @Query(value = "select sum(pv_count) pvCount,sum(sc_count) scCount,sum(dc_count) dcCount,sum(ddc_count) ddcCount, sum(visit_time) sumTime, sum(uv_count) uvCount, sum(uc_count) ucCount, date_format(tj_date ,?4) tjDate from tj_view_data where org_id = ?1 and date_format(tj_date ,?4) >= ?2 and date_format(tj_date ,?4) <= ?3 group by tjDate order by tjDate", nativeQuery = true)
-    List<Map<String, Object>> groupByTjDate(long orgId, String beginDate, String endDate,String format);
+    List<Map<String, Object>> groupByTjDate(long orgId, String beginDate, String endDate, String format);
 
 }

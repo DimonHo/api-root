@@ -5,8 +5,6 @@ import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
 /**
  * @author He Zhigang
  * @date 2018/11/24
@@ -30,7 +28,7 @@ public interface SearchServerApi extends com.wd.cloud.apifeign.SearchServerApi {
 
         @Override
         public ResponseModel downloadsCount(String school, String date) {
-            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！");
+            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！").setBody(0);
         }
     }
 }

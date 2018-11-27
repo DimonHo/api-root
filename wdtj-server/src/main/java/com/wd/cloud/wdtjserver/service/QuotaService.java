@@ -4,6 +4,8 @@ import com.wd.cloud.wdtjserver.entity.TjQuota;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Date;
+
 /**
  * @author He Zhigang
  * @date 2018/11/20
@@ -45,4 +47,7 @@ public interface QuotaService {
      * @return
      */
     Page<TjQuota> likeQuery(String query, Boolean history, Pageable pageable);
+
+    void runTask(Date date);
+
 }

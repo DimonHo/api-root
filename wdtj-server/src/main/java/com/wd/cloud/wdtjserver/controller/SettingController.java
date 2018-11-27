@@ -4,7 +4,6 @@ import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.service.SettingService;
-import com.wd.cloud.wdtjserver.service.TjService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +43,7 @@ public class SettingController {
             @RequestParam(required = false, defaultValue = "false") boolean showDc,
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
-        TjOrg tjOrg = settingService.saveTjOrg(orgId, showPv, showSc, showDc, showDdc, showAvgTime,createUser);
+        TjOrg tjOrg = settingService.saveTjOrg(orgId, showPv, showSc, showDc, showDdc, showAvgTime, createUser);
         if (tjOrg != null) {
             return ResponseModel.ok().setBody(tjOrg);
         }
@@ -54,9 +53,9 @@ public class SettingController {
     @ApiOperation(value = "获取机构参数", tags = {"后台设置"})
     @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
     @GetMapping("/org/{orgId}")
-    public ResponseModel get(@PathVariable Long orgId){
+    public ResponseModel get(@PathVariable Long orgId) {
         TjOrg tjOrg = settingService.getOrgInfo(orgId);
-        if (tjOrg == null){
+        if (tjOrg == null) {
             return ResponseModel.fail().setMessage("没有找到该机构");
         }
         return ResponseModel.ok().setBody(tjOrg);

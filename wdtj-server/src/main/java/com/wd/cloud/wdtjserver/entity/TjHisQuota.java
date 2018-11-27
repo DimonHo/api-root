@@ -38,7 +38,8 @@ public class TjHisQuota extends AbstractEntity {
 
     private int ucCount;
 
-    private Time avgTime  = DateUtil.createTime(0);;
+    private Time avgTime = DateUtil.createTime(0);
+    ;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date beginTime;

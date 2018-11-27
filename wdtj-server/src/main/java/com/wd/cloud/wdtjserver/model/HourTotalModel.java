@@ -12,9 +12,9 @@ public class HourTotalModel {
     private Long orgId;
 
     private String orgName;
-    
+
     private Date hourDate;
-    
+
     private int pvTotal;
 
     private int scTotal;

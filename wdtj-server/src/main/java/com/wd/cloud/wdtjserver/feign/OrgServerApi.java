@@ -2,7 +2,6 @@ package com.wd.cloud.wdtjserver.feign;
 
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
-import org.hibernate.annotations.Cache;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 

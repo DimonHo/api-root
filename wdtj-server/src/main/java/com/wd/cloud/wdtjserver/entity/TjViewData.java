@@ -1,9 +1,7 @@
 package com.wd.cloud.wdtjserver.entity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.sql.Time;
 
 /**
  * @author He Zhigang
