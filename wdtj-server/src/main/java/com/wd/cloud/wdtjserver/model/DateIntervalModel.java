@@ -18,10 +18,12 @@ public class DateIntervalModel {
 
     public DateIntervalModel(Date beginDate, Date endDate) {
         if (beginDate.after(endDate)) {
-            throw new IllegalArgumentException("时间段无效(开始日期需要小于结束日期)");
+            this.beginDate = endDate;
+            this.endDate = beginDate;
+        }else{
+            this.beginDate = beginDate;
+            this.endDate = endDate;
         }
-        this.beginDate = beginDate;
-        this.endDate = endDate;
     }
 
     public DateIntervalModel(String beginDate, String endDate) {
