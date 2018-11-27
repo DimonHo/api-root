@@ -71,7 +71,7 @@ public class AutoTask {
         Date minuteDate = DateUtil.offsetMinute(new Date(), -1);
         ResponseModel<Map<String, JSONObject>> browserResponse = searchServerApi.minuteTj(null, DateUtil.formatDateTime(minuteDate));
         if (browserResponse.isError()) {
-            log.error("获取搜索量失败:{}", browserResponse.getMessage());
+            log.error("获取访问量失败:{}", browserResponse.getMessage());
         }
         List<TjTaskData> taskDatas = tjTaskDataRepository.getByTjDate(DateUtil.formatDateTime(minuteDate));
         log.info("待同步数据量：{}", taskDatas.size());
@@ -82,22 +82,27 @@ public class AutoTask {
             ResponseModel<Integer> ddcResponse = docDeliveryApi.getOrgHelpCount(null, taskData.getOrgName(), taskData.getId().getTjDate(), 0);
             int dcCount = 0;
             int ddcCount = 0;
+            int pvCount = 0;
+            int uvCount = 0;
+            long visitTime = 0;
+            int ucCount = 0;
+            if (!browserResponse.isError()){
+                JSONObject orgInfo = browserResponse.getBody().get(taskData.getOrgName());
+                pvCount = orgInfo != null ? orgInfo.getInt("pvCount") : 0;
+                uvCount = orgInfo != null ? orgInfo.getInt("uvCount") : 0;
+                visitTime = (long) (orgInfo != null ? orgInfo.getDouble("visitTime") * 1000 : 0);
+                ucCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0;
+            }
             if (dcResponse.isError()) {
                 log.error("获取下载量失败:{}", dcResponse.getMessage());
             } else {
                 dcCount = dcResponse.getBody();
             }
             if (ddcResponse.isError()) {
-                log.error("获取下载量失败:{}", ddcResponse.getMessage());
+                log.error("获取文献传递量失败:{}", ddcResponse.getMessage());
             } else {
                 ddcCount = ddcResponse.getBody();
             }
-
-            JSONObject orgInfo = browserResponse.getBody().get(taskData.getOrgName());
-            int pvCount = orgInfo != null ? orgInfo.getInt("pvCount") : 0;
-            int uvCount = orgInfo != null ? orgInfo.getInt("uvCount") : 0;
-            long visitTime = (long) (orgInfo != null ? orgInfo.getDouble("visitTime") * 1000 : 0);
-            int ucCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0;
 
             //构建spisData对象
             TjSpisData tjSpisData = new TjSpisData();
