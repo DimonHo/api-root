@@ -12,7 +12,7 @@ import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.HourTotalModel;
-import com.wd.cloud.wdtjserver.repository.TjDateSettingRepository;
+import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
 import com.wd.cloud.wdtjserver.service.QuotaService;
@@ -47,7 +47,7 @@ public class QuotaServiceImpl implements QuotaService {
     TjTaskDataRepository tjTaskDataRepository;
 
     @Autowired
-    TjDateSettingRepository tjDateSettingRepository;
+    TjWeightRepository tjWeightRepository;
 
     @Autowired
     OrgServerApi orgServerApi;
@@ -105,7 +105,7 @@ public class QuotaServiceImpl implements QuotaService {
     public void runTask(Date date) {
         Map<String, Double> settingMap = new TreeMap<>();
         // 获取所有比率设置，组装map
-        tjDateSettingRepository.findAll().forEach(tjDateSetting -> {
+        tjWeightRepository.findAll().forEach(tjDateSetting -> {
             settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
         });
         // 获取明天所有的小时数列表

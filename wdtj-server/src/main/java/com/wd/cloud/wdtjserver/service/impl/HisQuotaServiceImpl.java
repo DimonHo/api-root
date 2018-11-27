@@ -14,7 +14,7 @@ import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.HourTotalModel;
-import com.wd.cloud.wdtjserver.repository.TjDateSettingRepository;
+import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.HisQuotaService;
@@ -47,7 +47,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     TjHisQuotaRepository tjHisQuotaRepository;
 
     @Autowired
-    TjDateSettingRepository tjDateSettingRepository;
+    TjWeightRepository tjWeightRepository;
 
     @Autowired
     TjViewDataRepository tjViewDataRepository;
@@ -133,7 +133,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     public Boolean buildTjHisData(TjHisQuota tjHisQuota) {
         Map<String, Double> settingMap = new HashMap<>();
         // 获取所有比率设置，组装map
-        tjDateSettingRepository.findAll().forEach(tjDateSetting -> {
+        tjWeightRepository.findAll().forEach(tjDateSetting -> {
             settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
         });
         // 获取小时列表
