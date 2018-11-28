@@ -73,5 +73,5 @@ public interface HisQuotaService {
      * @param tjHisQuota
      * @return
      */
-    Boolean buildTjHisData(TjHisQuota tjHisQuota);
+    void buildTjHisData(TjHisQuota tjHisQuota);
 }

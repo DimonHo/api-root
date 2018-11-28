@@ -4,10 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
-import com.wd.cloud.wdtjserver.entity.TjDataPk;
-import com.wd.cloud.wdtjserver.entity.TjTaskData;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
+import com.wd.cloud.wdtjserver.entity.*;
 import com.wd.cloud.wdtjserver.model.HourTotalModel;
 
 import java.util.*;
@@ -110,7 +107,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
      * @param hourTotalModel
      * @return
      */
-    public static List<AbstractTjDataEntity> buildMinuteData(HourTotalModel hourTotalModel, Class clazz) {
+    public static List<TjTaskData> buildDataFromWeight(HourTotalModel hourTotalModel) {
         int pvTotal = hourTotalModel.getPvTotal();
         int scTotal = hourTotalModel.getScTotal();
         int dcTotal = hourTotalModel.getDcTotal();
@@ -118,17 +115,12 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         int uvTotal = hourTotalModel.getUvTotal();
         int ucTotal = hourTotalModel.getUcTotal();
 
-        Map<DateTime, AbstractTjDataEntity> tjDataEntityMap = new HashMap<>();
+        Map<DateTime, TjTaskData> tjDataEntityMap = new HashMap<>();
         List<WeightRandom.WeightObj<DateTime>> weightObjs = new ArrayList<>();
         //获取分钟数列表
         List<DateTime> minuteList = DateUtil.rangeMinuteFromHours(hourTotalModel.getHourDate());
         minuteList.forEach(minuteDate -> {
-            AbstractTjDataEntity tjData = null;
-            if (clazz.equals(TjViewData.class)) {
-                tjData = new TjViewData();
-            } else {
-                tjData = new TjTaskData();
-            }
+            TjTaskData tjData = new TjTaskData();
             TjDataPk tjDataPk = new TjDataPk(hourTotalModel.getOrgId(), minuteDate);
             tjData.setId(tjDataPk);
             tjData.setOrgName(hourTotalModel.getOrgName());
@@ -228,23 +220,90 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
     }
 
 
-    public static List<WeightRandom.WeightObj<DateTime>> getWeightList(Map<String, Double> settingMap, List<DateTime> hourList) {
-        List<WeightRandom.WeightObj<DateTime>> hoursWeightList = new ArrayList<>();
+    public static List<WeightRandom.WeightObj<DateTime>> getWeightList(Map<String, Double> settingMap, List<DateTime> minuteList) {
+        List<WeightRandom.WeightObj<DateTime>> minuteWeightList = new ArrayList<>();
         //计算每分钟比率值放入map中
-        hourList.forEach(hourDate -> {
-            String monthKey = "1-" + (DateUtil.month(hourDate) + 1);
-            String dayKey = "2-" + (DateUtil.dayOfMonth(hourDate));
+        minuteList.forEach(minute -> {
+            String monthKey = "1-" + (DateUtil.month(minute) + 1);
+            String dayKey = "2-" + (DateUtil.dayOfMonth(minute));
             // 周日-周六：1 - 7
-            String weekKey = "3-" + (DateUtil.dayOfWeek(hourDate));
-            String hoursKey = "4-" + DateUtil.hour(hourDate, true);
+            String weekKey = "3-" + (DateUtil.dayOfWeek(minute));
+            String hoursKey = "4-" + DateUtil.hour(minute, true);
             double monthWeight = settingMap.get(monthKey) == null ? 1.0 : settingMap.get(monthKey);
             double dayWeight = settingMap.get(dayKey) == null ? 1.0 : settingMap.get(dayKey);
             double weekWeight = settingMap.get(weekKey) == null ? 1.0 : settingMap.get(weekKey);
             double hourWeight = settingMap.get(hoursKey) == null ? 1.0 : settingMap.get(hoursKey);
             double weight = (monthWeight + dayWeight + weekWeight + hourWeight) / 4.0;
-            WeightRandom.WeightObj<DateTime> weightModel = new WeightRandom.WeightObj<>(hourDate, weight);
-            hoursWeightList.add(weightModel);
+            WeightRandom.WeightObj<DateTime> weightModel = new WeightRandom.WeightObj<>(minute, weight);
+            minuteWeightList.add(weightModel);
         });
-        return hoursWeightList;
+        return minuteWeightList;
+    }
+
+
+    /**
+     * 历史记录手动生成每分钟访问记录，（总量固定）
+     *
+     * @param minuteWeightList 分钟的权重列表
+     * @return 每分钟访问记录
+     */
+    public static List<TjViewData> buildHisDataFromWeight(TjHisQuota tjHisQuota, List<WeightRandom.WeightObj<DateTime>> minuteWeightList) {
+
+        int pvTotal = tjHisQuota.getPvCount();
+        int scTotal = tjHisQuota.getScCount();
+        int dcTotal = tjHisQuota.getDcCount();
+        int ddcTotal = tjHisQuota.getDdcCount();
+        int uvTotal = tjHisQuota.getUvCount();
+        int ucTotal = tjHisQuota.getUcCount();
+
+        Map<DateTime,TjViewData> tjDataEntityMap = new HashMap<>();
+
+        minuteWeightList.forEach(minuteDate -> {
+            TjViewData tjData = new TjViewData();
+            TjDataPk tjDataPk = new TjDataPk(tjHisQuota.getOrgId(), minuteDate.getObj());
+            tjData.setId(tjDataPk);
+            tjData.setOrgName(tjHisQuota.getOrgName());
+            tjDataEntityMap.put(minuteDate.getObj(), tjData);
+        });
+        // 计算用户访问总时间 = 平均访问时间 * 访问次数
+        long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * ucTotal;
+        // 随机生成：size为访问次数且总和等于总时间的随机列表
+        List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, ucTotal);
+        // 找出最大的指标
+        int maxTotal = Arrays.stream(new int[]{pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal}).max().orElse(0);
+        log.info("开始：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, ucTotal, ucTotal);
+
+        for (int i = 0; i < maxTotal; i++) {
+            DateTime minuteDate = RandomUtil.weightRandom(minuteWeightList).next();
+            if (pvTotal > 0) {
+                tjDataEntityMap.get(minuteDate).setPvCount(tjDataEntityMap.get(minuteDate).getPvCount() + 1);
+                pvTotal--;
+            }
+            if (scTotal > 0) {
+                tjDataEntityMap.get(minuteDate).setScCount(tjDataEntityMap.get(minuteDate).getScCount() + 1);
+                scTotal--;
+            }
+            if (uvTotal > 0) {
+                tjDataEntityMap.get(minuteDate).setUvCount(tjDataEntityMap.get(minuteDate).getUvCount() + 1);
+                uvTotal--;
+            }
+            if (ucTotal > 0) {
+                tjDataEntityMap.get(minuteDate).setUcCount(tjDataEntityMap.get(minuteDate).getUcCount() + 1);
+                long randomVisitTime = RandomUtil.randomLongEle(avgTimeList, true).orElse(0L);
+                randomVisitTime += tjDataEntityMap.get(minuteDate).getVisitTime();
+                tjDataEntityMap.get(minuteDate).setVisitTime(randomVisitTime);
+                ucTotal--;
+            }
+            if (dcTotal > 0) {
+                tjDataEntityMap.get(minuteDate).setDcCount(tjDataEntityMap.get(minuteDate).getDcCount() + 1);
+                dcTotal--;
+            }
+            if (ddcTotal > 0) {
+                tjDataEntityMap.get(minuteDate).setDdcCount(tjDataEntityMap.get(minuteDate).getDdcCount() + 1);
+                ddcTotal--;
+            }
+        }
+        log.info("结束：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, ucTotal, ucTotal);
+        return new ArrayList<>(tjDataEntityMap.values());
     }
 }

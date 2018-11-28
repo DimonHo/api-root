@@ -39,16 +39,17 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     /**
      * 统计一个机构某分钟内的求助数量
+     *
      * @param orgName
      * @param createDate
-     * @param format date_format(date,"%Y-%m-%d %H:%i:%s")
+     * @param format     date_format(date,"%Y-%m-%d %H:%i:%s")
      * @return
      */
     @Query(value = "select count(*) as orgHelpCount from help_record where helper_scname=?1 and date_format(gmt_create,?3) = date_format(?2,?3)", nativeQuery = true)
-    int countHelpRecordByOrgName(String orgName, Date createDate, String format);
+    int countHelpRecordByOrgName(String orgName, String createDate, String format);
 
     @Query(value = "select count(*) as orgHelpCount from help_record where helper_scid=?1 and date_format(gmt_create,?3) = date_format(?2,?3)", nativeQuery = true)
-    int countHelpRecordByOrgId(Long orgId, Date createDate, String format);
+    int countHelpRecordByOrgId(Long orgId, String createDate, String format);
 
     /**
      * 根据求助用户ID查询

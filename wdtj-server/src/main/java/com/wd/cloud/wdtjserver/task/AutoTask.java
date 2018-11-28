@@ -69,7 +69,8 @@ public class AutoTask {
     public void mergeData() {
         // 获取前一分钟（search-server延迟一分钟）
         Date minuteDate = DateUtil.offsetMinute(new Date(), -1);
-        ResponseModel<Map<String, JSONObject>> browserResponse = searchServerApi.minuteTj(null, DateUtil.formatDateTime(minuteDate));
+        String dateStr = DateUtil.formatDateTime(minuteDate);
+        ResponseModel<Map<String, JSONObject>> browserResponse = searchServerApi.minuteTj(null, dateStr);
         if (browserResponse.isError()) {
             log.error("获取访问量失败:{}", browserResponse.getMessage());
         }
@@ -78,8 +79,8 @@ public class AutoTask {
         List<TjSpisData> spisDataList = new ArrayList<>();
         List<TjViewData> viewDataList = new ArrayList<>();
         taskDatas.forEach(taskData -> {
-            ResponseModel<Integer> dcResponse = searchServerApi.downloadsCount(taskData.getOrgName(), DateUtil.formatDateTime(minuteDate));
-            ResponseModel<Integer> ddcResponse = docDeliveryApi.getOrgHelpCount(null, taskData.getOrgName(), taskData.getId().getTjDate(), 0);
+            ResponseModel<Integer> dcResponse = searchServerApi.downloadsCount(taskData.getOrgName(), dateStr);
+            ResponseModel<Integer> ddcResponse = docDeliveryApi.getOrgHelpCount(null, taskData.getOrgName(), dateStr, 0);
             int dcCount = 0;
             int ddcCount = 0;
             int pvCount = 0;

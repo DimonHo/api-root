@@ -337,11 +337,10 @@ public class FrontendController {
                                                  @RequestParam(required = false) String orgName,
                                                  @RequestParam(required = false) String date,
                                                  @RequestParam(required = false, defaultValue = "0") Integer type) {
-        Date dateTime = date != null ? DateUtil.parse(date) : new Date();
         if (orgId == null && orgName == null){
             return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
         }
-        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId,orgName, dateTime, type));
+        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId,orgName, date, type));
     }
 
 }

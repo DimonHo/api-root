@@ -7,9 +7,7 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
-import com.wd.cloud.wdtjserver.entity.TjHisQuota;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
+import com.wd.cloud.wdtjserver.entity.*;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
@@ -130,94 +128,26 @@ public class HisQuotaServiceImpl implements HisQuotaService {
      */
     @Async
     @Override
-    public Boolean buildTjHisData(TjHisQuota tjHisQuota) {
+    public void buildTjHisData(TjHisQuota tjHisQuota) {
         Map<String, Double> settingMap = new HashMap<>();
         // 获取所有比率设置，组装map
         tjWeightRepository.findAll().forEach(tjDateSetting -> {
             settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
         });
-        // 获取小时列表
-        List<DateTime> hourList = DateUtil.rangeToList(tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), DateField.HOUR);
-        log.info("待生成[{} - {}]共{}小时数据", tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), hourList.size());
-        // 计算每个小时的权重
-        List<WeightRandom.WeightObj<DateTime>> hoursWeightList = RandomUtil.getWeightList(settingMap, hourList);
+        // 获取分钟列表
+        List<DateTime> minuteList = DateUtil.rangeToList(tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), DateField.MINUTE);
+        log.info("待生成[{} - {}]共{}分钟数据", tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), minuteList.size());
+        // 计算每分钟的权重
+        List<WeightRandom.WeightObj<DateTime>> minuteWeightList = RandomUtil.getWeightList(settingMap, minuteList);
         // 生成随机历史数据
         long start = System.currentTimeMillis();
         //生成每个小时的指标总量
-        List<HourTotalModel> hourTotalModelList = buildHisDataFromWeight(tjHisQuota, hoursWeightList);
-        hourTotalModelList.forEach(hourTotalModel -> {
-            // 生成当前小时每分钟的指标数量
-            List<AbstractTjDataEntity> tjDataList = RandomUtil.buildMinuteData(hourTotalModel, TjViewData.class);
-            // 类型强转
-            List<TjViewData> tjViewDatas = tjDataList.stream().map(a -> (TjViewData) a).collect(Collectors.toList());
-            // 插入数据库
-            tjViewDataRepository.saveAll(tjViewDatas);
-        });
+        List<TjViewData> hourTotalModelList = RandomUtil.buildHisDataFromWeight(tjHisQuota, minuteWeightList);
+        tjViewDataRepository.saveAll(hourTotalModelList);
         // 修改状态
         tjHisQuota.setBuilt(true);
         tjHisQuotaRepository.save(tjHisQuota);
         log.info("随机历史数据插入数据库完毕,耗时：{} 毫秒", DateUtil.spendMs(start));
-        return true;
-    }
-
-
-    /**
-     * 生成每个小时的指标总量
-     *
-     * @param hoursWeightList 小时的权重列表
-     * @return 每个小时指标总量
-     */
-    private List<HourTotalModel> buildHisDataFromWeight(TjHisQuota tjHisQuota, List<WeightRandom.WeightObj<DateTime>> hoursWeightList) {
-
-        int pvTotal = tjHisQuota.getPvCount();
-        int scTotal = tjHisQuota.getScCount();
-        int dcTotal = tjHisQuota.getDcCount();
-        int ddcTotal = tjHisQuota.getDdcCount();
-        int uvTotal = tjHisQuota.getUvCount();
-        int ucTotal = tjHisQuota.getUcCount();
-
-        // key:时间（小时），value：HourTotalModel对象
-        Map<DateTime, HourTotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList, tjHisQuota.getOrgId(), tjHisQuota.getOrgName());
-        // 计算用户访问总时间 = 平均访问时间 * 访问次数
-        long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * tjHisQuota.getUcCount();
-        // 随机生成：size为访问次数且总和等于总时间的随机列表
-        List<Long> avgTimeRandomList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, tjHisQuota.getUcCount());
-        // 找出最大的指标
-        int maxTotal = Arrays.stream(new int[]{pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal}).max().orElse(0);
-        log.info("开始：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, ucTotal, ucTotal);
-        for (int i = 0; i < maxTotal; i++) {
-            DateTime hourDate = RandomUtil.weightRandom(hoursWeightList).next();
-            if (pvTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setPvTotal(hourTotalModelHashMap.get(hourDate).getPvTotal() + 1);
-                pvTotal--;
-            }
-            if (scTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setScTotal(hourTotalModelHashMap.get(hourDate).getScTotal() + 1);
-                scTotal--;
-            }
-            if (uvTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setUvTotal(hourTotalModelHashMap.get(hourDate).getUvTotal() + 1);
-                uvTotal--;
-            }
-            if (ucTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setUcTotal(hourTotalModelHashMap.get(hourDate).getUcTotal() + 1);
-                // 从平均时长列表中随机找出一个访问时长
-                long randomVisitTime = RandomUtil.randomLongEle(avgTimeRandomList, true).orElse(0L);
-                randomVisitTime += hourTotalModelHashMap.get(hourDate).getVisitTimeTotal();
-                hourTotalModelHashMap.get(hourDate).setVisitTimeTotal(randomVisitTime);
-                ucTotal--;
-            }
-            if (dcTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setDcTotal(hourTotalModelHashMap.get(hourDate).getDcTotal() + 1);
-                dcTotal--;
-            }
-            if (ddcTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setDdcTotal(hourTotalModelHashMap.get(hourDate).getDdcTotal() + 1);
-                ddcTotal--;
-            }
-        }
-        log.info("结束：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, ucTotal, ucTotal);
-        return new ArrayList<>(hourTotalModelHashMap.values());
     }
 
 }

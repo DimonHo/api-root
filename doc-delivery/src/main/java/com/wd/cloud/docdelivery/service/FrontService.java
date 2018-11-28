@@ -150,5 +150,5 @@ public interface FrontService {
 
     String checkExistsGiveing(long giverId);
 
-    int getCountByOrg(Long orgId,String orgName, Date date, int type);
+    int getCountByOrg(Long orgId,String orgName, String date, int type);
 }

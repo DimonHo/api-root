@@ -269,7 +269,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public int getCountByOrg(Long orgId, String orgName, Date date, int type) {
+    public int getCountByOrg(Long orgId, String orgName, String date, int type) {
         String dateFormat = DateUtil.formatMysqlStr(type);
         // 优先根据orgId查询
         if (orgId != null) {

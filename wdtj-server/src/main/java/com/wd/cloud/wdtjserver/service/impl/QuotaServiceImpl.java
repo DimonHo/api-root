@@ -130,15 +130,19 @@ public class QuotaServiceImpl implements QuotaService {
             Map<DateTime, HourTotalModel> hourTotalModelHashMap = getDateTimeHourTotalModelMap(hoursWeightList, tjQuota);
             hourTotalModelHashMap.values().forEach(hourTotalModel -> {
                 // 生成当前小时每分钟的指标数量
-                List<AbstractTjDataEntity> tjDataList = RandomUtil.buildMinuteData(hourTotalModel, TjTaskData.class);
-                // 类型强转
-                List<TjTaskData> tjTaskData = tjDataList.stream().map(a -> (TjTaskData) a).collect(Collectors.toList());
+                List<TjTaskData> tjDataList = RandomUtil.buildDataFromWeight(hourTotalModel);
                 // 插入数据库
-                tjTaskDataRepository.saveAll(tjTaskData);
+                tjTaskDataRepository.saveAll(tjDataList);
             });
         });
     }
 
+    /**
+     * 生成随机波动的数据
+     * @param hoursWeightList
+     * @param tjQuota
+     * @return
+     */
     public Map<DateTime, HourTotalModel> getDateTimeHourTotalModelMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, TjQuota tjQuota) {
         // key:时间（小时），value：HourTotalModel对象
         Map<DateTime, HourTotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList, tjQuota.getOrgId(), tjQuota.getOrgName());
