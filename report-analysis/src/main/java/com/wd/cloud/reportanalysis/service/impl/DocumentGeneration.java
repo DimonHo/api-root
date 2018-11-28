@@ -86,9 +86,10 @@ public class DocumentGeneration implements DocumentGenerationI {
             headers.set("Content-Type", "multipart/form-data");
             headers.set("Accept", "application/json");
             HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(requestEntity, headers);
-            ResponseModel<cn.hutool.json.JSONObject> fileByte = fsServerApi.uploadFile("journalImage", resource);
-            fileByte.getBody();
-            return fileByte.getBody().toString();
+//            ResponseModel<cn.hutool.json.JSONObject> fileByte = resourceServerApi.uploadFileToHf("journalImage", null, true, resource);
+//            fileByte.getBody();
+//            return fileByte.getBody().toString();
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -96,10 +97,17 @@ public class DocumentGeneration implements DocumentGenerationI {
     }
 
     @Override
-    public byte[] downLoad(String unid) {
-        ResponseModel<byte[]> fileByte = fsServerApi.getFileByte(unid);
-        return fileByte.getBody();
+    public byte[] downLoad(String fileName) {
+//        ResponseModel<byte[]> fileByte = resourceServerApi.getFileByteToHf("journalImage", fileName);
+//        return fileByte.getBody();
+        return null;
     }
 
+//    @Override
+//    public JSONObject download(String fileName) {
+//      String url=String.format("http://cloud.api.hnlat.com/resources-server/hf/journalImage?fileName=%s",fileName);
+//      ResponseEntity<JSONObject> responseEntity=restTemplate.getForEntity(url,JSONObject.class);
+//      return responseEntity.getBody();
+//    }
 
 }

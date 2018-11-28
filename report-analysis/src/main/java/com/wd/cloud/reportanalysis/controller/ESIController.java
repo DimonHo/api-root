@@ -8,7 +8,6 @@ import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import com.wd.cloud.reportanalysis.service.SchoolServiceI;
 import com.wd.cloud.reportanalysis.util.WordUtil;
 import net.sf.json.JSONObject;
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.jfree.chart.ChartFactory;
@@ -36,6 +35,8 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class ESIController {
@@ -471,7 +472,7 @@ public class ESIController {
         Gson gson = new Gson();
         Map<String, Object> map = new HashMap<String, Object>();
         map = gson.fromJson(fileName, map.getClass());
-        String filename = (String) map.get("fileId");
+        String filename = (String) map.get("file");
         byte[] bytes = documentGenerationI.downLoad(filename);
         HttpHeaders headers = new HttpHeaders();
         String disposition = StrUtil.format("attachment; filename=\"{}\"", filename);

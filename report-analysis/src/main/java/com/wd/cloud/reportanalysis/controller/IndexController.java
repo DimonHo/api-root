@@ -13,10 +13,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +51,7 @@ public class IndexController {
             @ApiImplicitParam(name = "source", value = "数据类型", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query")
     })
-    @PostMapping("/compare")
+    @RequestMapping("/compare")
     public ResponseModel compare(HttpServletRequest request) {
         ResourceLabel resource = new ResourceLabel(request);
         Map<String, Object> scidMap = new HashMap<>();
@@ -60,7 +64,7 @@ public class IndexController {
                 if (resource.getSignature() != null) {
                     list.add(new QueryCondition("signature", scid, resource.getSignature()));
                 }
-                scidMap.put(scid, analysisByESService.amount(list, resource.getFiled(), type));
+                scidMap.put(scid, analysisByESService.amount(list, resource.getFiled(), type,resource.getFacetMap()));
             } else {
                 scidMap.put(scid, cxfWebService.amount(resource.toXML(scid)));
             }
@@ -74,13 +78,16 @@ public class IndexController {
     }
 
     @ApiOperation(value = "智慧云分析数据：发文量、分区、被引频次对比分析（非esi）")
-    @PostMapping("/analysis")
+    @RequestMapping("/analysis")
     public ResponseModel analysis(HttpServletRequest request) {
         String act = request.getParameter("act");
         String scid = request.getParameter("scid");
         School school = null;
         if (scid != null) {
             school = schoolService.findByScid(Integer.parseInt(scid));
+            if(school.getName().contains("中国地质大学")) {
+            	school.setName("中国地质大学");
+            }
         }
         String type_c = request.getParameter("type_c");
         String classify = request.getParameter("classify");
@@ -132,6 +139,6 @@ public class IndexController {
 
         return ResponseModel.ok().setBody(result);
     }
-
+    
 
 }
