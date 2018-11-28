@@ -7,7 +7,9 @@ import org.apache.commons.lang.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 封装查询条件
@@ -33,12 +35,15 @@ public class ResourceLabel {
     private String source;
 
     private String signature;
+    
+    private String type;			//0为按最新年，1为按文章年
 
     public ResourceLabel(HttpServletRequest request) {
         act = request.getParameter("act");
         table = request.getParameter("table");
         scid = request.getParameter("scid");
         category = request.getParameter("category_type");
+        type = request.getParameter("type");
 
 //		compareScids = request.getParameterValues("compare_scids");
 //		time = request.getParameterValues("time");
@@ -98,13 +103,22 @@ public class ResourceLabel {
                 filed = "year";
                 break;
             case "jcr":
-                filed = "jcr";
+                filed = "jcr_year";
                 break;
             case "jcr_zky_1":
                 filed = "jcr_b";
                 break;
             case "jcr_zky_2":
                 filed = "jcr_s";
+                break;
+            case "jcr_year":
+                filed = "jcr_year";
+                break;
+            case "jcr_zky_1_year":
+                filed = "jcr_year";
+                break;
+            case "jcr_zky_2_year":
+                filed = "jcr_year";
                 break;
             case "total_cited":            //总被引频次
                 filed = "wosCitesAll";
@@ -157,8 +171,45 @@ public class ResourceLabel {
         if (category != null && !"全部领域".equals(category)) {
             list.add(new QueryCondition("category", category));//esi学科
         }
-//		if(signature != null) list.add(new QueryCondition("signature", signature));
         return list;
+    }
+    
+    
+    public Map<String,String> getFacetMap() {
+    	Map<String,String> facetMap = new HashMap<>();
+    	switch (table) {
+	        case "amount":
+	        	facetMap.put("year", "year");
+	            break;
+	        case "jcr":
+	        	facetMap.put("jcr_year", "jcr");
+	            break;
+	        case "jcr_zky_1":
+	        	facetMap.put("jcr_b", "jcr_b");
+	            break;
+	        case "jcr_zky_2":
+	        	facetMap.put("jcr_s", "jcr_s");
+	            break;
+	        case "jcr_year":
+	        	facetMap.put("jcr_year", "jcr");
+                break;
+            case "jcr_zky_1_year":
+            	facetMap.put("jcr_year", "jcr_b");
+                break;
+            case "jcr_zky_2_year":
+            	facetMap.put("jcr_year", "jcr_s");
+                break;
+	        case "total_cited":            //总被引频次
+	        	facetMap.put("wosCitesAll", "year");
+	            break;
+	        case "paper_cited":            //篇均被引频次
+	        	facetMap.put("wosCites", "year");
+	            break;
+	        default:
+	        	facetMap.put("year", "year");
+	            break;
+	    }
+    	return facetMap;
     }
 
 
@@ -182,6 +233,9 @@ public class ResourceLabel {
         }
         if (table != null) {
             xml.append("<table>" + table + "</table>");
+        }
+        if (type != null) {
+            xml.append("<type>" + type + "</type>");
         }
         xml.append("</params>");
         return xml.toString();

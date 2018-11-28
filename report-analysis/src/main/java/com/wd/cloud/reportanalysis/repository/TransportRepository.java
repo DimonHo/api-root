@@ -1,5 +1,7 @@
 package com.wd.cloud.reportanalysis.repository;
 
+import java.util.List;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -16,7 +18,7 @@ public class TransportRepository {
     TransportClient transportClient;
 
 
-    public SearchResponse query(QueryBuilder queryBuilder, QueryBuilder filterBuilder, AbstractAggregationBuilder aggregation, String type) {
+    public SearchResponse query(QueryBuilder queryBuilder, QueryBuilder filterBuilder, List<AbstractAggregationBuilder> aggregations, String type) {
         SearchRequestBuilder searchRequest = transportClient.prepareSearch("resource").setTypes(type);
         searchRequest.setSearchType(SearchType.DEFAULT);
         if (null != queryBuilder && null != filterBuilder) {
@@ -26,10 +28,12 @@ public class TransportRepository {
         } else if (null != filterBuilder) {
             searchRequest.setPostFilter(filterBuilder);
         }
-        if (null != aggregation) {
-            searchRequest.addAggregation(aggregation);
+        if (null != aggregations) {
+        	for (AbstractAggregationBuilder aggregation : aggregations) {
+        		 searchRequest.addAggregation(aggregation);
+			}
         }
-//		System.out.println(searchRequest.toString());
+		System.out.println(searchRequest.toString());
         SearchResponse response = searchRequest.get();
         return response;
     }
