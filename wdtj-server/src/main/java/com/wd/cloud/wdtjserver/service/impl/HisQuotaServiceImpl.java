@@ -12,6 +12,7 @@ import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.HourTotalModel;
+import com.wd.cloud.wdtjserver.repository.TjHisBuildRepository;
 import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
@@ -20,6 +21,7 @@ import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
 import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +45,9 @@ public class HisQuotaServiceImpl implements HisQuotaService {
 
     @Autowired
     TjHisQuotaRepository tjHisQuotaRepository;
+
+    @Autowired
+    TjHisBuildRepository tjHisBuildRepository;
 
     @Autowired
     TjWeightRepository tjWeightRepository;
@@ -151,8 +156,10 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     }
 
     @Override
-    public void buildingState(TjHisQuota tjHisQuota){
+    public void buildingState(TjHisQuota tjHisQuota,String buildUser){
         tjHisQuota.setBuildState(2);
-        tjHisQuotaRepository.save(tjHisQuota);
+        TjHisBuild tjHisBuild = new TjHisBuild();
+        tjHisBuild.setTjHisQuota(tjHisQuota).setName(buildUser);
+        tjHisBuildRepository.save(tjHisBuild);
     }
 }

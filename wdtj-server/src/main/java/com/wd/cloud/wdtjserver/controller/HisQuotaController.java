@@ -62,7 +62,7 @@ public class HisQuotaController {
         // 数据保存成功，自动生成历史数据
         body.forEach(tjHisQuota -> {
             //更新记录状态为记录生成中
-            hisQuotaService.buildingState(tjHisQuota);
+            hisQuotaService.buildingState(tjHisQuota,createUser);
             hisQuotaService.buildExecute(tjHisQuota);
         });
         log.info("生成历史数据完成");
@@ -88,7 +88,8 @@ public class HisQuotaController {
     @ApiOperation(value = "生成历史详细记录", tags = {"后台设置"})
     @ApiImplicitParam(name = "hisId", value = "历史记录Id", dataType = "Long", paramType = "path")
     @PatchMapping("/his/build/{hisId}")
-    public ResponseModel build(@PathVariable Long hisId) {
+    public ResponseModel build(@PathVariable Long hisId,
+                               @RequestParam String buildUser) {
         TjHisQuota tjHisQuota = hisQuotaService.getHisQuota(hisId);
         if (tjHisQuota == null) {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
@@ -98,7 +99,7 @@ public class HisQuotaController {
             return ResponseModel.fail().setMessage("记录正在生成中。。。请稍后再查看结果");
         }
         //更新记录状态为记录生成中
-        hisQuotaService.buildingState(tjHisQuota);
+        hisQuotaService.buildingState(tjHisQuota,buildUser);
         //执行生成记录
         hisQuotaService.buildExecute(tjHisQuota);
         return ResponseModel.ok();

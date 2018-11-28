@@ -75,5 +75,5 @@ public interface HisQuotaService {
      */
     void buildExecute(TjHisQuota tjHisQuota);
 
-    void buildingState(TjHisQuota tjHisQuota);
+    void buildingState(TjHisQuota tjHisQuota,String buildUser);
 }

@@ -3,11 +3,10 @@ package com.wd.cloud.wdtjserver.entity;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Time;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -63,6 +62,9 @@ public class TjHisQuota extends AbstractEntity {
      */
     @Column(name = "build_state", columnDefinition = "tinyint default 0 COMMENT '是否已经生成过数据，0：否，1：是, 2:生成中。。。'")
     private int buildState;
+
+    @OneToMany(mappedBy = "tjHisQuota")
+    private List<TjHisBuild> tjHisBuilds;
 
     public Long getOrgId() {
         return orgId;
@@ -196,6 +198,15 @@ public class TjHisQuota extends AbstractEntity {
 
     public TjHisQuota setBuildState(int buildState) {
         this.buildState = buildState;
+        return this;
+    }
+
+    public List<TjHisBuild> getTjHisBuilds() {
+        return tjHisBuilds;
+    }
+
+    public TjHisQuota setTjHisBuilds(List<TjHisBuild> tjHisBuilds) {
+        this.tjHisBuilds = tjHisBuilds;
         return this;
     }
 }
