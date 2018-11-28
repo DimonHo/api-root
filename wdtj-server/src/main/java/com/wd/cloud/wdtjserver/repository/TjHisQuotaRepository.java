@@ -34,13 +34,6 @@ public interface TjHisQuotaRepository extends JpaRepository<TjHisQuota, Long>, J
 
     /**
      * @param orgId
-     * @param built
-     * @return
-     */
-    Page<TjHisQuota> findByOrgIdAndBuilt(Long orgId, boolean built, Pageable pageable);
-
-    /**
-     * @param orgId
      * @param history
      * @return
      */
