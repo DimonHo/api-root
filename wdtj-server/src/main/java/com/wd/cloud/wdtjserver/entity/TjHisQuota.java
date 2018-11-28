@@ -39,7 +39,6 @@ public class TjHisQuota extends AbstractEntity {
     private int ucCount;
 
     private Time avgTime = DateUtil.createTime(0);
-    ;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date beginTime;
@@ -60,10 +59,10 @@ public class TjHisQuota extends AbstractEntity {
     private boolean history;
 
     /**
-     * 是否已生成
+     * 是否已生成过
      */
-    @Column(name = "is_built", columnDefinition = "bit default 0 COMMENT '是否已经生成过数据，0：否，1：是'")
-    private boolean built;
+    @Column(name = "build_state", columnDefinition = "tinyint default 0 COMMENT '是否已经生成过数据，0：否，1：是, 2:生成中。。。'")
+    private int buildState;
 
     public Long getOrgId() {
         return orgId;
@@ -191,12 +190,12 @@ public class TjHisQuota extends AbstractEntity {
         return this;
     }
 
-    public boolean isBuilt() {
-        return built;
+    public int getBuildState() {
+        return buildState;
     }
 
-    public TjHisQuota setBuilt(boolean built) {
-        this.built = built;
+    public TjHisQuota setBuildState(int buildState) {
+        this.buildState = buildState;
         return this;
     }
 }

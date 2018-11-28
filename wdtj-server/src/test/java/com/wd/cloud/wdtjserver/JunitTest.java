@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver;
 
+import cn.hutool.core.date.DateField;
 import cn.hutool.core.lang.Console;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
@@ -17,6 +18,11 @@ import java.util.List;
  * @Description:
  */
 public class JunitTest {
+
+    @Test
+    public void test9(){
+        Console.log(DateUtil.rangeToList(DateUtil.parseDateTime("2018-07-01 00:00:00"), DateUtil.parseDateTime("2018-08-01 00:00:00"), DateField.HOUR));
+    }
 
     @Test
     public void testWeight() {

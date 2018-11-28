@@ -128,7 +128,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
      */
     @Async
     @Override
-    public void buildTjHisData(TjHisQuota tjHisQuota) {
+    public void buildExecute(TjHisQuota tjHisQuota) {
         Map<String, Double> settingMap = new HashMap<>();
         // 获取所有比率设置，组装map
         tjWeightRepository.findAll().forEach(tjDateSetting -> {
@@ -145,9 +145,14 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         List<TjViewData> hourTotalModelList = RandomUtil.buildHisDataFromWeight(tjHisQuota, minuteWeightList);
         tjViewDataRepository.saveAll(hourTotalModelList);
         // 修改状态
-        tjHisQuota.setBuilt(true);
+        tjHisQuota.setBuildState(1);
         tjHisQuotaRepository.save(tjHisQuota);
         log.info("随机历史数据插入数据库完毕,耗时：{} 毫秒", DateUtil.spendMs(start));
     }
 
+    @Override
+    public void buildingState(TjHisQuota tjHisQuota){
+        tjHisQuota.setBuildState(2);
+        tjHisQuotaRepository.save(tjHisQuota);
+    }
 }

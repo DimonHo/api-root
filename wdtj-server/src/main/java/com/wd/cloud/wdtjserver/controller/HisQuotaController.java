@@ -61,7 +61,9 @@ public class HisQuotaController {
         log.info("开始生成历史数据");
         // 数据保存成功，自动生成历史数据
         body.forEach(tjHisQuota -> {
-            hisQuotaService.buildTjHisData(tjHisQuota);
+            //更新记录状态为记录生成中
+            hisQuotaService.buildingState(tjHisQuota);
+            hisQuotaService.buildExecute(tjHisQuota);
         });
         log.info("生成历史数据完成");
         return ResponseModel.ok().setBody(body);
@@ -91,9 +93,14 @@ public class HisQuotaController {
         if (tjHisQuota == null) {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         } else if (tjHisQuota.isLocked()) {
-            return ResponseModel.fail().setMessage("该记录已生成且已锁定");
+            return ResponseModel.fail().setMessage("记录已生成且已锁定");
+        } else if (tjHisQuota.getBuildState() == 2){
+            return ResponseModel.fail().setMessage("记录正在生成中。。。请稍后再查看结果");
         }
-        hisQuotaService.buildTjHisData(tjHisQuota);
+        //更新记录状态为记录生成中
+        hisQuotaService.buildingState(tjHisQuota);
+        //执行生成记录
+        hisQuotaService.buildExecute(tjHisQuota);
         return ResponseModel.ok();
     }
 

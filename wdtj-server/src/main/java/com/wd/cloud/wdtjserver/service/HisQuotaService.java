@@ -73,5 +73,7 @@ public interface HisQuotaService {
      * @param tjHisQuota
      * @return
      */
-    void buildTjHisData(TjHisQuota tjHisQuota);
+    void buildExecute(TjHisQuota tjHisQuota);
+
+    void buildingState(TjHisQuota tjHisQuota);
 }
