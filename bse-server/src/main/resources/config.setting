@@ -1,0 +1,24 @@
+# 本地开发环境配置
+year.field=documents.year
+year.size=20
+year.nested=documents
+
+shoulu.field=documents.shoulu
+shoulu.size=20
+shoulu.nested=documents
+
+docLan.field=documents.docLan
+docLan.size=20
+docLan.nested=documents
+
+journalTitle.field=documents.journalTitle
+journalTitle.size=20
+journalTitle.nested=documents
+
+author.field=documents.author
+author.size=20
+author.nested=documents
+
+keyword.field=documents.keywords
+keyword.size=20
+keyword.nested=documents

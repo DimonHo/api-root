@@ -1,0 +1,17 @@
+package org.bse.server.es;
+
+/**
+ * Facet字段使用的Filter,
+ * 	1. 不支持nested筛选
+ * @author Administrator
+ *
+ */
+public interface FacetFilterBuilder extends IFilterBuilderStrategy{
+	
+	/**
+	 * Nested路径
+	 * @return
+	 */
+	public String getPath();
+
+}
