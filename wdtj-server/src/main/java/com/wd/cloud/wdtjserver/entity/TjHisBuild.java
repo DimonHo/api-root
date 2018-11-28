@@ -18,6 +18,7 @@ public class TjHisBuild extends AbstractEntity {
 
     private String name;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "tj_his_quota_id")
     private TjHisQuota tjHisQuota;
