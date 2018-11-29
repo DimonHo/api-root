@@ -17,8 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,7 @@ import java.util.Map;
  * @date 2018/11/20
  * @Description:
  */
+@Validated
 @RestController
 public class HisQuotaController {
 
@@ -44,7 +47,7 @@ public class HisQuotaController {
     @PostMapping("/his/{orgId}")
     public ResponseModel add(@PathVariable Long orgId,
                              @RequestParam String createUser,
-                             @RequestBody List<HisQuotaModel> hisQuotaModels) {
+                             @Valid @RequestBody List<HisQuotaModel> hisQuotaModels) {
         // 检查时间区间是否允许修改
         Map<String, DateIntervalModel> overlapsMap = hisQuotaService.checkInterval(orgId, hisQuotaModels);
         if (overlapsMap.size() > 0) {
@@ -62,7 +65,7 @@ public class HisQuotaController {
         // 数据保存成功，自动生成历史数据
         body.forEach(tjHisQuota -> {
             //更新记录状态为记录生成中
-            hisQuotaService.buildingState(tjHisQuota,createUser);
+            hisQuotaService.buildingState(tjHisQuota, createUser);
             hisQuotaService.buildExecute(tjHisQuota);
         });
         log.info("生成历史数据完成");
@@ -95,11 +98,11 @@ public class HisQuotaController {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         } else if (tjHisQuota.isLocked()) {
             return ResponseModel.fail().setMessage("记录已生成且已锁定");
-        } else if (tjHisQuota.getBuildState() == 2){
+        } else if (tjHisQuota.getBuildState() == 2) {
             return ResponseModel.fail().setMessage("记录正在生成中。。。请稍后再查看结果");
         }
         //更新记录状态为记录生成中
-        hisQuotaService.buildingState(tjHisQuota,buildUser);
+        hisQuotaService.buildingState(tjHisQuota, buildUser);
         //执行生成记录
         hisQuotaService.buildExecute(tjHisQuota);
         return ResponseModel.ok();

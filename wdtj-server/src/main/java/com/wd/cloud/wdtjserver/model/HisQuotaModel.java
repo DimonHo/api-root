@@ -3,6 +3,7 @@ package com.wd.cloud.wdtjserver.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 
 /**
@@ -13,8 +14,10 @@ import java.util.Date;
 @ApiModel(value = "历史统计指标模型")
 public class HisQuotaModel extends QuotaModel {
 
+    @NotEmpty(message = "开始时间不能为空")
     @ApiModelProperty(value = "开始时间")
     private Date beginTime;
+    @NotEmpty(message = "结束时间不能为空")
     @ApiModelProperty(value = "结束时间")
     private Date endTime;
 
