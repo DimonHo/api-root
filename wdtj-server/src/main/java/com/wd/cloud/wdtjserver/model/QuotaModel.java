@@ -106,12 +106,4 @@ public class QuotaModel {
         return this;
     }
 
-    //    public long getAvgMillis() {
-//        return avgMillis;
-//    }
-//
-//    public QuotaModel setAvgMillis(long avgMillis) {
-//        this.avgMillis = avgMillis;
-//        return this;
-//    }
 }
