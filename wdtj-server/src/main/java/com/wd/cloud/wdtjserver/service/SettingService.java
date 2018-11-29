@@ -1,8 +1,12 @@
 package com.wd.cloud.wdtjserver.service;
 
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -93,5 +97,8 @@ public interface SettingService {
      * @return
      */
     Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade, Pageable pageable);
+
+
+    List<JSONObject> getOrgList();
 
 }

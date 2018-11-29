@@ -1,5 +1,7 @@
 package com.wd.cloud.orgserver.controller;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.orgserver.entity.Org;
 import com.wd.cloud.orgserver.service.OrgInfoService;
@@ -10,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -81,10 +86,23 @@ public class OrgInfoController {
      * @return
      * @sort 排序字段，默认为name
      */
+    @ApiOperation(value = "分页获取所有机构信息", tags = {"机构管理"})
+    @GetMapping("/orginfo/page")
+    public ResponseModel<Page> getPage(@PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<Org> orgPages = orgInfoService.getPageOrg(pageable);
+        return ResponseModel.ok().setBody(orgPages);
+    }
+
+    /**
+     * 获取所有机构
+     *
+     * @return
+     * @sort 排序字段，默认为name
+     */
     @ApiOperation(value = "获取所有机构信息", tags = {"机构管理"})
     @GetMapping("/orginfo/all")
-    public ResponseModel<Page> getAll(@PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<Org> orgs = orgInfoService.getAllOrg(pageable);
+    public ResponseModel getAll() {
+        List<Org> orgs = orgInfoService.getAll();
         return ResponseModel.ok().setBody(orgs);
     }
 

@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2018/11/5
@@ -26,8 +28,13 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     IpRangeRepository ipRangeRepository;
 
     @Override
-    public Page<Org> getAllOrg(Pageable pageable) {
+    public Page<Org> getPageOrg(Pageable pageable) {
         return orgRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<Org> getAll() {
+        return orgRepository.findAll();
     }
 
     @Override

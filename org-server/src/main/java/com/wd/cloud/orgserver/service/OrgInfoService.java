@@ -4,6 +4,8 @@ import com.wd.cloud.orgserver.entity.Org;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2018/11/5
@@ -11,7 +13,9 @@ import org.springframework.data.domain.Pageable;
  */
 public interface OrgInfoService {
 
-    Page<Org> getAllOrg(Pageable pageable);
+    Page<Org> getPageOrg(Pageable pageable);
+
+    List<Org> getAll();
 
     Org get(Long id);
 

@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -18,6 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -147,6 +151,20 @@ public class SettingServiceImpl implements SettingService {
     public Page<TjOrg> filterOrgByQuota(Boolean showPv, Boolean showSc, Boolean showDc, Boolean showDdc, Boolean showAvgTime, Boolean forbade, Pageable pageable) {
         Specification<TjOrg> specification = JpaQueryUtil.buildFilterForTjOrg(showPv, showSc, showDc, showDdc, showAvgTime, forbade);
         return tjOrgRepository.findAll(specification, pageable);
+    }
+
+    @Override
+    public List<JSONObject> getOrgList() {
+        List<JSONObject> orgs = new ArrayList<>();
+        ResponseModel<List<JSONObject>> responseModel = orgServerApi.getAll();
+        List<String> orgNames = tjOrgRepository.distinctByOrgId();
+        if (!responseModel.isError()) {
+            log.info("总机构数量：{}", responseModel.getBody().size());
+            responseModel.getBody().stream().filter(o -> !orgNames.contains(o.getStr("name")))
+                    .forEach(orgInfo -> orgs.add(orgInfo));
+        }
+        log.info("可添加机构数量：{}", orgs.size());
+        return orgs;
     }
 
 

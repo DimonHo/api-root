@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.controller;
 
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
@@ -13,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -124,4 +128,10 @@ public class SettingController {
     }
 
 
+    @ApiOperation(value = "可设置列表", tags = {"后台设置"})
+    @GetMapping("/org/list")
+    public ResponseModel orgList(){
+        List<JSONObject> orgList = settingService.getOrgList();
+        return ResponseModel.ok().setBody(orgList);
+    }
 }

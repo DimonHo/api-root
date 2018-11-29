@@ -5,7 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -23,6 +25,9 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long>, JpaSpecific
      * @return
      */
     Page<TjOrg> findAllByHistory(boolean history, Pageable pageable);
+
+    @Query(value = "select distinct(org_name) from tj_org where is_history = false",nativeQuery = true)
+    List<String> distinctByOrgId();
 
 
     /**
