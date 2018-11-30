@@ -188,4 +188,19 @@ public class ViewDataModel {
         this.avgTime = avgTime;
         return this;
     }
+
+    /**
+     * 计算总量
+     * @return
+     */
+    public void sumTotal() {
+        this.setPvTotal(this.getPvCount().stream().reduce((a, b) -> a + b).orElse(0));
+        this.setScTotal(this.getScCount().stream().reduce((a, b) -> a + b).orElse(0));
+        this.setDcTotal(this.getDcCount().stream().reduce((a, b) -> a + b).orElse(0));
+        this.setDdcTotal(this.getDdcCount().stream().reduce((a, b) -> a + b).orElse(0));
+        this.setUvTotal(this.getUvCount().stream().reduce((a, b) -> a + b).orElse(0));
+        this.setUcTotal(this.getUcCount().stream().reduce((a, b) -> a + b).orElse(0));
+        long avgTotal = this.getUcTotal() == 0 ? 0 : this.getAvgTime().stream().reduce((a, b) -> a + b).orElse(0L) / this.getUcTotal();
+        this.setAvgTimeTotal(avgTotal);
+    }
 }

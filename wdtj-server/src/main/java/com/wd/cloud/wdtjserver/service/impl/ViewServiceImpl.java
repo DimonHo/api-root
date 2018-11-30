@@ -41,16 +41,22 @@ public class ViewServiceImpl implements ViewService {
     @Override
     public ViewDataModel getViewDate(Long orgId, String beginTime, String endTime, int viewType) {
         TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
+        if (tjOrg == null) {
+            return null;
+        }
         String formatSqlTime = DateUtil.formatMysqlStr(viewType);
         String formatTime = DateUtil.formatStr(viewType);
 
         Date start = DateTime.of(beginTime, formatTime);
         Date end = DateTime.of(endTime, formatTime);
+        log.info("开始时间 - 结束时间：{} - {}", start, end);
+
         List<DateTime> dateTimes = DateUtil.rangeToList(start, end, dateField(viewType));
 
         List<String> tjDates = dateTimes.stream().map(dateTime -> DateUtil.format(dateTime, formatTime)).collect(Collectors.toList());
 
         List<Map<String, Object>> viewDatas = tjViewDataRepository.groupByTjDate(orgId, beginTime, endTime, formatSqlTime);
+
         ViewDataModel viewDataModel = new ViewDataModel();
         viewDataModel.setOrgId(orgId).setTjDate(tjDates);
 
@@ -61,40 +67,47 @@ public class ViewServiceImpl implements ViewService {
             tjDateMap.put(tjDateStr, viewData);
         }
         tjDates.forEach(tjdate -> {
-            if (tjOrg.isShowPv()) {
-                viewDataModel.getPvCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("pvCount")).intValue());
-            }
-            if (tjOrg.isShowSc()) {
-                viewDataModel.getScCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("scCount")).intValue());
-            }
-            if (tjOrg.isShowDc()) {
-                viewDataModel.getDcCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("dcCount")).intValue());
-            }
-            if (tjOrg.isShowDdc()) {
-                viewDataModel.getDdcCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("ddcCount")).intValue());
-            }
-            if (tjOrg.isShowUv()) {
-                viewDataModel.getUvCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("uvCount")).intValue());
-            }
-            long sumTime = tjDateMap.get(tjdate) == null ? 0 :((BigDecimal) tjDateMap.get(tjdate).get("sumTime")).longValue();
-            long sumUc = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("ucCount")).longValue();
-            if (tjOrg.isShowUc()) {
-                viewDataModel.getUcCount().add(tjDateMap.get(tjdate) == null ? 0 : (int) sumUc);
-            }
-            if (tjOrg.isShowAvgTime()) {
-                long avgTime = sumUc == 0 ? sumTime : sumTime / sumUc;
-                viewDataModel.getAvgTime().add(tjDateMap.get(tjdate) == null ? 0 : avgTime);
-            }
-        });
+            viewDataModel.getPvCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("pvCount")).intValue());
 
-        viewDataModel.setPvTotal(viewDataModel.getPvCount().stream().reduce((a, b) -> a + b).orElse(0));
-        viewDataModel.setScTotal(viewDataModel.getScCount().stream().reduce((a, b) -> a + b).orElse(0));
-        viewDataModel.setDcTotal(viewDataModel.getDcCount().stream().reduce((a, b) -> a + b).orElse(0));
-        viewDataModel.setDdcTotal(viewDataModel.getDdcCount().stream().reduce((a, b) -> a + b).orElse(0));
-        viewDataModel.setUvTotal(viewDataModel.getUvCount().stream().reduce((a, b) -> a + b).orElse(0));
-        viewDataModel.setUcTotal(viewDataModel.getUcCount().stream().reduce((a, b) -> a + b).orElse(0));
-        long avgTotal = viewDataModel.getUcTotal() == 0 ? 0 : viewDataModel.getAvgTime().stream().reduce((a, b) -> a + b).orElse(0L) / viewDataModel.getUcTotal();
-        viewDataModel.setAvgTimeTotal(avgTotal);
+            viewDataModel.getScCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("scCount")).intValue());
+
+            viewDataModel.getDcCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("dcCount")).intValue());
+
+            viewDataModel.getDdcCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("ddcCount")).intValue());
+
+            viewDataModel.getUvCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("uvCount")).intValue());
+
+            long sumTime = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("sumTime")).longValue();
+            long sumUc = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("ucCount")).longValue();
+            viewDataModel.getUcCount().add(tjDateMap.get(tjdate) == null ? 0 : (int) sumUc);
+
+            long avgTime = sumUc == 0 ? sumTime : sumTime / sumUc;
+            viewDataModel.getAvgTime().add(tjDateMap.get(tjdate) == null ? 0 : avgTime);
+        });
+        // 计算总量
+        viewDataModel.sumTotal();
+        // 过滤不显示的指标
+        if (!tjOrg.isShowAvgTime()) {
+            viewDataModel.setAvgTimeTotal(0L).setAvgTime(null);
+        }
+        if (!tjOrg.isShowPv()) {
+            viewDataModel.setPvTotal(0).setPvCount(null);
+        }
+        if (!tjOrg.isShowSc()) {
+            viewDataModel.setScTotal(0).setScCount(null);
+        }
+        if (!tjOrg.isShowDc()) {
+            viewDataModel.setDcTotal(0).setDcCount(null);
+        }
+        if (!tjOrg.isShowDdc()) {
+            viewDataModel.setDdcTotal(0).setDdcCount(null);
+        }
+        if (!tjOrg.isShowUv()) {
+            viewDataModel.setUvTotal(0).setUvCount(null);
+        }
+        if (!tjOrg.isShowUc()) {
+            viewDataModel.setUcTotal(0).setUcCount(null);
+        }
         return viewDataModel;
     }
 

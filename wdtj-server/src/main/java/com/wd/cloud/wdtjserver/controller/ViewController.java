@@ -1,6 +1,7 @@
 package com.wd.cloud.wdtjserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.model.ViewDataModel;
 import com.wd.cloud.wdtjserver.service.ViewService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -24,13 +25,17 @@ public class ViewController {
             @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "beginTime", value = "开始时间", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "viewType", value = "展示类型：1按时，2按天，3按月，4按年", dataType = "Integer", paramType = "query")
+            @ApiImplicitParam(name = "viewType", value = "展示类型：0按分钟，1按时，2按天，3按月，4按年", dataType = "Integer", paramType = "query")
     })
     @GetMapping("/{orgId}")
     public ResponseModel getData(@PathVariable Long orgId,
                                  @RequestParam String beginTime,
                                  @RequestParam String endTime,
                                  @RequestParam(required = false, defaultValue = "0") int viewType) {
-        return ResponseModel.ok().setBody(viewService.getViewDate(orgId, beginTime, endTime, viewType));
+        ViewDataModel viewDataModel = viewService.getViewDate(orgId, beginTime, endTime, viewType);
+        if (viewDataModel == null){
+            return ResponseModel.fail().setMessage("该机构不存在或没有权限查看");
+        }
+        return ResponseModel.ok().setBody(viewDataModel);
     }
 }
