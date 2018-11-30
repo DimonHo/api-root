@@ -277,6 +277,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
         log.info("开始：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal);
         while (pvTotal > 0 || scTotal > 0 || uvTotal > 0 || ucTotal > 0 || dcTotal > 0 || ddcTotal > 0) {
+            long start = System.currentTimeMillis();
             DateTime minuteDate = RandomUtil.weightRandom(minuteWeightList).next();
             if (pvTotal > 0) {
                 tjDataEntityMap.get(minuteDate).setPvCount(tjDataEntityMap.get(minuteDate).getPvCount() + 1);
@@ -305,10 +306,12 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             }
             if (ddcTotal > 0) {
                 int ddcCount = RandomUtil.randomInt(3);
-                ddcCount = ddcCount > dcTotal ? dcTotal : ddcCount;
+                ddcCount = ddcCount > ddcTotal ? ddcTotal : ddcCount;
                 tjDataEntityMap.get(minuteDate).setDdcCount(tjDataEntityMap.get(minuteDate).getDdcCount() + ddcCount);
                 ddcTotal -= ddcCount;
             }
+            log.info("耗时：{}", DateUtil.spendMs(start));
+            log.info("pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal);
         }
         log.info("结束：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal);
         return new ArrayList<>(tjDataEntityMap.values());

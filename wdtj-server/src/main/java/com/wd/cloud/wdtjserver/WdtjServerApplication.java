@@ -19,4 +19,5 @@ public class WdtjServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(WdtjServerApplication.class, args);
     }
+
 }

@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.WeightRandom;
@@ -148,7 +149,16 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         long start = System.currentTimeMillis();
         //生成每个小时的指标总量
         List<TjViewData> hourTotalModelList = RandomUtil.buildHisDataFromWeight(tjHisQuota, minuteWeightList);
-        tjViewDataRepository.saveAll(hourTotalModelList);
+        int startSize = 0;
+        int endSize = 5000;
+        while (endSize < hourTotalModelList.size()){
+            tjViewDataRepository.saveAll(hourTotalModelList.subList(startSize,endSize));
+            startSize += 5000;
+            endSize += 5000;
+        }
+        if (startSize < hourTotalModelList.size()){
+            tjViewDataRepository.saveAll(hourTotalModelList.subList(startSize,hourTotalModelList.size()));
+        }
         // 修改状态
         tjHisQuota.setBuildState(1);
         tjHisQuotaRepository.save(tjHisQuota);
