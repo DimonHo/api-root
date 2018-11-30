@@ -7,14 +7,13 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.HourTotalModel;
-import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
+import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.service.QuotaService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author He Zhigang
@@ -139,6 +137,7 @@ public class QuotaServiceImpl implements QuotaService {
 
     /**
      * 生成随机波动的数据
+     *
      * @param hoursWeightList
      * @param tjQuota
      * @return
@@ -159,8 +158,7 @@ public class QuotaServiceImpl implements QuotaService {
         int uvTotal = tjQuota.getUvCount() + (int) Math.round(tjQuota.getPvCount() * r);
         int ucTotal = tjQuota.getUcCount() + (int) Math.round(tjQuota.getPvCount() * r);
         // 找出最大的指标
-        int maxTotal = Arrays.stream(new int[]{pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal}).max().orElse(0);
-        for (int i = 0; i < maxTotal; i++) {
+        while (pvTotal > 0 || scTotal > 0 || uvTotal > 0 || ucTotal > 0 || dcTotal > 0 || ddcTotal > 0) {
             DateTime hourDate = RandomUtil.weightRandom(hoursWeightList).next();
             if (pvTotal > 0) {
                 hourTotalModelHashMap.get(hourDate).setPvTotal(hourTotalModelHashMap.get(hourDate).getPvTotal() + 1);
@@ -182,13 +180,18 @@ public class QuotaServiceImpl implements QuotaService {
                 hourTotalModelHashMap.get(hourDate).setVisitTimeTotal(randomVisitTime);
                 ucTotal--;
             }
+
             if (dcTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setDcTotal(hourTotalModelHashMap.get(hourDate).getDcTotal() + 1);
-                dcTotal--;
+                int dcCount = RandomUtil.randomInt(3);
+                dcCount = dcCount > dcTotal ? dcTotal : dcCount;
+                hourTotalModelHashMap.get(hourDate).setDcTotal(hourTotalModelHashMap.get(hourDate).getDcTotal() + dcCount);
+                dcTotal -= dcCount;
             }
             if (ddcTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setDdcTotal(hourTotalModelHashMap.get(hourDate).getDdcTotal() + 1);
-                ddcTotal--;
+                int ddcCount = RandomUtil.randomInt(3);
+                ddcCount = ddcCount > dcTotal ? dcTotal : ddcCount;
+                hourTotalModelHashMap.get(hourDate).setDdcTotal(hourTotalModelHashMap.get(hourDate).getDdcTotal() + ddcCount);
+                ddcTotal -= ddcCount;
             }
         }
         return hourTotalModelHashMap;

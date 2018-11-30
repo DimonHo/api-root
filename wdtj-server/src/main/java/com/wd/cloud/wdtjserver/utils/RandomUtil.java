@@ -4,7 +4,10 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.wdtjserver.entity.*;
+import com.wd.cloud.wdtjserver.entity.TjDataPk;
+import com.wd.cloud.wdtjserver.entity.TjHisQuota;
+import com.wd.cloud.wdtjserver.entity.TjTaskData;
+import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.model.HourTotalModel;
 
 import java.util.*;
@@ -128,14 +131,12 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             WeightRandom.WeightObj<DateTime> weightObj = new WeightRandom.WeightObj<>(minuteDate, 1.0);
             weightObjs.add(weightObj);
         });
-        // 找出最大的指标
-        int maxTotal = Arrays.stream(new int[]{pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal}).max().orElse(0);
 
         // 平均访问时长 = 总访问时长/访问次数
         long visitTimeTotal = hourTotalModel.getVisitTimeTotal();
         List<Long> avgTimeList = randomLongListFromFinalTotal(visitTimeTotal, ucTotal);
 
-        for (int i = 0; i < maxTotal; i++) {
+        while (pvTotal > 0 || scTotal > 0 || uvTotal > 0 || ucTotal > 0 || dcTotal > 0 || ddcTotal > 0) {
             DateTime minuteDate = RandomUtil.weightRandom(weightObjs).next();
             if (pvTotal > 0) {
                 tjDataEntityMap.get(minuteDate).setPvCount(tjDataEntityMap.get(minuteDate).getPvCount() + 1);
@@ -157,12 +158,16 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
                 ucTotal--;
             }
             if (dcTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setDcCount(tjDataEntityMap.get(minuteDate).getDcCount() + 1);
-                dcTotal--;
+                int dcCount = RandomUtil.randomInt(3);
+                dcCount = dcCount > dcTotal ? dcTotal : dcCount;
+                tjDataEntityMap.get(minuteDate).setDcCount(tjDataEntityMap.get(minuteDate).getDcCount() + dcCount);
+                dcTotal -= dcCount;
             }
             if (ddcTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setDdcCount(tjDataEntityMap.get(minuteDate).getDdcCount() + 1);
-                ddcTotal--;
+                int ddcCount = RandomUtil.randomInt(3);
+                ddcCount = ddcCount > dcTotal ? dcTotal : ddcCount;
+                tjDataEntityMap.get(minuteDate).setDdcCount(tjDataEntityMap.get(minuteDate).getDdcCount() + ddcCount);
+                ddcTotal -= ddcCount;
             }
         }
         return new ArrayList<>(tjDataEntityMap.values());
@@ -256,7 +261,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         int uvTotal = tjHisQuota.getUvCount();
         int ucTotal = tjHisQuota.getUcCount();
 
-        Map<DateTime,TjViewData> tjDataEntityMap = new HashMap<>();
+        Map<DateTime, TjViewData> tjDataEntityMap = new HashMap<>();
 
         minuteWeightList.forEach(minuteDate -> {
             TjViewData tjData = new TjViewData();
@@ -269,11 +274,9 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * ucTotal;
         // 随机生成：size为访问次数且总和等于总时间的随机列表
         List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, ucTotal);
-        // 找出最大的指标
-        int maxTotal = Arrays.stream(new int[]{pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal}).max().orElse(0);
-        log.info("开始：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, ucTotal, ucTotal);
 
-        for (int i = 0; i < maxTotal; i++) {
+        log.info("开始：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal);
+        while (pvTotal > 0 || scTotal > 0 || uvTotal > 0 || ucTotal > 0 || dcTotal > 0 || ddcTotal > 0) {
             DateTime minuteDate = RandomUtil.weightRandom(minuteWeightList).next();
             if (pvTotal > 0) {
                 tjDataEntityMap.get(minuteDate).setPvCount(tjDataEntityMap.get(minuteDate).getPvCount() + 1);
@@ -295,15 +298,19 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
                 ucTotal--;
             }
             if (dcTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setDcCount(tjDataEntityMap.get(minuteDate).getDcCount() + 1);
-                dcTotal--;
+                int dcCount = RandomUtil.randomInt(3);
+                dcCount = dcCount > dcTotal ? dcTotal : dcCount;
+                tjDataEntityMap.get(minuteDate).setDcCount(tjDataEntityMap.get(minuteDate).getDcCount() + dcCount);
+                dcTotal -= dcCount;
             }
             if (ddcTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setDdcCount(tjDataEntityMap.get(minuteDate).getDdcCount() + 1);
-                ddcTotal--;
+                int ddcCount = RandomUtil.randomInt(3);
+                ddcCount = ddcCount > dcTotal ? dcTotal : ddcCount;
+                tjDataEntityMap.get(minuteDate).setDdcCount(tjDataEntityMap.get(minuteDate).getDdcCount() + ddcCount);
+                ddcTotal -= ddcCount;
             }
         }
-        log.info("结束：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, ucTotal, ucTotal);
+        log.info("结束：pv={},sc={},dc={},ddc={},uv={},uc={}", pvTotal, scTotal, dcTotal, ddcTotal, uvTotal, ucTotal);
         return new ArrayList<>(tjDataEntityMap.values());
     }
 }
