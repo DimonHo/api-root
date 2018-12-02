@@ -35,7 +35,7 @@ public class TjHisQuota extends AbstractEntity {
 
     private int uvCount;
 
-    private int ucCount;
+    private int vvCount;
 
     private Time avgTime = DateUtil.createTime(0);
 
@@ -129,12 +129,12 @@ public class TjHisQuota extends AbstractEntity {
         return this;
     }
 
-    public int getUcCount() {
-        return ucCount;
+    public int getVvCount() {
+        return vvCount;
     }
 
-    public TjHisQuota setUcCount(int ucCount) {
-        this.ucCount = ucCount;
+    public TjHisQuota setVvCount(int vvCount) {
+        this.vvCount = vvCount;
         return this;
     }
 

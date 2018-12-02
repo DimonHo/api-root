@@ -1,6 +1,5 @@
 package com.wd.cloud.wdtjserver.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.lang.WeightRandom;
@@ -8,21 +7,21 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.wdtjserver.entity.*;
+import com.wd.cloud.wdtjserver.entity.TjHisBuild;
+import com.wd.cloud.wdtjserver.entity.TjHisQuota;
+import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
-import com.wd.cloud.wdtjserver.model.HourTotalModel;
+import com.wd.cloud.wdtjserver.model.TotalModel;
 import com.wd.cloud.wdtjserver.repository.TjHisBuildRepository;
-import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
+import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.service.HisQuotaService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
-import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +30,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -135,30 +136,36 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     @Async
     @Override
     public void buildExecute(TjHisQuota tjHisQuota) {
-        Map<String, Double> settingMap = new HashMap<>();
+        Map<String, Double> weightMap = new HashMap<>();
         // 获取所有比率设置，组装map
-        tjWeightRepository.findAll().forEach(tjDateSetting -> {
-            settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
+        tjWeightRepository.findAll().forEach(tjWeight -> {
+            weightMap.put(tjWeight.getDateType() + "-" + tjWeight.getDateIndex(), RandomUtil.randomDouble(tjWeight.getLow(), tjWeight.getHigh()));
         });
-        // 获取分钟列表
-        List<DateTime> minuteList = DateUtil.rangeToList(tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), DateField.MINUTE);
-        log.info("待生成[{} - {}]共{}分钟数据", tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), minuteList.size());
-        // 计算每分钟的权重
-        List<WeightRandom.WeightObj<DateTime>> minuteWeightList = RandomUtil.getWeightList(settingMap, minuteList);
+
+        // 将开始时间和结束时间转换为天
+        DateTime beginDay = DateUtil.beginOfDay(tjHisQuota.getBeginTime());
+        DateTime endDay = DateUtil.beginOfDay(tjHisQuota.getEndTime());
+
+        List<DateTime> dayList = new ArrayList<>();
+        if (beginDay.before(endDay)) {
+            //如果不是同一天,得到天数列表
+            dayList = DateUtil.rangeToList(beginDay, endDay, DateField.DAY_OF_MONTH);
+        } else {
+            // 如果是同一天，把这一天加入列表
+            dayList.add(beginDay);
+        }
+        log.info("待生成[{} - {}]共{}天数据", tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), dayList.size());
+        // 计算每天的权重
+        List<WeightRandom.WeightObj<DateTime>> dayWeightList = RandomUtil.dayWeightList(weightMap, dayList);
         // 生成随机历史数据
         long start = System.currentTimeMillis();
-        //生成每个小时的指标总量
-        List<TjViewData> hourTotalModelList = RandomUtil.buildHisDataFromWeight(tjHisQuota, minuteWeightList);
-        int startSize = 0;
-        int endSize = 5000;
-        while (endSize < hourTotalModelList.size()){
-            tjViewDataRepository.saveAll(hourTotalModelList.subList(startSize,endSize));
-            startSize += 5000;
-            endSize += 5000;
-        }
-        if (startSize < hourTotalModelList.size()){
-            tjViewDataRepository.saveAll(hourTotalModelList.subList(startSize,hourTotalModelList.size()));
-        }
+        //生成每天的指标总量
+        Map<DateTime, TotalModel> dayTotalModelList = RandomUtil.dayTotalFromWeight(tjHisQuota, dayWeightList);
+        dayTotalModelList.entrySet().forEach(dayTotalModel -> {
+            List<TjViewData> tjViewDataList = RandomUtil.buildMinuteTjData(DateTime.of(tjHisQuota.getBeginTime()), DateTime.of(tjHisQuota.getEndTime()), dayTotalModel);
+            tjViewDataRepository.saveAll(tjViewDataList);
+        });
+
         // 修改状态
         tjHisQuota.setBuildState(1);
         tjHisQuotaRepository.save(tjHisQuota);
@@ -166,7 +173,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     }
 
     @Override
-    public void buildingState(TjHisQuota tjHisQuota,String buildUser){
+    public void buildingState(TjHisQuota tjHisQuota, String buildUser) {
         tjHisQuota.setBuildState(2);
         TjHisBuild tjHisBuild = new TjHisBuild();
         tjHisBuild.setTjHisQuota(tjHisQuota).setName(buildUser);

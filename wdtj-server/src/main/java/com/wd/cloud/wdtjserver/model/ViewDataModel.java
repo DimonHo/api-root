@@ -37,9 +37,9 @@ public class ViewDataModel {
 
     private List<Integer> uvCount = new ArrayList<>();
 
-    private Integer ucTotal;
+    private Integer vvTotal;
 
-    private List<Integer> ucCount = new ArrayList<>();
+    private List<Integer> vvCount = new ArrayList<>();
 
     private Long avgTimeTotal;
 
@@ -108,12 +108,21 @@ public class ViewDataModel {
         return this;
     }
 
-    public List<Integer> getUcCount() {
-        return ucCount;
+    public Integer getVvTotal() {
+        return vvTotal;
     }
 
-    public ViewDataModel setUcCount(List<Integer> ucCount) {
-        this.ucCount = ucCount;
+    public ViewDataModel setVvTotal(Integer vvTotal) {
+        this.vvTotal = vvTotal;
+        return this;
+    }
+
+    public List<Integer> getVvCount() {
+        return vvCount;
+    }
+
+    public ViewDataModel setVvCount(List<Integer> vvCount) {
+        this.vvCount = vvCount;
         return this;
     }
 
@@ -162,14 +171,7 @@ public class ViewDataModel {
         return this;
     }
 
-    public Integer getUcTotal() {
-        return ucTotal;
-    }
 
-    public ViewDataModel setUcTotal(Integer ucTotal) {
-        this.ucTotal = ucTotal;
-        return this;
-    }
 
     public Long getAvgTimeTotal() {
         return avgTimeTotal;
@@ -199,8 +201,8 @@ public class ViewDataModel {
         this.setDcTotal(this.getDcCount().stream().reduce((a, b) -> a + b).orElse(0));
         this.setDdcTotal(this.getDdcCount().stream().reduce((a, b) -> a + b).orElse(0));
         this.setUvTotal(this.getUvCount().stream().reduce((a, b) -> a + b).orElse(0));
-        this.setUcTotal(this.getUcCount().stream().reduce((a, b) -> a + b).orElse(0));
-        long avgTotal = this.getUcTotal() == 0 ? 0 : this.getAvgTime().stream().reduce((a, b) -> a + b).orElse(0L) / this.getUcTotal();
+        this.setVvTotal(this.getVvCount().stream().reduce((a, b) -> a + b).orElse(0));
+        long avgTotal = this.getVvTotal() == 0 ? 0 : this.getAvgTime().stream().reduce((a, b) -> a + b).orElse(0L) / this.getVvTotal();
         this.setAvgTimeTotal(avgTotal);
     }
 }

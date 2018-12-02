@@ -11,7 +11,7 @@ import java.sql.Time;
 /**
  * @author He Zhigang
  * @date 2018/11/6
- * @Description: 日基数设置表 pv >= sc & uc >= uv
+ * @Description: 日基数设置表 pv >= sc & vv >= uv
  * 1. 浏览量 >= 搜索量 和 访问次数 >= 访客数量
  * 2. 平均访问时长 = 总时长/访问次数
  */
@@ -39,7 +39,7 @@ public class TjQuota extends AbstractEntity {
 
     private int uvCount;
 
-    private int ucCount;
+    private int vvCount;
 
     private Time avgTime = DateUtil.createTime(0);
 
@@ -151,12 +151,12 @@ public class TjQuota extends AbstractEntity {
         return this;
     }
 
-    public int getUcCount() {
-        return ucCount;
+    public int getVvCount() {
+        return vvCount;
     }
 
-    public TjQuota setUcCount(int ucCount) {
-        this.ucCount = ucCount;
+    public TjQuota setVvCount(int vvCount) {
+        this.vvCount = vvCount;
         return this;
     }
 }

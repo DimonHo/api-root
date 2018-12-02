@@ -78,10 +78,10 @@ public class ViewServiceImpl implements ViewService {
             viewDataModel.getUvCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("uvCount")).intValue());
 
             long sumTime = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("sumTime")).longValue();
-            long sumUc = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("ucCount")).longValue();
-            viewDataModel.getUcCount().add(tjDateMap.get(tjdate) == null ? 0 : (int) sumUc);
+            long sumVv = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("vvCount")).longValue();
+            viewDataModel.getVvCount().add(tjDateMap.get(tjdate) == null ? 0 : (int) sumVv);
 
-            long avgTime = sumUc == 0 ? sumTime : sumTime / sumUc;
+            long avgTime = sumVv == 0 ? sumTime : sumTime / sumVv;
             viewDataModel.getAvgTime().add(tjDateMap.get(tjdate) == null ? 0 : avgTime);
         });
         // 计算总量
@@ -105,8 +105,8 @@ public class ViewServiceImpl implements ViewService {
         if (!tjOrg.isShowUv()) {
             viewDataModel.setUvTotal(0).setUvCount(null);
         }
-        if (!tjOrg.isShowUc()) {
-            viewDataModel.setUcTotal(0).setUcCount(null);
+        if (!tjOrg.isShowVv()) {
+            viewDataModel.setVvTotal(0).setVvCount(null);
         }
         return viewDataModel;
     }

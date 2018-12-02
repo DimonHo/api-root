@@ -5,8 +5,8 @@ import cn.hutool.core.lang.WeightRandom;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
-import com.wd.cloud.wdtjserver.model.HourTotalModel;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
+import com.wd.cloud.wdtjserver.model.TotalModel;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +26,8 @@ public class ModelUtil {
                     .setDcCount(quotaModel.getDcCount())
                     .setDdcCount(quotaModel.getDdcCount())
                     .setScCount(quotaModel.getScCount())
-                    .setUvCount(quotaModel.getUvCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.3, 1)) : quotaModel.getUvCount())
-                    .setUcCount(quotaModel.getUcCount() == 0 ? RandomUtil.randomInt(tjQuota.getUvCount(), quotaModel.getPvCount()) : quotaModel.getUcCount())
+                    .setUvCount(quotaModel.getUvCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.1, 0.6)) : quotaModel.getUvCount())
+                    .setVvCount(quotaModel.getVvCount() == 0 ? RandomUtil.randomInt(tjQuota.getUvCount(), quotaModel.getPvCount()) : quotaModel.getVvCount())
                     .setAvgTime(quotaModel.getAvgTime());
         }
         return tjQuota;
@@ -40,8 +40,8 @@ public class ModelUtil {
                     .setDcCount(hisQuotaModel.getDcCount())
                     .setDdcCount(hisQuotaModel.getDdcCount())
                     .setScCount(hisQuotaModel.getScCount())
-                    .setUvCount(hisQuotaModel.getUvCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.3, 1)) : hisQuotaModel.getUvCount())
-                    .setUcCount(hisQuotaModel.getUcCount() == 0 ? RandomUtil.randomInt(tjHisQuota.getUvCount(), hisQuotaModel.getPvCount()) : hisQuotaModel.getUcCount())
+                    .setUvCount(hisQuotaModel.getUvCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.1, 0.6)) : hisQuotaModel.getUvCount())
+                    .setVvCount(hisQuotaModel.getVvCount() == 0 ? RandomUtil.randomInt(tjHisQuota.getUvCount(), hisQuotaModel.getPvCount()) : hisQuotaModel.getVvCount())
                     .setAvgTime(hisQuotaModel.getAvgTime())
                     .setBeginTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getBeginTime())))
                     .setEndTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getEndTime())));
@@ -49,14 +49,14 @@ public class ModelUtil {
         return tjHisQuota;
     }
 
-    public static Map<DateTime, HourTotalModel> createResultMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, Long orgId, String orgName) {
-        Map<DateTime, HourTotalModel> hourTotalModelHashMap = new HashMap<>();
+    public static Map<DateTime, TotalModel> createResultMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, Long orgId, String orgName) {
+        Map<DateTime, TotalModel> hourTotalModelHashMap = new HashMap<>();
         hoursWeightList.forEach(hoursWeight -> {
-            HourTotalModel hourTotalModel = new HourTotalModel();
+            TotalModel hourTotalModel = new TotalModel();
             //设置orgId和hourDate
             hourTotalModel.setOrgId(orgId);
             hourTotalModel.setOrgName(orgName);
-            hourTotalModel.setHourDate(hoursWeight.getObj());
+            hourTotalModel.setDate(hoursWeight.getObj());
             hourTotalModelHashMap.put(hoursWeight.getObj(), hourTotalModel);
         });
         return hourTotalModelHashMap;

@@ -23,7 +23,7 @@ public class TjWeight extends AbstractEntity {
     private int dateIndex;
 
     /**
-     * date类型 1:月，2：日，3：周，4：时
+     * date类型 1:月，2：周，3：日，4：时
      */
     @Column(name = "date_type")
     private int dateType;
@@ -34,9 +34,14 @@ public class TjWeight extends AbstractEntity {
     private String remark;
 
     /**
-     * 权重
+     * 最低权重
      */
-    private Double weight;
+    private Double low;
+
+    /**
+     * 最高权重
+     */
+    private Double high;
 
     public int getDateIndex() {
         return dateIndex;
@@ -56,12 +61,21 @@ public class TjWeight extends AbstractEntity {
         return this;
     }
 
-    public Double getWeight() {
-        return weight;
+    public Double getLow() {
+        return low;
     }
 
-    public TjWeight setWeight(Double weight) {
-        this.weight = weight;
+    public TjWeight setLow(Double low) {
+        this.low = low;
+        return this;
+    }
+
+    public Double getHigh() {
+        return high;
+    }
+
+    public TjWeight setHigh(Double high) {
+        this.high = high;
         return this;
     }
 

@@ -35,7 +35,7 @@ public abstract class AbstractTjDataEntity implements Serializable {
 
     int uvCount;
 
-    int ucCount;
+    int vvCount;
 
     long visitTime;
 
@@ -110,12 +110,12 @@ public abstract class AbstractTjDataEntity implements Serializable {
         return this;
     }
 
-    public int getUcCount() {
-        return ucCount;
+    public int getVvCount() {
+        return vvCount;
     }
 
-    public AbstractTjDataEntity setUcCount(int ucCount) {
-        this.ucCount = ucCount;
+    public AbstractTjDataEntity setVvCount(int vvCount) {
+        this.vvCount = vvCount;
         return this;
     }
 

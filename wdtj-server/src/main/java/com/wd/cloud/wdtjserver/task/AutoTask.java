@@ -53,9 +53,9 @@ public class AutoTask {
     SearchServerApi searchServerApi;
 
     /**
-     * 每天凌晨0点执行一次
+     * 每天晚上22点执行一次
      */
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 0 22 * * ?")
     public void auto() {
         Date date = DateUtil.tomorrow();
         quotaService.runTask(date);
@@ -86,13 +86,13 @@ public class AutoTask {
             int pvCount = 0;
             int uvCount = 0;
             long visitTime = 0;
-            int ucCount = 0;
+            int vvCount = 0;
             if (!browserResponse.isError()){
                 JSONObject orgInfo = browserResponse.getBody().get(taskData.getOrgName());
                 pvCount = orgInfo != null ? orgInfo.getInt("pvCount") : 0;
                 uvCount = orgInfo != null ? orgInfo.getInt("uvCount") : 0;
                 visitTime = (long) (orgInfo != null ? orgInfo.getDouble("visitTime") * 1000 : 0);
-                ucCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0;
+                vvCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0;
             }
             if (dcResponse.isError()) {
                 log.error("获取下载量失败:{}", dcResponse.getMessage());
@@ -109,7 +109,7 @@ public class AutoTask {
             TjSpisData tjSpisData = new TjSpisData();
             tjSpisData.setPvCount(pvCount)
                     .setUvCount(uvCount)
-                    .setUcCount(ucCount)
+                    .setVvCount(vvCount)
                     .setVisitTime(visitTime)
                     .setDcCount(dcCount)
                     .setDdcCount(ddcCount)
@@ -125,7 +125,7 @@ public class AutoTask {
                     .setDcCount(taskData.getDcCount() + tjSpisData.getDcCount())
                     .setDdcCount(taskData.getDdcCount() + tjSpisData.getDdcCount())
                     .setUvCount(taskData.getUvCount() + tjSpisData.getUvCount())
-                    .setUcCount(taskData.getUcCount() + tjSpisData.getUcCount())
+                    .setVvCount(taskData.getVvCount() + tjSpisData.getVvCount())
                     .setId(taskData.getId())
                     .setOrgName(taskData.getOrgName());
             viewDataList.add(tjViewData);

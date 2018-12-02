@@ -10,7 +10,7 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
-import com.wd.cloud.wdtjserver.model.HourTotalModel;
+import com.wd.cloud.wdtjserver.model.TotalModel;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
 import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
@@ -27,7 +27,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author He Zhigang
@@ -103,15 +106,15 @@ public class QuotaServiceImpl implements QuotaService {
     public void runTask(Date date) {
         Map<String, Double> settingMap = new TreeMap<>();
         // 获取所有比率设置，组装map
-        tjWeightRepository.findAll().forEach(tjDateSetting -> {
-            settingMap.put(tjDateSetting.getDateType() + "-" + tjDateSetting.getDateIndex(), tjDateSetting.getWeight());
+        tjWeightRepository.findAll().forEach(tjWeight -> {
+            settingMap.put(tjWeight.getDateType() + "-" + tjWeight.getDateIndex(), RandomUtil.randomDouble(tjWeight.getLow(), tjWeight.getHigh()));
         });
         // 获取明天所有的小时数列表
         List<DateTime> hourList = DateUtil.rangeToList(DateUtil.beginOfDay(date), DateUtil.endOfDay(date), DateField.HOUR);
         // 获取小时列表
         log.info("待生成[{} - {}]共{}小时数据", DateUtil.beginOfDay(DateUtil.tomorrow()), DateUtil.endOfDay(DateUtil.tomorrow()), hourList.size());
         // 计算每个小时的权重
-        List<WeightRandom.WeightObj<DateTime>> hoursWeightList = RandomUtil.getWeightList(settingMap, hourList);
+        List<WeightRandom.WeightObj<DateTime>> hoursWeightList = RandomUtil.dayWeightList(settingMap, hourList);
         Pageable pageable = PageRequest.of(0, 100);
         Page<TjQuota> tjQuotas = tjQuotaRepository.findByHistoryIsFalse(pageable);
         buildData(hoursWeightList, tjQuotas);
@@ -125,7 +128,7 @@ public class QuotaServiceImpl implements QuotaService {
 
     public void buildData(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, Page<TjQuota> tjQuotas) {
         tjQuotas.getContent().forEach(tjQuota -> {
-            Map<DateTime, HourTotalModel> hourTotalModelHashMap = getDateTimeHourTotalModelMap(hoursWeightList, tjQuota);
+            Map<DateTime, TotalModel> hourTotalModelHashMap = getDateTimeHourTotalModelMap(hoursWeightList, tjQuota);
             hourTotalModelHashMap.values().forEach(hourTotalModel -> {
                 // 生成当前小时每分钟的指标数量
                 List<TjTaskData> tjDataList = RandomUtil.buildDataFromWeight(hourTotalModel);
@@ -142,13 +145,13 @@ public class QuotaServiceImpl implements QuotaService {
      * @param tjQuota
      * @return
      */
-    public Map<DateTime, HourTotalModel> getDateTimeHourTotalModelMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, TjQuota tjQuota) {
+    public Map<DateTime, TotalModel> getDateTimeHourTotalModelMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, TjQuota tjQuota) {
         // key:时间（小时），value：HourTotalModel对象
-        Map<DateTime, HourTotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList, tjQuota.getOrgId(), tjQuota.getOrgName());
+        Map<DateTime, TotalModel> hourTotalModelHashMap = ModelUtil.createResultMap(hoursWeightList, tjQuota.getOrgId(), tjQuota.getOrgName());
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
-        long avgTimeTotal = DateUtil.getTimeMillis(tjQuota.getAvgTime()) * tjQuota.getUcCount();
+        long avgTimeTotal = DateUtil.getTimeMillis(tjQuota.getAvgTime()) * tjQuota.getVvCount();
         // 随机生成：size为访问次数且总和等于总时间的随机列表
-        List<Long> avgTimeRandomList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, tjQuota.getUcCount());
+        List<Long> avgTimeRandomList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, tjQuota.getVvCount());
 
         double r = RandomUtil.randomDouble(-0.3, 0.3);
         int pvTotal = tjQuota.getPvCount() + (int) Math.round(tjQuota.getPvCount() * r);
@@ -156,9 +159,9 @@ public class QuotaServiceImpl implements QuotaService {
         int dcTotal = tjQuota.getDcCount() + (int) Math.round(tjQuota.getPvCount() * r);
         int ddcTotal = tjQuota.getDdcCount() + (int) Math.round(tjQuota.getPvCount() * r);
         int uvTotal = tjQuota.getUvCount() + (int) Math.round(tjQuota.getPvCount() * r);
-        int ucTotal = tjQuota.getUcCount() + (int) Math.round(tjQuota.getPvCount() * r);
+        int vvTotal = tjQuota.getVvCount() + (int) Math.round(tjQuota.getPvCount() * r);
         // 找出最大的指标
-        while (pvTotal > 0 || scTotal > 0 || uvTotal > 0 || ucTotal > 0 || dcTotal > 0 || ddcTotal > 0) {
+        while (pvTotal > 0 || scTotal > 0 || uvTotal > 0 || vvTotal > 0 || dcTotal > 0 || ddcTotal > 0) {
             DateTime hourDate = RandomUtil.weightRandom(hoursWeightList).next();
             if (pvTotal > 0) {
                 hourTotalModelHashMap.get(hourDate).setPvTotal(hourTotalModelHashMap.get(hourDate).getPvTotal() + 1);
@@ -172,13 +175,13 @@ public class QuotaServiceImpl implements QuotaService {
                 hourTotalModelHashMap.get(hourDate).setUvTotal(hourTotalModelHashMap.get(hourDate).getUvTotal() + 1);
                 uvTotal--;
             }
-            if (ucTotal > 0) {
-                hourTotalModelHashMap.get(hourDate).setUcTotal(hourTotalModelHashMap.get(hourDate).getUcTotal() + 1);
+            if (vvTotal > 0) {
+                hourTotalModelHashMap.get(hourDate).setVvTotal(hourTotalModelHashMap.get(hourDate).getVvTotal() + 1);
                 // 从平均时长列表中随机找出一个访问时长
                 long randomVisitTime = RandomUtil.randomLongEle(avgTimeRandomList, true).orElse(0L);
                 randomVisitTime += hourTotalModelHashMap.get(hourDate).getVisitTimeTotal();
                 hourTotalModelHashMap.get(hourDate).setVisitTimeTotal(randomVisitTime);
-                ucTotal--;
+                vvTotal--;
             }
 
             if (dcTotal > 0) {

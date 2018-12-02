@@ -41,7 +41,7 @@ public class QuotaModel {
 
     @Min(0)
     @ApiModelProperty(value = "访问次数", example = "10")
-    private int ucCount;
+    private int vvCount;
 
     public int getPvCount() {
         return pvCount;
@@ -97,13 +97,12 @@ public class QuotaModel {
         return this;
     }
 
-    public int getUcCount() {
-        return ucCount;
+    public int getVvCount() {
+        return vvCount;
     }
 
-    public QuotaModel setUcCount(int ucCount) {
-        this.ucCount = ucCount;
+    public QuotaModel setVvCount(int vvCount) {
+        this.vvCount = vvCount;
         return this;
     }
-
 }

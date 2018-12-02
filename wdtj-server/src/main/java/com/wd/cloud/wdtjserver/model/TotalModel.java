@@ -1,19 +1,21 @@
 package com.wd.cloud.wdtjserver.model;
 
+import cn.hutool.core.date.DateTime;
+
 import java.util.Date;
 
 /**
  * @author He Zhigang
  * @date 2018/11/19
- * @Description: 小时数指标总量
+ * @Description: 指标总量
  */
-public class HourTotalModel {
+public class TotalModel {
 
     private Long orgId;
 
     private String orgName;
 
-    private Date hourDate;
+    private DateTime date;
 
     private int pvTotal;
 
@@ -27,13 +29,13 @@ public class HourTotalModel {
 
     private int uvTotal;
 
-    private int ucTotal;
+    private int vvTotal;
 
     public Long getOrgId() {
         return orgId;
     }
 
-    public HourTotalModel setOrgId(Long orgId) {
+    public TotalModel setOrgId(Long orgId) {
         this.orgId = orgId;
         return this;
     }
@@ -42,17 +44,17 @@ public class HourTotalModel {
         return orgName;
     }
 
-    public HourTotalModel setOrgName(String orgName) {
+    public TotalModel setOrgName(String orgName) {
         this.orgName = orgName;
         return this;
     }
 
-    public Date getHourDate() {
-        return hourDate;
+    public DateTime getDate() {
+        return date;
     }
 
-    public HourTotalModel setHourDate(Date hourDate) {
-        this.hourDate = hourDate;
+    public TotalModel setDate(DateTime date) {
+        this.date = date;
         return this;
     }
 
@@ -60,7 +62,7 @@ public class HourTotalModel {
         return pvTotal;
     }
 
-    public HourTotalModel setPvTotal(int pvTotal) {
+    public TotalModel setPvTotal(int pvTotal) {
         this.pvTotal = pvTotal;
         return this;
     }
@@ -69,7 +71,7 @@ public class HourTotalModel {
         return scTotal;
     }
 
-    public HourTotalModel setScTotal(int scTotal) {
+    public TotalModel setScTotal(int scTotal) {
         this.scTotal = scTotal;
         return this;
     }
@@ -78,7 +80,7 @@ public class HourTotalModel {
         return dcTotal;
     }
 
-    public HourTotalModel setDcTotal(int dcTotal) {
+    public TotalModel setDcTotal(int dcTotal) {
         this.dcTotal = dcTotal;
         return this;
     }
@@ -87,7 +89,7 @@ public class HourTotalModel {
         return ddcTotal;
     }
 
-    public HourTotalModel setDdcTotal(int ddcTotal) {
+    public TotalModel setDdcTotal(int ddcTotal) {
         this.ddcTotal = ddcTotal;
         return this;
     }
@@ -96,7 +98,7 @@ public class HourTotalModel {
         return visitTimeTotal;
     }
 
-    public HourTotalModel setVisitTimeTotal(long visitTimeTotal) {
+    public TotalModel setVisitTimeTotal(long visitTimeTotal) {
         this.visitTimeTotal = visitTimeTotal;
         return this;
     }
@@ -105,17 +107,17 @@ public class HourTotalModel {
         return uvTotal;
     }
 
-    public HourTotalModel setUvTotal(int uvTotal) {
+    public TotalModel setUvTotal(int uvTotal) {
         this.uvTotal = uvTotal;
         return this;
     }
 
-    public int getUcTotal() {
-        return ucTotal;
+    public int getVvTotal() {
+        return vvTotal;
     }
 
-    public HourTotalModel setUcTotal(int ucTotal) {
-        this.ucTotal = ucTotal;
+    public TotalModel setVvTotal(int vvTotal) {
+        this.vvTotal = vvTotal;
         return this;
     }
 }
