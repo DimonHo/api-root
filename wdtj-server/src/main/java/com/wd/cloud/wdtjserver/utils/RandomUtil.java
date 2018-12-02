@@ -239,7 +239,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             spvMax = spvMax > spvTotal ? spvTotal : spvMax;
             int spvAfter = spvMin < spvMax ? (int) Math.round(RandomUtil.randomDouble(spvMin, spvMax)) : spvTotal;
             int pvCount = isMaxSc ? scCount + spvAfter - spvBefore : vvCount + spvAfter - spvBefore;
-            pvBefore -= pvCount;
+            pvBefore += pvCount;
             spvBefore = spvAfter;
 
 
