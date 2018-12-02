@@ -490,66 +490,65 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         WeightRandom.WeightObj<DateTime> endDayWeight = new WeightRandom.WeightObj<>(dayWeightList.get(dayWeightListSize - 1).getObj(), dayWeightList.get(dayWeightListSize - 1).getWeight() * endWeight);
         dayWeightList.set(0, beginDayWeight);
         dayWeightList.set(dayWeightListSize - 1, endDayWeight);
-        Map<DateTime, TotalModel> dayTotalMap = biuldTotalModelFromWeight(dayWeightList, tjHisQuota, 0.3);
-//        Map<DateTime, TotalModel> dayTotalMap = new HashMap<>();
-//        dayWeightList.forEach(day -> {
-//            TotalModel totalModel = new TotalModel();
-//            totalModel.setOrgId(tjHisQuota.getOrgId()).setOrgName(tjHisQuota.getOrgName()).setDate(day.getObj());
-//            dayTotalMap.put(day.getObj(), totalModel);
-//        });
-//        int pvTotal = tjHisQuota.getPvCount();
-//        int scTotal = tjHisQuota.getScCount();
-//        int dcTotal = tjHisQuota.getDcCount();
-//        int ddcTotal = tjHisQuota.getDdcCount();
-//        int uvTotal = tjHisQuota.getUvCount();
-//        int vvTotal = tjHisQuota.getVvCount();
-//        // 计算用户访问总时间 = 平均访问时间 * 访问次数
-//        long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * vvTotal;
-//        // 随机生成：size为访问次数且总和等于总时间的随机列表
-//        List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, vvTotal);
-//
-//
-//        Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, 0.3);
-//        scMap.forEach((k, v) -> {
-//            // 同时设置sc和pv量
-//            dayTotalMap.get(k).setScTotal(v).setPvTotal(v);
-//        });
-//        // uv和vv
-//        Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, 0.3);
-//        uvMap.forEach((k, v) -> {
-//            //同时设置uv和vv量
-//            dayTotalMap.get(k).setUvTotal(v).setVvTotal(v);
-//        });
-//        int svvTotal = vvTotal - uvTotal;
-//        Map<DateTime, Integer> vvMap = randomListFromWeight(dayWeightList, svvTotal, 0.3);
-//        vvMap.forEach((k, v) -> {
-//            // 在已有vv量基础上加上新的量
-//            int yvv = dayTotalMap.get(k).getVvTotal();
-//            int sumVv = yvv + v;
-//            dayTotalMap.get(k).setVvTotal(sumVv);
-//            List<Long> visitTimeList = RandomUtil.randomLongEles(avgTimeList, sumVv, true).orElse(new ArrayList<>());
-//            dayTotalMap.get(k).setVisitTimeTotal(visitTimeList.stream().reduce((a, b) -> a + b).orElse(0L));
-//        });
-//
-//        // 剩余pv
-//        int spvTotal = pvTotal - scTotal;
-//        Map<DateTime, Integer> pvMap = randomListFromWeight(dayWeightList, spvTotal, 0.3);
-//        pvMap.forEach((k, v) -> {
-//            // 在已有PV量基础上加上新的量
-//            int ypv = dayTotalMap.get(k).getPvTotal();
-//            dayTotalMap.get(k).setPvTotal(ypv + v);
-//        });
-//        // 下载量
-//        Map<DateTime, Integer> dcMap = randomListFromWeight(dayWeightList, dcTotal, 0.3);
-//        dcMap.forEach((k, v) -> {
-//            dayTotalMap.get(k).setDcTotal(v);
-//        });
-//        // 文献传递量
-//        Map<DateTime, Integer> ddcMap = randomListFromWeight(dayWeightList, ddcTotal, 0.3);
-//        ddcMap.forEach((k, v) -> {
-//            dayTotalMap.get(k).setDdcTotal(v);
-//        });
+        //Map<DateTime, TotalModel> dayTotalMap = biuldTotalModelFromWeight(dayWeightList, tjHisQuota, 0.3);
+        Map<DateTime, TotalModel> dayTotalMap = new HashMap<>();
+        dayWeightList.forEach(day -> {
+            TotalModel totalModel = new TotalModel();
+            totalModel.setOrgId(tjHisQuota.getOrgId()).setOrgName(tjHisQuota.getOrgName()).setDate(day.getObj());
+            dayTotalMap.put(day.getObj(), totalModel);
+        });
+        int pvTotal = tjHisQuota.getPvCount();
+        int scTotal = tjHisQuota.getScCount();
+        int dcTotal = tjHisQuota.getDcCount();
+        int ddcTotal = tjHisQuota.getDdcCount();
+        int uvTotal = tjHisQuota.getUvCount();
+        int vvTotal = tjHisQuota.getVvCount();
+        // 计算用户访问总时间 = 平均访问时间 * 访问次数
+        long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * vvTotal;
+        // 随机生成：size为访问次数且总和等于总时间的随机列表
+        List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, vvTotal);
 
+
+        Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, 0.3);
+        scMap.forEach((k, v) -> {
+            // 同时设置sc和pv量
+            dayTotalMap.get(k).setScTotal(v).setPvTotal(v);
+        });
+        // uv和vv
+        Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, 0.3);
+        uvMap.forEach((k, v) -> {
+            //同时设置uv和vv量
+            dayTotalMap.get(k).setUvTotal(v).setVvTotal(v);
+        });
+        int svvTotal = vvTotal - uvTotal;
+        Map<DateTime, Integer> vvMap = randomListFromWeight(dayWeightList, svvTotal, 0.3);
+        vvMap.forEach((k, v) -> {
+            // 在已有vv量基础上加上新的量
+            int yvv = dayTotalMap.get(k).getVvTotal();
+            int sumVv = yvv + v;
+            dayTotalMap.get(k).setVvTotal(sumVv);
+            List<Long> visitTimeList = RandomUtil.randomLongEles(avgTimeList, sumVv, true).orElse(new ArrayList<>());
+            dayTotalMap.get(k).setVisitTimeTotal(visitTimeList.stream().reduce((a, b) -> a + b).orElse(0L));
+        });
+
+        // 剩余pv
+        int spvTotal = pvTotal - scTotal;
+        Map<DateTime, Integer> pvMap = randomListFromWeight(dayWeightList, spvTotal, 0.3);
+        pvMap.forEach((k, v) -> {
+            // 在已有PV量基础上加上新的量
+            int ypv = dayTotalMap.get(k).getPvTotal();
+            dayTotalMap.get(k).setPvTotal(ypv + v);
+        });
+        // 下载量
+        Map<DateTime, Integer> dcMap = randomListFromWeight(dayWeightList, dcTotal, 0.3);
+        dcMap.forEach((k, v) -> {
+            dayTotalMap.get(k).setDcTotal(v);
+        });
+        // 文献传递量
+        Map<DateTime, Integer> ddcMap = randomListFromWeight(dayWeightList, ddcTotal, 0.3);
+        ddcMap.forEach((k, v) -> {
+            dayTotalMap.get(k).setDdcTotal(v);
+        });
 
         return dayTotalMap;
     }
