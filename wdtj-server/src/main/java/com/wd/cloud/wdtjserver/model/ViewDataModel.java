@@ -1,5 +1,6 @@
 package com.wd.cloud.wdtjserver.model;
 
+import com.wd.cloud.wdtjserver.utils.DateUtil;
 import io.swagger.annotations.ApiModel;
 
 import java.util.ArrayList;
@@ -172,7 +173,6 @@ public class ViewDataModel {
     }
 
 
-
     public Long getAvgTimeTotal() {
         return avgTimeTotal;
     }
@@ -193,16 +193,18 @@ public class ViewDataModel {
 
     /**
      * 计算总量
+     *
      * @return
      */
-    public void sumTotal() {
-        this.setPvTotal(this.getPvCount().stream().reduce((a, b) -> a + b).orElse(0));
-        this.setScTotal(this.getScCount().stream().reduce((a, b) -> a + b).orElse(0));
-        this.setDcTotal(this.getDcCount().stream().reduce((a, b) -> a + b).orElse(0));
-        this.setDdcTotal(this.getDdcCount().stream().reduce((a, b) -> a + b).orElse(0));
-        this.setUvTotal(this.getUvCount().stream().reduce((a, b) -> a + b).orElse(0));
-        this.setVvTotal(this.getVvCount().stream().reduce((a, b) -> a + b).orElse(0));
-        long avgTotal = this.getVvTotal() == 0 ? 0 : this.getAvgTime().stream().reduce((a, b) -> a + b).orElse(0L) / this.getVvTotal();
+    public void sumTotal(long sumVisitTime) {
+        this.setPvTotal(this.pvCount.stream().reduce((a, b) -> a + b).orElse(0));
+        this.setScTotal(this.scCount.stream().reduce((a, b) -> a + b).orElse(0));
+        this.setDcTotal(this.dcCount.stream().reduce((a, b) -> a + b).orElse(0));
+        this.setDdcTotal(this.ddcCount.stream().reduce((a, b) -> a + b).orElse(0));
+        this.setUvTotal(this.uvCount.stream().reduce((a, b) -> a + b).orElse(0));
+        this.setVvTotal(this.vvCount.stream().reduce((a, b) -> a + b).orElse(0));
+        long avgTotal = this.vvTotal == 0 ? 0 : sumVisitTime / this.vvTotal;
+        System.out.println("平均访问时长：" + avgTotal + ",format：" + DateUtil.createTime(avgTotal).toString());
         this.setAvgTimeTotal(avgTotal);
     }
 }

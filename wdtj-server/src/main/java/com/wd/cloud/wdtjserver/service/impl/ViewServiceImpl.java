@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -66,26 +67,29 @@ public class ViewServiceImpl implements ViewService {
             String tjDateStr = (String) viewData.get("tjDate");
             tjDateMap.put(tjDateStr, viewData);
         }
-        tjDates.forEach(tjdate -> {
-            viewDataModel.getPvCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("pvCount")).intValue());
+        AtomicLong sumVisitTime = new AtomicLong();
+        tjDates.forEach(tjData -> {
+            viewDataModel.getPvCount().add(tjDateMap.get(tjData) == null ? 0 : ((BigDecimal) tjDateMap.get(tjData).get("pvCount")).intValue());
 
-            viewDataModel.getScCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("scCount")).intValue());
+            viewDataModel.getScCount().add(tjDateMap.get(tjData) == null ? 0 : ((BigDecimal) tjDateMap.get(tjData).get("scCount")).intValue());
 
-            viewDataModel.getDcCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("dcCount")).intValue());
+            viewDataModel.getDcCount().add(tjDateMap.get(tjData) == null ? 0 : ((BigDecimal) tjDateMap.get(tjData).get("dcCount")).intValue());
 
-            viewDataModel.getDdcCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("ddcCount")).intValue());
+            viewDataModel.getDdcCount().add(tjDateMap.get(tjData) == null ? 0 : ((BigDecimal) tjDateMap.get(tjData).get("ddcCount")).intValue());
 
-            viewDataModel.getUvCount().add(tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("uvCount")).intValue());
+            viewDataModel.getUvCount().add(tjDateMap.get(tjData) == null ? 0 : ((BigDecimal) tjDateMap.get(tjData).get("uvCount")).intValue());
 
-            long sumTime = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("sumTime")).longValue();
-            long sumVv = tjDateMap.get(tjdate) == null ? 0 : ((BigDecimal) tjDateMap.get(tjdate).get("vvCount")).longValue();
-            viewDataModel.getVvCount().add(tjDateMap.get(tjdate) == null ? 0 : (int) sumVv);
+            long sumVv = tjDateMap.get(tjData) == null ? 0 : ((BigDecimal) tjDateMap.get(tjData).get("vvCount")).longValue();
+            viewDataModel.getVvCount().add(tjDateMap.get(tjData) == null ? 0 : (int) sumVv);
+
+            long sumTime = tjDateMap.get(tjData) == null ? 0 : ((BigDecimal) tjDateMap.get(tjData).get("sumTime")).longValue();
+            sumVisitTime.addAndGet(sumTime);
 
             long avgTime = sumVv == 0 ? sumTime : sumTime / sumVv;
-            viewDataModel.getAvgTime().add(tjDateMap.get(tjdate) == null ? 0 : avgTime);
+            viewDataModel.getAvgTime().add(tjDateMap.get(tjData) == null ? 0 : avgTime);
         });
         // 计算总量
-        viewDataModel.sumTotal();
+        viewDataModel.sumTotal(sumVisitTime.get());
         // 过滤不显示的指标
         if (!tjOrg.isShowAvgTime()) {
             viewDataModel.setAvgTimeTotal(0L).setAvgTime(null);
