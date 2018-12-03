@@ -3,6 +3,7 @@ package com.wd.cloud.wdtjserver.utils;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -22,6 +23,9 @@ import java.util.*;
 public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
     private static final Log log = LogFactory.get();
+
+    private static final double LOW_FU_DONG = 0.2;
+    private static final double HIGH_FU_DONG = 0.6;
 
     /**
      * 生成总和为固定值的随机数列表
@@ -141,6 +145,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         }
         // 最后一个的值
         result.put(weightList.get(weightList.size() - 1).getObj(), total - before);
+        Console.log(result.values());
         return result;
     }
 
@@ -509,19 +514,19 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, vvTotal);
 
 
-        Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, 0.6);
+        Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         scMap.forEach((k, v) -> {
             // 同时设置sc和pv量
             dayTotalMap.get(k).setScTotal(v).setPvTotal(v);
         });
         // uv和vv
-        Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, 0.6);
+        Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         uvMap.forEach((k, v) -> {
             //同时设置uv和vv量
             dayTotalMap.get(k).setUvTotal(v).setVvTotal(v);
         });
         int svvTotal = vvTotal - uvTotal;
-        Map<DateTime, Integer> vvMap = randomListFromWeight(dayWeightList, svvTotal, 0.6);
+        Map<DateTime, Integer> vvMap = randomListFromWeight(dayWeightList, svvTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         vvMap.forEach((k, v) -> {
             // 在已有vv量基础上加上新的量
             int yvv = dayTotalMap.get(k).getVvTotal();
@@ -533,19 +538,19 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
         // 剩余pv
         int spvTotal = pvTotal - scTotal;
-        Map<DateTime, Integer> pvMap = randomListFromWeight(dayWeightList, spvTotal, 0.6);
+        Map<DateTime, Integer> pvMap = randomListFromWeight(dayWeightList, spvTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         pvMap.forEach((k, v) -> {
             // 在已有PV量基础上加上新的量
             int ypv = dayTotalMap.get(k).getPvTotal();
             dayTotalMap.get(k).setPvTotal(ypv + v);
         });
         // 下载量
-        Map<DateTime, Integer> dcMap = randomListFromWeight(dayWeightList, dcTotal, 0.6);
+        Map<DateTime, Integer> dcMap = randomListFromWeight(dayWeightList, dcTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         dcMap.forEach((k, v) -> {
             dayTotalMap.get(k).setDcTotal(v);
         });
         // 文献传递量
-        Map<DateTime, Integer> ddcMap = randomListFromWeight(dayWeightList, ddcTotal, 0.6);
+        Map<DateTime, Integer> ddcMap = randomListFromWeight(dayWeightList, ddcTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         ddcMap.forEach((k, v) -> {
             dayTotalMap.get(k).setDdcTotal(v);
         });
@@ -563,11 +568,13 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
     public static List<TjViewData> buildMinuteTjData(DateTime beginTime, DateTime endTime, Map.Entry<DateTime, TotalModel> dayTotalModel) {
         List<TjViewData> tjDayDataList = new ArrayList<>();
         //高峰时段分钟数列表
-        List<DateTime> highMinutes = getHighMinutes(beginTime, endTime, dayTotalModel.getKey());
+        List<DateTime> amHighMinutes = getAmHighMinutes(beginTime, endTime, dayTotalModel.getKey());
+        List<DateTime> pmHighMinutes = getPmHighMinutes(beginTime, endTime, dayTotalModel.getKey());
 //        int highMinuteAllSize = 11 * 60;
 //        double highSizeBl = 1.0 * highMinutes.size()/highMinuteAllSize;
         //低谷时段分钟数列表
-        List<DateTime> lowMinutes = getLowMinutes(beginTime, endTime, dayTotalModel.getKey());
+        List<DateTime> amLowMinutes = getAmLowMinutes(beginTime, endTime, dayTotalModel.getKey());
+        List<DateTime> pmLowMinutes = getPmLowMinutes(beginTime, endTime, dayTotalModel.getKey());
 //        int lowMinuteAllSize = 9 * 60;
 //        double lowSizeBl = 1.0 * lowMinutes.size()/lowMinuteAllSize;
         //其它时段分钟数列表
@@ -576,11 +583,13 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 //        double otherSizeBl = 1.0 * otherMinutes.size()/otherMinuteAllSize;
 
         //高峰时段所占比列
-        double highWeight = RandomUtil.randomDouble(0.85, 0.92);
+        double amHighWeight = RandomUtil.randomDouble(0.32, 0.38);
+        double pmHighWeight = RandomUtil.randomDouble(0.35, 0.40);
         //低谷时段所占比列
-        double lowWeight = RandomUtil.randomDouble(0.02, 0.03);
+        double amLowWeight = RandomUtil.randomDouble(0.03, 0.1);
+        double pmLowWeight = RandomUtil.randomDouble(0.1, 1 - amHighWeight - pmHighWeight - amLowWeight);
         //其它时段所占比列
-        double otherWeight = 1 - highWeight - lowWeight;
+        double otherWeight = 1 - amHighWeight - pmHighWeight - amLowWeight - pmLowWeight;
 
         Long orgId = dayTotalModel.getValue().getOrgId();
         String orgName = dayTotalModel.getValue().getOrgName();
@@ -595,58 +604,92 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         List<Long> visitList = RandomUtil.randomLongListFromFinalTotal(visitTotal, vvTotal);
 
         //-----------------------sc
-        int highScTotal = (int) Math.round(highWeight * scTotal);
-        int lowScTotal = (int) Math.round(lowWeight * scTotal);
-        int otherScTotal = scTotal - highScTotal - lowScTotal;
-        List<Integer> highScCountList = RandomUtil.randomIntListFromFinalTotal(highScTotal, highMinutes.size());
-        List<Integer> lowScCountList = RandomUtil.randomIntListFromFinalTotal(lowScTotal, lowMinutes.size());
+        int amHighScTotal = (int) Math.round(amHighWeight * scTotal);
+        int pmHighScTotal = (int) Math.round(pmHighWeight * scTotal);
+        int amLowScTotal = (int) Math.round(amLowWeight * scTotal);
+        int pmLowScTotal = (int) Math.round(pmLowWeight * scTotal);
+        int otherScTotal = scTotal - amHighScTotal - pmHighScTotal - amLowScTotal - pmLowScTotal;
+        List<Integer> amHighScCountList = RandomUtil.randomIntListFromFinalTotal(amHighScTotal, amHighMinutes.size());
+        List<Integer> pmHighScCountList = RandomUtil.randomIntListFromFinalTotal(pmHighScTotal, pmHighMinutes.size());
+        List<Integer> amLowScCountList = RandomUtil.randomIntListFromFinalTotal(amLowScTotal, amLowMinutes.size());
+        List<Integer> pmLowScCountList = RandomUtil.randomIntListFromFinalTotal(pmLowScTotal, pmLowMinutes.size());
         List<Integer> otherScCountList = RandomUtil.randomIntListFromFinalTotal(otherScTotal, otherMinutes.size());
 
         //-----------------------pv
         int spvTotal = pvTotal - scTotal;
-        int highSpvTotal = (int) Math.round(highWeight * spvTotal);
-        int lowSpvTotal = (int) Math.round(lowWeight * spvTotal);
-        int otherSpvTotal = spvTotal - highSpvTotal - lowSpvTotal;
-        List<Integer> highSpvCountList = RandomUtil.randomIntListFromFinalTotal(highSpvTotal, highMinutes.size());
-        List<Integer> lowSpvCountList = RandomUtil.randomIntListFromFinalTotal(lowSpvTotal, lowMinutes.size());
+        int amHighSpvTotal = (int) Math.round(amHighWeight * spvTotal);
+        int pmHighSpvTotal = (int) Math.round(pmHighWeight * spvTotal);
+        int amLowSpvTotal = (int) Math.round(amLowWeight * spvTotal);
+        int pmLowSpvTotal = (int) Math.round(pmLowWeight * spvTotal);
+        int otherSpvTotal = spvTotal - amHighSpvTotal - pmHighSpvTotal - amLowSpvTotal - pmLowSpvTotal;
+
+        List<Integer> amHighSpvCountList = RandomUtil.randomIntListFromFinalTotal(amHighSpvTotal, amHighMinutes.size());
+        List<Integer> pmHighSpvCountList = RandomUtil.randomIntListFromFinalTotal(pmHighSpvTotal, pmHighMinutes.size());
+        List<Integer> amLowSpvCountList = RandomUtil.randomIntListFromFinalTotal(amLowSpvTotal, amLowMinutes.size());
+        List<Integer> pmLowSpvCountList = RandomUtil.randomIntListFromFinalTotal(pmLowSpvTotal, pmLowMinutes.size());
         List<Integer> otherSpvCountList = RandomUtil.randomIntListFromFinalTotal(otherSpvTotal, otherMinutes.size());
+
         //-----------------------dc
-        int highDcTotal = (int) Math.round(highWeight * dcTotal);
-        int lowDcTotal = (int) Math.round(lowWeight * dcTotal);
-        int otherDcTotal = dcTotal - highDcTotal - lowDcTotal;
-        List<Integer> highDcCountList = RandomUtil.randomIntListFromFinalTotal(highDcTotal, highMinutes.size());
-        List<Integer> lowDcCountList = RandomUtil.randomIntListFromFinalTotal(lowDcTotal, lowMinutes.size());
+        int amHighDcTotal = (int) Math.round(amHighWeight * dcTotal);
+        int pmHighDcTotal = (int) Math.round(pmHighWeight * dcTotal);
+        int amLowDcTotal = (int) Math.round(amLowWeight * dcTotal);
+        int pmLowDcTotal = (int) Math.round(pmLowWeight * dcTotal);
+        int otherDcTotal = dcTotal - amHighDcTotal - pmHighDcTotal - amLowDcTotal - pmLowDcTotal;
+        List<Integer> amHighDcCountList = RandomUtil.randomIntListFromFinalTotal(amHighDcTotal, amHighMinutes.size());
+        List<Integer> pmHighDcCountList = RandomUtil.randomIntListFromFinalTotal(pmHighDcTotal, pmHighMinutes.size());
+        List<Integer> amLowDcCountList = RandomUtil.randomIntListFromFinalTotal(amLowDcTotal, amLowMinutes.size());
+        List<Integer> pmLowDcCountList = RandomUtil.randomIntListFromFinalTotal(pmLowDcTotal, pmLowMinutes.size());
         List<Integer> otherDcCountList = RandomUtil.randomIntListFromFinalTotal(otherDcTotal, otherMinutes.size());
         //-----------------------ddc
-        int highDdcTotal = (int) Math.round(highWeight * ddcTotal);
-        int lowDdcTotal = (int) Math.round(lowWeight * ddcTotal);
-        int otherDdcTotal = ddcTotal - highDdcTotal - lowDdcTotal;
-        List<Integer> highDdcCountList = RandomUtil.randomIntListFromFinalTotal(highDdcTotal, highMinutes.size());
-        List<Integer> lowDdcCountList = RandomUtil.randomIntListFromFinalTotal(lowDdcTotal, lowMinutes.size());
+        int amHighDdcTotal = (int) Math.round(amHighWeight * ddcTotal);
+        int pmHighDdcTotal = (int) Math.round(pmHighWeight * ddcTotal);
+        int amLowDdcTotal = (int) Math.round(amLowWeight * ddcTotal);
+        int pmLowDdcTotal = (int) Math.round(pmLowWeight * ddcTotal);
+        int otherDdcTotal = ddcTotal - amHighDdcTotal - pmHighDdcTotal - amLowDdcTotal - pmLowDdcTotal;
+        List<Integer> amHighDdcCountList = RandomUtil.randomIntListFromFinalTotal(amHighDdcTotal, amHighMinutes.size());
+        List<Integer> pmHighDdcCountList = RandomUtil.randomIntListFromFinalTotal(pmHighDdcTotal, pmHighMinutes.size());
+        List<Integer> amLowDdcCountList = RandomUtil.randomIntListFromFinalTotal(amLowDdcTotal, amLowMinutes.size());
+        List<Integer> pmLowDdcCountList = RandomUtil.randomIntListFromFinalTotal(pmLowDdcTotal, pmLowMinutes.size());
         List<Integer> otherDdcCountList = RandomUtil.randomIntListFromFinalTotal(otherDdcTotal, otherMinutes.size());
         //-----------------------uv
-        int highUvTotal = (int) Math.round(highWeight * uvTotal);
-        int lowUvTotal = (int) Math.round(lowWeight * uvTotal);
-        int otherUvTotal = uvTotal - highUvTotal - lowUvTotal;
-        List<Integer> highUvCountList = RandomUtil.randomIntListFromFinalTotal(highUvTotal, highMinutes.size());
-        List<Integer> lowUvCountList = RandomUtil.randomIntListFromFinalTotal(lowUvTotal, lowMinutes.size());
+        int amHighUvTotal = (int) Math.round(amHighWeight * uvTotal);
+        int pmHighUvTotal = (int) Math.round(pmHighWeight * uvTotal);
+        int amLowUvTotal = (int) Math.round(amLowWeight * uvTotal);
+        int pmLowUvTotal = (int) Math.round(pmLowWeight * uvTotal);
+        int otherUvTotal = uvTotal - amHighUvTotal - pmHighUvTotal - amLowUvTotal - pmLowUvTotal;
+        List<Integer> amHighUvCountList = RandomUtil.randomIntListFromFinalTotal(amHighUvTotal, amHighMinutes.size());
+        List<Integer> pmHighUvCountList = RandomUtil.randomIntListFromFinalTotal(pmHighUvTotal, pmHighMinutes.size());
+        List<Integer> amLowUvCountList = RandomUtil.randomIntListFromFinalTotal(amLowUvTotal, amLowMinutes.size());
+        List<Integer> pmLowUvCountList = RandomUtil.randomIntListFromFinalTotal(pmLowUvTotal, pmLowMinutes.size());
         List<Integer> otherUvCountList = RandomUtil.randomIntListFromFinalTotal(otherUvTotal, otherMinutes.size());
         //-----------------------vv
         int svvTotal = vvTotal - uvTotal;
-        int highSvvTotal = (int) Math.round(highWeight * svvTotal);
-        int lowSvvTotal = (int) Math.round(lowWeight * svvTotal);
-        int otherSvvTotal = svvTotal - highSvvTotal - lowSvvTotal;
-        List<Integer> highSvvCountList = RandomUtil.randomIntListFromFinalTotal(highSvvTotal, highMinutes.size());
-        List<Integer> lowSvvCountList = RandomUtil.randomIntListFromFinalTotal(lowSvvTotal, lowMinutes.size());
+        int amHighSvvTotal = (int) Math.round(amHighWeight * svvTotal);
+        int pmHighSvvTotal = (int) Math.round(pmHighWeight * svvTotal);
+        int amLowSvvTotal = (int) Math.round(amLowWeight * svvTotal);
+        int pmLowSvvTotal = (int) Math.round(pmLowWeight * svvTotal);
+        int otherSvvTotal = svvTotal - amHighSvvTotal - pmHighSvvTotal - amLowSvvTotal - pmLowSvvTotal;
+        List<Integer> amHighSvvCountList = RandomUtil.randomIntListFromFinalTotal(amHighSvvTotal, amHighMinutes.size());
+        List<Integer> pmHighSvvCountList = RandomUtil.randomIntListFromFinalTotal(pmHighSvvTotal, pmHighMinutes.size());
+        List<Integer> amLowSvvCountList = RandomUtil.randomIntListFromFinalTotal(amLowSvvTotal, amLowMinutes.size());
+        List<Integer> pmLowSvvCountList = RandomUtil.randomIntListFromFinalTotal(pmLowSvvTotal, pmLowMinutes.size());
         List<Integer> otherSvvCountList = RandomUtil.randomIntListFromFinalTotal(otherSvvTotal, otherMinutes.size());
 
-        highMinutes.forEach(minute -> {
+        amHighMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
-            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, highScCountList, highSpvCountList, highDcCountList, highDdcCountList, highUvCountList, highSvvCountList));
+            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, amHighScCountList, amHighSpvCountList, amHighDcCountList, amHighDdcCountList, amHighUvCountList, amHighSvvCountList));
         });
-        lowMinutes.forEach(minute -> {
+        pmHighMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
-            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, lowScCountList, lowSpvCountList, lowDcCountList, lowDdcCountList, lowUvCountList, lowSvvCountList));
+            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, pmHighScCountList, pmHighSpvCountList, pmHighDcCountList, pmHighDdcCountList, pmHighUvCountList, pmHighSvvCountList));
+        });
+        amLowMinutes.forEach(minute -> {
+            TjDataPk tjDataPk = new TjDataPk(orgId, minute);
+            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, amLowScCountList, amLowSpvCountList, amLowDcCountList, amLowDdcCountList, amLowUvCountList, amLowSvvCountList));
+        });
+        pmLowMinutes.forEach(minute -> {
+            TjDataPk tjDataPk = new TjDataPk(orgId, minute);
+            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, pmLowScCountList, pmLowSpvCountList, pmLowDcCountList, pmLowDdcCountList, pmLowUvCountList, pmLowSvvCountList));
         });
         otherMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
@@ -693,17 +736,17 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
 
     /**
-     * 高峰分钟数列表
+     * 8点至12点
      *
      * @param beginTime
      * @param endTime
      * @param day
      * @return
      */
-    private static List<DateTime> getHighMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
+    private static List<DateTime> getAmHighMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
         DateTime beginMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 8).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
-        DateTime endMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 18).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
-        // 如果开始时间在18点之后或结束时间在8点之前，直接返回空
+        DateTime endMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 11).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
+        // 如果开始时间在12点之后或结束时间在8点之前，直接返回空
         if (beginTime.after(endMinute) || endTime.before(beginMinute)) {
             return new ArrayList<>();
         }
@@ -714,16 +757,37 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
     }
 
     /**
-     * 其它分钟数列表
+     * 14点至18点
      *
      * @param beginTime
      * @param endTime
      * @param day
      * @return
      */
-    private static List<DateTime> getOtherMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
-        DateTime beginMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 19).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
-        DateTime endMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 22).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
+    private static List<DateTime> getPmHighMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
+        DateTime beginMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 14).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
+        DateTime endMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 18).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
+        // 如果开始时间在18点之后或结束时间在14点之前，直接返回空
+        if (beginTime.after(endMinute) || endTime.before(beginMinute)) {
+            return new ArrayList<>();
+        }
+
+        beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
+        endMinute = endTime.before(endMinute) ? endTime : endMinute;
+        return DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+    }
+
+    /**
+     * 12点至14点
+     *
+     * @param beginTime
+     * @param endTime
+     * @param day
+     * @return
+     */
+    private static List<DateTime> getAmLowMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
+        DateTime beginMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 12).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
+        DateTime endMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 13).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
         // 如果开始时间在22点之后或结束时间在19点之前，直接返回空
         if (beginTime.after(endMinute) || endTime.before(beginMinute)) {
             return new ArrayList<>();
@@ -734,6 +798,27 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
     }
 
     /**
+     * 19点至22点
+     *
+     * @param beginTime
+     * @param endTime
+     * @param day
+     * @return
+     */
+    private static List<DateTime> getPmLowMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
+        DateTime beginMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 19).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
+        DateTime endMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 21).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
+        // 如果开始时间在22点之后或结束时间在19点之前，直接返回空
+        if (beginTime.after(endMinute) || endTime.before(beginMinute)) {
+            return new ArrayList<>();
+        }
+        beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
+        endMinute = endTime.before(endMinute) ? endTime : endMinute;
+        return DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+    }
+
+
+    /**
      * 低谷分钟数列表
      *
      * @param beginTime
@@ -741,11 +826,11 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
      * @param day
      * @return
      */
-    private static List<DateTime> getLowMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
+    private static List<DateTime> getOtherMinutes(DateTime beginTime, DateTime endTime, DateTime day) {
         DateTime beginMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 0).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
         DateTime endMinute = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 7).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
 
-        DateTime beginMinute2 = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 23).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
+        DateTime beginMinute2 = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 22).setField(DateField.MINUTE, 0).setField(DateField.SECOND, 0);
         DateTime endMinute2 = day.setMutable(false).setField(DateField.HOUR_OF_DAY, 23).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
         List<DateTime> otherMinutes = new ArrayList<>();
         //开始时间在当天的7点之前 且 结束时间在当天的0点之后

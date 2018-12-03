@@ -104,17 +104,23 @@ public class QuotaServiceImpl implements QuotaService {
 
     @Override
     public void runTask(Date date) {
-        Map<String, Double> settingMap = new TreeMap<>();
+        Map<String, Double> weightMap = new TreeMap<>();
         // 获取所有比率设置，组装map
         tjWeightRepository.findAll().forEach(tjWeight -> {
-            settingMap.put(tjWeight.getDateType() + "-" + tjWeight.getDateIndex(), RandomUtil.randomDouble(tjWeight.getLow(), tjWeight.getHigh()));
+            if (tjWeight.getLow() > tjWeight.getHigh()) {
+                log.error("lowWeight:{} 必须小于highWeight:{},请检查数据表[tj_weight]的数据", tjWeight.getLow(), tjWeight.getHigh());
+                throw new IllegalArgumentException("权重配置错误！");
+            }
+            // 在最低和最高权重之间随机一个权重
+            double weight = RandomUtil.randomDouble(tjWeight.getLow(), tjWeight.getHigh());
+            weightMap.put(tjWeight.getDateType() + "-" + tjWeight.getDateIndex(), weight);
         });
         // 获取明天所有的小时数列表
         List<DateTime> hourList = DateUtil.rangeToList(DateUtil.beginOfDay(date), DateUtil.endOfDay(date), DateField.HOUR);
         // 获取小时列表
         log.info("待生成[{} - {}]共{}小时数据", DateUtil.beginOfDay(DateUtil.tomorrow()), DateUtil.endOfDay(DateUtil.tomorrow()), hourList.size());
         // 计算每个小时的权重
-        List<WeightRandom.WeightObj<DateTime>> hoursWeightList = RandomUtil.dayWeightList(settingMap, hourList);
+        List<WeightRandom.WeightObj<DateTime>> hoursWeightList = RandomUtil.dayWeightList(weightMap, hourList);
         Pageable pageable = PageRequest.of(0, 100);
         Page<TjQuota> tjQuotas = tjQuotaRepository.findByHistoryIsFalse(pageable);
         buildData(hoursWeightList, tjQuotas);
