@@ -509,19 +509,19 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, vvTotal);
 
 
-        Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, 0.3);
+        Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, 0.6);
         scMap.forEach((k, v) -> {
             // 同时设置sc和pv量
             dayTotalMap.get(k).setScTotal(v).setPvTotal(v);
         });
         // uv和vv
-        Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, 0.3);
+        Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, 0.6);
         uvMap.forEach((k, v) -> {
             //同时设置uv和vv量
             dayTotalMap.get(k).setUvTotal(v).setVvTotal(v);
         });
         int svvTotal = vvTotal - uvTotal;
-        Map<DateTime, Integer> vvMap = randomListFromWeight(dayWeightList, svvTotal, 0.3);
+        Map<DateTime, Integer> vvMap = randomListFromWeight(dayWeightList, svvTotal, 0.6);
         vvMap.forEach((k, v) -> {
             // 在已有vv量基础上加上新的量
             int yvv = dayTotalMap.get(k).getVvTotal();
@@ -533,19 +533,19 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
         // 剩余pv
         int spvTotal = pvTotal - scTotal;
-        Map<DateTime, Integer> pvMap = randomListFromWeight(dayWeightList, spvTotal, 0.3);
+        Map<DateTime, Integer> pvMap = randomListFromWeight(dayWeightList, spvTotal, 0.6);
         pvMap.forEach((k, v) -> {
             // 在已有PV量基础上加上新的量
             int ypv = dayTotalMap.get(k).getPvTotal();
             dayTotalMap.get(k).setPvTotal(ypv + v);
         });
         // 下载量
-        Map<DateTime, Integer> dcMap = randomListFromWeight(dayWeightList, dcTotal, 0.3);
+        Map<DateTime, Integer> dcMap = randomListFromWeight(dayWeightList, dcTotal, 0.6);
         dcMap.forEach((k, v) -> {
             dayTotalMap.get(k).setDcTotal(v);
         });
         // 文献传递量
-        Map<DateTime, Integer> ddcMap = randomListFromWeight(dayWeightList, ddcTotal, 0.3);
+        Map<DateTime, Integer> ddcMap = randomListFromWeight(dayWeightList, ddcTotal, 0.6);
         ddcMap.forEach((k, v) -> {
             dayTotalMap.get(k).setDdcTotal(v);
         });
