@@ -9,7 +9,7 @@ package com.wd.cloud.fsserver.model;
 public class TableModel {
     private String tableName;
     /**
-     * 使用文件unid作为rowkey
+     * 使用文件md5作为rowkey
      */
     private String rowKey;
     private String family = "cf";

@@ -44,6 +44,8 @@ public interface UploadRecordRepository extends JpaRepository<UploadRecord, Long
      */
     Optional<UploadRecord> findByUnidAndMissedIsFalse(String nuid);
 
+    Optional<UploadRecord> findByPathAndFileName(String path, String fileName);
+
     Optional<UploadRecord> findByPathAndFileNameAndFileSize(String path, String fileName, Long fileSize);
 
     Optional<UploadRecord> findByPathAndFileNameAndFileSizeAndMissed(String path, String fileName, Long fileSize, boolean missed);

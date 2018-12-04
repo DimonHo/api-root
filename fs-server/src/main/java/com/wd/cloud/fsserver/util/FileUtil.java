@@ -56,8 +56,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @return
      */
     public static String buildFileUuid(String path, String fileMd5) {
-        //MD5在前，防止以unid作为hbase的rowKey产生热点问题
-        return SecureUtil.md5(fileMd5 + path);
+        return SecureUtil.md5(path + fileMd5);
     }
 
     /**
@@ -99,6 +98,9 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     }
 
     public static String buildFileName(String md5, String fileType) {
+        if (StrUtil.isBlank(fileType)){
+            return md5;
+        }
         return String.format("%s.%s", md5, fileType.toLowerCase());
     }
 

@@ -57,7 +57,7 @@ public class AsyncTask {
         if (file.exists()) {
             try {
                 // 同步至hbase中
-                hbaseService.saveToHbase(uploadRecord.getPath(), uploadRecord.getUnid(), file);
+                hbaseService.saveToHbase(uploadRecord.getPath(), uploadRecord.getMd5(), file);
                 // 更新记录
                 uploadRecord.setAsynced(true);
                 uploadRecordService.save(uploadRecord);

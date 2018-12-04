@@ -14,6 +14,41 @@ public class GlobalConfig {
 
     private String rootPath;
 
+    private String hbaseStore = "fsStore";
+
+    private String hbaseImage = "fsImage";
+
+    private String hbaseDoc = "fsDoc";
+
+    private String hbasePaper = "fsPaper";
+
+    public String getHbaseStore() {
+        return hbaseStore;
+    }
+
+    public GlobalConfig setHbaseStore(String hbaseStore) {
+        this.hbaseStore = hbaseStore;
+        return this;
+    }
+
+    public String getHbaseImage() {
+        return hbaseImage;
+    }
+
+    public GlobalConfig setHbaseImage(String hbaseImage) {
+        this.hbaseImage = hbaseImage;
+        return this;
+    }
+
+    public String getHbaseDoc() {
+        return hbaseDoc;
+    }
+
+    public GlobalConfig setHbaseDoc(String hbaseDoc) {
+        this.hbaseDoc = hbaseDoc;
+        return this;
+    }
+
     public String getRootPath() {
         return rootPath;
     }

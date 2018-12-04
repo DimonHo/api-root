@@ -106,7 +106,7 @@ public class BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dir", value = "文件上传目录", dataType = "String", paramType = "path")
     })
-    @PostMapping("/mulitupload/{dir}")
+    @PostMapping("/upload/mulit/{dir}")
     public ResponseModel<JSONObject> uploadFiles(@PathVariable String dir,
                                                  @NotNull MultipartFile[] files) {
         JSONObject jsonObject = new JSONObject();
@@ -131,6 +131,29 @@ public class BaseController {
                                                            HttpServletRequest request)
             throws UnsupportedEncodingException {
         File file = fileService.getFile(unid);
+        if (file != null) {
+            return ResponseEntity
+                    .ok()
+                    .headers(HttpHeaderUtil.buildBroserFileHttpHeaders(file.getName(), request))
+                    .contentLength(file.length())
+                    .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                    .body(new FileSystemResource(file));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @ApiOperation(value = "文件下载", tags = {"文件获取"})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tableName", value = "文件目录", dataType = "String", paramType = "path"),
+            @ApiImplicitParam(name = "fileName", value = "文件名称", dataType = "String", paramType = "path")
+    })
+    @GetMapping("/load/{tableName}")
+    public ResponseEntity<FileSystemResource> downloadFile(@PathVariable String tableName,
+                                                           @RequestParam String fileName,
+                                                           HttpServletRequest request)
+            throws UnsupportedEncodingException {
+        File file = fileService.getFile(tableName,fileName);
         if (file != null) {
             return ResponseEntity
                     .ok()

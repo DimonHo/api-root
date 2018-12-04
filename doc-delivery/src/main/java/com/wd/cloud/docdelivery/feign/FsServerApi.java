@@ -1,11 +1,14 @@
 package com.wd.cloud.docdelivery.feign;
 
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 
 /**
  * @author He Zhigang
@@ -21,27 +24,27 @@ public interface FsServerApi extends com.wd.cloud.apifeign.FsServerApi {
     class Fallback implements FsServerApi {
 
         @Override
-        public ResponseModel uploadFile(String dir, MultipartFile file) {
+        public ResponseModel<JSONObject> uploadFile(String dir, MultipartFile file) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }
 
         @Override
-        public ResponseModel uploadFiles(String dir, MultipartFile[] files) {
+        public ResponseModel<JSONObject> uploadFiles(String dir, MultipartFile[] files) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }
 
         @Override
         public ResponseEntity downloadFile(String unid) {
-            return null;
+            return ResponseEntity.status(2).build();
         }
 
         @Override
-        public ResponseModel getFile(String unid) {
+        public ResponseModel<File> getFile(String unid) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }
 
         @Override
-        public ResponseModel getFileByte(String unid) {
+        public ResponseModel<byte[]> getFileByte(String unid) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }
 
@@ -51,7 +54,7 @@ public interface FsServerApi extends com.wd.cloud.apifeign.FsServerApi {
         }
 
         @Override
-        public ResponseModel getunid(String tableName, String fileName) {
+        public ResponseModel<String> getunid(String tableName, String fileName) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }
     }

@@ -49,38 +49,38 @@ public class HbaseServiceImpl implements HbaseService {
     UploadRecordService uploadRecordService;
 
     @Override
-    public void saveToHbase(String tableName, String unid, MultipartFile file) throws Exception {
+    public void saveToHbase(String tableName, String md5, MultipartFile file) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getOriginalFilename())
-                .setRowKey(unid)
+                .setRowKey(md5)
                 .setValue(file.getBytes());
         saveToHbase(tableModel);
     }
 
     @Override
-    public void saveToHbase(String tableName, String unid, File file) throws Exception {
+    public void saveToHbase(String tableName, String md5, File file) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
-                .setRowKey(unid)
+                .setRowKey(md5)
                 .setValue(FileUtil.readBytes(file));
         saveToHbase(tableModel);
     }
 
     @Override
-    public void saveToHbase(String tableName, String unid, byte[] fileByte, String fileName) throws Exception {
+    public void saveToHbase(String tableName, String md5, byte[] fileByte, String fileName) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(fileName)
-                .setRowKey(unid)
+                .setRowKey(md5)
                 .setValue(fileByte);
         saveToHbase(tableModel);
     }
 
     @Override
     public void saveToHbase(String tableName, File file) throws Exception {
-        String unid = FileUtil.buildFileUuid(tableName, FileUtil.fileMd5(file));
+        String md5 =  FileUtil.fileMd5(file);
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
-                .setRowKey(unid)
+                .setRowKey(md5)
                 .setValue(FileUtil.readBytes(file));
         saveToHbase(tableModel);
     }
@@ -100,8 +100,8 @@ public class HbaseServiceImpl implements HbaseService {
     }
 
     @Override
-    public byte[] getFileFromHbase(String tableName, String unid) {
-        return hbaseTemplate.get(tableName, unid, new RowMapper<byte[]>() {
+    public byte[] getFileFromHbase(String tableName, String md5) {
+        return hbaseTemplate.get(tableName, md5, new RowMapper<byte[]>() {
             @Override
             public byte[] mapRow(Result result, int i) {
                 byte[] fileByte = null;
@@ -109,7 +109,7 @@ public class HbaseServiceImpl implements HbaseService {
                 if (cells != null) {
                     Cell cell = cells.stream().findFirst().get();
                     fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                    log.info("从hbase读取文件unid：{}，size：{} byte", unid, fileByte.length);
+                    log.info("从hbase读取文件md5：{}，size：{} byte", md5, fileByte.length);
                 }
                 return fileByte;
             }
@@ -138,12 +138,7 @@ public class HbaseServiceImpl implements HbaseService {
                             fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                             byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                             File file = FileUtil.saveToDisk(globalConfig.getRootPath() + tableName, fileName, fileByte);
-                            String fileMd5Name = FileUtil.buildFileMd5Name(file);
-                            // 以MD5文件名保存
-                            if (!fileMd5Name.equals(file.getName())) {
-                                file = FileUtil.rename(file, fileMd5Name, false, true);
-                            }
-                            uploadRecordService.save(tableName, fileMd5Name, file);
+                            uploadRecordService.save("literature", fileName, file);
                             count.getAndIncrement();
                         } catch (Exception e) {
                             log.error(e, "fileName:{}", fileName);

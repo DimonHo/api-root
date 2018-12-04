@@ -6,6 +6,7 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
 import com.wd.cloud.fsserver.entity.UploadRecord;
 import com.wd.cloud.fsserver.model.BlockFileModel;
+import com.wd.cloud.fsserver.repository.UploadRecordRepository;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.HbaseService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
@@ -35,6 +36,9 @@ public class FileServiceImpl implements FileService {
     @Autowired
     UploadRecordService uploadRecordService;
 
+    @Autowired
+    UploadRecordRepository uploadRecordRepository;
+
     @Override
     public UploadRecord save(String dir, MultipartFile file) throws Exception {
         String fileName = file.getOriginalFilename();
@@ -54,7 +58,7 @@ public class FileServiceImpl implements FileService {
                     "fs-server exception",
                     String.format("文件:%s保存失败，请检查磁盘是否已满", fileName));
             //如果磁盘已满，直接保存至hbase
-            hbaseService.saveToHbase(dir, unid, file);
+            hbaseService.saveToHbase(dir, fileMd5, file);
         }
         uploadRecord = uploadRecordService.save(dir, fileName, fileMd5, file);
         return uploadRecord;
@@ -70,7 +74,37 @@ public class FileServiceImpl implements FileService {
             file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), md5FileName);
             //如果在磁盘中没找到文件，则去hbase中去获取
             if (!file.exists()) {
-                byte[] fileByte = hbaseService.getFileFromHbase(uploadRecord.getPath(), unid);
+                byte[] fileByte = hbaseService.getFileFromHbase(uploadRecord.getPath(), uploadRecord.getMd5());
+                if (fileByte != null && fileByte.length > 0) {
+                    FileUtil.writeBytes(fileByte, file);
+                    // 找到了文件，更新文件状态
+                    if (uploadRecord.isMissed()) {
+                        uploadRecord.setMissed(false);
+                        uploadRecordService.save(uploadRecord);
+                    }
+                } else {
+                    //没找到文件，更新状态
+                    uploadRecord.setMissed(true);
+                    uploadRecordService.save(uploadRecord);
+                    file = null;
+                }
+            }
+        }
+        return file;
+    }
+
+
+    @Override
+    public File getFile(String tableName,String fileName) {
+        File file = null;
+        UploadRecord uploadRecord = uploadRecordRepository.findByPathAndFileName(tableName,fileName).orElse(null);
+        if (uploadRecord != null) {
+            String md5FileName = FileUtil.buildFileName(uploadRecord.getMd5(), uploadRecord.getFileType());
+            // 获取磁盘中的文件
+            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), md5FileName);
+            //如果在磁盘中没找到文件，则去hbase中去获取
+            if (!file.exists()) {
+                byte[] fileByte = hbaseService.getFileFromHbase(uploadRecord.getPath(), fileName);
                 if (fileByte != null && fileByte.length > 0) {
                     FileUtil.writeBytes(fileByte, file);
                     // 找到了文件，更新文件状态

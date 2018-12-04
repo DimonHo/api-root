@@ -29,6 +29,8 @@ public interface UploadRecordService {
 
     UploadRecord save(String path, String fileName, String fileMd5, File file);
 
+    UploadRecord save(String path,String fileName,String fileMd5,String unid,File file);
+
     UploadRecord save(String path, String fileName, MultipartFile file) throws IOException;
 
     UploadRecord save(String path, String fileName, File file);
