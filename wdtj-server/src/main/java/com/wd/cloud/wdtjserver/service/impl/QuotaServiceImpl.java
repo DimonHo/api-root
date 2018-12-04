@@ -9,10 +9,12 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
+import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.TotalModel;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
+import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.service.QuotaService;
 import com.wd.cloud.wdtjserver.service.WeightService;
@@ -45,6 +47,9 @@ public class QuotaServiceImpl implements QuotaService {
 
     @Autowired
     TjTaskDataRepository tjTaskDataRepository;
+
+    @Autowired
+    TjViewDataRepository tjViewDataRepository;
 
     @Autowired
     TjWeightRepository tjWeightRepository;
@@ -122,21 +127,30 @@ public class QuotaServiceImpl implements QuotaService {
     }
 
 
-    public void buildData(WeightRandom.WeightObj<DateTime> dayWeight, Page<TjQuota> tjQuotas, Date date) {
+    private void buildData(WeightRandom.WeightObj<DateTime> dayWeight, Page<TjQuota> tjQuotas, Date date) {
+        boolean isHis = false;
+        if (DateUtil.beginOfDay(date).before(DateUtil.beginOfDay(new Date()))){
+            isHis = true;
+        }
+        final boolean finalIsHis = isHis;
         tjQuotas.getContent().forEach(tjQuota -> {
             Map<DateTime, TotalModel> dayTotal = randomTotal(tjQuota, dayWeight);
             dayTotal.entrySet().forEach(totalModel -> {
                 // 生成当前小时每分钟的指标数量
-                List<AbstractTjDataEntity> tjDataList = RandomUtil.buildMinuteTjData(DateUtil.beginOfDay(date), DateUtil.endOfDay(date), totalModel, TjTaskData.class);
+                List<AbstractTjDataEntity> tjDataList = RandomUtil.buildMinuteTjData(DateUtil.beginOfDay(date), DateUtil.endOfDay(date), totalModel, finalIsHis);
                 // 插入数据库
-                tjTaskDataRepository.saveAll(tjDataList.stream().map(a -> (TjTaskData) a).collect(Collectors.toList()));
+                if (!finalIsHis){
+                    tjTaskDataRepository.saveAll(tjDataList.stream().map(a -> (TjTaskData) a).collect(Collectors.toList()));
+                }else{
+                    tjViewDataRepository.saveAll(tjDataList.stream().map(a -> (TjViewData) a).collect(Collectors.toList()));
+                }
             });
         });
     }
 
 
-    public Map<DateTime, TotalModel> randomTotal(TjQuota tjQuota, WeightRandom.WeightObj<DateTime> dayWeight) {
-        Map<DateTime, TotalModel> map = new HashMap<DateTime, TotalModel>();
+    private Map<DateTime, TotalModel> randomTotal(TjQuota tjQuota, WeightRandom.WeightObj<DateTime> dayWeight) {
+        Map<DateTime, TotalModel> map = new HashMap<>();
         TotalModel totalModel = new TotalModel();
         int pvTotal = (int) Math.round(tjQuota.getPvCount() * dayWeight.getWeight());
         int scTotal = (int) Math.round(tjQuota.getScCount() * dayWeight.getWeight());
@@ -145,7 +159,7 @@ public class QuotaServiceImpl implements QuotaService {
         int uvTotal = (int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight());
         int vvTotal = (int) Math.round(tjQuota.getVvCount() * dayWeight.getWeight());
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
-        long avgTimeTotal = DateUtil.getTimeMillis(tjQuota.getAvgTime()) * vvTotal;
+        long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.3,3) * vvTotal);
 
         totalModel.setOrgId(tjQuota.getOrgId())
                 .setOrgName(tjQuota.getOrgName())

@@ -161,7 +161,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         //生成每天的指标总量
         Map<DateTime, TotalModel> dayTotalModelList = RandomUtil.dayTotalFromWeight(tjHisQuota, dayWeightList);
         dayTotalModelList.entrySet().forEach(dayTotalModel -> {
-            List<AbstractTjDataEntity> tjViewDataList = RandomUtil.buildMinuteTjData(DateTime.of(tjHisQuota.getBeginTime()), DateTime.of(tjHisQuota.getEndTime()), dayTotalModel,TjViewData.class);
+            List<AbstractTjDataEntity> tjViewDataList = RandomUtil.buildMinuteTjData(DateTime.of(tjHisQuota.getBeginTime()), DateTime.of(tjHisQuota.getEndTime()), dayTotalModel,true);
             tjViewDataRepository.saveAll(tjViewDataList.stream().map(a -> (TjViewData)a).collect(Collectors.toList()));
         });
 
