@@ -10,3 +10,5 @@ INSERT INTO `tj_weight` VALUES (9, NULL, NULL, 4, 1, 1.5, 0.9, NULL);
 INSERT INTO `tj_weight` VALUES (10, NULL, NULL, 3, 1, 1.5, 0.9, NULL);
 INSERT INTO `tj_weight` VALUES (11, NULL, NULL, 2, 1, 0.4, 0.3, NULL);
 INSERT INTO `tj_weight` VALUES (12, NULL, NULL, 1, 1, 0.6, 0.5, NULL);
+INSERT INTO `tj_weight` VALUES (13, NULL, NULL, 1, 2, 0.7, 0.2, NULL);
+INSERT INTO `tj_weight` VALUES (14, NULL, NULL, 7, 2, 0.7, 0.2, NULL);

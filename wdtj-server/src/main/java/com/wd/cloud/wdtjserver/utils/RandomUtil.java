@@ -122,7 +122,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         }
         Map<T, Integer> result = new HashMap<>();
         // 将权重列表倒序排列，保证权重高的优先取值
-        weightSort(weightList);
+        //weightSort(weightList);
         // 统计权重总和
         double sumWeight = weightList.stream().map(WeightRandom.WeightObj::getWeight).reduce((a, b) -> a + b).orElse(1.0 * weightList.size());
         // 计算平均权重
@@ -630,7 +630,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         if (beginTime.before(endMinute) && endTime.after(beginMinute)) {
             beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
             endMinute = endTime.before(endMinute) ? endTime : endMinute;
-            otherMinutes = DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+            otherMinutes = DateUtil.rangeToList(beginMinute, endMinute, dateField);
         }
         //开始时间在当天的24点之前 且 结束时间在当天的23点之后
         if (beginTime.before(endMinute2) && endTime.after(beginMinute2)) {
