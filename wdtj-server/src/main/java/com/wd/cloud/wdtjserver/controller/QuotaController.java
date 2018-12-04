@@ -4,6 +4,7 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
 import com.wd.cloud.wdtjserver.service.QuotaService;
+import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -98,10 +99,11 @@ public class QuotaController {
     }
 
 
-    @ApiOperation(value = "手动根据日基数生成今天的详细数据", tags = {"后台管理"})
+    @ApiOperation(value = "手动根据日基数生成详细数据", tags = {"后台管理"})
+    @ApiImplicitParam(name = "day", value = "要生成的日期", dataType = "String", paramType = "query")
     @GetMapping("/quota/run")
-    public ResponseModel runTodayQuota() {
-        quotaService.runTask(new Date());
+    public ResponseModel runTodayQuota(@RequestParam String day) {
+        quotaService.runTask(DateUtil.parse(day));
         return ResponseModel.ok();
     }
 }

@@ -7,6 +7,7 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjHisBuild;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
@@ -19,6 +20,7 @@ import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.service.HisQuotaService;
+import com.wd.cloud.wdtjserver.service.WeightService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author He Zhigang
@@ -52,7 +55,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     TjHisBuildRepository tjHisBuildRepository;
 
     @Autowired
-    TjWeightRepository tjWeightRepository;
+    WeightService weightService;
 
     @Autowired
     TjViewDataRepository tjViewDataRepository;
@@ -136,12 +139,8 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     @Async
     @Override
     public void buildExecute(TjHisQuota tjHisQuota) {
-        Map<String, Double> weightMap = new HashMap<>();
-        // 获取所有比率设置，组装map
-        tjWeightRepository.findAll().forEach(tjWeight -> {
-            weightMap.put(tjWeight.getDateType() + "-" + tjWeight.getDateIndex(), RandomUtil.randomDouble(tjWeight.getLow(), tjWeight.getHigh()));
-        });
 
+        Map<String,Double> weightMap = weightService.buildWeightMap();
         // 将开始时间和结束时间转换为天
         DateTime beginDay = DateUtil.beginOfDay(tjHisQuota.getBeginTime());
         DateTime endDay = DateUtil.beginOfDay(tjHisQuota.getEndTime());
@@ -162,8 +161,8 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         //生成每天的指标总量
         Map<DateTime, TotalModel> dayTotalModelList = RandomUtil.dayTotalFromWeight(tjHisQuota, dayWeightList);
         dayTotalModelList.entrySet().forEach(dayTotalModel -> {
-            List<TjViewData> tjViewDataList = RandomUtil.buildMinuteTjData(DateTime.of(tjHisQuota.getBeginTime()), DateTime.of(tjHisQuota.getEndTime()), dayTotalModel);
-            tjViewDataRepository.saveAll(tjViewDataList);
+            List<AbstractTjDataEntity> tjViewDataList = RandomUtil.buildMinuteTjData(DateTime.of(tjHisQuota.getBeginTime()), DateTime.of(tjHisQuota.getEndTime()), dayTotalModel,TjViewData.class);
+            tjViewDataRepository.saveAll(tjViewDataList.stream().map(a -> (TjViewData)a).collect(Collectors.toList()));
         });
 
         // 修改状态

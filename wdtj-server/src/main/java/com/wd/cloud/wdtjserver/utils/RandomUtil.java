@@ -7,10 +7,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.core.lang.WeightRandom;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.wdtjserver.entity.TjDataPk;
-import com.wd.cloud.wdtjserver.entity.TjHisQuota;
-import com.wd.cloud.wdtjserver.entity.TjTaskData;
-import com.wd.cloud.wdtjserver.entity.TjViewData;
+import com.wd.cloud.wdtjserver.entity.*;
 import com.wd.cloud.wdtjserver.model.TotalModel;
 
 import java.util.*;
@@ -24,8 +21,8 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
     private static final Log log = LogFactory.get();
 
-    private static final double LOW_FU_DONG = 0.2;
-    private static final double HIGH_FU_DONG = 0.6;
+    private static final double LOW_FU_DONG = 0.1;
+    private static final double HIGH_FU_DONG = 0.7;
 
     /**
      * 生成总和为固定值的随机数列表
@@ -145,145 +142,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         }
         // 最后一个的值
         result.put(weightList.get(weightList.size() - 1).getObj(), total - before);
-        Console.log(result.values());
         return result;
-    }
-
-
-    /**
-     * 根据权重列表生成固定总量的数组
-     *
-     * @param weightList
-     * @param tjHisQuota
-     * @param fuDong     浮动指数
-     * @return
-     */
-    public static <T> Map<T, TotalModel> biuldTotalModelFromWeight(List<WeightRandom.WeightObj<T>> weightList, TjHisQuota tjHisQuota, double fuDong) {
-        if (!(fuDong > 0 && fuDong < 1)) {
-            throw new IllegalArgumentException("浮动指数必须在0~1之间");
-        }
-        Map<T, TotalModel> dayTotalMap = new HashMap<>();
-        weightList.forEach(day -> {
-            TotalModel totalModel = new TotalModel();
-            totalModel.setOrgId(tjHisQuota.getOrgId()).setOrgName(tjHisQuota.getOrgName());
-            dayTotalMap.put(day.getObj(), totalModel);
-        });
-
-        int pvTotal = tjHisQuota.getPvCount();
-        int scTotal = tjHisQuota.getScCount();
-        int dcTotal = tjHisQuota.getDcCount();
-        int ddcTotal = tjHisQuota.getDdcCount();
-        int uvTotal = tjHisQuota.getUvCount();
-        int vvTotal = tjHisQuota.getVvCount();
-        boolean isMaxSc = false;
-        if (scTotal > vvTotal) {
-            isMaxSc = true;
-        }
-        int spvTotal = scTotal > vvTotal ? pvTotal - scTotal : pvTotal - vvTotal;
-        // 计算用户访问总时间 = 平均访问时间 * 访问次数
-        long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * vvTotal;
-        // 随机生成：size为访问次数且总和等于总时间的随机列表
-        List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, vvTotal);
-
-        Map<T, Integer> result = new HashMap<>();
-        // 将权重列表倒序排列，保证权重高的优先取值
-        weightSort(weightList);
-        // 统计权重总和
-        double sumWeight = weightList.stream().map(WeightRandom.WeightObj::getWeight).reduce((a, b) -> a + b).orElse(1.0 * weightList.size());
-        // 计算平均权重
-        double avgWeight = sumWeight / weightList.size();
-        // 计算平均值
-        double avgPv = 1.0 * pvTotal / weightList.size(),
-                avgSc = 1.0 * scTotal / weightList.size(),
-                avgDc = 1.0 * dcTotal / weightList.size(),
-                avgDdc = 1.0 * ddcTotal / weightList.size(),
-                avgUv = 1.0 * uvTotal / weightList.size(),
-                avgVv = 1.0 * vvTotal / weightList.size(),
-                avgSpv = 1.0 * spvTotal / weightList.size();
-
-
-        int uvBefore = 0, vvBefore = 0, scBefore = 0, pvBefore = 0, spvBefore = 0, dcBefore = 0, ddcBefore = 0;
-
-        for (int i = 0; i < weightList.size() - 1; i++) {
-            // 实际值 = 平均值 * 权重 / 平均权重
-            double uvCountForWeight = avgUv * weightList.get(i).getWeight() / avgWeight;
-
-            double uvMin = uvBefore + uvCountForWeight * (1 - fuDong);
-            double uvMax = uvBefore + uvCountForWeight * (1 + fuDong);
-            uvMin = uvMin > uvTotal ? uvBefore : uvMin;
-            uvMax = uvMax > uvTotal ? uvTotal : uvMax;
-            int uvAfter = uvMin < uvMax ? (int) Math.round(RandomUtil.randomDouble(uvMin, uvMax)) : uvTotal;
-            int uvCount = uvAfter - uvBefore;
-            uvBefore = uvAfter;
-
-            double vvCountForWeight = avgVv * weightList.get(i).getWeight() / avgWeight;
-            double vvMin = uvMin;
-            double vvMax = vvBefore + vvCountForWeight * (1 + fuDong);
-            vvMin = vvMin > vvTotal ? vvBefore : vvMin;
-            vvMax = vvMax > vvTotal ? vvTotal : vvMax;
-            int vvAfter = vvMin < vvMax ? (int) Math.round(RandomUtil.randomDouble(vvMin, vvMax)) : vvTotal;
-            int vvCount = vvAfter - vvBefore;
-            List<Long> visitTimeList = RandomUtil.randomLongEles(avgTimeList, vvCount, true).orElse(new ArrayList<>());
-            long visitCount = visitTimeList.stream().reduce((a, b) -> a + b).orElse(0L);
-            vvBefore = vvAfter;
-
-            double scCountForWeight = avgSc * weightList.get(i).getWeight() / avgWeight;
-            double scMin = scBefore + scCountForWeight * (1 - fuDong);
-            double scMax = scBefore + scCountForWeight * (1 + fuDong);
-            scMin = scMin > scTotal ? scBefore : scMin;
-            scMax = scMax > scTotal ? scTotal : scMax;
-            int scAfter = scMin < scMax ? (int) Math.round(RandomUtil.randomDouble(scMin, scMax)) : scTotal;
-            int scCount = scAfter - scBefore;
-            scBefore = scAfter;
-
-            double spvCountForWeight = avgSpv * weightList.get(i).getWeight() / avgWeight;
-            //pv量不小于 vv 和 sc
-            double spvMin = spvBefore + spvCountForWeight * (1 - fuDong);
-            double spvMax = spvBefore + spvCountForWeight * (1 + fuDong);
-            spvMin = spvMin > spvTotal ? spvBefore : spvMin;
-            spvMax = spvMax > spvTotal ? spvTotal : spvMax;
-            int spvAfter = spvMin < spvMax ? (int) Math.round(RandomUtil.randomDouble(spvMin, spvMax)) : spvTotal;
-            int pvCount = isMaxSc ? scCount + spvAfter - spvBefore : vvCount + spvAfter - spvBefore;
-            pvBefore += pvCount;
-            spvBefore = spvAfter;
-
-
-            double dcCountForWeight = avgDc * weightList.get(i).getWeight() / avgWeight;
-            double dcMin = dcBefore + dcCountForWeight * (1 - fuDong);
-            double dcMax = dcBefore + dcCountForWeight * (1 + fuDong);
-            dcMin = dcMin > dcTotal ? dcBefore : dcMin;
-            dcMax = dcMax > dcTotal ? dcTotal : dcMax;
-            int dcAfter = dcMin < dcMax ? (int) Math.round(RandomUtil.randomDouble(dcMin, dcMax)) : dcTotal;
-            int dcCount = dcAfter - dcBefore;
-            dcBefore = dcAfter;
-
-            double ddcCountForWeight = avgDdc * weightList.get(i).getWeight() / avgWeight;
-            double ddcMin = ddcBefore + ddcCountForWeight * (1 - fuDong);
-            double ddcMax = ddcBefore + ddcCountForWeight * (1 + fuDong);
-            ddcMin = ddcMin > ddcTotal ? ddcBefore : ddcMin;
-            ddcMax = ddcMax > ddcTotal ? ddcTotal : ddcMax;
-            int ddcAfter = ddcMin < ddcMax ? (int) Math.round(RandomUtil.randomDouble(ddcMin, ddcMax)) : ddcTotal;
-            int ddcCount = ddcAfter - ddcBefore;
-            ddcBefore = ddcAfter;
-            dayTotalMap.get(weightList.get(i).getObj())
-                    .setUvTotal(uvCount)
-                    .setVvTotal(vvCount)
-                    .setScTotal(scCount)
-                    .setPvTotal(pvCount)
-                    .setDcTotal(dcCount)
-                    .setDdcTotal(ddcCount)
-                    .setVisitTimeTotal(visitCount);
-        }
-        // 最后一个的值
-        dayTotalMap.get(weightList.get(weightList.size() - 1).getObj())
-                .setScTotal(scTotal - scBefore)
-                .setUvTotal(uvTotal - uvBefore)
-                .setVvTotal(vvTotal - vvBefore)
-                .setDcTotal(dcTotal - dcBefore)
-                .setDdcTotal(ddcTotal - ddcBefore)
-                .setPvTotal(pvTotal - pvBefore)
-                .setVisitTimeTotal(avgTimeList.stream().reduce((a, b) -> a + b).orElse(0L));
-        return dayTotalMap;
     }
 
     private static <T> void weightSort(List<WeightRandom.WeightObj<T>> weightList) {
@@ -300,77 +159,6 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             }
         });
     }
-
-
-    /**
-     * 生成每分钟的随机数据
-     *
-     * @param hourTotalModel
-     * @return
-     */
-    public static List<TjTaskData> buildDataFromWeight(TotalModel hourTotalModel) {
-        int pvTotal = hourTotalModel.getPvTotal();
-        int scTotal = hourTotalModel.getScTotal();
-        int dcTotal = hourTotalModel.getDcTotal();
-        int ddcTotal = hourTotalModel.getDdcTotal();
-        int uvTotal = hourTotalModel.getUvTotal();
-        int vvTotal = hourTotalModel.getVvTotal();
-
-        Map<DateTime, TjTaskData> tjDataEntityMap = new HashMap<>();
-        List<WeightRandom.WeightObj<DateTime>> weightObjs = new ArrayList<>();
-        //获取分钟数列表
-        List<DateTime> minuteList = DateUtil.rangeMinuteFromHours(hourTotalModel.getDate());
-        minuteList.forEach(minuteDate -> {
-            TjTaskData tjData = new TjTaskData();
-            TjDataPk tjDataPk = new TjDataPk(hourTotalModel.getOrgId(), minuteDate);
-            tjData.setId(tjDataPk);
-            tjData.setOrgName(hourTotalModel.getOrgName());
-            tjDataEntityMap.put(minuteDate, tjData);
-            WeightRandom.WeightObj<DateTime> weightObj = new WeightRandom.WeightObj<>(minuteDate, 1.0);
-            weightObjs.add(weightObj);
-        });
-
-        // 平均访问时长 = 总访问时长/访问次数
-        long visitTimeTotal = hourTotalModel.getVisitTimeTotal();
-        List<Long> avgTimeList = randomLongListFromFinalTotal(visitTimeTotal, vvTotal);
-
-        while (pvTotal > 0 || scTotal > 0 || uvTotal > 0 || vvTotal > 0 || dcTotal > 0 || ddcTotal > 0) {
-            DateTime minuteDate = RandomUtil.weightRandom(weightObjs).next();
-            if (pvTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setPvCount(tjDataEntityMap.get(minuteDate).getPvCount() + 1);
-                pvTotal--;
-            }
-            if (scTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setScCount(tjDataEntityMap.get(minuteDate).getScCount() + 1);
-                scTotal--;
-            }
-            if (uvTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setUvCount(tjDataEntityMap.get(minuteDate).getUvCount() + 1);
-                uvTotal--;
-            }
-            if (vvTotal > 0) {
-                tjDataEntityMap.get(minuteDate).setVvCount(tjDataEntityMap.get(minuteDate).getVvCount() + 1);
-                long randomVisitTime = RandomUtil.randomLongEle(avgTimeList, true).orElse(0L);
-                randomVisitTime += tjDataEntityMap.get(minuteDate).getVisitTime();
-                tjDataEntityMap.get(minuteDate).setVisitTime(randomVisitTime);
-                vvTotal--;
-            }
-            if (dcTotal > 0) {
-                int dcCount = RandomUtil.randomInt(3);
-                dcCount = dcCount > dcTotal ? dcTotal : dcCount;
-                tjDataEntityMap.get(minuteDate).setDcCount(tjDataEntityMap.get(minuteDate).getDcCount() + dcCount);
-                dcTotal -= dcCount;
-            }
-            if (ddcTotal > 0) {
-                int ddcCount = RandomUtil.randomInt(3);
-                ddcCount = ddcCount > dcTotal ? dcTotal : ddcCount;
-                tjDataEntityMap.get(minuteDate).setDdcCount(tjDataEntityMap.get(minuteDate).getDdcCount() + ddcCount);
-                ddcTotal -= ddcCount;
-            }
-        }
-        return new ArrayList<>(tjDataEntityMap.values());
-    }
-
 
     /**
      * 从列表中随机取出一个元素，并删除该元素
@@ -471,6 +259,27 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
 
     /**
+     * 计算某天的权重
+     *
+     * @param weightMap 权重配置
+     * @param day       天
+     * @return
+     */
+    public static WeightRandom.WeightObj<DateTime> dayWeight(Map<String, Double> weightMap, DateTime day) {
+        String monthKey = "1-" + (DateUtil.month(day) + 1);
+        // 周日-周六：1 - 7
+        String weekKey = "2-" + (DateUtil.dayOfWeek(day));
+        String dayKey = "3-" + (DateUtil.dayOfMonth(day));
+        double monthWeight = weightMap.get(monthKey) == null ? 1.0 : weightMap.get(monthKey);
+        double weekWeight = weightMap.get(weekKey) == null ? 1.0 : weightMap.get(weekKey);
+        double dayWeight = weightMap.get(dayKey) == null ? 1.0 : weightMap.get(dayKey);
+        double weight = monthWeight * weekWeight * dayWeight;
+        return new WeightRandom.WeightObj<>(day, weight);
+
+    }
+
+
+    /**
      * 根据日权重生成日总量
      *
      * @param tjHisQuota
@@ -565,8 +374,8 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
      * @param dayTotalModel
      * @return
      */
-    public static List<TjViewData> buildMinuteTjData(DateTime beginTime, DateTime endTime, Map.Entry<DateTime, TotalModel> dayTotalModel) {
-        List<TjViewData> tjDayDataList = new ArrayList<>();
+    public static List<AbstractTjDataEntity> buildMinuteTjData(DateTime beginTime, DateTime endTime, Map.Entry<DateTime, TotalModel> dayTotalModel, Class clazz) {
+        List<AbstractTjDataEntity> tjDayDataList = new ArrayList<>();
         //高峰时段分钟数列表
         List<DateTime> amHighMinutes = getAmHighMinutes(beginTime, endTime, dayTotalModel.getKey());
         List<DateTime> pmHighMinutes = getPmHighMinutes(beginTime, endTime, dayTotalModel.getKey());
@@ -677,23 +486,23 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
         amHighMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
-            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, amHighScCountList, amHighSpvCountList, amHighDcCountList, amHighDdcCountList, amHighUvCountList, amHighSvvCountList));
+            tjDayDataList.add(createTjData(clazz, orgName, tjDataPk, visitList, amHighScCountList, amHighSpvCountList, amHighDcCountList, amHighDdcCountList, amHighUvCountList, amHighSvvCountList));
         });
         pmHighMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
-            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, pmHighScCountList, pmHighSpvCountList, pmHighDcCountList, pmHighDdcCountList, pmHighUvCountList, pmHighSvvCountList));
+            tjDayDataList.add(createTjData(clazz, orgName, tjDataPk, visitList, pmHighScCountList, pmHighSpvCountList, pmHighDcCountList, pmHighDdcCountList, pmHighUvCountList, pmHighSvvCountList));
         });
         amLowMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
-            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, amLowScCountList, amLowSpvCountList, amLowDcCountList, amLowDdcCountList, amLowUvCountList, amLowSvvCountList));
+            tjDayDataList.add(createTjData(clazz, orgName, tjDataPk, visitList, amLowScCountList, amLowSpvCountList, amLowDcCountList, amLowDdcCountList, amLowUvCountList, amLowSvvCountList));
         });
         pmLowMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
-            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, pmLowScCountList, pmLowSpvCountList, pmLowDcCountList, pmLowDdcCountList, pmLowUvCountList, pmLowSvvCountList));
+            tjDayDataList.add(createTjData(clazz, orgName, tjDataPk, visitList, pmLowScCountList, pmLowSpvCountList, pmLowDcCountList, pmLowDdcCountList, pmLowUvCountList, pmLowSvvCountList));
         });
         otherMinutes.forEach(minute -> {
             TjDataPk tjDataPk = new TjDataPk(orgId, minute);
-            tjDayDataList.add(createTjViewDate(orgName, tjDataPk, visitList, otherScCountList, otherSpvCountList, otherDcCountList, otherDdcCountList, otherUvCountList, otherSvvCountList));
+            tjDayDataList.add(createTjData(clazz, orgName, tjDataPk, visitList, otherScCountList, otherSpvCountList, otherDcCountList, otherDdcCountList, otherUvCountList, otherSvvCountList));
         });
         return tjDayDataList;
     }
@@ -712,8 +521,15 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
      * @param highSvvCountList
      * @return
      */
-    private static TjViewData createTjViewDate(String orgName, TjDataPk tjDataPk, List<Long> visitList, List<Integer> highScCountList, List<Integer> highSpvCountList, List<Integer> highDcCountList, List<Integer> highDdcCountList, List<Integer> highUvCountList, List<Integer> highSvvCountList) {
-        TjViewData tjViewData = new TjViewData();
+    private static AbstractTjDataEntity createTjData(Class clazz, String orgName, TjDataPk tjDataPk, List<Long> visitList, List<Integer> highScCountList, List<Integer> highSpvCountList, List<Integer> highDcCountList, List<Integer> highDdcCountList, List<Integer> highUvCountList, List<Integer> highSvvCountList) {
+        AbstractTjDataEntity tjData;
+        if (clazz.equals(TjViewData.class)) {
+            tjData = new TjViewData();
+        } else if (clazz.equals(TjTaskData.class)) {
+            tjData = new TjTaskData();
+        } else {
+            tjData = new TjSpisData();
+        }
         int scCount = RandomUtil.randomIntEle(highScCountList, true).orElse(0);
         int spvCount = RandomUtil.randomIntEle(highSpvCountList, true).orElse(0);
         int dcCount = RandomUtil.randomIntEle(highDcCountList, true).orElse(0);
@@ -722,7 +538,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         int svvCount = RandomUtil.randomIntEle(highSvvCountList, true).orElse(0);
         List<Long> visites = RandomUtil.randomLongEles(visitList, uvCount + svvCount, true).orElse(new ArrayList<>());
         long visit = visites.stream().reduce((a, b) -> a + b).orElse(0L);
-        tjViewData.setScCount(scCount)
+        tjData.setScCount(scCount)
                 .setPvCount(scCount + spvCount)
                 .setDcCount(dcCount)
                 .setDdcCount(ddcCount)
@@ -731,7 +547,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
                 .setVisitTime(visit)
                 .setId(tjDataPk)
                 .setOrgName(orgName);
-        return tjViewData;
+        return tjData;
     }
 
 
@@ -753,7 +569,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
         beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
         endMinute = endTime.before(endMinute) ? endTime : endMinute;
-        return DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+        return DateUtil.rangeToList(beginMinute, endMinute, DateField.HOUR);
     }
 
     /**
@@ -774,7 +590,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
         beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
         endMinute = endTime.before(endMinute) ? endTime : endMinute;
-        return DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+        return DateUtil.rangeToList(beginMinute, endMinute, DateField.HOUR);
     }
 
     /**
@@ -794,7 +610,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         }
         beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
         endMinute = endTime.before(endMinute) ? endTime : endMinute;
-        return DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+        return DateUtil.rangeToList(beginMinute, endMinute, DateField.HOUR);
     }
 
     /**
@@ -814,7 +630,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         }
         beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
         endMinute = endTime.before(endMinute) ? endTime : endMinute;
-        return DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+        return DateUtil.rangeToList(beginMinute, endMinute, DateField.HOUR);
     }
 
 
@@ -837,13 +653,13 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         if (beginTime.before(endMinute) && endTime.after(beginMinute)) {
             beginMinute = beginTime.after(beginMinute) ? beginTime : beginMinute;
             endMinute = endTime.before(endMinute) ? endTime : endMinute;
-            otherMinutes = DateUtil.rangeToList(beginMinute, endMinute, DateField.MINUTE);
+            otherMinutes = DateUtil.rangeToList(beginMinute, endMinute, DateField.HOUR);
         }
         //开始时间在当天的24点之前 且 结束时间在当天的23点之后
         if (beginTime.before(endMinute2) && endTime.after(beginMinute2)) {
             beginMinute2 = beginTime.after(beginMinute2) ? beginTime : beginMinute2;
             endMinute2 = endTime.before(endMinute2) ? endTime : endMinute2;
-            otherMinutes.addAll(DateUtil.rangeToList(beginMinute2, endMinute2, DateField.MINUTE));
+            otherMinutes.addAll(DateUtil.rangeToList(beginMinute2, endMinute2, DateField.HOUR));
         }
         return otherMinutes;
     }
