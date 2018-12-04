@@ -1,16 +1,17 @@
 package com.wd.cloud.wdtjserver;
 
 import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.lang.WeightRandom;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author He Zhigang
@@ -20,8 +21,39 @@ import java.util.List;
 public class JunitTest {
 
     @Test
-    public void test9(){
-        Console.log(DateUtil.rangeToList(DateUtil.parseDateTime("2018-07-01 00:00:00"), DateUtil.parseDateTime("2018-08-01 00:00:00"), DateField.HOUR));
+    public void test11() {
+        long sum = 480000 * 3000;
+        RandomUtil.randomLongListFromFinalTotal(sum,31);
+    }
+
+    @Test
+    public void test10() {
+        List<WeightRandom.WeightObj<DateTime>> list = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            DateTime key = DateUtil.offsetDay(new Date(), i);
+            double value = 0.2 * (i + 1);
+            WeightRandom.WeightObj<DateTime> e = new WeightRandom.WeightObj<>(key, value);
+            list.add(e);
+            Console.log("{}={}", key, value);
+        }
+        Map<DateTime, Integer> result = new LinkedHashMap<>();
+        RandomUtil.randomListFromWeight(list, 9, 0.1).entrySet().stream().sorted(Map.Entry.comparingByValue()).forEachOrdered(x -> result.put(x.getKey(), x.getValue()));
+        ;
+        Console.log(result);
+        long rs = result.entrySet().stream().map(Map.Entry::getValue).reduce((a, b) -> a + b).orElse(0);
+        Console.log(rs);
+    }
+
+    @Test
+    public void test9() {
+        Console.log(DateUtil.betweenDay(DateTime.of("2018-01-21 04:00:01", "yyyy-MM-dd HH:mm:ss"), DateTime.of("2018-01-22 04:00:00", "yyyy-MM-dd HH:mm:ss"), true));
+        Console.log(DateUtil.rangeToList(
+                DateUtil.beginOfDay(DateTime.of("2018-01-21 04:01:01", "yyyy-MM-dd HH:mm:ss")),
+                DateUtil.beginOfDay(DateTime.of("2018-01-21 04:04:01", "yyyy-MM-dd HH:mm:ss")),
+                DateField.DAY_OF_MONTH));
+        Console.log(DateUtil.between(DateTime.of("2018-01-21 23:01:00", "yyyy-MM-dd HH:mm:ss"), DateUtil.endOfDay(DateTime.of("2018-01-21 04:01:01", "yyyy-MM-dd HH:mm:ss")), DateUnit.MINUTE));
+
     }
 
     @Test

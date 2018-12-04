@@ -48,15 +48,15 @@ public class ViewServiceImpl implements ViewService {
         String formatSqlTime = DateUtil.formatMysqlStr(viewType);
         String formatTime = DateUtil.formatStr(viewType);
 
-        Date start = DateTime.of(beginTime, formatTime);
-        Date end = DateTime.of(endTime, formatTime);
+        Date start = beginTime(DateTime.of(beginTime, formatTime), viewType);
+        Date end = endTime(DateTime.of(endTime, formatTime), viewType);
         log.info("开始时间 - 结束时间：{} - {}", start, end);
 
         List<DateTime> dateTimes = DateUtil.rangeToList(start, end, dateField(viewType));
 
         List<String> tjDates = dateTimes.stream().map(dateTime -> DateUtil.format(dateTime, formatTime)).collect(Collectors.toList());
 
-        List<Map<String, Object>> viewDatas = tjViewDataRepository.groupByTjDate(orgId, beginTime, endTime, formatSqlTime);
+        List<Map<String, Object>> viewDatas = tjViewDataRepository.groupByTjDate(orgId, DateUtil.formatDateTime(start), DateUtil.formatDateTime(end), formatSqlTime);
 
         ViewDataModel viewDataModel = new ViewDataModel();
         viewDataModel.setOrgId(orgId).setTjDate(tjDates);
@@ -128,6 +128,37 @@ public class ViewServiceImpl implements ViewService {
                 return DateField.YEAR;
             default:
                 return DateField.MINUTE;
+        }
+    }
+
+
+    private DateTime endTime(Date date, int viewType) {
+        switch (viewType) {
+            case 1:
+                return DateTime.of(date).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
+            case 2:
+                return DateUtil.endOfDay(date);
+            case 3:
+                return DateUtil.endOfMonth(date);
+            case 4:
+                return DateUtil.endOfYear(date);
+            default:
+                return DateTime.of(date).setField(DateField.HOUR_OF_DAY, 23).setField(DateField.MINUTE, 59).setField(DateField.SECOND, 59);
+        }
+    }
+
+    private DateTime beginTime(Date date, int viewType) {
+        switch (viewType) {
+            case 1:
+                return DateTime.of(date).setField(DateField.MINUTE, 00).setField(DateField.SECOND, 00);
+            case 2:
+                return DateUtil.beginOfDay(date);
+            case 3:
+                return DateUtil.beginOfMonth(date);
+            case 4:
+                return DateUtil.beginOfYear(date);
+            default:
+                return DateTime.of(date).setField(DateField.HOUR_OF_DAY, 00).setField(DateField.MINUTE, 00).setField(DateField.SECOND, 00);
         }
     }
 }

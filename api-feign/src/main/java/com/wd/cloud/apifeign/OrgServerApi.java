@@ -1,6 +1,5 @@
 package com.wd.cloud.apifeign;
 
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;

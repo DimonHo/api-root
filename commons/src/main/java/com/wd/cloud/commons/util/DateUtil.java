@@ -18,19 +18,19 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         String dateFormatStr = null;
         switch (type) {
             case 1:
-                dateFormatStr = "%Y-%m-%d %H:00:00";
+                dateFormatStr = "%Y-%m-%d %H";
                 break;
             case 2:
-                dateFormatStr = "%Y-%m-%d 00:00:00";
+                dateFormatStr = "%Y-%m-%d";
                 break;
             case 3:
-                dateFormatStr = "%Y-%m-01 00:00:00";
+                dateFormatStr = "%Y-%m";
                 break;
             case 4:
-                dateFormatStr = "%Y-01-01 00:00:00";
+                dateFormatStr = "%Y";
                 break;
             default:
-                dateFormatStr = "%Y-%m-%d %H:%i:00";
+                dateFormatStr = "%Y-%m-%d %H:%i";
                 break;
         }
         return dateFormatStr;
