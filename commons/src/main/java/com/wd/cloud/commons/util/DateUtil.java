@@ -18,26 +18,26 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         String dateFormatStr = null;
         switch (type) {
             case 1:
-                dateFormatStr = "%Y-%m-%d %H";
+                dateFormatStr = "%Y-%m-%d %H:00:00";
                 break;
             case 2:
-                dateFormatStr = "%Y-%m-%d";
+                dateFormatStr = "%Y-%m-%d 00:00:00";
                 break;
             case 3:
-                dateFormatStr = "%Y-%m";
+                dateFormatStr = "%Y-%m-01 00:00:00";
                 break;
             case 4:
-                dateFormatStr = "%Y";
+                dateFormatStr = "%Y-01-01 00:00:00";
                 break;
             default:
-                dateFormatStr = "%Y-%m-%d %H:%i";
+                dateFormatStr = "%Y-%m-%d %H:%i:00";
                 break;
         }
         return dateFormatStr;
     }
 
     /**
-     * 格式化mysql时间
+     * 格式化时间
      * @param type
      * @return
      */

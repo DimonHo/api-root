@@ -122,7 +122,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         }
         Map<T, Integer> result = new HashMap<>();
         // 将权重列表倒序排列，保证权重高的优先取值
-        //weightSort(weightList);
+        weightSort(weightList);
         // 统计权重总和
         double sumWeight = weightList.stream().map(WeightRandom.WeightObj::getWeight).reduce((a, b) -> a + b).orElse(1.0 * weightList.size());
         // 计算平均权重
@@ -145,6 +145,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         result.put(weightList.get(weightList.size() - 1).getObj(), total - before);
         return result;
     }
+
 
     private static <T> void weightSort(List<WeightRandom.WeightObj<T>> weightList) {
         weightList.sort(new Comparator<WeightRandom.WeightObj>() {
@@ -321,13 +322,19 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * vvTotal;
         // 随机生成：size为访问次数且总和等于总时间的随机列表
-        List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, vvTotal);
+        List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, dayWeightList.size());
 
-
+        // 下载量
+        List<Integer> dcMap = randomIntListFromFinalTotal(dcTotal, dayWeightList.size());
+        List<Integer> ddcMap = randomIntListFromFinalTotal(ddcTotal, dayWeightList.size());
         Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         scMap.forEach((k, v) -> {
             // 同时设置sc和pv量
-            dayTotalMap.get(k).setScTotal(v).setPvTotal(v);
+            dayTotalMap.get(k).setScTotal(v)
+                    .setPvTotal(v)
+                    .setDcTotal(randomIntEle(dcMap, true).orElse(0))
+                    .setDdcTotal(randomIntEle(ddcMap, true).orElse(0))
+                    .setVisitTimeTotal(randomLongEle(avgTimeList, true).orElse(0L));
         });
         // uv和vv
         Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
@@ -342,8 +349,6 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             int yvv = dayTotalMap.get(k).getVvTotal();
             int sumVv = yvv + v;
             dayTotalMap.get(k).setVvTotal(sumVv);
-            List<Long> visitTimeList = RandomUtil.randomLongEles(avgTimeList, sumVv, true).orElse(new ArrayList<>());
-            dayTotalMap.get(k).setVisitTimeTotal(visitTimeList.stream().reduce((a, b) -> a + b).orElse(0L));
         });
 
         // 剩余pv
@@ -353,16 +358,6 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
             // 在已有PV量基础上加上新的量
             int ypv = dayTotalMap.get(k).getPvTotal();
             dayTotalMap.get(k).setPvTotal(ypv + v);
-        });
-        // 下载量
-        Map<DateTime, Integer> dcMap = randomListFromWeight(dayWeightList, dcTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
-        dcMap.forEach((k, v) -> {
-            dayTotalMap.get(k).setDcTotal(v);
-        });
-        // 文献传递量
-        Map<DateTime, Integer> ddcMap = randomListFromWeight(dayWeightList, ddcTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
-        ddcMap.forEach((k, v) -> {
-            dayTotalMap.get(k).setDdcTotal(v);
         });
 
         return dayTotalMap;
