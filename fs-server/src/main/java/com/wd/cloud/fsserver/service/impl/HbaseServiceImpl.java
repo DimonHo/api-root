@@ -77,7 +77,7 @@ public class HbaseServiceImpl implements HbaseService {
 
     @Override
     public void saveToHbase(String tableName, File file) throws Exception {
-        String md5 =  FileUtil.fileMd5(file);
+        String md5 = FileUtil.fileMd5(file);
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
                 .setRowKey(md5)
@@ -138,7 +138,7 @@ public class HbaseServiceImpl implements HbaseService {
                             fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                             byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                             File file = FileUtil.saveToDisk(globalConfig.getRootPath() + tableName, fileName, fileByte);
-                            uploadRecordService.save("literature", fileName, file);
+                            uploadRecordService.save(tableName, fileName, file);
                             count.getAndIncrement();
                         } catch (Exception e) {
                             log.error(e, "fileName:{}", fileName);
