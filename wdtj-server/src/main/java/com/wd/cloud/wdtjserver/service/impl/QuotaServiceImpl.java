@@ -20,7 +20,6 @@ import com.wd.cloud.wdtjserver.service.QuotaService;
 import com.wd.cloud.wdtjserver.service.WeightService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import com.wd.cloud.wdtjserver.utils.JpaQueryUtil;
-import com.wd.cloud.wdtjserver.utils.ModelUtil;
 import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +29,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -111,7 +113,7 @@ public class QuotaServiceImpl implements QuotaService {
 
     @Override
     public void runTask(Date date) {
-        Map<String,Double> weightMap = weightService.buildWeightMap();
+        Map<String, Double> weightMap = weightService.buildWeightMap();
         // 获取小时列表
         log.info("待生成[{} - {}]共1天数据", DateUtil.beginOfDay(date), DateUtil.endOfDay(date));
         // 计算天的权重
@@ -129,7 +131,7 @@ public class QuotaServiceImpl implements QuotaService {
 
     private void buildData(WeightRandom.WeightObj<DateTime> dayWeight, Page<TjQuota> tjQuotas, Date date) {
         boolean isHis = false;
-        if (DateUtil.beginOfDay(date).before(DateUtil.beginOfDay(new Date()))){
+        if (DateUtil.beginOfDay(date).before(DateUtil.beginOfDay(new Date()))) {
             isHis = true;
         }
         final boolean finalIsHis = isHis;
@@ -139,9 +141,9 @@ public class QuotaServiceImpl implements QuotaService {
                 // 生成当前小时每分钟的指标数量
                 List<AbstractTjDataEntity> tjDataList = RandomUtil.buildMinuteTjData(DateUtil.beginOfDay(date), DateUtil.endOfDay(date), totalModel, finalIsHis);
                 // 插入数据库
-                if (!finalIsHis){
+                if (!finalIsHis) {
                     tjTaskDataRepository.saveAll(tjDataList.stream().map(a -> (TjTaskData) a).collect(Collectors.toList()));
-                }else{
+                } else {
                     tjViewDataRepository.saveAll(tjDataList.stream().map(a -> (TjViewData) a).collect(Collectors.toList()));
                 }
             });
@@ -153,13 +155,13 @@ public class QuotaServiceImpl implements QuotaService {
         Map<DateTime, TotalModel> map = new HashMap<>();
         TotalModel totalModel = new TotalModel();
         int pvTotal = (int) Math.round(tjQuota.getPvCount() * dayWeight.getWeight());
-        int scTotal = (int) Math.round(tjQuota.getScCount() * dayWeight.getWeight());
-        int dcTotal = (int) Math.round(tjQuota.getDcCount() * dayWeight.getWeight());
-        int ddcTotal = (int) Math.round(tjQuota.getDdcCount() * dayWeight.getWeight());
+        int scTotal = (int) Math.round(RandomUtil.randomDouble(tjQuota.getScCount() * dayWeight.getWeight() * 0.7, pvTotal));
+        int dcTotal = (int) Math.round(tjQuota.getDcCount() * RandomUtil.randomDouble(0.3, 3));
+        int ddcTotal = (int) Math.round(tjQuota.getDdcCount() * RandomUtil.randomDouble(0.3, 3));
         int uvTotal = (int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight());
         int vvTotal = (int) Math.round(tjQuota.getVvCount() * dayWeight.getWeight());
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
-        long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.3,3) * vvTotal);
+        long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.3, 3) * vvTotal);
 
         totalModel.setOrgId(tjQuota.getOrgId())
                 .setOrgName(tjQuota.getOrgName())
