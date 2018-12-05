@@ -41,10 +41,12 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         //首尾添加0和total
         tempList.add(0L);
         tempList.add(total);
+        // 如果总量大于count的5倍，那么最小值为1 否则为0
+        int min = total > 5 * count ? 1 : 0;
         if (total > 0) {
             //生成 count-1 个随机数
             for (int i = 1; i < count; i++) {
-                tempList.add(RandomUtil.randomLong(total));
+                tempList.add(RandomUtil.randomLong(min,total));
             }
         } else {
             for (int i = 1; i < count; i++) {
@@ -83,10 +85,12 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         //首尾添加0和total
         tempList.add(0);
         tempList.add(total);
+        // 如果总量大于count的5倍，那么最小值为1 否则为0
+        int min = total > 5 * count ? 1 : 0;
         if (total > 0) {
             //生成 count-1 个随机数
             for (int i = 1; i < count; i++) {
-                tempList.add(RandomUtil.randomInt(total));
+                tempList.add(RandomUtil.randomInt(min, total));
             }
         } else {
             for (int i = 1; i < count; i++) {
