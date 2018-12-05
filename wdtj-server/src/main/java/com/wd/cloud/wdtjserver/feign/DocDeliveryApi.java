@@ -5,8 +5,6 @@ import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
 /**
  * @author He Zhigang
  * @date 2018/11/24

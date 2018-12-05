@@ -55,8 +55,14 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
-        HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        if (checkTimeOut(helpRecord.getGmtModified())) {
+        HelpRecord helpRecord = null;
+        try {
+            helpRecord = helpRecordRepository.getOne(helpRecordId);
+            if (checkTimeOut(helpRecord.getGmtModified())) {
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("未找到id为{}的数据", helpRecordId);
             return null;
         }
         GiveRecord giveRecord = giveRecordRepository.findByHelpRecord(helpRecord);

@@ -1,5 +1,6 @@
 package com.wd.cloud.fsserver.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -46,7 +47,7 @@ public class FileServiceImpl implements FileService {
         //如果文件已存在且missed不为true
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord != null && !uploadRecord.isMissed()) {
-            log.info("文件记录：{} 已存在，unid={}", file.getName(), uploadRecord.getUnid());
+            log.info("文件记录：{} 已存在，unid={}", fileName, uploadRecord.getUnid());
             return uploadRecord;
         }
         try {
@@ -69,7 +70,7 @@ public class FileServiceImpl implements FileService {
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord != null) {
             // 获取磁盘中的文件
-            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), uploadRecord.getFileName());
+            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), getFileName(uploadRecord));
             //如果在磁盘中没找到文件，则去hbase中去获取
             if (!file.exists()) {
                 byte[] fileByte = hbaseService.getFileFromHbase(uploadRecord.getPath(), uploadRecord.getMd5());
@@ -91,6 +92,13 @@ public class FileServiceImpl implements FileService {
         return file;
     }
 
+
+    private String getFileName(UploadRecord uploadRecord){
+        if (StrUtil.isBlank(uploadRecord.getFileType())){
+            return uploadRecord.getMd5();
+        }
+        return uploadRecord.getMd5() + "."+ uploadRecord.getFileType();
+    }
 
     @Override
     public File getFile(String tableName,String fileName) {

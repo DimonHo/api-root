@@ -153,8 +153,8 @@ public class BackendController {
             return ResponseModel.fail().setMessage("文件上传失败，请重试");
         }
         log.info("文件{}上传成功!", file.getOriginalFilename());
-        String fileName = responseModel.getBody().getStr("fileId");
-        docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileName);
+        String fileId = responseModel.getBody().getStr("fileId");
+        docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileId);
 
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         Optional<GiveRecord> giveRecordOptional = helpRecord.getGiveRecords().stream()
