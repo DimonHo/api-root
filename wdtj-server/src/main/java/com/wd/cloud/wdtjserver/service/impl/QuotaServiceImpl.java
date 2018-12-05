@@ -136,7 +136,7 @@ public class QuotaServiceImpl implements QuotaService {
         }
         final boolean finalIsHis = isHis;
         tjQuotas.getContent().forEach(tjQuota -> {
-            if (tjQuota.getPvCount()>0){
+            if (tjQuota.getPvCount() > 0) {
                 Map<DateTime, TotalModel> dayTotal = randomTotal(tjQuota, dayWeight);
                 dayTotal.entrySet().forEach(totalModel -> {
                     // 生成当前小时每分钟的指标数量
@@ -156,12 +156,12 @@ public class QuotaServiceImpl implements QuotaService {
     private Map<DateTime, TotalModel> randomTotal(TjQuota tjQuota, WeightRandom.WeightObj<DateTime> dayWeight) {
         Map<DateTime, TotalModel> map = new HashMap<>();
         TotalModel totalModel = new TotalModel();
-        int pvTotal = tjQuota.getPvCount()>0?(int) Math.round(tjQuota.getPvCount() * dayWeight.getWeight()):0;
-        int scTotal = tjQuota.getScCount()>0?(int) Math.round(RandomUtil.randomDouble(tjQuota.getScCount() * dayWeight.getWeight() * 0.7, pvTotal)):0;
-        int dcTotal = tjQuota.getDcCount()>0?(int) Math.round(tjQuota.getDcCount() * RandomUtil.randomDouble(0.3, 3)):0;
-        int ddcTotal = tjQuota.getDdcCount()>0?(int) Math.round(tjQuota.getDdcCount() * RandomUtil.randomDouble(0.3, 3)):0;
-        int uvTotal = tjQuota.getUvCount()>0?(int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight()):0;
-        int vvTotal = tjQuota.getVvCount()>0?(int) Math.round(tjQuota.getVvCount() * dayWeight.getWeight()):0;
+        int pvTotal = tjQuota.getPvCount() > 0 ? (int) Math.round(tjQuota.getPvCount() * dayWeight.getWeight()) : 0;
+        int scTotal = tjQuota.getScCount() > 0 ? (int) Math.round(RandomUtil.randomDouble(tjQuota.getScCount() * dayWeight.getWeight() * 0.7, pvTotal)) : 0;
+        int dcTotal = tjQuota.getDcCount() > 0 ? (int) Math.round(tjQuota.getDcCount() * dayWeight.getWeight() * RandomUtil.randomDouble(0.3, 3)) : 0;
+        int ddcTotal = tjQuota.getDdcCount() > 0 ? (int) Math.round(tjQuota.getDdcCount() * dayWeight.getWeight() * RandomUtil.randomDouble(0.3, 3)) : 0;
+        int uvTotal = tjQuota.getUvCount() > 0 ? (int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight()) : 0;
+        int vvTotal = tjQuota.getVvCount() > 0 ? (int) Math.round(tjQuota.getVvCount() * dayWeight.getWeight()) : 0;
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.3, 3) * vvTotal);
 
