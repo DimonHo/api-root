@@ -136,17 +136,19 @@ public class QuotaServiceImpl implements QuotaService {
         }
         final boolean finalIsHis = isHis;
         tjQuotas.getContent().forEach(tjQuota -> {
-            Map<DateTime, TotalModel> dayTotal = randomTotal(tjQuota, dayWeight);
-            dayTotal.entrySet().forEach(totalModel -> {
-                // 生成当前小时每分钟的指标数量
-                List<AbstractTjDataEntity> tjDataList = RandomUtil.buildMinuteTjData(DateUtil.beginOfDay(date), DateUtil.endOfDay(date), totalModel, finalIsHis);
-                // 插入数据库
-                if (!finalIsHis) {
-                    tjTaskDataRepository.saveAll(tjDataList.stream().map(a -> (TjTaskData) a).collect(Collectors.toList()));
-                } else {
-                    tjViewDataRepository.saveAll(tjDataList.stream().map(a -> (TjViewData) a).collect(Collectors.toList()));
-                }
-            });
+            if (tjQuota.getPvCount()>0){
+                Map<DateTime, TotalModel> dayTotal = randomTotal(tjQuota, dayWeight);
+                dayTotal.entrySet().forEach(totalModel -> {
+                    // 生成当前小时每分钟的指标数量
+                    List<AbstractTjDataEntity> tjDataList = RandomUtil.buildMinuteTjData(DateUtil.beginOfDay(date), DateUtil.endOfDay(date), totalModel, finalIsHis);
+                    // 插入数据库
+                    if (!finalIsHis) {
+                        tjTaskDataRepository.saveAll(tjDataList.stream().map(a -> (TjTaskData) a).collect(Collectors.toList()));
+                    } else {
+                        tjViewDataRepository.saveAll(tjDataList.stream().map(a -> (TjViewData) a).collect(Collectors.toList()));
+                    }
+                });
+            }
         });
     }
 
@@ -154,12 +156,12 @@ public class QuotaServiceImpl implements QuotaService {
     private Map<DateTime, TotalModel> randomTotal(TjQuota tjQuota, WeightRandom.WeightObj<DateTime> dayWeight) {
         Map<DateTime, TotalModel> map = new HashMap<>();
         TotalModel totalModel = new TotalModel();
-        int pvTotal = (int) Math.round(tjQuota.getPvCount() * dayWeight.getWeight());
-        int scTotal = (int) Math.round(RandomUtil.randomDouble(tjQuota.getScCount() * dayWeight.getWeight() * 0.7, pvTotal));
-        int dcTotal = (int) Math.round(tjQuota.getDcCount() * RandomUtil.randomDouble(0.3, 3));
-        int ddcTotal = (int) Math.round(tjQuota.getDdcCount() * RandomUtil.randomDouble(0.3, 3));
-        int uvTotal = (int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight());
-        int vvTotal = (int) Math.round(tjQuota.getVvCount() * dayWeight.getWeight());
+        int pvTotal = tjQuota.getPvCount()>0?(int) Math.round(tjQuota.getPvCount() * dayWeight.getWeight()):0;
+        int scTotal = tjQuota.getScCount()>0?(int) Math.round(RandomUtil.randomDouble(tjQuota.getScCount() * dayWeight.getWeight() * 0.7, pvTotal)):0;
+        int dcTotal = tjQuota.getDcCount()>0?(int) Math.round(tjQuota.getDcCount() * RandomUtil.randomDouble(0.3, 3)):0;
+        int ddcTotal = tjQuota.getDdcCount()>0?(int) Math.round(tjQuota.getDdcCount() * RandomUtil.randomDouble(0.3, 3)):0;
+        int uvTotal = tjQuota.getUvCount()>0?(int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight()):0;
+        int vvTotal = tjQuota.getVvCount()>0?(int) Math.round(tjQuota.getVvCount() * dayWeight.getWeight()):0;
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.3, 3) * vvTotal);
 
