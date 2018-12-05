@@ -1,5 +1,7 @@
 package com.wd.cloud.wdtjserver.controller;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.model.QuotaModel;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -101,9 +104,21 @@ public class QuotaController {
 
     @ApiOperation(value = "手动根据日基数生成详细数据", tags = {"后台管理"})
     @ApiImplicitParam(name = "day", value = "要生成的日期", dataType = "String", paramType = "query")
-    @GetMapping("/quota/run")
+    @GetMapping("/quota/day")
     public ResponseModel runTodayQuota(@RequestParam String day) {
         quotaService.runTask(DateUtil.parse(day));
+        return ResponseModel.ok();
+    }
+
+    @ApiOperation(value = "手动根据日基数生成年详细数据", tags = {"后台管理"})
+    @ApiImplicitParam(name = "year", value = "要生成的年", dataType = "String", paramType = "query")
+    @GetMapping("/quota/year")
+    public ResponseModel runYearQuota(@RequestParam String year) {
+        Date date = DateUtil.parseDateTime(year);
+        List<DateTime> days = DateUtil.rangeToList(DateUtil.beginOfYear(date),DateUtil.endOfYear(date), DateField.DAY_OF_MONTH);
+        days.forEach(day ->{
+            quotaService.runTask(day);
+        });
         return ResponseModel.ok();
     }
 }
