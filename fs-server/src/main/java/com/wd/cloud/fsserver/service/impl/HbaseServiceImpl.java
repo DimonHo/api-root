@@ -77,7 +77,7 @@ public class HbaseServiceImpl implements HbaseService {
 
     @Override
     public void saveToHbase(String tableName, File file) throws Exception {
-        String md5 = FileUtil.fileMd5(file);
+        String md5 =  FileUtil.fileMd5(file);
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
                 .setRowKey(md5)

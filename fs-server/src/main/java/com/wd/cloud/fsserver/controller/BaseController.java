@@ -143,12 +143,12 @@ public class BaseController {
         }
     }
 
-    @ApiOperation(value = "文件下载", tags = {"文件获取"})
+    @ApiOperation(value = "文件下载(兼容老接口)", tags = {"文件获取"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "tableName", value = "文件目录", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "fileName", value = "文件名称", dataType = "String", paramType = "path")
     })
-    @GetMapping("/load/{tableName}")
+    @GetMapping("/hf/{tableName}")
     public ResponseEntity<FileSystemResource> downloadFile(@PathVariable String tableName,
                                                            @RequestParam String fileName,
                                                            HttpServletRequest request)

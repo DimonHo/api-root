@@ -5,7 +5,6 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
 import com.wd.cloud.fsserver.entity.UploadRecord;
-import com.wd.cloud.fsserver.model.BlockFileModel;
 import com.wd.cloud.fsserver.repository.UploadRecordRepository;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.HbaseService;
@@ -43,10 +42,10 @@ public class FileServiceImpl implements FileService {
     public UploadRecord save(String dir, MultipartFile file) throws Exception {
         String fileName = file.getOriginalFilename();
         String fileMd5 = FileUtil.fileMd5(file);
-        String unid = FileUtil.buildFileUuid(dir, fileMd5);
+        String unid = FileUtil.buildFileUnid(dir, fileMd5);
         //如果文件已存在且missed不为true
-        UploadRecord uploadRecord = uploadRecordService.getNotMissed(unid);
-        if (uploadRecord != null) {
+        UploadRecord uploadRecord = uploadRecordService.getOne(unid);
+        if (uploadRecord != null && !uploadRecord.isMissed()) {
             log.info("文件记录：{} 已存在，unid={}", file.getName(), uploadRecord.getUnid());
             return uploadRecord;
         }
@@ -69,9 +68,8 @@ public class FileServiceImpl implements FileService {
         File file = null;
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord != null) {
-            String md5FileName = FileUtil.buildFileName(uploadRecord.getMd5(), uploadRecord.getFileType());
             // 获取磁盘中的文件
-            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), md5FileName);
+            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), uploadRecord.getFileName());
             //如果在磁盘中没找到文件，则去hbase中去获取
             if (!file.exists()) {
                 byte[] fileByte = hbaseService.getFileFromHbase(uploadRecord.getPath(), uploadRecord.getMd5());

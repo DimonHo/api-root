@@ -129,7 +129,7 @@ public class UploadRecord extends AbstractEntity {
      */
     @PrePersist
     public void createUnid() {
-        this.unid = FileUtil.buildFileUuid(this.path, this.md5);
+        this.unid = FileUtil.buildFileUnid(this.path, this.md5);
     }
 
     /**
@@ -137,6 +137,6 @@ public class UploadRecord extends AbstractEntity {
      */
     @PreUpdate
     public void updateUnid() {
-        this.unid = FileUtil.buildFileUuid(this.path, this.md5);
+        this.unid = FileUtil.buildFileUnid(this.path, this.md5);
     }
 }

@@ -49,13 +49,13 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     }
 
     /**
-     * 生成文件uuid码
+     * 生成文件unid码
      *
      * @param path
      * @param fileMd5
      * @return
      */
-    public static String buildFileUuid(String path, String fileMd5) {
+    public static String buildFileUnid(String path, String fileMd5) {
         return SecureUtil.md5(path + fileMd5);
     }
 
@@ -186,8 +186,8 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
             File newFile = FileUtil.writeBytes(fileByte, file);
             log.info("文件{}已保存成功。", newFile.getName());
             return newFile;
-            //如果存在同名文件，但内容不同
         } else {
+            //如果存在同名文件，但内容不同
             String beforeName = file.getName();
             log.info("文件{}已存在。", beforeName);
             String fileMd5 = FileUtil.fileMd5(file);
