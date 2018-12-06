@@ -140,16 +140,20 @@ public class HbaseServiceImpl implements HbaseService {
                 if (cells != null) {
                     cells.forEach(cell -> {
                         String fileName = null;
+                        String newTable = tableName;
+                        if ("doc-delivery".equals(tableName)){
+                            newTable = "literature";
+                        }
                         try {
                             fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                             byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                            File file = FileUtil.saveToDisk(globalConfig.getRootPath() + tableName, fileName, fileByte);
+                            File file = FileUtil.saveToDisk(globalConfig.getRootPath() + newTable, fileName, fileByte);
                             String fileMd5Name = FileUtil.buildFileMd5Name(file);
                             // 以MD5文件名保存
                             if (!fileMd5Name.equals(file.getName())) {
                                 file = FileUtil.rename(file, fileMd5Name, false, true);
                             }
-                            uploadRecordService.save(tableName, fileName, file);
+                            uploadRecordService.save(newTable, fileName, file);
                             count.getAndIncrement();
                         } catch (Exception e) {
                             log.error(e, "fileName:{}", fileName);
@@ -176,18 +180,18 @@ public class HbaseServiceImpl implements HbaseService {
                     if (cells != null) {
                         cells.forEach(cell -> {
                             String fileName = null;
+                            String newTable = tableName;
+                            if ("doc-delivery".equals(tableName)){
+                                newTable = "literature";
+                            }
                             try {
                                 fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                                 byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                                File file = FileUtil.saveToDisk(globalConfig.getRootPath() + tableName, fileName, fileByte);
+                                File file = FileUtil.saveToDisk(globalConfig.getRootPath() + newTable, fileName, fileByte);
                                 String fileMd5Name = FileUtil.buildFileMd5Name(file);
                                 // 以MD5文件名保存
                                 if (!fileMd5Name.equals(file.getName())) {
                                     file = FileUtil.rename(file, fileMd5Name, false, true);
-                                }
-                                String newTable = tableName;
-                                if ("doc-delivery".equals(tableName)){
-                                    newTable = "literature";
                                 }
                                 uploadRecordService.save(newTable, fileName, file);
                             } catch (Exception e) {
