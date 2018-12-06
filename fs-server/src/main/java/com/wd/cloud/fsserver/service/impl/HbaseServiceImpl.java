@@ -1,5 +1,6 @@
 package com.wd.cloud.fsserver.service.impl;
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
@@ -141,7 +142,7 @@ public class HbaseServiceImpl implements HbaseService {
                     cells.forEach(cell -> {
                         String fileName = null;
                         String newTable = tableName;
-                        if ("doc-delivery".equals(tableName)){
+                        if ("doc-delivery".equals(tableName)) {
                             newTable = "literature";
                         }
                         try {
@@ -172,6 +173,7 @@ public class HbaseServiceImpl implements HbaseService {
         List<String> lines = FileUtil.readUtf8Lines("/home/cloud/async.txt");
 
         lines.forEach(line -> {
+            Console.log(line);
             hbaseTemplate.get(tableName, line, new RowMapper<String>() {
                 @Override
                 public String mapRow(Result result, int i) {
@@ -181,7 +183,7 @@ public class HbaseServiceImpl implements HbaseService {
                         cells.forEach(cell -> {
                             String fileName = null;
                             String newTable = tableName;
-                            if ("doc-delivery".equals(tableName)){
+                            if ("doc-delivery".equals(tableName)) {
                                 newTable = "literature";
                             }
                             try {
