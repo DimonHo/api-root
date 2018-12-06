@@ -49,54 +49,60 @@ public class HbaseServiceImpl implements HbaseService {
     UploadRecordService uploadRecordService;
 
     @Override
-    public void saveToHbase(String tableName, String md5, MultipartFile file) throws Exception {
+    public boolean saveToHbase(String tableName, String md5, MultipartFile file) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getOriginalFilename())
                 .setRowKey(md5)
                 .setValue(file.getBytes());
-        saveToHbase(tableModel);
+        return saveToHbase(tableModel);
     }
 
     @Override
-    public void saveToHbase(String tableName, String md5, File file) throws Exception {
+    public boolean saveToHbase(String tableName, String md5, File file) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
                 .setRowKey(md5)
                 .setValue(FileUtil.readBytes(file));
-        saveToHbase(tableModel);
+        return saveToHbase(tableModel);
     }
 
     @Override
-    public void saveToHbase(String tableName, String md5, byte[] fileByte, String fileName) throws Exception {
+    public boolean saveToHbase(String tableName, String md5, byte[] fileByte, String fileName) throws Exception {
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(fileName)
                 .setRowKey(md5)
                 .setValue(fileByte);
-        saveToHbase(tableModel);
+        return saveToHbase(tableModel);
     }
 
     @Override
-    public void saveToHbase(String tableName, File file) throws Exception {
-        String md5 =  FileUtil.fileMd5(file);
+    public boolean saveToHbase(String tableName, File file) throws Exception {
+        String md5 = FileUtil.fileMd5(file);
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
                 .setRowKey(md5)
                 .setValue(FileUtil.readBytes(file));
-        saveToHbase(tableModel);
+        return saveToHbase(tableModel);
     }
 
     @Override
-    public void saveToHbase(TableModel tableModel) throws Exception {
+    public boolean saveToHbase(TableModel tableModel) {
+        boolean uploadSuccess = false;
         log.info("正在上传文件：{}至HBASE...", tableModel.getFileName());
-        hbaseTemplate.execute(tableModel.getTableName(), (hTableInterface) -> {
-            Put put = new Put(tableModel.getRowKey().getBytes());
-            put.addColumn(tableModel.getFamily().getBytes(),
-                    tableModel.getQualifier().getBytes(),
-                    tableModel.getValue());
-            hTableInterface.put(put);
-            log.info("文件：{} 已保存HBASE", tableModel.getFileName());
-            return true;
-        });
+        try {
+            uploadSuccess = hbaseTemplate.execute(tableModel.getTableName(), (hTableInterface) -> {
+                Put put = new Put(tableModel.getRowKey().getBytes());
+                put.addColumn(tableModel.getFamily().getBytes(),
+                        tableModel.getQualifier().getBytes(),
+                        tableModel.getValue());
+                hTableInterface.put(put);
+                log.info("文件：{} 已保存HBASE", tableModel.getFileName());
+                return true;
+            });
+        } catch (Exception e) {
+            log.error(e, "文件[{}]上传hbase失败", tableModel.getFileName());
+        }
+        return uploadSuccess;
     }
 
     @Override
@@ -138,6 +144,11 @@ public class HbaseServiceImpl implements HbaseService {
                             fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                             byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                             File file = FileUtil.saveToDisk(globalConfig.getRootPath() + tableName, fileName, fileByte);
+                            String fileMd5Name = FileUtil.buildFileMd5Name(file);
+                            // 以MD5文件名保存
+                            if (!fileMd5Name.equals(file.getName())) {
+                                file = FileUtil.rename(file, fileMd5Name, false, true);
+                            }
                             uploadRecordService.save(tableName, fileName, file);
                             count.getAndIncrement();
                         } catch (Exception e) {
@@ -149,6 +160,45 @@ public class HbaseServiceImpl implements HbaseService {
             }
         });
         return count.get();
+    }
+
+
+    @Override
+    public void asFileFromHbase(String tableName) {
+        List<String> lines = FileUtil.readUtf8Lines("/home/cloud/async.txt");
+
+        lines.forEach(line -> {
+            hbaseTemplate.get(tableName, line, new RowMapper<String>() {
+                @Override
+                public String mapRow(Result result, int i) {
+
+                    List<Cell> cells = result.listCells();
+                    if (cells != null) {
+                        cells.forEach(cell -> {
+                            String fileName = null;
+                            try {
+                                fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
+                                byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                                File file = FileUtil.saveToDisk(globalConfig.getRootPath() + tableName, fileName, fileByte);
+                                String fileMd5Name = FileUtil.buildFileMd5Name(file);
+                                // 以MD5文件名保存
+                                if (!fileMd5Name.equals(file.getName())) {
+                                    file = FileUtil.rename(file, fileMd5Name, false, true);
+                                }
+                                String newTable = tableName;
+                                if ("doc-delivery".equals(tableName)){
+                                    newTable = "literature";
+                                }
+                                uploadRecordService.save(newTable, fileName, file);
+                            } catch (Exception e) {
+                                log.error(e, "fileName:{}", fileName);
+                            }
+                        });
+                    }
+                    return "ok";
+                }
+            });
+        });
     }
 
     @Override

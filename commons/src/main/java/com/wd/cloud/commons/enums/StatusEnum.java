@@ -134,7 +134,7 @@ public enum StatusEnum {
     DOC_FILE_TYPE_ERROR(2006, "不支持的文件类型"),
     DOC_HELP_NOT_FOUND(2007, "没有找到该求助或该求助已完成"),
     DOC_HELP_REPEATED(2008, "您最近15天内已求助过这篇文献,请注意查收邮箱"),
-    DOC_FILE_EMPTY(2009, "未上传文件");
+    DOC_FILE_EMPTY(2009, "请选择上传文件");
 
     private final int value;
     private final String message;

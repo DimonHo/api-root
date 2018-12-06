@@ -24,12 +24,32 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
 
     private static final Log log = LogFactory.get();
 
-    public static String fileMd5(File file) throws IORuntimeException {
-        return fileMd5(FileUtil.getInputStream(file));
+    public static String fileMd5(File file) {
+        String fileMd5 = null;
+        InputStream fileStream = null;
+        try {
+            fileStream = FileUtil.getInputStream(file);
+            fileMd5 = fileMd5(fileStream);
+        } catch (IORuntimeException e) {
+            log.error(e, "[{}]文件MD5计算出错", file.getName());
+        } finally {
+            IoUtil.close(fileStream);
+        }
+        return fileMd5;
     }
 
-    public static String fileMd5(MultipartFile file) throws IOException {
-        return fileMd5(file.getInputStream());
+    public static String fileMd5(MultipartFile file) {
+        String fileMd5 = null;
+        InputStream fileStream = null;
+        try {
+            fileStream = file.getInputStream();
+            fileMd5 = fileMd5(fileStream);
+        } catch (IOException e) {
+            log.error(e, "[{}]文件MD5计算出错", file.getOriginalFilename());
+        } finally {
+            IoUtil.close(fileStream);
+        }
+        return fileMd5;
     }
 
     /**
@@ -39,12 +59,10 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @return
      */
     public static String fileMd5(InputStream fileStream) {
-        log.info("开始计算文件的MD5...");
+        log.debug("开始计算文件的MD5...");
         long start = System.currentTimeMillis();
         String fileMd5 = DigestUtil.md5Hex(fileStream);
-        log.info("计算MD5耗时：{}毫秒",DateUtil.spendMs(start));
-        IoUtil.close(fileStream);
-        log.info("文件的MD5计算完成。");
+        log.debug("计算MD5耗时：{}毫秒", DateUtil.spendMs(start));
         return fileMd5;
     }
 
@@ -60,6 +78,26 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     }
 
     /**
+     * 获取文件真实类型
+     *
+     * @param file
+     * @return
+     */
+    public static String getType(MultipartFile file) {
+        String ext = StrUtil.EMPTY;
+        InputStream fileStream = null;
+        try {
+            fileStream = file.getInputStream();
+            ext = FileTypeUtil.getType(fileStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IoUtil.close(fileStream);
+        }
+        return ext;
+    }
+
+    /**
      * 获取文件后缀名
      * 如果文件名不带后缀，则从文件头中获取
      *
@@ -67,17 +105,11 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @return
      */
     public static String getFileType(MultipartFile file) {
-        String ext = FileUtil.extName(file.getOriginalFilename()).trim().toLowerCase();
-        InputStream fileStream = null;
-        try {
-            fileStream = file.getInputStream();
-            ext = StrUtil.isBlank(ext) ? FileTypeUtil.getType(fileStream) : ext;
-        } catch (IOException e) {
-            ext = StrUtil.EMPTY;
-        } finally {
-            IoUtil.close(fileStream);
-        }
-        return ext.toLowerCase();
+        //获取文件名后缀
+        String ext = extName(file.getOriginalFilename());
+        //如果文件名后缀为空，则获取文件真实类型，否则就以文件名后缀为文件类型
+        ext = StrUtil.isBlank(ext) ? getType(file) : ext;
+        return ext.trim().toLowerCase();
     }
 
     /**
@@ -87,18 +119,14 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @return
      */
     public static String getFileType(File file) {
-        String ext = FileUtil.extName(file.getName()).trim();
-        String type = FileUtil.getType(file);
-        try {
-            ext = StrUtil.isBlank(ext) && !StrUtil.isBlank(type) ? type : ext;
-        } catch (Exception e) {
-            ext = StrUtil.EMPTY;
-        }
-        return ext.toLowerCase();
+        String ext = extName(file.getName());
+        //如果文件名后缀为空，则获取文件真实类型，否则就以文件名后缀为文件类型
+        ext = StrUtil.isBlank(ext) ? getType(file) : ext;
+        return ext.trim().toLowerCase();
     }
 
     public static String buildFileName(String md5, String fileType) {
-        if (StrUtil.isBlank(fileType)){
+        if (StrUtil.isBlank(fileType)) {
             return md5;
         }
         return String.format("%s.%s", md5, fileType.toLowerCase());
@@ -111,7 +139,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @return
      */
     public static String buildFileName(File file) {
-        String ext = FileUtil.extName(file.getName()).trim();
+        String ext = FileUtil.extName(file.getName());
         String type = FileTypeUtil.getType(file);
         return StrUtil.isBlank(ext) && !StrUtil.isBlank(type) ? file.getName() + "." + type : file.getName();
     }
@@ -143,7 +171,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @return
      */
     public static String buildFileMd5Name(File file, String md5) {
-        String ext = FileUtil.getFileType(file);
+        String ext = getFileType(file);
         return !StrUtil.isBlank(ext) ? md5 + "." + ext : md5;
     }
 
@@ -193,10 +221,10 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
             String fileMd5 = FileUtil.fileMd5(file);
             //如果文件名于MD5不匹配，则用MD5重命名该文件
             if (!fileMd5.equals(getFileName(file, true))) {
-                log.info("正在重命名文件:{}",beforeName);
+                log.info("正在重命名文件:{}", beforeName);
                 File renameFile = FileUtil.rename(file, fileMd5, true, true);
                 String afterName = renameFile.getName();
-                log.info("重命名文件成功:{} --> {}",beforeName,afterName);
+                log.info("重命名文件成功:{} --> {}", beforeName, afterName);
                 // 重新保存这个文件
                 return saveToDisk(absolutePath, fileName, fileByte);
             }

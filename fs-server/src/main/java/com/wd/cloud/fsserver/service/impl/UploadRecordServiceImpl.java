@@ -75,8 +75,9 @@ public class UploadRecordServiceImpl implements UploadRecordService {
         return save(uploadRecord);
     }
 
+
     @Override
-    public UploadRecord save(String path,String fileName,String fileMd5,String unid,File file){
+    public UploadRecord save(String path, String fileName, String fileMd5, MultipartFile file, boolean isAsynced, boolean isMissed) {
         String md5 = FileUtil.fileMd5(file);
         //有则更新，没有则插入
         UploadRecord uploadRecord = uploadRecordRepository.findByPathAndMd5(path, md5).orElse(new UploadRecord());
@@ -84,9 +85,9 @@ public class UploadRecordServiceImpl implements UploadRecordService {
                 .setFileName(fileName)
                 .setMd5(md5)
                 .setFileType(FileUtil.getFileType(file))
-                .setFileSize(file.length())
-                .setMissed(false)
-                .setUnid(unid);
+                .setFileSize(file.getSize())
+                .setMissed(isMissed)
+                .setAsynced(isAsynced);
         return save(uploadRecord);
     }
 

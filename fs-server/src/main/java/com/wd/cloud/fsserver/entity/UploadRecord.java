@@ -24,7 +24,7 @@ public class UploadRecord extends AbstractEntity {
      */
     private String path;
     /**
-     * 文件名称
+     * 原文件的名称
      */
     @Column(name = "file_name", length = 1000)
     private String fileName;

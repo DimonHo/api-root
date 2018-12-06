@@ -17,7 +17,5 @@ public interface FileService {
 
     File getFile(String unid);
 
-    File getFile(String tableName,String fileName);
-
     boolean checkChunkExists(String fileMd5,int chunkIndex,long chunkSize);
 }

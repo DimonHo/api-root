@@ -57,4 +57,19 @@ public class AsyncController {
         return ResponseModel.ok().setMessage("同步完成").setBody(count);
     }
 
+
+    /**
+     * 同步hbase中的数据同步至uploadRecord
+     *
+     * @param tableName
+     * @return
+     */
+    @ApiOperation(value = "将文献传递中现有文件同步到upload记录中", tags = {"文件同步"})
+    @ApiImplicitParam(name = "tableName", value = "hbase表名", dataType = "String", type = "path")
+    @GetMapping("/from/run/{tableName}")
+    public ResponseModel runUploadRecord(@PathVariable String tableName) {
+        hbaseService.asFileFromHbase(tableName);
+        return ResponseModel.ok().setMessage("同步完成");
+    }
+
 }

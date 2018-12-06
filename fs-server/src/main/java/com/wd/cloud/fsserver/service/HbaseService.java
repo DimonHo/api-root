@@ -13,15 +13,17 @@ import java.io.IOException;
  */
 public interface HbaseService {
 
-    void saveToHbase(String tableName, String md5, MultipartFile file) throws Exception;
+    void asFileFromHbase(String tableName);
 
-    void saveToHbase(String tableName, String md5, File file) throws Exception;
+    boolean saveToHbase(String tableName, String md5, MultipartFile file) throws Exception;
 
-    void saveToHbase(String tableName, String md5, byte[] fileByte, String fileName) throws Exception;
+    boolean saveToHbase(String tableName, String md5, File file) throws Exception;
 
-    void saveToHbase(String tableName, File file) throws Exception;
+    boolean saveToHbase(String tableName, String md5, byte[] fileByte, String fileName) throws Exception;
 
-    void saveToHbase(TableModel tableModel) throws Exception;
+    boolean saveToHbase(String tableName, File file) throws Exception;
+
+    boolean saveToHbase(TableModel tableModel) throws Exception;
 
     byte[] getFileFromHbase(String tableName, String md5);
 

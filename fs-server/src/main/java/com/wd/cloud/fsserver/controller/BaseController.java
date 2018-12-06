@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -51,10 +53,10 @@ public class BaseController {
         UploadRecord uploadRecord = uploadRecordService.getOne(dir, fileMd5);
         JSONObject jsonObject = new JSONObject();
         if (uploadRecord != null) {
-            jsonObject.put("fileId",uploadRecord.getUnid());
+            jsonObject.put("fileId", uploadRecord.getUnid());
             return ResponseModel.ok().setBody(jsonObject);
         }
-        return ResponseModel.ok().setBody(jsonObject.put("fileId",null));
+        return ResponseModel.ok().setBody(jsonObject.put("fileId", null));
     }
 
     @ApiOperation(value = "检查文件是否已存在", tags = {"文件上传"})
@@ -86,13 +88,15 @@ public class BaseController {
         JSONObject jsonObject = new JSONObject();
         try {
             UploadRecord uploadRecord = fileService.save(dir, file);
-            if (uploadRecord != null) {
+            if (uploadRecord.isMissed()) {
+                return ResponseModel.fail().setMessage("文件[" + file.getOriginalFilename() + "]上传失败");
+            } else {
                 jsonObject.put("fileId", uploadRecord.getUnid());
+                return ResponseModel.ok().setBody(jsonObject);
             }
         } catch (Exception e) {
-            return ResponseModel.fail(e);
+            return ResponseModel.fail(e).setMessage("文件[" + file.getOriginalFilename() + "]上传失败");
         }
-        return ResponseModel.ok().setBody(jsonObject);
     }
 
     /**
@@ -110,14 +114,22 @@ public class BaseController {
     public ResponseModel<JSONObject> uploadFiles(@PathVariable String dir,
                                                  @NotNull MultipartFile[] files) {
         JSONObject jsonObject = new JSONObject();
+        JSONObject success = new JSONObject();
+        List<String> failed = new ArrayList<>();
         for (MultipartFile file : files) {
             try {
                 UploadRecord uploadRecord = fileService.save(dir, file);
-                jsonObject.put(file.getOriginalFilename(), uploadRecord.getUnid());
+                if (uploadRecord.isMissed()) {
+                    failed.add(file.getOriginalFilename());
+                } else {
+                    success.put(file.getOriginalFilename(), uploadRecord.getUnid());
+                }
             } catch (Exception e) {
-                jsonObject.put(file.getOriginalFilename(), "failed");
+                failed.add(file.getOriginalFilename());
             }
         }
+        jsonObject.put("successed", success);
+        jsonObject.put("failed", failed);
         return ResponseModel.ok().setBody(jsonObject);
     }
 
@@ -143,28 +155,6 @@ public class BaseController {
         }
     }
 
-    @ApiOperation(value = "文件下载(兼容老接口)", tags = {"文件获取"})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "tableName", value = "文件目录", dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "fileName", value = "文件名称", dataType = "String", paramType = "path")
-    })
-    @GetMapping("/hf/{tableName}")
-    public ResponseEntity<FileSystemResource> downloadFile(@PathVariable String tableName,
-                                                           @RequestParam String fileName,
-                                                           HttpServletRequest request)
-            throws UnsupportedEncodingException {
-        File file = fileService.getFile(tableName, fileName);
-        if (file != null) {
-            return ResponseEntity
-                    .ok()
-                    .headers(HttpHeaderUtil.buildBroserFileHttpHeaders(file.getName(), request))
-                    .contentLength(file.length())
-                    .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
-                    .body(new FileSystemResource(file));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     @ApiOperation(value = "获取文件", tags = {"文件获取"})
     @ApiImplicitParams({

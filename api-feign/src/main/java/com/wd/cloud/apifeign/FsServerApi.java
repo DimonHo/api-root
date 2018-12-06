@@ -11,10 +11,8 @@ import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,13 +29,17 @@ import java.util.List;
         configuration = FsServerApi.MultipartSupportConfig.class)
 public interface FsServerApi {
 
-    @PostMapping(value = "/upload/{dir}", consumes = "multipart/form-data")
-    ResponseModel<JSONObject> uploadFile(@PathVariable(value = "dir") String dir,
-                                                @RequestPart(value = "file") MultipartFile file);
+    @GetMapping("/check/{dir}/{fileMd5}")
+    ResponseModel<JSONObject> checkFile(@PathVariable(value="dir") String dir,
+                            @PathVariable(value="fileMd5") String fileMd5);
 
     @PostMapping(value = "/upload/{dir}", consumes = "multipart/form-data")
+    ResponseModel<JSONObject> uploadFile(@PathVariable(value = "dir") String dir,
+                                         @RequestPart(value = "file") MultipartFile file);
+
+    @PostMapping(value = "/upload/mulit/{dir}", consumes = "multipart/form-data")
     ResponseModel<JSONObject> uploadFiles(@PathVariable(value = "dir") String dir,
-                                                 @RequestPart(value = "files") MultipartFile[] files);
+                                          @RequestPart(value = "files") MultipartFile[] files);
 
     @GetMapping(value = "/download/{unid}")
     ResponseEntity downloadFile(@PathVariable(value = "unid") String unid);
