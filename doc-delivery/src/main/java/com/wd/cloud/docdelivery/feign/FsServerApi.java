@@ -24,6 +24,11 @@ public interface FsServerApi extends com.wd.cloud.apifeign.FsServerApi {
     class Fallback implements FsServerApi {
 
         @Override
+        public ResponseModel<JSONObject> checkFile(String dir, String fileMd5) {
+            return ResponseModel.fail(StatusEnum.FALL_BACK);
+        }
+
+        @Override
         public ResponseModel<JSONObject> uploadFile(String dir, MultipartFile file) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }

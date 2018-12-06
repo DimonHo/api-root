@@ -22,6 +22,7 @@ public class DocFile extends AbstractEntity {
     private String fileName;
 
     @ManyToOne
+    @JsonIgnore
     private Literature literature;
 
     private Long auditorId;

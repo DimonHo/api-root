@@ -9,6 +9,7 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -36,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -266,14 +268,27 @@ public class FrontendController {
         if (helpRecord == null) {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
-        //保存文件
-        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
-        if (responseModel.isError()) {
-            log.error("文件服务调用失败：{}", responseModel.getMessage());
-            return ResponseModel.fail().setMessage("文件上传失败，请重试");
+        String fileId = null;
+        try {
+            String fileMd5 = FileUtil.fileMd5(file.getInputStream());
+            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(),fileMd5);
+            if (!checkResult.isError() && checkResult.getBody()!= null){
+                log.info("文件已存在，秒传成功！");
+                fileId = checkResult.getBody().getStr("fileId");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        String filename = responseModel.getBody().getStr("fileId");
-        DocFile docFile = frontService.saveDocFile(helpRecord.getLiterature(), filename);
+        if (StrUtil.isBlank(fileId)){
+            //保存文件
+            ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
+            if (responseModel.isError()) {
+                log.error("文件服务调用失败：{}", responseModel.getMessage());
+                return ResponseModel.fail().setMessage("文件上传失败，请重试");
+            }
+            fileId = responseModel.getBody().getStr("fileId");
+        }
+        DocFile docFile = frontService.saveDocFile(helpRecord.getLiterature(), fileId);
         //更新记录
         frontService.createGiveRecord(helpRecord, giverId, docFile, HttpUtil.getClientIP(request));
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");

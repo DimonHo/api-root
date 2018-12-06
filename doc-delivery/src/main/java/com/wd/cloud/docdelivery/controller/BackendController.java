@@ -5,6 +5,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -145,17 +147,29 @@ public class BackendController {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(helpRecordId);
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
-        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
-        log.info(responseModel.toString());
-        if (responseModel.isError()) {
-            log.error("文件服务调用失败：{}",responseModel.getMessage());
-            log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
-            return ResponseModel.fail().setMessage("文件上传失败，请重试");
+        String fileMd5 = null;
+        String fileId = null;
+        try {
+            fileMd5 = FileUtil.fileMd5(file.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        log.info("文件{}上传成功!", file.getOriginalFilename());
-        String fileId = responseModel.getBody().getStr("fileId");
+        ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(),fileMd5);
+        if (!checkResult.isError() && checkResult.getBody()!= null){
+            log.info("文件已存在，秒传成功！");
+            fileId = checkResult.getBody().getStr("fileId");
+        }
+        if (fileId == null){
+            ResponseModel<JSONObject> uploadResult = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
+            if (uploadResult.isError()) {
+                log.error("文件服务调用失败：{}",uploadResult.getMessage());
+                log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
+                return ResponseModel.fail().setMessage("文件上传失败，请重试");
+            }
+            log.info("文件{}上传成功!", file.getOriginalFilename());
+            fileId = uploadResult.getBody().getStr("fileId");
+        }
         docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileId);
-
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         Optional<GiveRecord> giveRecordOptional = helpRecord.getGiveRecords().stream()
                 .filter(g -> g.getGiverType() == GiveTypeEnum.THIRD.getCode())

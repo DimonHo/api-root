@@ -1,12 +1,10 @@
 package com.wd.cloud.fsserver.controller;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.fsserver.entity.UploadRecord;
-import com.wd.cloud.fsserver.model.BlockFileModel;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.util.HttpHeaderUtil;
@@ -48,13 +46,15 @@ public class BaseController {
             @ApiImplicitParam(name = "fileMd5", value = "文件校验码", dataType = "String", paramType = "path")
     })
     @GetMapping("/check/{dir}/{fileMd5}")
-    public ResponseModel<Boolean> checkFile(@PathVariable String dir,
-                                            @PathVariable String fileMd5) {
+    public ResponseModel checkFile(@PathVariable String dir,
+                                   @PathVariable String fileMd5) {
         UploadRecord uploadRecord = uploadRecordService.getOne(dir, fileMd5);
+        JSONObject jsonObject = new JSONObject();
         if (uploadRecord != null) {
-            return ResponseModel.ok().setBody(true);
+            jsonObject.put("fileId",uploadRecord.getUnid());
+            return ResponseModel.ok().setBody(jsonObject);
         }
-        return ResponseModel.ok().setBody(false);
+        return ResponseModel.ok().setBody(jsonObject.put("fileId",null));
     }
 
     @ApiOperation(value = "检查文件是否已存在", tags = {"文件上传"})
@@ -153,7 +153,7 @@ public class BaseController {
                                                            @RequestParam String fileName,
                                                            HttpServletRequest request)
             throws UnsupportedEncodingException {
-        File file = fileService.getFile(tableName,fileName);
+        File file = fileService.getFile(tableName, fileName);
         if (file != null) {
             return ResponseEntity
                     .ok()
