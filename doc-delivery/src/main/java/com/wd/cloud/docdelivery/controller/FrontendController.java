@@ -81,7 +81,7 @@ public class FrontendController {
         helpRecord.setHelperName(helpRequestModel.getHelperName());
         helpRecord.setHelperIp(request.getLocalAddr());
         helpRecord.setHelperEmail(helpEmail);
-
+        log.info("用户:[{}]正在求助文献:[{}]",helpEmail,helpRequestModel.getDocTitle());
         Literature literature = new Literature();
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
         literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));

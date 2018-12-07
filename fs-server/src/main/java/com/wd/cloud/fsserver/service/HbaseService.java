@@ -1,8 +1,6 @@
 package com.wd.cloud.fsserver.service;
 
-import cn.hutool.json.JSONObject;
 import com.wd.cloud.fsserver.model.FileModel;
-import com.wd.cloud.fsserver.model.TableModel;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -17,13 +15,11 @@ public interface HbaseService {
 
     void asFileFromHbase(String tableName);
 
-    boolean saveToHbase(String tableName, String md5, MultipartFile file) throws Exception;
+    boolean saveToHbase(String tableName, MultipartFile file) throws Exception;
 
-    boolean saveToHbase(String tableName, String md5, File file) throws Exception;
+    boolean saveToHbase(String tableName, File file);
 
-    boolean saveToHbase(String tableName, File file) throws Exception;
-
-    boolean saveToHbase(TableModel tableModel) throws Exception;
+    boolean saveToHbase(String tableName, String rowKey, byte[] fileByte);
 
     FileModel getFileFromHbase(String tableName, String rowKey);
 

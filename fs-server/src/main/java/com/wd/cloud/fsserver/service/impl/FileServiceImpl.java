@@ -2,7 +2,6 @@ package com.wd.cloud.fsserver.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
@@ -44,40 +43,45 @@ public class FileServiceImpl implements FileService {
     @Override
     public UploadRecord save(String dir, MultipartFile file) throws Exception {
         //源文件名
-        String fileName = file.getOriginalFilename();
+        String srcName = file.getOriginalFilename();
         //文件md5校验码
-        String fileMd5 = FileUtil.fileMd5(file);
-        //文件Id
-        String unid = FileUtil.buildFileUnid(dir, fileMd5);
-        UploadRecord uploadRecord = uploadRecordService.getOne(unid);
+        String md5 = FileUtil.fileMd5(file);
+        String fileMd5Name = FileUtil.buildFileMd5Name(file, md5);
+        UploadRecord uploadRecord = uploadRecordService.getOne(dir,md5);
         if (uploadRecord == null || uploadRecord.isMissed()) {
-            boolean isAsynced = false;
-            boolean isMissed = true;
-            try {
-                FileUtil.saveToDisk(globalConfig.getRootPath() + dir, file, fileMd5);
-                isMissed = false;
-            } catch (IOException e) {
-                log.warn(e, "文件：{} 保存磁盘失败，尝试上传至hbase中。。。", fileName);
-                MailUtil.sendHtml("hezhigang@hnwdkj.com",
-                        "fs-server exception",
-                        String.format("文件:%s保存失败，请检查磁盘是否已满", fileName));
-                //如果磁盘已满，直接保存至hbase
-                isAsynced = hbaseService.saveToHbase(dir, fileMd5, file);
-                isMissed = false;
-            }
             if (uploadRecord == null) {
                 uploadRecord = new UploadRecord();
             }
+            log.info("正在保存[{}]至磁盘。。。", srcName);
+            boolean isAsynced = false;
+            boolean isMissed = true;
+            try {
+                File diskFile = FileUtil.saveToDisk(globalConfig.getRootPath() + dir, file);
+                uploadRecord.setFileName(diskFile.getName());
+                isMissed = false;
+                log.info("保存[{}]至磁盘成功", srcName);
+            } catch (IOException e) {
+                log.warn(e, "文件：{} 保存磁盘失败，尝试上传至hbase中。。。", srcName);
+                MailUtil.sendHtml("hezhigang@hnwdkj.com",
+                        "fs-server exception",
+                        String.format("文件:%s保存失败，请检查磁盘是否已满", srcName));
+                //如果磁盘已满，直接保存至hbase
+                isAsynced = hbaseService.saveToHbase(dir, file);
+                isMissed = false;
+                log.info("保存[{}]至Hbase成功", srcName);
+            }
+
             uploadRecord.setAsynced(isAsynced)
                     .setMissed(isMissed)
-                    .setFileName(fileName)
+                    .setFileName(fileMd5Name)
+                    .setSrcName(srcName)
                     .setFileSize(file.getSize())
                     .setFileType(FileUtil.getFileType(file))
-                    .setMd5(fileMd5)
+                    .setMd5(md5)
                     .setPath(dir);
             uploadRecord = uploadRecordService.save(uploadRecord);
         } else {
-            log.info("文件：{} 已存在，unid={}", fileName, uploadRecord.getUnid());
+            log.info("文件：{} 已存在", srcName);
         }
         return uploadRecord;
     }
@@ -87,13 +91,15 @@ public class FileServiceImpl implements FileService {
         File file = null;
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord != null) {
-            String fileName = getDiskFileName(uploadRecord);
+            log.info("找到了文件上传记录[{}]", uploadRecord);
             // 获取磁盘中的文件
-            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), fileName);
+            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), uploadRecord.getFileName());
             //如果在磁盘中没找到文件，则去hbase中去获取
             if (!file.exists()) {
-                FileModel fileModel = hbaseService.getFileFromHbase(uploadRecord.getPath(), fileName);
+                log.warn("文件[{}]在磁盘中未找到！尝试去Hbase查找。。。", uploadRecord.getFileName());
+                FileModel fileModel = hbaseService.getFileFromHbase(uploadRecord.getPath(), uploadRecord.getFileName());
                 if (fileModel != null && fileModel.getBytes().length > 0) {
+                    log.info("文件[{}]在Hbase查找成功。。。", uploadRecord.getFileName());
                     //保存文件到磁盘
                     FileUtil.writeBytes(fileModel.getBytes(), file);
                     // 找到了文件，更新文件状态
@@ -102,6 +108,7 @@ public class FileServiceImpl implements FileService {
                         uploadRecordService.save(uploadRecord);
                     }
                 } else {
+                    log.warn("文件[{}]在Hbase中未找到！", uploadRecord.getFileName());
                     if (!uploadRecord.isMissed()) {
                         //没找到文件，更新状态
                         uploadRecord.setMissed(true);
@@ -110,30 +117,16 @@ public class FileServiceImpl implements FileService {
                     file = null;
                 }
             }
+        } else {
+            log.error("未找到文件上传记录[{}]", unid);
         }
         return file;
     }
 
 
-
-
-/**
- * 获取文件磁盘的文件名
- *
- * @param uploadRecord
- * @return
- */
-private String getDiskFileName(UploadRecord uploadRecord){
-        if(StrUtil.isBlank(uploadRecord.getFileType())){
-        return uploadRecord.getMd5();
-        }
-        return uploadRecord.getMd5()+"."+uploadRecord.getFileType();
-        }
-
-
-@Override
-public boolean checkChunkExists(String fileMd5,int chunkIndex,long chunkSize){
+    @Override
+    public boolean checkChunkExists(String fileMd5, int chunkIndex, long chunkSize) {
         return false;
-        }
+    }
 
-        }
+}

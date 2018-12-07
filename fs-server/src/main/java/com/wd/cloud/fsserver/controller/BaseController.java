@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.fsserver.entity.UploadRecord;
+import com.wd.cloud.fsserver.model.FileModel;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.util.HttpHeaderUtil;
@@ -155,20 +156,6 @@ public class BaseController {
         }
     }
 
-
-    @ApiOperation(value = "获取文件", tags = {"文件获取"})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "unid", value = "文件唯一码", dataType = "String", paramType = "path")
-    })
-    @GetMapping("/file/{unid}")
-    public ResponseModel<File> getFile(@PathVariable String unid) throws UnsupportedEncodingException {
-        File file = fileService.getFile(unid);
-        if (file != null) {
-            return ResponseModel.ok().setBody(file);
-        }
-        return ResponseModel.fail(StatusEnum.NOT_FOUND);
-    }
-
     @ApiOperation(value = "获取文件byte流", tags = {"文件获取"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "unid", value = "文件唯一码", dataType = "String", paramType = "path")
@@ -177,7 +164,9 @@ public class BaseController {
     public ResponseModel<byte[]> getFileByte(@PathVariable String unid) {
         File file = fileService.getFile(unid);
         if (file != null) {
-            return ResponseModel.ok().setBody(FileUtil.readBytes(file));
+            FileModel fileModel = new FileModel();
+            fileModel.setName(file.getName()).setBytes(FileUtil.readBytes(file));
+            return ResponseModel.ok().setBody(fileModel);
         }
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }

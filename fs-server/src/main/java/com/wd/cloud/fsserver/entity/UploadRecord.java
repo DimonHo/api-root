@@ -12,7 +12,8 @@ import javax.validation.constraints.NotNull;
  * @Description:
  */
 @Entity
-@Table(name = "upload_record", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
+@Table(name = "upload_record", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"}),
+        @UniqueConstraint(columnNames = {"path", "md5"})})
 public class UploadRecord extends AbstractEntity {
 
     @NotNull
@@ -24,15 +25,15 @@ public class UploadRecord extends AbstractEntity {
      */
     private String path;
     /**
-     * 原文件的名称
+     * 文件MD5的文件名
      */
     @Column(name = "file_name", length = 1000)
     private String fileName;
 
     /**
-     * 临时字段
+     * 源文件名称
      */
-    private String temp;
+    private String srcName;
 
     private String md5;
     /**
@@ -66,12 +67,12 @@ public class UploadRecord extends AbstractEntity {
         return this;
     }
 
-    public String getTemp() {
-        return temp;
+    public String getSrcName() {
+        return srcName;
     }
 
-    public UploadRecord setTemp(String temp) {
-        this.temp = temp;
+    public UploadRecord setSrcName(String srcName) {
+        this.srcName = srcName;
         return this;
     }
 

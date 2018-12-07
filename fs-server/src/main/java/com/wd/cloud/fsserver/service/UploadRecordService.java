@@ -19,8 +19,6 @@ public interface UploadRecordService {
 
     UploadRecord getOne(String unid);
 
-    UploadRecord getNotMissed(String unid);
-
     UploadRecord getOne(String path, String fileMd5);
 
     UploadRecord save(UploadRecord uploadRecord);

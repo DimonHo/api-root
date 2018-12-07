@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -85,13 +85,14 @@ public class FileServiceImpl implements FileService {
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<byte[]> responseModel = fsServerApi.getFileByte(fileId);
+        ResponseModel<JSONObject> responseModel = fsServerApi.getFileByte(fileId);
         if (responseModel.isError()) {
             log.error("文件服务调用失败：{}", responseModel.getMessage());
             return null;
         }
-        downloadFileModel.setFileByte(responseModel.getBody());
-        downloadFileModel.setDownloadFileName(fileName);
+        downloadFileModel.setFileByte((byte[]) responseModel.getBody().get("byte"));
+        String fileType = FileUtil.extName(responseModel.getBody().getStr("name"));
+        downloadFileModel.setDownloadFileName(docTitle + "." + fileType);
         return downloadFileModel;
     }
 

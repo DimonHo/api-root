@@ -35,13 +35,8 @@ public class UploadRecordServiceImpl implements UploadRecordService {
     }
 
     @Override
-    public UploadRecord getNotMissed(String unid) {
-        return uploadRecordRepository.findByUnidAndMissedIsFalse(unid).orElse(null);
-    }
-
-    @Override
-    public UploadRecord getOne(String path, String fileMd5) {
-        return uploadRecordRepository.findByPathAndMd5(path, fileMd5).orElse(null);
+    public UploadRecord getOne(String path, String md5) {
+        return uploadRecordRepository.findByPathAndMd5(path, md5).orElse(null);
     }
 
     @Override
@@ -121,11 +116,11 @@ public class UploadRecordServiceImpl implements UploadRecordService {
 
     @Override
     public Page<UploadRecord> getMissedList(Pageable pageable) {
-        return uploadRecordRepository.findByMissedIsTrue(pageable);
+        return uploadRecordRepository.findByMissed(true, pageable);
     }
 
     @Override
     public Page<UploadRecord> getNotAsyncList(Pageable pageable) {
-        return uploadRecordRepository.findByAsyncedIsFalse(pageable);
+        return uploadRecordRepository.findByAsynced(false, pageable);
     }
 }

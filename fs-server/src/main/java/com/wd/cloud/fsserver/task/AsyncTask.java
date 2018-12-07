@@ -33,21 +33,19 @@ public class AsyncTask {
     HbaseService hbaseService;
 
     /**
-     * 每天凌晨0点执行一次
+     * 每天凌晨3点执行一次
      */
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 0 3 * * ?")
     public void asyncToHbase() {
         log.info("开始执行同步文件至hbase...");
         //找出所有未同步的记录
         Pageable pageable = PageRequest.of(0, 1000);
         Page<UploadRecord> uploadRecords = uploadRecordService.getNotAsyncList(pageable);
         log.info("共有{}个文件待同步", uploadRecords.getTotalElements());
-        uploadRecords.getContent().forEach(uploadRecord -> asyncToHbase(uploadRecord));
-        // 下一页
-        while (uploadRecords.hasNext()) {
+        do{
+            uploadRecords.getContent().forEach(this::asyncToHbase);
             uploadRecords = uploadRecordService.getNotAsyncList(uploadRecords.nextPageable());
-            uploadRecords.getContent().forEach(uploadRecord -> asyncToHbase(uploadRecord));
-        }
+        }while (uploadRecords.hasNext());
         log.info("执行同步文件至hbase完成");
     }
 
@@ -57,17 +55,17 @@ public class AsyncTask {
         if (file.exists()) {
             try {
                 // 同步至hbase中
-                hbaseService.saveToHbase(uploadRecord.getPath(), uploadRecord.getMd5(), file);
+                hbaseService.saveToHbase(uploadRecord.getPath(), uploadRecord.getFileName(), FileUtil.readBytes(file));
                 // 更新记录
                 uploadRecord.setAsynced(true);
                 uploadRecordService.save(uploadRecord);
             } catch (Exception e) {
-                log.error(e, "文件{}同步到hbase失败", uploadRecord.getUnid());
+                log.error(e, "文件{}同步到hbase失败", uploadRecord.getFileName());
             }
         } else {
             uploadRecord.setMissed(true);
             uploadRecordService.save(uploadRecord);
-            log.error("找不到文件：{}", file.getName());
+            log.error("在磁盘找不到文件：{}", file.getName());
         }
     }
 }

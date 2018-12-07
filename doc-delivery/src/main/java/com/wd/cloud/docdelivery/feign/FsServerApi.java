@@ -44,12 +44,7 @@ public interface FsServerApi extends com.wd.cloud.apifeign.FsServerApi {
         }
 
         @Override
-        public ResponseModel<File> getFile(String unid) {
-            return ResponseModel.fail(StatusEnum.FALL_BACK);
-        }
-
-        @Override
-        public ResponseModel<byte[]> getFileByte(String unid) {
+        public ResponseModel<JSONObject> getFileByte(String unid) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }
 
