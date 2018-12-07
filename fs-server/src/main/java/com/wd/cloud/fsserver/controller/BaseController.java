@@ -57,7 +57,7 @@ public class BaseController {
             jsonObject.put("fileId", uploadRecord.getUnid());
             return ResponseModel.ok().setBody(jsonObject);
         }
-        return ResponseModel.ok().setBody(jsonObject.put("fileId", null));
+        return ResponseModel.ok().setBody(null);
     }
 
     @ApiOperation(value = "检查文件是否已存在", tags = {"文件上传"})

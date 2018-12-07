@@ -44,9 +44,6 @@ public interface FsServerApi {
     @GetMapping(value = "/download/{unid}")
     ResponseEntity downloadFile(@PathVariable(value = "unid") String unid);
 
-    @GetMapping("/file/{unid}")
-    ResponseModel<File> getFile(@PathVariable(value = "unid") String unid);
-
     @GetMapping("/byte/{unid}")
     ResponseModel<byte[]> getFileByte(@PathVariable(value = "unid") String unid);
 
