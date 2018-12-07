@@ -141,7 +141,7 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public DocFile saveDocFile(Literature literature, String fileId) {
+    public DocFile saveDocFile(Literature literature, String fileId, String fileName) {
         DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId);
         if (docFile == null) {
             docFile = new DocFile();
@@ -151,6 +151,7 @@ public class BackendServiceImpl implements BackendService {
         docFile.setAuditStatus(null);
         docFile.setAuditorId(null);
         docFile.setAuditorName(null);
+        docFile.setFileName(fileName);
         docFile = docFileRepository.save(docFile);
         return docFile;
     }

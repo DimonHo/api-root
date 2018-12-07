@@ -29,7 +29,7 @@ public interface BackendService {
 
     List<DocFile> getDocFileList(Pageable pageable, Long literatureId);
 
-    DocFile saveDocFile(Literature literature, String fileName);
+    DocFile saveDocFile(Literature literature,String fileId, String fileName);
 
     /**
      * 获取单条可处理的记录

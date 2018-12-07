@@ -1,6 +1,5 @@
 package com.wd.cloud.docdelivery.controller;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -38,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -271,15 +269,15 @@ public class FrontendController {
         String fileId = null;
         try {
             String fileMd5 = FileUtil.fileMd5(file.getInputStream());
-            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(),fileMd5);
-            if (!checkResult.isError() && checkResult.getBody()!= null){
+            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(), fileMd5);
+            if (!checkResult.isError() && checkResult.getBody() != null) {
                 log.info("文件已存在，秒传成功！");
                 fileId = checkResult.getBody().getStr("fileId");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (StrUtil.isBlank(fileId)){
+        if (StrUtil.isBlank(fileId)) {
             //保存文件
             ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
             if (responseModel.isError()) {
@@ -288,7 +286,8 @@ public class FrontendController {
             }
             fileId = responseModel.getBody().getStr("fileId");
         }
-        DocFile docFile = frontService.saveDocFile(helpRecord.getLiterature(), fileId);
+        String fileName = file.getOriginalFilename();
+        DocFile docFile = frontService.saveDocFile(helpRecord.getLiterature(), fileId, fileName);
         //更新记录
         frontService.createGiveRecord(helpRecord, giverId, docFile, HttpUtil.getClientIP(request));
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");
@@ -352,10 +351,10 @@ public class FrontendController {
                                                  @RequestParam(required = false) String orgName,
                                                  @RequestParam(required = false) String date,
                                                  @RequestParam(required = false, defaultValue = "0") Integer type) {
-        if (orgId == null && orgName == null){
+        if (orgId == null && orgName == null) {
             return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
         }
-        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId,orgName, date, type));
+        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId, orgName, date, type));
     }
 
 }

@@ -18,7 +18,7 @@ public interface FrontService {
 
     boolean checkExists(String email, Literature literature);
 
-    DocFile saveDocFile(Literature literature, String filePath);
+    DocFile saveDocFile(Literature literature, String fileId,String filaName);
 
     /**
      * 我要应助

@@ -80,20 +80,18 @@ public class FileServiceImpl implements FileService {
 
     private DownloadFileModel buildDownloadModel(HelpRecord helpRecord, GiveRecord giveRecord) {
         String fileId = giveRecord.getDocFile().getFileId();
+        String fileName = giveRecord.getDocFile().getFileName();
         String docTitle = helpRecord.getLiterature().getDocTitle();
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<File> responseModel = fsServerApi.getFile(fileId);
+        ResponseModel<byte[]> responseModel = fsServerApi.getFileByte(fileId);
         if (responseModel.isError()) {
             log.error("文件服务调用失败：{}", responseModel.getMessage());
             return null;
         }
-        downloadFileModel.setFile(responseModel.getBody());
-        downloadFileModel.setFileByte(FileUtil.readBytes(responseModel.getBody()));
-        String ext = StrUtil.subAfter(responseModel.getBody().getName(), ".", true);
-        String downLoadFileName = docTitle + "." + ext;
-        downloadFileModel.setDownloadFileName(downLoadFileName);
+        downloadFileModel.setFileByte(responseModel.getBody());
+        downloadFileModel.setDownloadFileName(fileName);
         return downloadFileModel;
     }
 

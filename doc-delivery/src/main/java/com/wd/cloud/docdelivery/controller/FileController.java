@@ -98,10 +98,4 @@ public class FileController {
         out.close();
     }
 
-
-    @GetMapping("/build/fileid")
-    public ResponseModel buildFileId(){
-        int count = fileService.buildFileId();
-        return ResponseModel.ok().setBody(count);
-    }
 }
