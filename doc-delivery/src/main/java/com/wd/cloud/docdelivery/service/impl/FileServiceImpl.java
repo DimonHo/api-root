@@ -85,13 +85,13 @@ public class FileServiceImpl implements FileService {
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<JSONObject> responseModel = fsServerApi.getFileByte(fileId);
+        ResponseModel<byte[]> responseModel = fsServerApi.getFileByte(fileId);
         if (responseModel.isError()) {
             log.error("文件服务调用失败：{}", responseModel.getMessage());
             return null;
         }
-        downloadFileModel.setFileByte((byte[]) responseModel.getBody().get("byte"));
-        String fileType = FileUtil.extName(responseModel.getBody().getStr("name"));
+        downloadFileModel.setFileByte(responseModel.getBody());
+        String fileType = FileUtil.extName(responseModel.getMessage());
         downloadFileModel.setDownloadFileName(docTitle + "." + fileType);
         return downloadFileModel;
     }

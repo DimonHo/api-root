@@ -164,9 +164,7 @@ public class BaseController {
     public ResponseModel<byte[]> getFileByte(@PathVariable String unid) {
         File file = fileService.getFile(unid);
         if (file != null) {
-            FileModel fileModel = new FileModel();
-            fileModel.setName(file.getName()).setBytes(FileUtil.readBytes(file));
-            return ResponseModel.ok().setBody(fileModel);
+            return ResponseModel.ok().setMessage(file.getName()).setBody(FileUtil.readBytes(file));
         }
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }
