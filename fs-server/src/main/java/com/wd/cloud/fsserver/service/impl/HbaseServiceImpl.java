@@ -4,6 +4,8 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
+import com.wd.cloud.fsserver.entity.UploadRecord;
+import com.wd.cloud.fsserver.model.FileModel;
 import com.wd.cloud.fsserver.model.TableModel;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.HbaseService;
@@ -25,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,37 +54,32 @@ public class HbaseServiceImpl implements HbaseService {
 
     @Override
     public boolean saveToHbase(String tableName, String md5, MultipartFile file) throws Exception {
+        String fileMd5Name = FileUtil.buildFileMd5Name(file, md5);
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getOriginalFilename())
-                .setRowKey(md5)
+                .setRowKey(fileMd5Name)
                 .setValue(file.getBytes());
         return saveToHbase(tableModel);
     }
 
     @Override
     public boolean saveToHbase(String tableName, String md5, File file) throws Exception {
+        String fileMd5Name = FileUtil.buildFileMd5Name(file, md5);
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
-                .setRowKey(md5)
+                .setRowKey(fileMd5Name)
                 .setValue(FileUtil.readBytes(file));
         return saveToHbase(tableModel);
     }
 
-    @Override
-    public boolean saveToHbase(String tableName, String md5, byte[] fileByte, String fileName) throws Exception {
-        TableModel tableModel = TableModel.create().setTableName(tableName)
-                .setFileName(fileName)
-                .setRowKey(md5)
-                .setValue(fileByte);
-        return saveToHbase(tableModel);
-    }
 
     @Override
     public boolean saveToHbase(String tableName, File file) throws Exception {
         String md5 = FileUtil.fileMd5(file);
+        String fileMd5Name = FileUtil.buildFileMd5Name(file, md5);
         TableModel tableModel = TableModel.create().setTableName(tableName)
                 .setFileName(file.getName())
-                .setRowKey(md5)
+                .setRowKey(fileMd5Name)
                 .setValue(FileUtil.readBytes(file));
         return saveToHbase(tableModel);
     }
@@ -107,20 +105,29 @@ public class HbaseServiceImpl implements HbaseService {
     }
 
     @Override
-    public byte[] getFileFromHbase(String tableName, String md5) {
-        return hbaseTemplate.get(tableName, md5, new RowMapper<byte[]>() {
+    public FileModel getFileFromHbase(String tableName, String rowKey) {
+        List<FileModel> fileModels = hbaseTemplate.get(tableName, rowKey, new RowMapper<List<FileModel>>() {
             @Override
-            public byte[] mapRow(Result result, int i) {
-                byte[] fileByte = null;
+            public List<FileModel> mapRow(Result result, int i) {
+                List<FileModel> fileModels = new ArrayList<>();
                 List<Cell> cells = result.listCells();
-                if (cells != null) {
-                    Cell cell = cells.stream().findFirst().get();
-                    fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-                    log.info("从hbase读取文件md5：{}，size：{} byte", md5, fileByte.length);
+                if (cells != null && cells.size() > 0) {
+                    cells.forEach(cell -> {
+                        FileModel fileModel = new FileModel();
+                        String fileName = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
+                        byte[] fileByte = Arrays.copyOfRange(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                        log.info("从hbase读取文件md5：{}，size：{} byte", rowKey, fileByte.length);
+                        fileModel.setName(fileName).setBytes(fileByte);
+                        fileModels.add(fileModel);
+                    });
                 }
-                return fileByte;
+                return fileModels;
             }
         });
+        if (fileModels.size() > 1) {
+            log.error("在hbase中找到了多条记录!tableName={},rowkey={}", tableName, rowKey);
+        }
+        return fileModels.get(0);
     }
 
     @Override
@@ -154,7 +161,14 @@ public class HbaseServiceImpl implements HbaseService {
                             if (!fileMd5Name.equals(file.getName())) {
                                 file = FileUtil.rename(file, fileMd5Name, false, true);
                             }
-                            uploadRecordService.save(newTable, fileName, file);
+                            UploadRecord uploadRecord = new UploadRecord();
+                            uploadRecord.setPath(newTable)
+                                    .setFileName(fileMd5Name)
+                                    .setTemp(fileName)
+                                    .setMd5(FileUtil.fileMd5(file))
+                                    .setFileType(FileUtil.getFileType(file))
+                                    .setFileSize(file.length());
+                            uploadRecordService.save(uploadRecord);
                             count.getAndIncrement();
                         } catch (Exception e) {
                             log.error(e, "fileName:{}", fileName);

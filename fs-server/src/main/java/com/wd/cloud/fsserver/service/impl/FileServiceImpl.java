@@ -2,10 +2,12 @@ package com.wd.cloud.fsserver.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.fsserver.config.GlobalConfig;
 import com.wd.cloud.fsserver.entity.UploadRecord;
+import com.wd.cloud.fsserver.model.FileModel;
 import com.wd.cloud.fsserver.repository.UploadRecordRepository;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.HbaseService;
@@ -41,8 +43,11 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public UploadRecord save(String dir, MultipartFile file) throws Exception {
+        //源文件名
         String fileName = file.getOriginalFilename();
+        //文件md5校验码
         String fileMd5 = FileUtil.fileMd5(file);
+        //文件Id
         String unid = FileUtil.buildFileUnid(dir, fileMd5);
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord == null || uploadRecord.isMissed()) {
@@ -82,21 +87,22 @@ public class FileServiceImpl implements FileService {
         File file = null;
         UploadRecord uploadRecord = uploadRecordService.getOne(unid);
         if (uploadRecord != null) {
+            String fileName = getDiskFileName(uploadRecord);
             // 获取磁盘中的文件
-            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), getDiskFileName(uploadRecord));
+            file = FileUtil.getFileFromDisk(globalConfig.getRootPath() + uploadRecord.getPath(), fileName);
             //如果在磁盘中没找到文件，则去hbase中去获取
             if (!file.exists()) {
-                byte[] fileByte = hbaseService.getFileFromHbase(uploadRecord.getPath(), uploadRecord.getMd5());
-                if (fileByte != null && fileByte.length > 0) {
+                FileModel fileModel = hbaseService.getFileFromHbase(uploadRecord.getPath(), fileName);
+                if (fileModel != null && fileModel.getBytes().length > 0) {
                     //保存文件到磁盘
-                    FileUtil.writeBytes(fileByte, file);
+                    FileUtil.writeBytes(fileModel.getBytes(), file);
                     // 找到了文件，更新文件状态
                     if (uploadRecord.isMissed()) {
                         uploadRecord.setMissed(false);
                         uploadRecordService.save(uploadRecord);
                     }
                 } else {
-                    if (!uploadRecord.isMissed()){
+                    if (!uploadRecord.isMissed()) {
                         //没找到文件，更新状态
                         uploadRecord.setMissed(true);
                         uploadRecordService.save(uploadRecord);
@@ -109,22 +115,25 @@ public class FileServiceImpl implements FileService {
     }
 
 
-    /**
-     * 获取文件磁盘的文件名
-     * @param uploadRecord
-     * @return
-     */
-    private String getDiskFileName(UploadRecord uploadRecord) {
-        if (StrUtil.isBlank(uploadRecord.getFileType())) {
-            return uploadRecord.getMd5();
+
+
+/**
+ * 获取文件磁盘的文件名
+ *
+ * @param uploadRecord
+ * @return
+ */
+private String getDiskFileName(UploadRecord uploadRecord){
+        if(StrUtil.isBlank(uploadRecord.getFileType())){
+        return uploadRecord.getMd5();
         }
-        return uploadRecord.getMd5() + "." + uploadRecord.getFileType();
-    }
+        return uploadRecord.getMd5()+"."+uploadRecord.getFileType();
+        }
 
 
-    @Override
-    public boolean checkChunkExists(String fileMd5, int chunkIndex, long chunkSize) {
+@Override
+public boolean checkChunkExists(String fileMd5,int chunkIndex,long chunkSize){
         return false;
-    }
+        }
 
-}
+        }

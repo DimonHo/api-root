@@ -29,6 +29,11 @@ public class UploadRecord extends AbstractEntity {
     @Column(name = "file_name", length = 1000)
     private String fileName;
 
+    /**
+     * 临时字段
+     */
+    private String temp;
+
     private String md5;
     /**
      * 文件大小
@@ -58,6 +63,15 @@ public class UploadRecord extends AbstractEntity {
 
     public UploadRecord setUnid(String unid) {
         this.unid = unid;
+        return this;
+    }
+
+    public String getTemp() {
+        return temp;
+    }
+
+    public UploadRecord setTemp(String temp) {
+        this.temp = temp;
         return this;
     }
 
