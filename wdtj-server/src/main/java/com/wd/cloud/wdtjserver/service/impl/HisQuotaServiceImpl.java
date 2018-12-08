@@ -77,6 +77,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
 
     @Override
     public List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas) {
+        // 调用org-server服务获取机构信息
         ResponseModel responseModel = orgServerApi.getOrg(tjHisQuotas.get(0).getOrgId());
         if (!responseModel.isError()) {
             String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");

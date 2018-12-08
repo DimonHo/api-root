@@ -11,6 +11,7 @@ import com.wd.cloud.wdtjserver.entity.*;
 import com.wd.cloud.wdtjserver.model.TotalModel;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author He Zhigang
@@ -41,12 +42,10 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         //首尾添加0和total
         tempList.add(0L);
         tempList.add(total);
-        // 如果总量大于count的5倍，那么最小值为1 否则为0
-        int min = total > 5 * count ? 1 : 0;
         if (total > 0) {
             //生成 count-1 个随机数
             for (int i = 1; i < count; i++) {
-                tempList.add(RandomUtil.randomLong(min,total));
+                tempList.add(RandomUtil.randomLong(total));
             }
         } else {
             for (int i = 1; i < count; i++) {
@@ -85,12 +84,10 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         //首尾添加0和total
         tempList.add(0);
         tempList.add(total);
-        // 如果总量大于count的5倍，那么最小值为1 否则为0
-        int min = total > 5 * count ? 1 : 0;
         if (total > 0) {
             //生成 count-1 个随机数
             for (int i = 1; i < count; i++) {
-                tempList.add(RandomUtil.randomInt(min, total));
+                tempList.add(RandomUtil.randomInt(total));
             }
         } else {
             for (int i = 1; i < count; i++) {
@@ -107,6 +104,45 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         // 将数组相邻元素之差组装成最终结果
         for (int i = 1; i < tempList.size(); i++) {
             randomList.add(tempList.get(i) - tempList.get(i - 1));
+        }
+        return randomList;
+    }
+
+    /**
+     * 生成总和为固定值的随机数列表
+     *
+     * @param total 随机数之和
+     * @param count 随机数的个数
+     * @return 最低不为0的列表
+     */
+    public static List<Integer> randomIntListFromFinalTotal(int total, int count, double lowFuDong, double highFuDong) {
+        List<Integer> randomList = new ArrayList<>();
+        if (total == 0 || count == 0) {
+            log.warn("随机总和：{},随机个数：{}", total, count);
+            return randomList;
+        }
+        log.info("随机总和：{},随机个数：{}", total, count);
+        boolean flag = false;
+        // 总量为数量的10倍以上，最低保留一个
+        if (total > count * 10) {
+            flag = true;
+            total = total - count;
+        }
+        double avg = 1.0 * total / count;
+        int before = 0;
+        //生成 count-1 个随机数
+        for (int i = 0; i < count - 1; i++) {
+            double min = before + avg * (1 - lowFuDong);
+            double max = before + avg * (1 + highFuDong);
+            min = min > total ? before : min;
+            max = max > total ? total : max;
+            int randomEle = max > min ? (int) Math.round(RandomUtil.randomDouble(min, max)) : total;
+            randomList.add(randomEle - before);
+            before = randomEle;
+        }
+        randomList.add(total - before);
+        if (flag) {
+            return randomList.stream().map(ele -> ele + 1).collect(Collectors.toList());
         }
         return randomList;
     }

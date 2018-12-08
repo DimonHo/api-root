@@ -55,7 +55,10 @@ public class HisQuotaController {
         }
         List<TjHisQuota> tjHisQuotas = new ArrayList<>();
         hisQuotaModels.forEach(hisQuotaModel -> {
-            tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgId(orgId).setCreateUser(createUser));
+            TjHisQuota tjHisQuota = ModelUtil.build(hisQuotaModel);
+            if (tjHisQuota != null){
+                tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgId(orgId).setCreateUser(createUser));
+            }
         });
         List<TjHisQuota> body = hisQuotaService.save(tjHisQuotas);
         if (body == null) {

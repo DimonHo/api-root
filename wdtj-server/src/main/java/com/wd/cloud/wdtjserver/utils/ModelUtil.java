@@ -20,8 +20,9 @@ import java.util.Map;
 public class ModelUtil {
 
     public static TjQuota build(QuotaModel quotaModel) {
-        TjQuota tjQuota = new TjQuota();
+        TjQuota tjQuota = null;
         if (quotaModel.getPvCount() != 0) {
+            tjQuota = new TjQuota();
             tjQuota.setPvCount(quotaModel.getPvCount())
                     .setDcCount(quotaModel.getDcCount())
                     .setDdcCount(quotaModel.getDdcCount())
@@ -34,8 +35,9 @@ public class ModelUtil {
     }
 
     public static TjHisQuota build(HisQuotaModel hisQuotaModel) {
-        TjHisQuota tjHisQuota = new TjHisQuota();
+        TjHisQuota tjHisQuota = null;
         if (hisQuotaModel.getPvCount() != 0) {
+            tjHisQuota = new TjHisQuota();
             tjHisQuota.setPvCount(hisQuotaModel.getPvCount())
                     .setDcCount(hisQuotaModel.getDcCount())
                     .setDdcCount(hisQuotaModel.getDdcCount())
