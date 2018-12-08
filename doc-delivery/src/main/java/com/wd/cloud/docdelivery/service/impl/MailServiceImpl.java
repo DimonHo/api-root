@@ -3,6 +3,8 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.enums.ChannelEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
@@ -27,6 +29,8 @@ import java.util.List;
 @Async
 @Service("mailService")
 public class MailServiceImpl implements MailService {
+
+    private static final Log log = LogFactory.get();
 
     @Autowired
     MailModel spis;
@@ -172,6 +176,7 @@ public class MailServiceImpl implements MailService {
         if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-success");
             if (!FileUtil.exist(templateFile)) {
+                log.info("模板文件[{}]不存在，使用默认模板",templateFile);
                 templateFile = "default-success.ftl";
             }
         } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
@@ -197,13 +202,12 @@ public class MailServiceImpl implements MailService {
     }
 
     private String buildContent(MailModel mailModel, String templateFile) {
+        templateFile = StrUtil.subAfter(templateFile,"templates/",true);
         String content = null;
         try {
             Template template = configuration.getConfiguration().getTemplate(templateFile);
             content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailModel);
-        } catch (TemplateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (TemplateException | IOException e) {
             e.printStackTrace();
         }
         return content;
