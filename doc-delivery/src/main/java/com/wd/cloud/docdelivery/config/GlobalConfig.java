@@ -1,8 +1,13 @@
 package com.wd.cloud.docdelivery.config;
 
+import freemarker.template.Configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -30,6 +35,8 @@ public class GlobalConfig {
     private List<String> fileTypes;
 
     private String[] notifyMail;
+
+    private String templatesBase;
 
     public List<String> getChannels() {
         return channels;
@@ -69,5 +76,14 @@ public class GlobalConfig {
 
     public void setNotifyMail(String[] notifyMail) {
         this.notifyMail = notifyMail;
+    }
+
+    public String getTemplatesBase() {
+        return templatesBase;
+    }
+
+    public GlobalConfig setTemplatesBase(String templatesBase) {
+        this.templatesBase = templatesBase;
+        return this;
     }
 }

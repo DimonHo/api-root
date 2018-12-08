@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class MailServiceImpl implements MailService {
     GlobalConfig globalConfig;
 
     @Autowired
-    private FreeMarkerConfigurer configuration;
+    private FreeMarkerConfigurer freeMarkerConfigurer;
 
     /**
      * 地址拆分
@@ -175,28 +176,36 @@ public class MailServiceImpl implements MailService {
         String templateFile = null;
         if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-success");
-            if (!FileUtil.exist(templateFile)) {
+            if (!templateExists(templateFile)) {
                 log.info("模板文件[{}]不存在，使用默认模板", templateFile);
                 templateFile = "default-success.ftl";
-            } else {
-                templateFile = StrUtil.subAfter(templateFile, "templates/", true);
             }
         } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-failed");
-            if (!FileUtil.exist(templateFile)) {
+            if (!templateExists(templateFile)) {
                 templateFile = "default-failed.ftl";
-            } else {
-                templateFile = StrUtil.subAfter(templateFile, "templates/", true);
             }
         } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-third");
-            if (!FileUtil.exist(templateFile)) {
+            if (!templateExists(templateFile)) {
                 templateFile = "default-third.ftl";
-            } else {
-
             }
         }
         return buildContent(mailModel, templateFile);
+    }
+
+    /**
+     * 检查模板文件是否存在
+     * @param templateFile
+     * @return
+     */
+    private boolean templateExists(String templateFile) {
+        String suffix = "/";
+        String path = globalConfig.getTemplatesBase() + suffix + templateFile;
+        if (StrUtil.endWith(globalConfig.getTemplatesBase(), suffix)) {
+            path = globalConfig.getTemplatesBase() + templateFile;
+        }
+        return FileUtil.exist(path);
     }
 
     private String buildNotifyContent(MailModel mailModel, String helperScname) {
@@ -207,11 +216,21 @@ public class MailServiceImpl implements MailService {
         return buildContent(mailModel, templateFile);
     }
 
+    /**
+     * 构建邮件内容
+     * @param mailModel
+     * @param templateFile
+     * @return
+     */
     private String buildContent(MailModel mailModel, String templateFile) {
         String content = null;
+        boolean isDefault = templateFile.contains("default");
         try {
-            templateFile = templateFile.contains("templates/") ? StrUtil.subAfter(templateFile, "templates/", true) : templateFile;
-            Template template = configuration.getConfiguration().getTemplate(templateFile);
+            // 如果templateFile不包含“default”字符串，就去外部目录去加载
+            if (!isDefault) {
+                freeMarkerConfigurer.getConfiguration().setDirectoryForTemplateLoading(new File(globalConfig.getTemplatesBase()));
+            }
+            Template template = freeMarkerConfigurer.getConfiguration().getTemplate(templateFile);
             content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailModel);
         } catch (TemplateException | IOException e) {
             e.printStackTrace();

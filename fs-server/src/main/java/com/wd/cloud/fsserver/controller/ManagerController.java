@@ -71,27 +71,27 @@ public class ManagerController {
         return ResponseModel.fail(StatusEnum.NOT_FOUND);
     }
 
-    @ApiOperation(value = "创建hbase表", tags = {"hbase管理"})
-    @ApiImplicitParam(name = "tableName", value = "表名", dataType = "String", type = "path")
-    @PutMapping("/create/{tableName}")
-    public ResponseModel creaetHbaseTable(@PathVariable String tableName) {
-        try {
-            hbaseService.createTable(tableName);
-            return ResponseModel.ok().setBody("表" + tableName + "创建成功");
-        } catch (IOException e) {
-            return ResponseModel.fail(e).setBody("表" + tableName + "创建失败");
-        }
-    }
-
-    @ApiOperation(value = "删除hbase表", tags = {"hbase管理"})
-    @ApiImplicitParam(name = "tableName", value = "表名", dataType = "String", type = "path")
-    @DeleteMapping("/drop/{tableName}")
-    public ResponseModel dropHbaseTable(@PathVariable String tableName) {
-        try {
-            hbaseService.dropTable(tableName);
-            return ResponseModel.ok().setBody("表" + tableName + "删除成功");
-        } catch (IOException e) {
-            return ResponseModel.fail(e).setBody("表" + tableName + "删除失败");
-        }
-    }
+//    @ApiOperation(value = "创建hbase表", tags = {"hbase管理"})
+//    @ApiImplicitParam(name = "tableName", value = "表名", dataType = "String", type = "path")
+//    @PutMapping("/create/{tableName}")
+//    public ResponseModel creaetHbaseTable(@PathVariable String tableName) {
+//        try {
+//            hbaseService.createTable(tableName);
+//            return ResponseModel.ok().setBody("表" + tableName + "创建成功");
+//        } catch (IOException e) {
+//            return ResponseModel.fail(e).setBody("表" + tableName + "创建失败");
+//        }
+//    }
+//
+//    @ApiOperation(value = "删除hbase表", tags = {"hbase管理"})
+//    @ApiImplicitParam(name = "tableName", value = "表名", dataType = "String", type = "path")
+//    @DeleteMapping("/drop/{tableName}")
+//    public ResponseModel dropHbaseTable(@PathVariable String tableName) {
+//        try {
+//            hbaseService.dropTable(tableName);
+//            return ResponseModel.ok().setBody("表" + tableName + "删除成功");
+//        } catch (IOException e) {
+//            return ResponseModel.fail(e).setBody("表" + tableName + "删除失败");
+//        }
+//    }
 }

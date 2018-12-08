@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.model;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.extra.mail.Mail;
 
@@ -13,12 +14,12 @@ public class MailModel extends Mail {
     /**
      * 有效期毫秒数
      */
-    private long exp = 1000 * 60 * 60 * 24 * 15;
+    private int exp = 1000 * 60 * 60 * 24 * 15;
 
     /**
      * 有效期
      */
-    private String expStr;
+    private String expStr = DateUtil.offsetMillisecond(DateTime.now(),exp).toString("yyyy-MM-dd HH:mm:ss");
 
     /**
      * 内容模板文件
@@ -45,7 +46,7 @@ public class MailModel extends Mail {
         return exp;
     }
 
-    public MailModel setExp(long exp) {
+    public MailModel setExp(int exp) {
         this.exp = exp;
         return this;
     }
@@ -114,7 +115,7 @@ public class MailModel extends Mail {
     }
 
     public String getExpStr() {
-        return DateUtil.date(exp).toString("yyyy-MM-dd HH:mm:ss");
+        return expStr;
     }
 
     public MailModel setExpStr(String expStr) {
