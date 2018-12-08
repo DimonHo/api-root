@@ -155,7 +155,7 @@ public class BackendController {
             e.printStackTrace();
         }
         ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(),fileMd5);
-        if (!checkResult.isError() && checkResult.getBody()!= null){
+        if (!checkResult.isError() && checkResult.getBody() != null){
             log.info("文件已存在，秒传成功！");
             fileId = checkResult.getBody().getStr("fileId");
         }
