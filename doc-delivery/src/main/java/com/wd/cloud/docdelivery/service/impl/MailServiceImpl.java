@@ -176,18 +176,24 @@ public class MailServiceImpl implements MailService {
         if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-success");
             if (!FileUtil.exist(templateFile)) {
-                log.info("模板文件[{}]不存在，使用默认模板",templateFile);
+                log.info("模板文件[{}]不存在，使用默认模板", templateFile);
                 templateFile = "default-success.ftl";
+            } else {
+                templateFile = StrUtil.subAfter(templateFile, "templates/", true);
             }
         } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-failed");
             if (!FileUtil.exist(templateFile)) {
                 templateFile = "default-failed.ftl";
+            } else {
+                templateFile = StrUtil.subAfter(templateFile, "templates/", true);
             }
         } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-third");
             if (!FileUtil.exist(templateFile)) {
                 templateFile = "default-third.ftl";
+            } else {
+
             }
         }
         return buildContent(mailModel, templateFile);
@@ -202,9 +208,9 @@ public class MailServiceImpl implements MailService {
     }
 
     private String buildContent(MailModel mailModel, String templateFile) {
-        templateFile = StrUtil.subAfter(templateFile,"templates/",true);
         String content = null;
         try {
+            templateFile = templateFile.contains("templates/") ? StrUtil.subAfter(templateFile, "templates/", true) : templateFile;
             Template template = configuration.getConfiguration().getTemplate(templateFile);
             content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailModel);
         } catch (TemplateException | IOException e) {
