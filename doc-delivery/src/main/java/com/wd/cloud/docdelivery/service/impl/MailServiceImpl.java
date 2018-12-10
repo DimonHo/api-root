@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -114,7 +115,10 @@ public class MailServiceImpl implements MailService {
 
     private void sendMail(MailModel mailModel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
         List<String> tos = splitAddress(helpEmail);
-        mailModel.setTos(tos.toArray(new String[tos.size()]));
+        if (tos == null) {
+            throw new NullPointerException("收件人邮箱为空！");
+        }
+        mailModel.setTos(ArrayUtil.toArray(tos, String.class));
         if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
             DefaultMailSuccessModel successModel = new DefaultMailSuccessModel();
             successModel.setDownloadUrl(downloadUrl).setDocTitle(docTitle);
@@ -176,18 +180,18 @@ public class MailServiceImpl implements MailService {
         String templateFile = null;
         if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-success");
-            if (!templateExists(templateFile)) {
+            if (templateNotExists(templateFile)) {
                 log.info("模板文件[{}]不存在，使用默认模板", templateFile);
                 templateFile = "default-success.ftl";
             }
         } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-failed");
-            if (!templateExists(templateFile)) {
+            if (templateNotExists(templateFile)) {
                 templateFile = "default-failed.ftl";
             }
         } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
             templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-third");
-            if (!templateExists(templateFile)) {
+            if (templateNotExists(templateFile)) {
                 templateFile = "default-third.ftl";
             }
         }
@@ -196,16 +200,17 @@ public class MailServiceImpl implements MailService {
 
     /**
      * 检查模板文件是否存在
+     *
      * @param templateFile
      * @return
      */
-    private boolean templateExists(String templateFile) {
+    private boolean templateNotExists(String templateFile) {
         String suffix = "/";
         String path = globalConfig.getTemplatesBase() + suffix + templateFile;
         if (StrUtil.endWith(globalConfig.getTemplatesBase(), suffix)) {
             path = globalConfig.getTemplatesBase() + templateFile;
         }
-        return FileUtil.exist(path);
+        return !FileUtil.exist(path);
     }
 
     private String buildNotifyContent(MailModel mailModel, String helperScname) {
@@ -218,6 +223,7 @@ public class MailServiceImpl implements MailService {
 
     /**
      * 构建邮件内容
+     *
      * @param mailModel
      * @param templateFile
      * @return

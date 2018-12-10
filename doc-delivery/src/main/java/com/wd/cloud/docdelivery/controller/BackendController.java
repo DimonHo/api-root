@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -81,7 +82,6 @@ public class BackendController {
                                   @RequestParam(required = false) String beginTime,
                                   @RequestParam(required = false) String endTime,
                                   @PageableDefault(value = 20, sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("helperScid", helperScid);
         param.put("status", status);

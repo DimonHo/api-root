@@ -54,7 +54,8 @@ public class BackendServiceImpl implements BackendService {
     public Page<HelpRecord> getHelpList(Pageable pageable, Map<String, Object> param) {
         Short helpUserScid = (Short) param.get("helperScid");
         Short status = (Short) param.get("status");
-        String keyword = (String) param.get("keyword");
+        //  https://www.tapd.cn/33969136/bugtrace/bugs/view?bug_id=1133969136001000485
+        String keyword = ((String) param.get("keyword")).replaceAll("\\\\","\\\\\\\\");
         String beginTime = (String) param.get("beginTime");
         String endTime = (String) param.get("endTime") + " 23:59:59";
         Page<HelpRecord> result = helpRecordRepository.findAll(new Specification<HelpRecord>() {
@@ -73,7 +74,11 @@ public class BackendServiceImpl implements BackendService {
                     }
                 }
                 if (!StringUtils.isEmpty(keyword)) {
-                    list.add(cb.or(cb.like(root.get("literature").get("docTitle").as(String.class), "%" + keyword.trim() + "%"), cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
+                    list.add(cb.or(
+                            cb.like(root.get("literature").get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
+                            cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")
+                            )
+                    );
                 }
                 if (!StringUtils.isEmpty(beginTime)) {
                     list.add(cb.between(root.get("gmtCreate").as(Date.class), DateUtil.parse(beginTime), DateUtil.parse(endTime)));
