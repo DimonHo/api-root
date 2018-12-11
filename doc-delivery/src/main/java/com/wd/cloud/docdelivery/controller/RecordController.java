@@ -1,15 +1,13 @@
 package com.wd.cloud.docdelivery.controller;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.model.AnalysisModel;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -25,6 +23,14 @@ public class RecordController {
     GlobalConfig globalConfig;
     @Autowired
     DocFileRepository docFileRepository;
+
+    @GetMapping("/analysis")
+    public ResponseModel<AnalysisModel> analysis(@RequestParam(required = false) String query,
+                                                 @RequestParam String beginDate,
+                                                 @RequestParam String endDate) {
+
+        return ResponseModel.ok();
+    }
 
     /**
      * 审核不通过记录报表
@@ -66,20 +72,5 @@ public class RecordController {
         return ResponseModel.ok();
     }
 
-    /**
-     * 生成文件ID
-     *
-     * @return
-     */
-    @GetMapping("/createfileid")
-    public ResponseModel<JSONObject> updateFileUnid() {
-        JSONObject response = JSONUtil.createObj();
-        docFileRepository.findByFileIdIsNull().forEach(docFile -> {
-            String fileId = SecureUtil.md5(globalConfig.getHbaseTableName() + StrUtil.subBefore(docFile.getFileName(), ".", true));
-            docFile.setFileId(fileId);
-            docFileRepository.save(docFile);
-            response.put(docFile.getFileId(), docFile.getFileName());
-        });
-        return ResponseModel.ok().setBody(response);
-    }
+
 }

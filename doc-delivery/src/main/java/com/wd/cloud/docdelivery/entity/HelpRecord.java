@@ -79,6 +79,17 @@ public class HelpRecord extends AbstractEntity {
     @Column(name = "status", columnDefinition = "tinyint default 0 COMMENT '0：待应助， 1：应助中（用户已认领，15分钟内上传文件）， 2: 待审核（用户已应助）， 3：求助第三方（第三方应助）， 4：应助成功（审核通过或管理员应助）， 5：应助失败（超过15天无结果）'")
     private int status;
 
+    /**
+     * 是否成功发送邮件
+     */
+    @Column(name = "is_send", columnDefinition = "bit default 0 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
+    private boolean send;
+
+    /**
+     * 是否匿名
+     */
+    @Column(name = "is_anonymous", columnDefinition = "bit default 0 COMMENT '0：未匿名， 1：已匿名'")
+    private boolean anonymous;
 
     public Literature getLiterature() {
         return literature;
@@ -164,6 +175,24 @@ public class HelpRecord extends AbstractEntity {
         this.giveRecords = giveRecords;
     }
 
+    public boolean isSend() {
+        return send;
+    }
+
+    public HelpRecord setSend(boolean send) {
+        this.send = send;
+        return this;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public HelpRecord setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+        return this;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -177,6 +206,8 @@ public class HelpRecord extends AbstractEntity {
                 .append("helperIp", helperIp)
                 .append("helpChannel", helpChannel)
                 .append("status", status)
+                .append("send",send)
+                .append("anonymous",anonymous)
                 .append("id", id)
                 .append("gmtModified", gmtModified)
                 .append("gmtCreate", gmtCreate)
@@ -187,7 +218,7 @@ public class HelpRecord extends AbstractEntity {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> values.contains(ReflectUtil.getFieldValue(g, fieldName)))
-                .forEach(gg -> giveRecords.add(gg));
+                .forEach(giveRecords::add);
         this.getGiveRecords().removeAll(giveRecords);
         return this;
     }
@@ -196,7 +227,7 @@ public class HelpRecord extends AbstractEntity {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> value.equals(ReflectUtil.getFieldValue(g, fieldName)))
-                .forEach(gg -> giveRecords.add(gg));
+                .forEach(giveRecords::add);
         this.getGiveRecords().removeAll(giveRecords);
         return this;
     }
@@ -205,7 +236,7 @@ public class HelpRecord extends AbstractEntity {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> !values.contains(ReflectUtil.getFieldValue(g, fieldName)))
-                .forEach(gg -> giveRecords.add(gg));
+                .forEach(giveRecords::add);
         this.getGiveRecords().removeAll(giveRecords);
         return this;
     }
@@ -214,7 +245,7 @@ public class HelpRecord extends AbstractEntity {
         List<GiveRecord> giveRecords = new ArrayList<>();
         this.getGiveRecords().stream()
                 .filter(g -> !value.equals(ReflectUtil.getFieldValue(g, fieldName)))
-                .forEach(gg -> giveRecords.add(gg));
+                .forEach(giveRecords::add);
         this.getGiveRecords().removeAll(giveRecords);
         return this;
     }
