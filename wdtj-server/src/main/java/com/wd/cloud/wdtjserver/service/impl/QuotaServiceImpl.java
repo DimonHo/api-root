@@ -163,7 +163,7 @@ public class QuotaServiceImpl implements QuotaService {
         int uvTotal = tjQuota.getUvCount() > 0 ? (int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight()) : 0;
         int vvTotal = tjQuota.getVvCount() > 0 ? (int) Math.round(RandomUtil.randomDouble(uvTotal, tjQuota.getVvCount() * dayWeight.getWeight() * 2)) : 0;
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
-        long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.3, 3) * vvTotal);
+        long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.5, 2) * vvTotal);
 
         totalModel.setOrgId(tjQuota.getOrgId())
                 .setOrgName(tjQuota.getOrgName())
