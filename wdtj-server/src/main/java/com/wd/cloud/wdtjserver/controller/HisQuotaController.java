@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -108,6 +109,26 @@ public class HisQuotaController {
         hisQuotaService.buildingState(tjHisQuota, buildUser);
         //执行生成记录
         hisQuotaService.buildExecute(tjHisQuota);
+        return ResponseModel.ok();
+    }
+
+
+    @ApiOperation(value = "批量生成历史详细记录", tags = {"后台设置"})
+    @PatchMapping("/his/buildAll")
+    public ResponseModel buildAll(@RequestParam String buildUser) {
+        Pageable pageable = PageRequest.of(0,1000);
+        Page<TjHisQuota> tjHisQuotaPage = hisQuotaService.getAllHisQuota(pageable);
+        tjHisQuotaPage.forEach(tjHisQuota -> {
+            if (tjHisQuota.isLocked()) {
+                log.warn("记录已生成且已锁定");
+            } else if (tjHisQuota.getBuildState() == 2) {
+                log.info("记录正在生成中。。。请稍后再查看结果");
+            }
+            //更新记录状态为记录生成中
+            hisQuotaService.buildingState(tjHisQuota, buildUser);
+            //执行生成记录
+            hisQuotaService.buildExecute(tjHisQuota);
+        });
         return ResponseModel.ok();
     }
 
