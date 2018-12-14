@@ -157,11 +157,13 @@ public class QuotaServiceImpl implements QuotaService {
         Map<DateTime, TotalModel> map = new HashMap<>();
         TotalModel totalModel = new TotalModel();
         int pvTotal = tjQuota.getPvCount() > 0 ? (int) Math.round(tjQuota.getPvCount() * dayWeight.getWeight()) : 0;
-        int scTotal = tjQuota.getScCount() > 0 ? (int) Math.round(RandomUtil.randomDouble(tjQuota.getScCount() * dayWeight.getWeight() * 0.7, pvTotal)) : 0;
+        double scMin = tjQuota.getScCount() * dayWeight.getWeight() * RandomUtil.randomDouble(0.2, 0.7);
+        scMin = scMin < pvTotal ? scMin : pvTotal - 1;
+        int scTotal = tjQuota.getScCount() > 0 ? (int) Math.round(RandomUtil.randomDouble(scMin, pvTotal)) : 0;
         int dcTotal = tjQuota.getDcCount() > 0 ? (int) Math.round(tjQuota.getDcCount() * dayWeight.getWeight() * RandomUtil.randomDouble(0.3, 3)) : 0;
         int ddcTotal = tjQuota.getDdcCount() > 0 ? (int) Math.round(tjQuota.getDdcCount() * dayWeight.getWeight() * RandomUtil.randomDouble(0.3, 3)) : 0;
         int uvTotal = tjQuota.getUvCount() > 0 ? (int) Math.round(tjQuota.getUvCount() * dayWeight.getWeight()) : 0;
-        int vvTotal = tjQuota.getVvCount() > 0 ? (int) Math.round(RandomUtil.randomDouble(uvTotal, tjQuota.getVvCount() * dayWeight.getWeight() * 2)) : 0;
+        int vvTotal = tjQuota.getVvCount() > 0 ? (int) Math.round(RandomUtil.randomDouble(uvTotal, pvTotal)) : 0;
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.5, 2) * vvTotal);
 

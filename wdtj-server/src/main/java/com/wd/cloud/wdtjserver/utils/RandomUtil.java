@@ -362,32 +362,31 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = DateUtil.getTimeMillis(tjHisQuota.getAvgTime()) * vvTotal;
         // 随机生成：size为访问次数且总和等于总时间的随机列表
-        List<Long> avgTimeList = RandomUtil.randomLongListFromFinalTotal(avgTimeTotal, pvTotal);
+        List<Long> avgTimeList = randomLongListFromFinalTotal(avgTimeTotal, uvTotal);
 
         // 下载量
-        List<Integer> dcMap = randomIntListFromFinalTotal(dcTotal, dayWeightList.size());
-        List<Integer> ddcMap = randomIntListFromFinalTotal(ddcTotal, dayWeightList.size());
+        List<Integer> dcMap = randomIntListFromFinalTotal(dcTotal, dayWeightListSize);
+        List<Integer> ddcMap = randomIntListFromFinalTotal(ddcTotal, dayWeightListSize);
+        List<Integer> uvMap = randomIntListFromFinalTotal(uvTotal, dayWeightListSize);
         Map<DateTime, Integer> scMap = randomListFromWeight(dayWeightList, scTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         scMap.forEach((k, v) -> {
             // 同时设置sc和pv量
             dayTotalMap.get(k).setScTotal(v)
                     .setPvTotal(v)
                     .setDcTotal(randomIntEle(dcMap, true).orElse(0))
-                    .setDdcTotal(randomIntEle(ddcMap, true).orElse(0));
+                    .setDdcTotal(randomIntEle(ddcMap, true).orElse(0))
+                    .setUvTotal(randomIntEle(uvMap, true).orElse(0));
         });
-        // uv和vv
-        Map<DateTime, Integer> uvMap = randomListFromWeight(dayWeightList, uvTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
-        uvMap.forEach((k, v) -> {
-            //同时设置uv和vv量
-            dayTotalMap.get(k).setUvTotal(v).setVvTotal(v);
-        });
+
         int svvTotal = vvTotal - uvTotal;
         Map<DateTime, Integer> vvMap = randomListFromWeight(dayWeightList, svvTotal, RandomUtil.randomDouble(LOW_FU_DONG, HIGH_FU_DONG));
         vvMap.forEach((k, v) -> {
-            // 在已有vv量基础上加上新的量
-            int yvv = dayTotalMap.get(k).getVvTotal();
-            int sumVv = yvv + v;
-            dayTotalMap.get(k).setVvTotal(sumVv);
+            // 在已有uv量基础上加上新的量
+            int uv = dayTotalMap.get(k).getUvTotal();
+            int sumVv = uv + v;
+            List<Long> visitList = randomLongEles(avgTimeList, uv, true).orElse(new ArrayList<>());
+            dayTotalMap.get(k).setVvTotal(sumVv)
+                    .setVisitTimeTotal(visitList.stream().reduce((a, b) -> a + b).orElse(0L));
         });
 
         // 剩余pv
@@ -396,10 +395,8 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         pvMap.forEach((k, v) -> {
             // 在已有PV量基础上加上新的量
             int ypv = dayTotalMap.get(k).getPvTotal();
-            int pv = ypv + v;
-            List<Long> visitList = randomLongEles(avgTimeList, pv, true).orElse(new ArrayList<>());
-            dayTotalMap.get(k).setPvTotal(pv)
-                    .setVisitTimeTotal(visitList.stream().reduce((a, b) -> a + b).orElse(0L));
+            int sumPv = ypv + v;
+            dayTotalMap.get(k).setPvTotal(sumPv);
         });
 
         return dayTotalMap;
@@ -449,7 +446,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         int uvTotal = dayTotalModel.getValue().getUvTotal();
         int vvTotal = dayTotalModel.getValue().getVvTotal();
         long visitTotal = dayTotalModel.getValue().getVisitTimeTotal();
-        // 生成vvTotal个访问时长列表
+        // 生成pvTotal个访问时长列表
         List<Long> visitList = RandomUtil.randomLongListFromFinalTotal(visitTotal, vvTotal);
 
         //-----------------------sc

@@ -27,8 +27,10 @@ public class ModelUtil {
                     .setDcCount(quotaModel.getDcCount())
                     .setDdcCount(quotaModel.getDdcCount())
                     .setScCount(quotaModel.getScCount())
-                    .setUvCount(quotaModel.getUvCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.1, 0.6)) : quotaModel.getUvCount())
-                    .setVvCount(quotaModel.getVvCount() == 0 ? RandomUtil.randomInt(tjQuota.getUvCount(), quotaModel.getPvCount()) : quotaModel.getVvCount())
+                    // 访问用户数介于pv量的10%-30%之间
+                    .setUvCount(quotaModel.getUvCount() == 0 ? (int) Math.round(quotaModel.getPvCount() * RandomUtil.randomDouble(0.1, 0.3)) : quotaModel.getUvCount())
+                    // 访问次数介于uv量的2倍到pv量之间
+                    .setVvCount(quotaModel.getVvCount() == 0 ? RandomUtil.randomInt(tjQuota.getUvCount() * 2, quotaModel.getPvCount()) : quotaModel.getVvCount())
                     .setAvgTime(quotaModel.getAvgTime());
         }
         return tjQuota;
@@ -42,8 +44,10 @@ public class ModelUtil {
                     .setDcCount(hisQuotaModel.getDcCount())
                     .setDdcCount(hisQuotaModel.getDdcCount())
                     .setScCount(hisQuotaModel.getScCount())
-                    .setUvCount(hisQuotaModel.getUvCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.1, 0.6)) : hisQuotaModel.getUvCount())
-                    .setVvCount(hisQuotaModel.getVvCount() == 0 ? RandomUtil.randomInt(tjHisQuota.getUvCount(), hisQuotaModel.getPvCount()) : hisQuotaModel.getVvCount())
+                    // 访问用户数介于pv量的10%-30%之间
+                    .setUvCount(hisQuotaModel.getUvCount() == 0 ? (int) Math.round(hisQuotaModel.getPvCount() * RandomUtil.randomDouble(0.1, 0.3)) : hisQuotaModel.getUvCount())
+                    // 访问次数介于uv量的2倍到pv量之间
+                    .setVvCount(hisQuotaModel.getVvCount() == 0 ? RandomUtil.randomInt(tjHisQuota.getUvCount() * 2, hisQuotaModel.getPvCount()) : hisQuotaModel.getVvCount())
                     .setAvgTime(hisQuotaModel.getAvgTime())
                     .setBeginTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getBeginTime())))
                     .setEndTime(DateUtil.parseDateForMinute(DateUtil.formatDateTime(hisQuotaModel.getEndTime())));
