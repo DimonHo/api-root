@@ -396,8 +396,9 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         pvMap.forEach((k, v) -> {
             // 在已有PV量基础上加上新的量
             int ypv = dayTotalMap.get(k).getPvTotal();
-            List<Long> visitList = randomLongEles(avgTimeList, ypv, true).orElse(new ArrayList<>());
-            dayTotalMap.get(k).setPvTotal(ypv + v)
+            int pv = ypv + v;
+            List<Long> visitList = randomLongEles(avgTimeList, pv, true).orElse(new ArrayList<>());
+            dayTotalMap.get(k).setPvTotal(pv)
                     .setVisitTimeTotal(visitList.stream().reduce((a, b) -> a + b).orElse(0L));
         });
 
