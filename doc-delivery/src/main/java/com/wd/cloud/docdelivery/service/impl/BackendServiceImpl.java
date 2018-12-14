@@ -95,7 +95,7 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public Page getLiteratureList(Pageable pageable, Map<String, Object> param) {
         Boolean reusing = (Boolean) param.get("reusing");
-        String keyword = (String) param.get("keyword");
+        String keyword = ((String) param.get("keyword")).replaceAll("\\\\","\\\\\\\\");
         Page<Literature> result = literatureRepository.findAll(new Specification<Literature>() {
             @Override
             public Predicate toPredicate(Root<Literature> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
