@@ -675,6 +675,22 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         return otherMinutes;
     }
 
+    public static double randomDouble(double min, double max) {
+        log.info("min={},max={}", min, max);
+        if (min == max) {
+            return min;
+        }
+        return getRandom().nextDouble(min, max);
+    }
+
+    public static int randomInt(int min, int max) {
+        log.info("min={},max={}", min, max);
+        if (min == max) {
+            return min;
+        }
+        return getRandom().nextInt(min, max);
+    }
+
 
     private static class DayXq {
         private List<DateTime> amHighMinutes;
