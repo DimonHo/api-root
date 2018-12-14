@@ -205,7 +205,7 @@ INSERT INTO tj_his_quota ( org_name, begin_time, end_time, pv_count, sc_count, d
 
 INSERT INTO tj_his_quota ( org_name, begin_time, end_time, pv_count, sc_count, dc_count, ddc_count, avg_time, uv_count, vv_count ) VALUES ( "武汉理工大学", "2018-11-01 00:00:00", "2018-11-30 23:59:59", 36487, 12545, 2196, 264, "00:15:02", 16097, 32913 );
 
-INSERT INTO tj_his_quota ( org_name, begin_time, end_time, pv_count, sc_count, dc_count, ddc_count, avg_time, uv_count, vv_count ) VALUES ( "武汉理工大学", "2018-12-01 00:00:00", "2018-12-31 23:59:59", 8283, 4034, 567, 93, "00:15:22", 2621, 7112 );
+INSERT INTO tj_his_quota ( org_name, begin_time, end_time, pv_count, sc_count, dc_count, ddc_count, avg_time, uv_count, vv_count ) VALUES ( "武汉理工大学", "2018-12-01 00:00:00", "2018-12-06 23:59:59", 8283, 4034, 567, 93, "00:15:22", 2621, 7112 );
 
 INSERT INTO tj_his_quota ( org_name, begin_time, end_time, pv_count, sc_count, dc_count, ddc_count, avg_time, uv_count, vv_count ) VALUES ( "中国地质大学", "2017-01-01 00:00:00", "	2017-01-31 23:59:59", 12592, 3677, 545, 139, "00:13:17", 1498, 9534 );
 

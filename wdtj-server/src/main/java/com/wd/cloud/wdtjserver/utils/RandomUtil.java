@@ -732,11 +732,26 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
 
 
         public DayXq invoke() {
+            int otherTotal = total;
+            // 根据权重随机上午高峰时段的数据量
             int amHighTotal = (int) Math.round(amHighWeight * total);
+            // 随机数据量不大于otherTotal
+            amHighTotal = otherTotal > amHighTotal ? amHighTotal : otherTotal;
+            // 剩余总量
+            otherTotal -= amHighTotal;
+            // 根据权重随机下午高峰时段的数据量
             int pmHighTotal = (int) Math.round(pmHighWeight * total);
+            pmHighTotal = otherTotal > pmHighTotal ? pmHighTotal : otherTotal;
+            otherTotal -= pmHighTotal;
+            // 根据权重随机上午低谷时段的数据量
             int amLowTotal = (int) Math.round(amLowWeight * total);
+            amLowTotal = otherTotal > amLowTotal ? amLowTotal : otherTotal;
+            otherTotal -= amLowTotal;
+            // 根据权重随机下午低谷时段的数据量
             int pmLowTotal = (int) Math.round(pmLowWeight * total);
-            int otherTotal = total - amHighTotal - pmHighTotal - amLowTotal - pmLowTotal;
+            pmLowTotal = otherTotal > pmLowTotal ? pmLowTotal : otherTotal;
+            otherTotal -= pmLowTotal;
+
             amHighCountList = RandomUtil.randomIntListFromFinalTotal(amHighTotal, amHighMinutes.size());
             pmHighCountList = RandomUtil.randomIntListFromFinalTotal(pmHighTotal, pmHighMinutes.size());
             amLowCountList = RandomUtil.randomIntListFromFinalTotal(amLowTotal, amLowMinutes.size());
