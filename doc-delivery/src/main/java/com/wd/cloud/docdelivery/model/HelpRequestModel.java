@@ -64,6 +64,8 @@ public class HelpRequestModel {
     @NotNull
     private String helperEmail;
 
+
+
     public Long getHelperId() {
         return helperId;
     }
