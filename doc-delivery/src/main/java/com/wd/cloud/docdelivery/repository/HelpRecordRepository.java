@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -38,18 +39,18 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     List<HelpRecord> findByHelperEmailAndGmtCreateAfter(String email, Date date);
 
     /**
-     * 统计一个机构某分钟内的求助数量
+     * 统计一个机构某个时间内的求助数量
      *
      * @param orgName
      * @param createDate
      * @param format     date_format(date,"%Y-%m-%d %H:%i:%s")
      * @return
      */
-    @Query(value = "select count(*) as orgHelpCount from help_record where helper_scname=?1 and date_format(gmt_create,?3) = date_format(?2,?3)", nativeQuery = true)
-    int countHelpRecordByOrgName(String orgName, String createDate, String format);
+    @Query(value = "select helper_scname as orgName, count(*) as ddcCount from help_record where helper_scname=?1 and date_format(gmt_create,?3) = date_format(?2,?3)", nativeQuery = true)
+    List<Map<String, Object>> findByOrgNameDdcCount(String orgName, String createDate, String format);
 
-    @Query(value = "select count(*) as orgHelpCount from help_record where helper_scid=?1 and date_format(gmt_create,?3) = date_format(?2,?3)", nativeQuery = true)
-    int countHelpRecordByOrgId(Long orgId, String createDate, String format);
+    @Query(value = "select helper_scname as orgName, count(*) as ddcCount from help_record where date_format(gmt_create,?2) = date_format(?1,?2) group by helper_scname", nativeQuery = true)
+    List<Map<String, Object>> findAllDdcCount(String createDate, String format);
 
     /**
      * 根据求助用户ID查询

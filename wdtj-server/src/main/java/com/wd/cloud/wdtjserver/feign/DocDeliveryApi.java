@@ -17,8 +17,8 @@ public interface DocDeliveryApi extends com.wd.cloud.apifeign.DocDeliveryApi {
     class Fallback implements DocDeliveryApi {
 
         @Override
-        public ResponseModel getOrgHelpCount(Long orgId, String orgName, String date, Integer type) {
-            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:doc-delivery调用失败！").setBody(0);
+        public ResponseModel ddcCountByOrgName(String orgName, String date, Integer type) {
+            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:doc-delivery调用失败！");
         }
     }
 }

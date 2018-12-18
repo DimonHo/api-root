@@ -67,42 +67,45 @@ public class AutoTask {
      */
     @Scheduled(cron = "0 0/1 * * * ?")
     public void mergeData() {
-        // 获取前一分钟（search-server延迟一分钟）
-        Date minuteDate = DateUtil.offsetMinute(new Date(), -1);
+        // 获取前5分钟（search-server延迟5分钟）
+        Date minuteDate = DateUtil.offsetMinute(new Date(), -5);
         String dateStr = DateUtil.formatDateTime(minuteDate);
         ResponseModel<Map<String, JSONObject>> browserResponse = searchServerApi.minuteTj(null, dateStr);
+        //下载量
+        ResponseModel<Map<String, Integer>> dcResponse = searchServerApi.dcCountByOrgName(null, dateStr, 1);
+        //文献传递量
+        ResponseModel<Map<String, Integer>> ddcResponse = docDeliveryApi.ddcCountByOrgName(null, dateStr, 1);
         if (browserResponse.isError()) {
             log.error("获取访问量失败:{}", browserResponse.getMessage());
+        }
+        if (dcResponse.isError()) {
+            log.error("获取下载量失败:{}", dcResponse.getMessage());
+        }
+        if (ddcResponse.isError()) {
+            log.error("获取文献传递量失败:{}", ddcResponse.getMessage());
         }
         List<TjTaskData> taskDatas = tjTaskDataRepository.getByTjDate(DateUtil.formatDateTime(minuteDate));
         log.info("待同步数据量：{}", taskDatas.size());
         List<TjSpisData> spisDataList = new ArrayList<>();
         List<TjViewData> viewDataList = new ArrayList<>();
         taskDatas.forEach(taskData -> {
-            ResponseModel<Integer> dcResponse = searchServerApi.downloadsCount(taskData.getOrgName(), dateStr);
-            ResponseModel<Integer> ddcResponse = docDeliveryApi.getOrgHelpCount(null, taskData.getOrgName(), dateStr, 0);
-            int dcCount = 0;
-            int ddcCount = 0;
-            int pvCount = 0;
-            int uvCount = 0;
+            int dcCount = 0, ddcCount = 0, pvCount = 0, uvCount = 0, vvCount = 0;
             long visitTime = 0;
-            int vvCount = 0;
-            if (!browserResponse.isError()){
+            if (!browserResponse.isError()) {
                 JSONObject orgInfo = browserResponse.getBody().get(taskData.getOrgName());
                 pvCount = orgInfo != null ? orgInfo.getInt("pvCount") : 0;
                 uvCount = orgInfo != null ? orgInfo.getInt("uvCount") : 0;
                 visitTime = (long) (orgInfo != null ? orgInfo.getDouble("visitTime") * 1000 : 0);
                 vvCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0;
             }
-            if (dcResponse.isError()) {
-                log.error("获取下载量失败:{}", dcResponse.getMessage());
-            } else {
-                dcCount = dcResponse.getBody();
+            if (!dcResponse.isError()) {
+                Integer dcCountObj = dcResponse.getBody().get(taskData.getOrgName());
+                dcCount = dcCountObj != null ? dcCountObj : 0;
             }
-            if (ddcResponse.isError()) {
-                log.error("获取文献传递量失败:{}", ddcResponse.getMessage());
-            } else {
-                ddcCount = ddcResponse.getBody();
+
+            if (!ddcResponse.isError()) {
+                Integer ddcCountObj = ddcResponse.getBody().get(taskData.getOrgName());
+                ddcCount = ddcCountObj != null ? ddcCountObj : 0;
             }
 
             //构建spisData对象

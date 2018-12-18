@@ -79,7 +79,7 @@ public class FrontendController {
         helpRecord.setHelperScname(helpRequestModel.getHelperScname());
         helpRecord.setHelperId(helpRequestModel.getHelperId());
         helpRecord.setHelperName(helpRequestModel.getHelperName());
-        helpRecord.setHelperIp(request.getLocalAddr());
+        helpRecord.setHelperIp(HttpUtil.getClientIP(request));
         helpRecord.setHelperEmail(helpEmail);
         helpRecord.setSend(true);
         log.info("用户:[{}]正在求助文献:[{}]",helpEmail,helpRequestModel.getDocTitle());
@@ -338,25 +338,6 @@ public class FrontendController {
     public ResponseModel getUserHelpCountToDay(@RequestParam String email) {
 
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
-    }
-
-    @ApiOperation(value = "聚合统计求助记录")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "orgId", value = "机构ID", dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "date", value = "当前时间", dataType = "Date", paramType = "query"),
-            @ApiImplicitParam(name = "type", value = "统计类型0：按分钟统计，1：按小时统计，2按天统计，3，按月统计，4：按年统计", dataType = "Integer", paramType = "query")
-
-    })
-    @GetMapping("/help/count/org")
-    public ResponseModel getOrgHelpCountToMinute(@RequestParam(required = false) Long orgId,
-                                                 @RequestParam(required = false) String orgName,
-                                                 @RequestParam(required = false) String date,
-                                                 @RequestParam(required = false, defaultValue = "0") Integer type) {
-        if (orgId == null && orgName == null) {
-            return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
-        }
-        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId, orgName, date, type));
     }
 
 }

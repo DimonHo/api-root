@@ -268,14 +268,5 @@ public class FrontServiceImpl implements FrontService {
         }
     }
 
-    @Override
-    public int getCountByOrg(Long orgId, String orgName, String date, int type) {
-        String dateFormat = DateUtil.formatMysqlStr(type);
-        // 优先根据orgId查询
-        if (orgId != null) {
-            return helpRecordRepository.countHelpRecordByOrgId(orgId, date, dateFormat);
-        }
-        return helpRecordRepository.countHelpRecordByOrgName(orgName, date, dateFormat);
-    }
 
 }

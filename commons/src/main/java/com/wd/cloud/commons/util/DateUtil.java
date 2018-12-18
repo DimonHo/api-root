@@ -1,5 +1,7 @@
 package com.wd.cloud.commons.util;
 
+import cn.hutool.core.date.DateField;
+
 import java.util.List;
 
 /**
@@ -14,6 +16,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
      * @param type
      * @return
      */
+    @Deprecated
     public static String formatMysqlStr(int type){
         String dateFormatStr = null;
         switch (type) {
@@ -31,6 +34,36 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
                 break;
             default:
                 dateFormatStr = "%Y-%m-%d %H:%i";
+                break;
+        }
+        return dateFormatStr;
+    }
+
+    /**
+     * 格式化mysql时间
+     * @param type
+     * @return
+     */
+    public static String formatMysqlDate(int type){
+        String dateFormatStr = null;
+        switch (type) {
+            case 1:
+                dateFormatStr = "%Y-%m-%d %H:%i";
+                break;
+            case 2:
+                dateFormatStr = "%Y-%m-%d %H:";
+                break;
+            case 3:
+                dateFormatStr = "%Y-%m-%d";
+                break;
+            case 4:
+                dateFormatStr = "%Y-%m";
+                break;
+            case 5:
+                dateFormatStr = "%Y";
+                break;
+            default:
+                dateFormatStr = "%Y-%m-%d %H:%i:%s";
                 break;
         }
         return dateFormatStr;

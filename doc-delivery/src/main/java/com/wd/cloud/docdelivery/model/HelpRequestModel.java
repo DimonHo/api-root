@@ -66,6 +66,10 @@ public class HelpRequestModel {
 
 
 
+    private String remark;
+
+    private boolean anonymous;
+
     public Long getHelperId() {
         return helperId;
     }

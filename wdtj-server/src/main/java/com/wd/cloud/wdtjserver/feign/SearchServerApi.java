@@ -27,8 +27,8 @@ public interface SearchServerApi extends com.wd.cloud.apifeign.SearchServerApi {
         }
 
         @Override
-        public ResponseModel downloadsCount(String school, String date) {
-            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！").setBody(0);
+        public ResponseModel dcCountByOrgName(String orgName, String date, Integer type) {
+            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！");
         }
     }
 }
