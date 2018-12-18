@@ -190,7 +190,7 @@ public class BackendController {
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
         String url = fileService.getDownloadUrl(helpRecord.getId());
-        mailService.sendMail(helpRecord.getHelpChannel(), helpRecord.getHelperScname(), helpRecord.getHelperEmail(), helpRecord.getLiterature().getDocTitle(), url, HelpStatusEnum.HELP_SUCCESSED);
+        mailService.sendMail(helpRecord.getHelpChannel(), helpRecord.getHelperScname(), helpRecord.getHelperEmail(), helpRecord.getLiterature().getDocTitle(), url, HelpStatusEnum.HELP_SUCCESSED,helpRecord.getId());
         return ResponseModel.ok().setMessage("文件上传成功");
     }
 
@@ -219,7 +219,8 @@ public class BackendController {
                 helpRecord.getHelperEmail(),
                 helpRecord.getLiterature().getDocTitle(),
                 null,
-                HelpStatusEnum.HELP_THIRD);
+                HelpStatusEnum.HELP_THIRD,
+                helpRecord.getId());
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
         return ResponseModel.ok().setMessage("已提交第三方处理，请耐心等待第三方应助结果");
@@ -256,7 +257,8 @@ public class BackendController {
                 helpRecord.getHelperEmail(),
                 helpRecord.getLiterature().getDocTitle(),
                 null,
-                HelpStatusEnum.HELP_FAILED);
+                HelpStatusEnum.HELP_FAILED,
+                helpRecord.getId());
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
         return ResponseModel.ok().setMessage("处理成功");
@@ -293,7 +295,8 @@ public class BackendController {
                 helpRecord.getHelperEmail(),
                 helpRecord.getLiterature().getDocTitle(),
                 downloadUrl,
-                HelpStatusEnum.HELP_SUCCESSED);
+                HelpStatusEnum.HELP_SUCCESSED,
+                helpRecord.getId());
         backendService.updateHelRecord(helpRecord);
         return ResponseModel.ok();
     }

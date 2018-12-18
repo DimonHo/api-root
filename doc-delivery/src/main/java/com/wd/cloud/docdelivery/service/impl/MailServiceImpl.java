@@ -4,12 +4,15 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.mail.MailException;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.enums.ChannelEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.model.*;
+import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.service.MailService;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -19,16 +22,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
  * @date 2018/5/17
  * @Description:
  */
-@Async
+
 @Service("mailService")
 public class MailServiceImpl implements MailService {
 
@@ -48,6 +53,9 @@ public class MailServiceImpl implements MailService {
 
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
+
+    @Autowired
+    HelpRecordRepository helpRecordRepository;
 
     /**
      * 地址拆分
@@ -72,48 +80,49 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, Integer processType) {
+    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, Integer processType,long id) {
         HelpStatusEnum helpStatusEnum = null;
         for (HelpStatusEnum helpStatusInstance : HelpStatusEnum.values()) {
             if (helpStatusInstance.getCode() == processType) {
                 helpStatusEnum = helpStatusInstance;
             }
         }
-        sendMail(channel, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+        sendMail(channel, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
     }
 
+
     @Override
-    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
+    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum ,long id) {
         ChannelEnum channelEnum = getChannelEnum(channel);
-        sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+        sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
     }
 
     @Override
-    public void sendMail(ChannelEnum channelEnum, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
+    public void sendMail(ChannelEnum channelEnum, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum,long id) {
         if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendMail(spis, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+            sendMail(spis, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
         } else if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendMail(crs, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+            sendMail(crs, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
         } else if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendMail(zhy, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum);
+            sendMail(zhy, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
         }
     }
 
     @Override
-    public void sendNotifyMail(Integer channel, String helperScname, String helpEmail) {
+    public void sendNotifyMail(Integer channel, String helperScname, String helpEmail,long id) {
         ChannelEnum channelEnum = getChannelEnum(channel);
         if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendNotifyMail(spis, helperScname, helpEmail);
+            sendNotifyMail(spis, helperScname, helpEmail,id);
         }
         if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendNotifyMail(crs, helperScname, helpEmail);
+            sendNotifyMail(crs, helperScname, helpEmail,id);
         }
         if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendNotifyMail(zhy, helperScname, helpEmail);
+            sendNotifyMail(zhy, helperScname, helpEmail,id);
         }
     }
 
-    private void sendMail(MailModel mailModel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum) {
+    private void sendMail(MailModel mailModel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum ,long id) {
         List<String> tos = splitAddress(helpEmail);
         if (tos == null) {
             throw new NullPointerException("收件人邮箱为空！");
@@ -139,17 +148,45 @@ public class MailServiceImpl implements MailService {
             mailModel.setTitle(String.format(mailModel.getFailedModel().getMailTitle(), docTitle))
                     .setContent(buildContent(mailModel, helpStatusEnum, helperScname));
         }
-        mailModel.send();
+        Optional<HelpRecord> Optional = helpRecordRepository.findById(id);
+        HelpRecord helpRecord = Optional.get();
+
+        try {
+            mailModel.send();
+            if (!helpRecord.isSend()){
+                helpRecord.setSend(true);
+            }
+        }catch (Exception e){
+            if (helpRecord.isSend()){
+                helpRecord.setSend(false);
+            }
+            throw new MailException(e);
+        }
+        helpRecordRepository.save(helpRecord);
+
     }
 
-    private void sendNotifyMail(MailModel mailModel, String helperScname, String helpEmail) {
+    private void sendNotifyMail(MailModel mailModel, String helperScname, String helpEmail,long id) {
+        Optional<HelpRecord> Optional = helpRecordRepository.findById(id);
+        HelpRecord helpRecord = Optional.get();
         DefaultMailNotifyModel notifyModel = new DefaultMailNotifyModel();
         notifyModel.setHelperScname(helperScname).setHelperName(helpEmail);
         mailModel.setTos(globalConfig.getNotifyMail());
         mailModel.setNotifyModel(notifyModel);
         mailModel.setTitle(mailModel.getNotifyModel().getMailTitle())
                 .setContent(buildNotifyContent(mailModel, helperScname));
-        mailModel.send();
+        try {
+            mailModel.send();
+            if (!helpRecord.isSend()){
+                helpRecord.setSend(true);
+            }
+        }catch (Exception e){
+            if (helpRecord.isSend()){
+                helpRecord.setSend(false);
+            }
+            throw new MailException(e);
+        }
+        helpRecordRepository.save(helpRecord);
     }
 
     /**
@@ -158,7 +195,7 @@ public class MailServiceImpl implements MailService {
      * @param channel
      * @return
      */
-    private ChannelEnum getChannelEnum(Integer channel) {
+    public ChannelEnum getChannelEnum(Integer channel) {
         ChannelEnum channelEnum = null;
         for (ChannelEnum channelInstance : ChannelEnum.values()) {
             if (channelInstance.getCode() == channel) {

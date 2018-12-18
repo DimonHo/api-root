@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.entity;
 
 import cn.hutool.core.util.ReflectUtil;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -16,7 +17,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "help_record")
-public class HelpRecord extends AbstractEntity {
+public class HelpRecord extends AbstractEntity  {
 
     /**
      * 文献ID
@@ -82,7 +83,7 @@ public class HelpRecord extends AbstractEntity {
     /**
      * 是否成功发送邮件
      */
-    @Column(name = "is_send", columnDefinition = "bit default 0 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
+    @Column(name = "is_send", columnDefinition = "bit default 1 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
     private boolean send;
 
     /**
