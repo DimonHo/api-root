@@ -60,7 +60,7 @@ public class TjController {
                                           @RequestParam(required = false) String date,
                                           @RequestParam(required = false, defaultValue = "1") Integer type) {
         date = date != null ? date : DateUtil.now();
-        Map<String, BigInteger> dcCountModels = tjService.tjScCount(orgName, date, type);
-        return ResponseModel.ok().setBody(dcCountModels);
+        Map<String, BigInteger> scCountModels = tjService.tjScCount(orgName, date, type);
+        return ResponseModel.ok().setBody(scCountModels);
     }
 }
