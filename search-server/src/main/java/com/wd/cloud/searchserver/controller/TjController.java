@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +32,7 @@ public class TjController {
             @ApiImplicitParam(name = "date", value = "统计时间", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "type", value = "0:按秒统计，1:按分钟统计（默认），2：按小时统计，3：按天统计，4：按月统计，5：按年统计", dataType = "Integer", paramType = "query")
     })
-    @RequestMapping("/dc_count/name")
+    @GetMapping("/dc_count/name")
     public ResponseModel dcCountByOrgName(@RequestParam(required = false) String orgName,
                                  @RequestParam(required = false) String date,
                                  @RequestParam(required = false, defaultValue = "1") Integer type) {

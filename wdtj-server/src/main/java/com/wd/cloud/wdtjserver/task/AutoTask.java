@@ -70,7 +70,7 @@ public class AutoTask {
         // 获取前5分钟（search-server延迟5分钟）
         Date minuteDate = DateUtil.offsetMinute(new Date(), -5);
         String dateStr = DateUtil.formatDateTime(minuteDate);
-        ResponseModel<Map<String, JSONObject>> browserResponse = searchServerApi.minuteTj(null, dateStr);
+        ResponseModel<Map<String, Map<String,Integer>>> browserResponse = searchServerApi.minuteTj(null, dateStr);
         //下载量
         ResponseModel<Map<String, Integer>> dcResponse = searchServerApi.dcCountByOrgName(null, dateStr, 1);
         //文献传递量
@@ -92,10 +92,10 @@ public class AutoTask {
             int dcCount = 0, ddcCount = 0, pvCount = 0, uvCount = 0, vvCount = 0;
             long visitTime = 0;
             if (!browserResponse.isError()) {
-                JSONObject orgInfo = browserResponse.getBody().get(taskData.getOrgName());
-                pvCount = orgInfo != null ? orgInfo.getInt("pvCount") : 0;
-                uvCount = orgInfo != null ? orgInfo.getInt("uvCount") : 0;
-                visitTime = (long) (orgInfo != null ? orgInfo.getDouble("visitTime") * 1000 : 0);
+                Map<String,Integer> orgInfo = browserResponse.getBody().get(taskData.getOrgName());
+                pvCount = orgInfo != null ? orgInfo.get("pvCount") : 0;
+                uvCount = orgInfo != null ? orgInfo.get("uvCount") : 0;
+                visitTime = (long) (orgInfo != null ? orgInfo.get("visitTime") * 1000 : 0);
                 vvCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0;
             }
             if (!dcResponse.isError()) {

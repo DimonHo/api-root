@@ -1,11 +1,12 @@
 package com.wd.cloud.wdtjserver.feign;
 
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -15,7 +16,13 @@ import java.util.List;
  * @Description:
  */
 @FeignClient(value = "org-server", fallback = OrgServerApi.Fallback.class)
-public interface OrgServerApi extends com.wd.cloud.apifeign.OrgServerApi {
+public interface OrgServerApi {
+
+    @GetMapping("/orginfo/all")
+    ResponseModel<List<JSONObject>> getAll();
+
+    @GetMapping("/orginfo/{id}")
+    ResponseModel getOrg(@PathVariable(value = "id") Long id);
 
     @Component
     class Fallback implements OrgServerApi {

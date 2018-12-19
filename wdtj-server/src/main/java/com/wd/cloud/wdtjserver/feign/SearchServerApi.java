@@ -4,6 +4,8 @@ import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author He Zhigang
@@ -11,7 +13,23 @@ import org.springframework.stereotype.Component;
  * @Description:
  */
 @FeignClient(value = "search-server", fallback = SearchServerApi.Fallback.class)
-public interface SearchServerApi extends com.wd.cloud.apifeign.SearchServerApi {
+public interface SearchServerApi {
+
+    @GetMapping("/tj/minute")
+    ResponseModel minuteTj(@RequestParam(value = "orgName") String orgName,
+                           @RequestParam(value = "date") String date);
+
+
+    @GetMapping("/tj/range")
+    ResponseModel rangeTj(@RequestParam(value = "orgName") String orgName,
+                          @RequestParam(value = "beginDate") String beginDate,
+                          @RequestParam(value = "endDate") String endDate);
+
+
+    @GetMapping("/dc_count/name")
+    ResponseModel dcCountByOrgName(@RequestParam(value = "orgName") String orgName,
+                                   @RequestParam(value = "date") String date,
+                                   @RequestParam(value = "type") Integer type);
 
     @Component
     class Fallback implements SearchServerApi {
