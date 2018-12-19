@@ -1,6 +1,5 @@
 package com.wd.cloud.wdtjserver.task;
 
-import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -70,13 +69,18 @@ public class AutoTask {
         // 获取前5分钟（search-server延迟5分钟）
         Date minuteDate = DateUtil.offsetMinute(new Date(), -5);
         String dateStr = DateUtil.formatDateTime(minuteDate);
-        ResponseModel<Map<String, Map<String,Integer>>> browserResponse = searchServerApi.minuteTj(null, dateStr);
+        ResponseModel<Map<String, Map<String, Integer>>> browserResponse = searchServerApi.minuteTj(null, dateStr);
+        //检索量
+        ResponseModel<Map<String, Integer>> scResponse = searchServerApi.scCountByOrgName(null, dateStr, 1);
         //下载量
         ResponseModel<Map<String, Integer>> dcResponse = searchServerApi.dcCountByOrgName(null, dateStr, 1);
         //文献传递量
         ResponseModel<Map<String, Integer>> ddcResponse = docDeliveryApi.ddcCountByOrgName(null, dateStr, 1);
         if (browserResponse.isError()) {
             log.error("获取访问量失败:{}", browserResponse.getMessage());
+        }
+        if (scResponse.isError()) {
+            log.error("获取检索量失败:{}", dcResponse.getMessage());
         }
         if (dcResponse.isError()) {
             log.error("获取下载量失败:{}", dcResponse.getMessage());
@@ -89,14 +93,18 @@ public class AutoTask {
         List<TjSpisData> spisDataList = new ArrayList<>();
         List<TjViewData> viewDataList = new ArrayList<>();
         taskDatas.forEach(taskData -> {
-            int dcCount = 0, ddcCount = 0, pvCount = 0, uvCount = 0, vvCount = 0;
+            int dcCount = 0, ddcCount = 0, scCount = 0, pvCount = 0, uvCount = 0, vvCount = 0;
             long visitTime = 0;
             if (!browserResponse.isError()) {
-                Map<String,Integer> orgInfo = browserResponse.getBody().get(taskData.getOrgName());
+                Map<String, Integer> orgInfo = browserResponse.getBody().get(taskData.getOrgName());
                 pvCount = orgInfo != null ? orgInfo.get("pvCount") : 0;
                 uvCount = orgInfo != null ? orgInfo.get("uvCount") : 0;
                 visitTime = (long) (orgInfo != null ? orgInfo.get("visitTime") * 1000 : 0);
-                vvCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : 0;
+                vvCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : uvCount;
+            }
+            if (!scResponse.isError()) {
+                Integer scCountObj = scResponse.getBody().get(taskData.getOrgName());
+                scCount = scCountObj != null ? scCountObj : 0;
             }
             if (!dcResponse.isError()) {
                 Integer dcCountObj = dcResponse.getBody().get(taskData.getOrgName());
@@ -114,6 +122,7 @@ public class AutoTask {
                     .setUvCount(uvCount)
                     .setVvCount(vvCount)
                     .setVisitTime(visitTime)
+                    .setScCount(scCount)
                     .setDcCount(dcCount)
                     .setDdcCount(ddcCount)
                     .setId(taskData.getId())

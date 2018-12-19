@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public interface DownloadInfoRepostory extends JpaRepository<DownloadInfo, Long> {
+public interface DownloadInfoRepository extends JpaRepository<DownloadInfo, Long> {
 
     @Query(value = "select school as orgName, count(*) as dcCount  from t_download_info  where school = ?1 and date_format(time,?3) = date_format(?2,?3)", nativeQuery = true)
     List<Map<String,Object>> findBySchoolDcCount(String school, String time, String format);

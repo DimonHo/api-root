@@ -31,6 +31,11 @@ public interface SearchServerApi {
                                    @RequestParam(value = "date") String date,
                                    @RequestParam(value = "type") Integer type);
 
+    @GetMapping("/sc_count/name")
+    ResponseModel scCountByOrgName(@RequestParam(value = "orgName") String orgName,
+                                   @RequestParam(value = "date") String date,
+                                   @RequestParam(value = "type") Integer type);
+
     @Component
     class Fallback implements SearchServerApi {
 
@@ -46,6 +51,11 @@ public interface SearchServerApi {
 
         @Override
         public ResponseModel dcCountByOrgName(String orgName, String date, Integer type) {
+            return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！");
+        }
+
+        @Override
+        public ResponseModel scCountByOrgName(String orgName, String date, Integer type) {
             return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:search-server调用失败！");
         }
     }

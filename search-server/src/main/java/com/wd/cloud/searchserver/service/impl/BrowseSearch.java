@@ -158,7 +158,7 @@ public class BrowseSearch implements BrowseSearchI {
 
     @Override
     public Map<String,JSONObject> tjData(String orgName, String beginDate,String endDate) {
-        RangeQueryBuilder filterBuilder = QueryBuilders.rangeQuery("lastTime").from(beginDate).to(endDate);
+        RangeQueryBuilder filterBuilder = QueryBuilders.rangeQuery("beginTime").from(beginDate).to(endDate);
         BoolQueryBuilder q = QueryBuilders.boolQuery().filter(filterBuilder);
         if (!StringUtils.isEmpty(orgName) && !"all".equals(orgName)) {
             QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolName", orgName);
