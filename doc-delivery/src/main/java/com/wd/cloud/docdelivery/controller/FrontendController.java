@@ -79,10 +79,10 @@ public class FrontendController {
         helpRecord.setHelperScname(helpRequestModel.getHelperScname());
         helpRecord.setHelperId(helpRequestModel.getHelperId());
         helpRecord.setHelperName(helpRequestModel.getHelperName());
-        helpRecord.setHelperIp(HttpUtil.getClientIP(request));
+        helpRecord.setHelperIp(request.getHeader("CLIENT_IP"));
         helpRecord.setHelperEmail(helpEmail);
         helpRecord.setSend(true);
-        log.info("用户:[{}]正在求助文献:[{}]",helpEmail,helpRequestModel.getDocTitle());
+        log.info("用户:[{}]正在求助文献:[{}]", helpEmail, helpRequestModel.getDocTitle());
         Literature literature = new Literature();
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
         literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));
@@ -126,7 +126,7 @@ public class FrontendController {
                 // 保存求助记录
                 frontService.saveHelpRecord(helpRecord);
                 // 发送通知邮件
-                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpRequestModel.getHelperScname(), helpRequestModel.getHelperEmail(),helpRecord.getId());
+                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpRequestModel.getHelperScname(), helpRequestModel.getHelperEmail(), helpRecord.getId());
             } catch (Exception e) {
                 return ResponseModel
                         .fail(StatusEnum.DB_PRIMARY_EXCEPTION)

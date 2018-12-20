@@ -8,7 +8,7 @@ package com.wd.cloud.commons.util;
 public class IpUtil {
 
     public static Long ipToLong(String ip) {
-        Long ips = 0L;
+        long ips = 0L;
         String[] numbers = ip.split("\\.");
         //等价上面
         for (int i = 0; i < 4; ++i) {
