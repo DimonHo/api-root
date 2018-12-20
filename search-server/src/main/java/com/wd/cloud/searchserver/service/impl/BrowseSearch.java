@@ -1,6 +1,5 @@
 package com.wd.cloud.searchserver.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -29,7 +28,6 @@ import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -157,7 +155,7 @@ public class BrowseSearch implements BrowseSearchI {
     }
 
     @Override
-    public Map<String,JSONObject> tjData(String orgName, String beginDate,String endDate) {
+    public Map<String, Map<String,Integer>> tjData(String orgName, String beginDate, String endDate) {
         RangeQueryBuilder filterBuilder = QueryBuilders.rangeQuery("lastTime").from(beginDate).to(endDate);
         BoolQueryBuilder q = QueryBuilders.boolQuery().filter(filterBuilder);
         if (!StringUtils.isEmpty(orgName) && !"all".equals(orgName)) {
@@ -181,25 +179,28 @@ public class BrowseSearch implements BrowseSearchI {
         orgGroup.subAggregation(pvSumBuider);
         orgGroup.subAggregation(visitTimeSumBuider);
         orgGroup.subAggregation(uvTermsBuilder);
-
+        log.info("query={}", q);
+        log.info("aggs={}", orgGroup);
         SearchResponse searchResponse = transportClient.prepareSearch(EsKey.BROWSE_INDEX).setTypes(EsKey.BROWSE_TYPE)
                 .setQuery(q)
                 .addAggregation(orgGroup)
                 .execute()
                 .actionGet();
 
-        Map<String,JSONObject> resultMap = new HashMap<>();
+        Map<String, Map<String,Integer>> resultMap = new HashMap<>();
 
         Terms orgTerms = searchResponse.getAggregations().get("orgGroup");
         orgTerms.getBuckets().forEach(org -> {
-            JSONObject resultObj = new JSONObject();
+            Map<String,Integer> resultObj = new HashMap<>();
             Sum pvCount = org.getAggregations().get("pvCount");
-            resultObj.put("pvCount",pvCount.value());
+            resultObj.put("pvCount", new Double(pvCount.value()).intValue());
             Terms uvTerms = org.getAggregations().get("uvCount");
-            resultObj.put("uvCount",uvTerms.getBuckets().size());
+            resultObj.put("uvCount", uvTerms.getBuckets().size());
+            long vvCount = uvTerms.getBuckets().stream().map(Terms.Bucket::getDocCount).reduce((a, b) -> a + b).orElse(0L);
+            resultObj.put("vvCount", (int)vvCount);
             Sum visitTime = org.getAggregations().get("visitTime");
-            resultObj.put("visitTime",visitTime.value());
-            resultMap.put(org.getKeyAsString(),resultObj);
+            resultObj.put("visitTime", new Double(visitTime.value()).intValue());
+            resultMap.put(org.getKeyAsString(), resultObj);
         });
         return resultMap;
     }

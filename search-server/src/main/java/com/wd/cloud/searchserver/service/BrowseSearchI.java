@@ -1,8 +1,5 @@
 package com.wd.cloud.searchserver.service;
 
-import cn.hutool.json.JSONObject;
-
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -13,5 +10,5 @@ import java.util.Map;
 public interface BrowseSearchI {
     Map<String, Object> indexInfo(String school, String beginTime, String endTime);
 
-    Map<String,JSONObject> tjData(String orgName,String beginDate,String endDate);
+    Map<String, Map<String, Integer>> tjData(String orgName, String beginDate, String endDate);
 }

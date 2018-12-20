@@ -13,7 +13,6 @@ import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
 import com.wd.cloud.wdtjserver.service.QuotaService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
-import com.wd.cloud.wdtjserver.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -70,6 +69,7 @@ public class AutoTask {
         Date minuteDate = DateUtil.offsetMinute(new Date(), -5);
         String dateStr = DateUtil.formatDateTime(minuteDate);
         ResponseModel<Map<String, Map<String, Integer>>> browserResponse = searchServerApi.minuteTj(null, dateStr);
+        log.info("browserResponse={}", browserResponse.toString());
         //检索量
         ResponseModel<Map<String, Integer>> scResponse = searchServerApi.scCountByOrgName(null, dateStr, 1);
         //下载量
@@ -99,8 +99,8 @@ public class AutoTask {
                 Map<String, Integer> orgInfo = browserResponse.getBody().get(taskData.getOrgName());
                 pvCount = orgInfo != null ? orgInfo.get("pvCount") : 0;
                 uvCount = orgInfo != null ? orgInfo.get("uvCount") : 0;
+                vvCount = orgInfo != null ? orgInfo.get("vvCount") : 0;
                 visitTime = (long) (orgInfo != null ? orgInfo.get("visitTime") * 1000 : 0);
-                vvCount = uvCount < pvCount ? RandomUtil.randomInt(uvCount, pvCount) : uvCount;
             }
             if (!scResponse.isError()) {
                 Integer scCountObj = scResponse.getBody().get(taskData.getOrgName());
