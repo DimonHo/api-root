@@ -35,15 +35,15 @@ public class IpUtil {
      * ip是否在范围内
      *
      * @param ip
-     * @param ipFrom
-     * @param ipTo
+     * @param beginIp
+     * @param endIp
      * @return
      */
-    public static boolean isInner(String ip, String ipFrom, String ipTo) {
-        if (ipToLong(ip) >= ipToLong(ipFrom) && ipToLong(ip) <= ipToLong(ipTo)) {
-            return true;
-        } else {
-            return false;
+    public static boolean isInner(String ip, String beginIp, String endIp) {
+        if (ipToLong(beginIp) < ipToLong(endIp)){
+            return ipToLong(ip) >= ipToLong(beginIp) && ipToLong(ip) <= ipToLong(endIp);
+        }else{
+            return ipToLong(ip) >= ipToLong(endIp) && ipToLong(ip) <= ipToLong(beginIp);
         }
     }
 
