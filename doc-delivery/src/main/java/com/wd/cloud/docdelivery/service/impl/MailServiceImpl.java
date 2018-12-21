@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.mail.MailException;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
@@ -17,12 +16,10 @@ import com.wd.cloud.docdelivery.service.MailService;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -80,49 +77,49 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, Integer processType,long id) {
+    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, Integer processType, long id) {
         HelpStatusEnum helpStatusEnum = null;
         for (HelpStatusEnum helpStatusInstance : HelpStatusEnum.values()) {
             if (helpStatusInstance.getCode() == processType) {
                 helpStatusEnum = helpStatusInstance;
             }
         }
-        sendMail(channel, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
+        sendMail(channel, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
     }
 
 
     @Override
-    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum ,long id) {
+    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id) {
         ChannelEnum channelEnum = getChannelEnum(channel);
-        sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
+        sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
     }
 
     @Override
-    public void sendMail(ChannelEnum channelEnum, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum,long id) {
+    public void sendMail(ChannelEnum channelEnum, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id) {
         if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendMail(spis, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
+            sendMail(spis, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
         } else if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendMail(crs, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
+            sendMail(crs, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
         } else if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendMail(zhy, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
+            sendMail(zhy, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
         }
     }
 
     @Override
-    public void sendNotifyMail(Integer channel, String helperScname, String helpEmail,long id) {
+    public void sendNotifyMail(Integer channel, String helperScname, String helpEmail, long id) {
         ChannelEnum channelEnum = getChannelEnum(channel);
         if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendNotifyMail(spis, helperScname, helpEmail,id);
+            sendNotifyMail(spis, helperScname, helpEmail, id);
         }
         if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendNotifyMail(crs, helperScname, helpEmail,id);
+            sendNotifyMail(crs, helperScname, helpEmail, id);
         }
         if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendNotifyMail(zhy, helperScname, helpEmail,id);
+            sendNotifyMail(zhy, helperScname, helpEmail, id);
         }
     }
 
-    private void sendMail(MailModel mailModel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum ,long id) {
+    private void sendMail(MailModel mailModel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id) {
         List<String> tos = splitAddress(helpEmail);
         if (tos == null) {
             throw new NullPointerException("收件人邮箱为空！");
@@ -151,22 +148,10 @@ public class MailServiceImpl implements MailService {
         Optional<HelpRecord> Optional = helpRecordRepository.findById(id);
         HelpRecord helpRecord = Optional.get();
 
-        try {
-            mailModel.send();
-            if (!helpRecord.isSend()){
-                helpRecord.setSend(true);
-            }
-        }catch (Exception e){
-            if (helpRecord.isSend()){
-                helpRecord.setSend(false);
-            }
-            throw new MailException(e);
-        }
-        helpRecordRepository.save(helpRecord);
-
+        excuteSend(mailModel, helpRecord);
     }
 
-    private void sendNotifyMail(MailModel mailModel, String helperScname, String helpEmail,long id) {
+    private void sendNotifyMail(MailModel mailModel, String helperScname, String helpEmail, long id) {
         Optional<HelpRecord> Optional = helpRecordRepository.findById(id);
         HelpRecord helpRecord = Optional.get();
         DefaultMailNotifyModel notifyModel = new DefaultMailNotifyModel();
@@ -175,18 +160,23 @@ public class MailServiceImpl implements MailService {
         mailModel.setNotifyModel(notifyModel);
         mailModel.setTitle(mailModel.getNotifyModel().getMailTitle())
                 .setContent(buildNotifyContent(mailModel, helperScname));
+        excuteSend(mailModel, helpRecord);
+    }
+
+    private void excuteSend(MailModel mailModel, HelpRecord helpRecord) {
         try {
             mailModel.send();
-            if (!helpRecord.isSend()){
+            if (!helpRecord.isSend()) {
                 helpRecord.setSend(true);
+                helpRecordRepository.save(helpRecord);
             }
-        }catch (Exception e){
-            if (helpRecord.isSend()){
+        } catch (Exception e) {
+            if (helpRecord.isSend()) {
                 helpRecord.setSend(false);
+                helpRecordRepository.save(helpRecord);
             }
-            throw new MailException(e);
+            log.error(e, "发送邮件至{}失败：", helpRecord.getHelperEmail());
         }
-        helpRecordRepository.save(helpRecord);
     }
 
     /**

@@ -209,6 +209,9 @@ public class BackendController {
     @PostMapping("/third/{id}")
     public ResponseModel helpThird(@PathVariable Long id, @RequestParam Long giverId, @RequestParam String giverName) {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(id);
+        if (helpRecord == null){
+            helpRecord = new HelpRecord();
+        }
         helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getCode());
         GiveRecord giveRecord = new GiveRecord();
         giveRecord.setGiverId(giverId);
