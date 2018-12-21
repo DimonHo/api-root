@@ -27,7 +27,7 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public Map<String, BigInteger> ddcCount(String orgName, String date, int type) {
-        String format = DateUtil.formatMysqlDate(type);
+        String format = DateUtil.formatMysqlStr2(type);
         log.info("orgName={},date={},format={}", orgName, date, format);
         // 如果orgName为空，则查询所有的机构统计
         List<Map<String, Object>> result = orgName != null ? helpRecordRepository.findByOrgNameDdcCount(orgName, date, format)

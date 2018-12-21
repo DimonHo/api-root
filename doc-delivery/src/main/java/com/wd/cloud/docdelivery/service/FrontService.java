@@ -142,6 +142,22 @@ public interface FrontService {
      */
     Page<HelpRecord> getFinishHelpRecords(int helpChannel, Pageable pageable);
 
+    /**
+     * 求助成功列表
+     * @param helpChannel
+     * @param pageable
+     * @return
+     */
+    Page<HelpRecord> getSuccessHelpRecords(int helpChannel, Pageable pageable);
+
+    /**
+     * 疑难文献（无结果，求助失败）列表
+     * @param helpChannel
+     * @param pageable
+     * @return
+     */
+    Page<HelpRecord> getFailedHelpRecords(int helpChannel, Pageable pageable);
+
     Page<HelpRecord> getAllHelpRecord(Pageable pageable);
 
     DocFile getReusingFile(Literature literature);

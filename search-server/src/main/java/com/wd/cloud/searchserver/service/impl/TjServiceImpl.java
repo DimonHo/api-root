@@ -26,7 +26,7 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public Map<String, BigInteger> tjDcCount(String school, String date, Integer type) {
-        String format = DateUtil.formatMysqlDate(type);
+        String format = DateUtil.formatMysqlStr2(type);
         log.info("school={},date={},format={}", school, date, format);
         List<Map<String, Object>> result = school == null ? downloadInfoRepository.findAllSchoolDcCount(date, format)
                 : downloadInfoRepository.findBySchoolDcCount(school, date, format);
@@ -40,7 +40,7 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public Map<String, BigInteger> tjScCount(String school, String date, Integer type) {
-        String format = DateUtil.formatMysqlDate(type);
+        String format = DateUtil.formatMysqlStr2(type);
         log.info("school={},date={},format={}", school, date, format);
         List<Map<String, Object>> result = school == null ? contentAnalysisRepository.findAllSchoolScCount(date, format)
                 : contentAnalysisRepository.findBySchoolScCount(school, date, format);

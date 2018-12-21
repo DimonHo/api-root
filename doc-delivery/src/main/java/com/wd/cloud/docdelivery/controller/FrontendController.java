@@ -166,6 +166,15 @@ public class FrontendController {
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
 
+    @ApiOperation(value = "疑难文献列表")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
+    @GetMapping("/help/failed/{helpChannel}")
+    public ResponseModel helpFailedList(@PathVariable Integer helpChannel,
+                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+        return ResponseModel.ok().setBody(finishHelpRecords);
+    }
+
     /**
      * 4. 我的求助
      *

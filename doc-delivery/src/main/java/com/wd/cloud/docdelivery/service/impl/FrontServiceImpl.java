@@ -232,6 +232,20 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
+    public Page<HelpRecord> getSuccessHelpRecords(int helpChannel, Pageable pageable) {
+        int[] status = {HelpStatusEnum.HELP_SUCCESSED.getCode()};
+        Page<HelpRecord> successHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        return successHelpRecords;
+    }
+
+    @Override
+    public Page<HelpRecord> getFailedHelpRecords(int helpChannel, Pageable pageable) {
+        int[] status = {HelpStatusEnum.HELP_FAILED.getCode()};
+        Page<HelpRecord> failedHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        return failedHelpRecords;
+    }
+
+    @Override
     public Page<HelpRecord> getAllHelpRecord(Pageable pageable) {
         return helpRecordRepository.findAll(pageable);
     }
