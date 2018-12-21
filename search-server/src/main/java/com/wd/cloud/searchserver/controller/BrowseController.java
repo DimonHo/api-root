@@ -67,11 +67,11 @@ public class BrowseController {
     })
     @GetMapping("/tj/minute")
     public ResponseModel minuteTj(@RequestParam(required = false) String orgName,
-                                                          @RequestParam(required = false) String date) {
+                                  @RequestParam(required = false) String date) {
         Date dateTime = date == null ? new Date() : com.wd.cloud.commons.util.DateUtil.parse(date);
         String beginDate = cn.hutool.core.date.DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:00");
         String endDate = cn.hutool.core.date.DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:59");
-        Map<String, JSONObject> body = browseSearch.tjData(orgName, beginDate, endDate);
+        Map<String, Map<String,Integer>> body = browseSearch.tjData(orgName, beginDate, endDate);
         return ResponseModel.ok().setBody(body);
     }
 
@@ -84,9 +84,9 @@ public class BrowseController {
     })
     @GetMapping("/tj/range")
     public ResponseModel rangeTj(@RequestParam(required = false) String orgName,
-                                           @RequestParam(required = false) String beginDate,
-                                           @RequestParam(required = false) String endDate) {
-        Map<String, JSONObject> body = browseSearch.tjData(orgName, beginDate, endDate);
+                                 @RequestParam(required = false) String beginDate,
+                                 @RequestParam(required = false) String endDate) {
+        Map<String, Map<String,Integer>> body = browseSearch.tjData(orgName, beginDate, endDate);
         return ResponseModel.ok().setBody(body);
     }
 

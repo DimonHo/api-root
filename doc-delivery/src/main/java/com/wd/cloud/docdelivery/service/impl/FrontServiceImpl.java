@@ -232,6 +232,20 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
+    public Page<HelpRecord> getSuccessHelpRecords(int helpChannel, Pageable pageable) {
+        int[] status = {HelpStatusEnum.HELP_SUCCESSED.getCode()};
+        Page<HelpRecord> successHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        return successHelpRecords;
+    }
+
+    @Override
+    public Page<HelpRecord> getFailedHelpRecords(int helpChannel, Pageable pageable) {
+        int[] status = {HelpStatusEnum.HELP_FAILED.getCode()};
+        Page<HelpRecord> failedHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        return failedHelpRecords;
+    }
+
+    @Override
     public Page<HelpRecord> getAllHelpRecord(Pageable pageable) {
         return helpRecordRepository.findAll(pageable);
     }
@@ -268,14 +282,5 @@ public class FrontServiceImpl implements FrontService {
         }
     }
 
-    @Override
-    public int getCountByOrg(Long orgId, String orgName, String date, int type) {
-        String dateFormat = DateUtil.formatMysqlStr(type);
-        // 优先根据orgId查询
-        if (orgId != null) {
-            return helpRecordRepository.countHelpRecordByOrgId(orgId, date, dateFormat);
-        }
-        return helpRecordRepository.countHelpRecordByOrgName(orgName, date, dateFormat);
-    }
 
 }

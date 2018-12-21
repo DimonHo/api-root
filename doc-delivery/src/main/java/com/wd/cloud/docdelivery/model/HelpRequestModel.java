@@ -93,6 +93,10 @@ public class HelpRequestModel {
         this.remake = remake;
     }
 
+    private String remark;
+
+    private boolean anonymous;
+
     public Long getHelperId() {
         return helperId;
     }

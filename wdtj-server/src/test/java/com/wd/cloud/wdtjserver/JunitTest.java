@@ -22,6 +22,9 @@ public class JunitTest {
 
     @Test
     public void test11() {
+        Map<String, Integer> dcResponse = new HashMap<>();
+        dcResponse.put("AAA",1);
+        int c = dcResponse.get("bb");
         long sum = 480000 * 3000;
         RandomUtil.randomLongListFromFinalTotal(sum,31);
     }

@@ -4,30 +4,33 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "t_download_info")
 public class DownloadInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String title;
 
-    private String username;
+    private Date time;
+
+    private String loginIp;
 
     private String school;
 
     private String schoolFlag;
 
-    private String ip;
+    private String username;
 
-    private Date time;
-
-    private int downloadId;
-
-    private int num;
+    private String url;
 
     private int type; //0原始数据，1添加数据
 
-    private String url;
+    private int downloadId;
+
+    private String ip;
+
+    private int num;
 
     public String getUrl() {
         return url;
@@ -53,15 +56,27 @@ public class DownloadInfo {
         this.schoolFlag = schoolFlag;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public DownloadInfo setId(Long id) {
         this.id = id;
+        return this;
     }
+
+    public String getLoginIp() {
+        return loginIp;
+    }
+
+    public DownloadInfo setLoginIp(String loginIp) {
+        this.loginIp = loginIp;
+        return this;
+    }
+
     /**
      * 用于a链接里的引号特殊处理
+     *
      * @return
      */
     public String getTitles() {
