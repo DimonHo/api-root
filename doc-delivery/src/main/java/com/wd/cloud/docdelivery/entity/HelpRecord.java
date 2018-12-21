@@ -92,6 +92,20 @@ public class HelpRecord extends AbstractEntity  {
     @Column(name = "is_anonymous", columnDefinition = "bit default 0 COMMENT '0：未匿名， 1：已匿名'")
     private boolean anonymous;
 
+    /**
+     * 文献信息
+     */
+    @Column(name = "remake")
+    private String remake;
+
+    public String getRemake() {
+        return remake;
+    }
+
+    public void setRemake(String remake) {
+        this.remake = remake;
+    }
+
     public Literature getLiterature() {
         return literature;
     }

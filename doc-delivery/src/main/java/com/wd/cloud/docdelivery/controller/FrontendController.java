@@ -79,6 +79,8 @@ public class FrontendController {
         helpRecord.setHelperScname(helpRequestModel.getHelperScname());
         helpRecord.setHelperId(helpRequestModel.getHelperId());
         helpRecord.setHelperName(helpRequestModel.getHelperName());
+        helpRecord.setRemake(helpRequestModel.getRemake());
+        helpRecord.setAnonymous(helpRequestModel.isAnonymous());
         helpRecord.setHelperIp(request.getLocalAddr());
         helpRecord.setHelperEmail(helpEmail);
         helpRecord.setSend(true);
