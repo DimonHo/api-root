@@ -95,15 +95,15 @@ public class HelpRecord extends AbstractEntity  {
     /**
      * 文献信息
      */
-    @Column(name = "remake")
-    private String remake;
+    @Column(name = "remark")
+    private String remark;
 
-    public String getRemake() {
-        return remake;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setRemake(String remake) {
-        this.remake = remake;
+    public void setRemark(String remake) {
+        this.remark = remake;
     }
 
     public Literature getLiterature() {

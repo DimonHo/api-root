@@ -69,7 +69,7 @@ public class HelpRequestModel {
      * 文献信息
      */
     @ApiModelProperty(value = "文献信息", example = "大头儿子小头爸爸：2018-12-18，郑春华，普通的三口之家每天发生的趣事，直击当代儿童生活现状。")
-    private String remake;
+    private String remark;
 
     /**
      * 是否匿名
@@ -85,17 +85,14 @@ public class HelpRequestModel {
         this.anonymous = anonymous;
     }
 
-    public String getRemake() {
-        return remake;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setRemake(String remake) {
-        this.remake = remake;
+    public void setRemark(String remake) {
+        this.remark = remake;
     }
 
-    private String remark;
-
-    private boolean anonymous;
 
     public Long getHelperId() {
         return helperId;
