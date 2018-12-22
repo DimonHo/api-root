@@ -66,4 +66,13 @@ public class Permission extends AbstractEntity {
         this.count = count;
         return this;
     }
+
+    public Integer getSumCount() {
+        return sumCount;
+    }
+
+    public Permission setSumCount(Integer sumCount) {
+        this.sumCount = sumCount;
+        return this;
+    }
 }
