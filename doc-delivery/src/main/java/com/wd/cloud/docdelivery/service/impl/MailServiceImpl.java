@@ -238,7 +238,7 @@ public class MailServiceImpl implements MailService {
 
     private String buildNotifyContent(MailModel mailModel, String helperScname) {
         String templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-notify");
-        if (!FileUtil.exist(templateFile)) {
+        if (templateNotExists(templateFile)) {
             templateFile = "default-notify.ftl";
         }
         return buildContent(mailModel, templateFile);

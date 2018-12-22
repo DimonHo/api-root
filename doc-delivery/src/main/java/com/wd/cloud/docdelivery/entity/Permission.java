@@ -17,11 +17,19 @@ public class Permission extends AbstractEntity {
     private String orgName;
 
     /**
-     * 校外：1，登陆：2，验证：4，相加得到权限
+     * 校外：1，登陆：2，验证：4，最后相加得到权限
      */
     private Integer rule;
 
+    /**
+     * 每天求助上限
+     */
     private Integer count;
+
+    /**
+     * 总求助上限
+     */
+    private Integer sumCount;
 
     public Long getOrgId() {
         return orgId;
