@@ -26,3 +26,9 @@
 -- DROP EVENT IF EXISTS e_give_timeout;
 -- CREATE PROCEDURE give_timeout () BEGIN DECLARE helpRecordId INT DEFAULT 0 ; SELECT help_record_id INTO helpRecordId FROM give_record WHERE doc_file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now()) ; DELETE FROM give_record WHERE help_record_id = helpRecordId AND doc_file_id IS NULL ; UPDATE help_record SET STATUS = 0 WHERE STATUS = 1 AND id = helpRecordId ; END;
 -- CREATE EVENT e_give_timeout ON SCHEDULE EVERY 60 SECOND STARTS TIMESTAMP '2018-05-31 00:00:00' ON COMPLETION PRESERVE DO CALL give_timeout ();
+
+
+-- ALTER TABLE `help_record`
+--  ADD COLUMN `is_anonymous`  bit(1) NULL DEFAULT b'0' COMMENT '0：不匿名，1：匿名' AFTER `literature_id`,
+--  ADD COLUMN `is_send`  bit(1) NULL DEFAULT b'1' COMMENT '0：未发送邮件，1：已发送邮件' AFTER `is_anonymous`,
+--  ADD COLUMN `remark`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '求助详情' AFTER `is_send`;

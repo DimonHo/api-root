@@ -166,15 +166,11 @@ public class MailServiceImpl implements MailService {
     private void excuteSend(MailModel mailModel, HelpRecord helpRecord) {
         try {
             mailModel.send();
-            if (!helpRecord.isSend()) {
-                helpRecord.setSend(true);
-                helpRecordRepository.save(helpRecord);
-            }
+            helpRecord.setSend(true);
+            helpRecordRepository.save(helpRecord);
         } catch (Exception e) {
-            if (helpRecord.isSend()) {
-                helpRecord.setSend(false);
-                helpRecordRepository.save(helpRecord);
-            }
+            helpRecord.setSend(false);
+            helpRecordRepository.save(helpRecord);
             log.error(e, "发送邮件至{}失败：", helpRecord.getHelperEmail());
         }
     }
