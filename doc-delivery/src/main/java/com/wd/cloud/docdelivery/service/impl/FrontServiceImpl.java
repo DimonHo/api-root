@@ -186,8 +186,8 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Page<HelpRecord> getHelpRecordsForUser(long helperId, Pageable pageable) {
-        return helpRecordRepository.findByHelperId(helperId, pageable);
+    public Page<HelpRecord> getHelpRecordsForUser(long helperId,int status, Pageable pageable) {
+        return helpRecordRepository.findByHelperIdAndStatus(helperId,status, pageable);
     }
 
     @Override

@@ -59,7 +59,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      * @param pageable
      * @return
      */
-    Page<HelpRecord> findByHelperId(long helperId, Pageable pageable);
+    Page<HelpRecord> findByHelperIdAndStatus(long helperId,int status, Pageable pageable);
 
     /**
      * 根据求助邮箱查询

@@ -150,6 +150,9 @@ public class FrontendController {
     public ResponseModel helpWaitList(@PathVariable int helpChannel,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> waitHelpRecords = frontService.getWaitHelpRecords(helpChannel, pageable);
+        for (HelpRecord helpRecord: waitHelpRecords) {
+            Anonymous(helpRecord);
+        }
         return ResponseModel.ok().setBody(waitHelpRecords);
     }
 
@@ -166,8 +169,13 @@ public class FrontendController {
     public ResponseModel helpSuccessList(@PathVariable Integer helpChannel,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+        for (HelpRecord helpRecord: finishHelpRecords) {
+            Anonymous(helpRecord);
+        }
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
+
+
 
     @ApiOperation(value = "疑难文献列表")
     @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
@@ -175,6 +183,9 @@ public class FrontendController {
     public ResponseModel helpFailedList(@PathVariable Integer helpChannel,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+        for (HelpRecord helpRecord: finishHelpRecords) {
+            Anonymous(helpRecord);
+        }
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
 
@@ -188,9 +199,10 @@ public class FrontendController {
     @ApiImplicitParam(name = "helperId", value = "用户ID", dataType = "Long", paramType = "path")
     @GetMapping("/help/records/{helperId}")
     public ResponseModel myRecords(@PathVariable Long helperId,
+                                   @RequestParam(value = "status", required = false) int status,
                                    @PageableDefault(sort = {"gmtCreate"},
                                            direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> myHelpRecords = frontService.getHelpRecordsForUser(helperId, pageable);
+        Page<HelpRecord> myHelpRecords = frontService.getHelpRecordsForUser(helperId,status, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
@@ -352,23 +364,35 @@ public class FrontendController {
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
     }
 
-    @ApiOperation(value = "聚合统计求助记录")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "orgId", value = "机构ID", dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "date", value = "当前时间", dataType = "Date", paramType = "query"),
-            @ApiImplicitParam(name = "type", value = "统计类型0：按分钟统计，1：按小时统计，2按天统计，3，按月统计，4：按年统计", dataType = "Integer", paramType = "query")
+//    @ApiOperation(value = "聚合统计求助记录")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "orgId", value = "机构ID", dataType = "Long", paramType = "query"),
+//            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "date", value = "当前时间", dataType = "Date", paramType = "query"),
+//            @ApiImplicitParam(name = "type", value = "统计类型0：按分钟统计，1：按小时统计，2按天统计，3，按月统计，4：按年统计", dataType = "Integer", paramType = "query")
+//
+//    })
+////    @GetMapping("/help/count/org")
+////    public ResponseModel getOrgHelpCountToMinute(@RequestParam(required = false) Long orgId,
+////                                                 @RequestParam(required = false) String orgName,
+////                                                 @RequestParam(required = false) String date,
+////                                                 @RequestParam(required = false, defaultValue = "0") Integer type) {
+////        if (orgId == null && orgName == null) {
+////            return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
+////        }
+////        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId, orgName, date, type));
+////    }
 
-    })
-    @GetMapping("/help/count/org")
-    public ResponseModel getOrgHelpCountToMinute(@RequestParam(required = false) Long orgId,
-                                                 @RequestParam(required = false) String orgName,
-                                                 @RequestParam(required = false) String date,
-                                                 @RequestParam(required = false, defaultValue = "0") Integer type) {
-        if (orgId == null && orgName == null) {
-            return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
+    private void Anonymous(HelpRecord helpRecord) {
+        boolean anonymous = helpRecord.isAnonymous();
+        if (anonymous == true) {
+            helpRecord.setHelperName("匿名");
+            helpRecord.setHelperEmail("匿名");
+        } else {
+            String helperEmail = helpRecord.getHelperEmail();
+            String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
+            helpRecord.setHelperEmail(s);
         }
-        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId, orgName, date, type));
     }
 
 }

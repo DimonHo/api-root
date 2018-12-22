@@ -116,7 +116,7 @@ public interface FrontService {
      * @param helpUserId
      * @return
      */
-    Page<HelpRecord> getHelpRecordsForUser(long helpUserId, Pageable pageable);
+    Page<HelpRecord> getHelpRecordsForUser(long helpUserId,int status, Pageable pageable);
 
     /**
      * 获取用户的求助记录
