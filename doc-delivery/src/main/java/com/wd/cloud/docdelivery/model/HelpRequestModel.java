@@ -64,11 +64,11 @@ public class HelpRequestModel {
     @NotNull
     private String helperEmail;
 
-
-
+    @ApiModelProperty(value = "补充信息", example = "doi:01923959101,xxx:102030104")
     private String remark;
 
-    private boolean anonymous;
+    @ApiModelProperty(value = "是否匿名,默认false", example = "false")
+    private boolean anonymous = false;
 
     public Long getHelperId() {
         return helperId;
@@ -134,4 +134,21 @@ public class HelpRequestModel {
         this.helperScname = helperScname;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+
+    public HelpRequestModel setRemark(String remark) {
+        this.remark = remark;
+        return this;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public HelpRequestModel setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+        return this;
+    }
 }
