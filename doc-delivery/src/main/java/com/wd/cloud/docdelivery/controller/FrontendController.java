@@ -118,6 +118,9 @@ public class FrontendController {
         }
 
         log.info("用户:[{}]正在求助文献:[{}]", helpEmail, helpRequestModel.getDocTitle());
+        helpRecord.setAnonymous(helpRequestModel.isAnonymous());
+        helpRecord.setRemark(helpRequestModel.getRemark());
+        log.info("用户:[{}]正在求助文献:[{}],IP={}", helpEmail, helpRequestModel.getDocTitle(), request.getHeader("CLIENT_IP"));
         Literature literature = new Literature();
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
         literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));
@@ -177,7 +180,7 @@ public class FrontendController {
      * @return
      */
     @ApiOperation(value = "待应助列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
     @GetMapping("/help/wait/{helpChannel}")
     public ResponseModel helpWaitList(@PathVariable int helpChannel,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
@@ -196,7 +199,7 @@ public class FrontendController {
      * @return
      */
     @ApiOperation(value = "求助完成列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
     @GetMapping("/help/finish/{helpChannel}")
     public ResponseModel helpSuccessList(@PathVariable Integer helpChannel,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
@@ -209,7 +212,7 @@ public class FrontendController {
 
 
     @ApiOperation(value = "疑难文献列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
     @GetMapping("/help/failed/{helpChannel}")
     public ResponseModel helpFailedList(@PathVariable Integer helpChannel,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {

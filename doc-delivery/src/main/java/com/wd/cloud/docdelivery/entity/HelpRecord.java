@@ -208,6 +208,15 @@ public class HelpRecord extends AbstractEntity  {
         return this;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+
+    public HelpRecord setRemark(String remark) {
+        this.remark = remark;
+        return this;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

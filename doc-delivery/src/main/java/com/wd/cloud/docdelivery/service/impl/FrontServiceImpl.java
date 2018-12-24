@@ -79,7 +79,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public DocFile saveDocFile(Literature literature, String fileId,String filaName) {
+    public DocFile saveDocFile(Literature literature, String fileId, String filaName) {
         DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId);
         if (docFile == null) {
             docFile = new DocFile();
@@ -203,8 +203,7 @@ public class FrontServiceImpl implements FrontService {
                 HelpStatusEnum.WAIT_AUDIT.getCode(),
                 HelpStatusEnum.HELP_THIRD.getCode()};
 
-        Page<HelpRecord> waitHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
-
+        Page<HelpRecord> waitHelpRecords = filterHelpRecords(helpChannel, pageable, status);
 //        Page<HelpRecord> waitHelpRecords = helpRecordRepository.findAll(new Specification<HelpRecord>() {
 //            @Override
 //            public Predicate toPredicate(Root<HelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -223,25 +222,35 @@ public class FrontServiceImpl implements FrontService {
         return waitHelpRecords;
     }
 
+    private Page<HelpRecord> filterHelpRecords(int helpChannel, Pageable pageable, int[] status) {
+        Page<HelpRecord> waitHelpRecords;
+        if (helpChannel == 0) {
+            waitHelpRecords = helpRecordRepository.findByStatusIn(status, pageable);
+        } else {
+            waitHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        }
+        return waitHelpRecords;
+    }
+
 
     @Override
     public Page<HelpRecord> getFinishHelpRecords(int helpChannel, Pageable pageable) {
         int[] status = {HelpStatusEnum.HELP_SUCCESSED.getCode(), HelpStatusEnum.HELP_FAILED.getCode()};
-        Page<HelpRecord> finishHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        Page<HelpRecord> finishHelpRecords = filterHelpRecords(helpChannel, pageable, status);
         return finishHelpRecords;
     }
 
     @Override
     public Page<HelpRecord> getSuccessHelpRecords(int helpChannel, Pageable pageable) {
         int[] status = {HelpStatusEnum.HELP_SUCCESSED.getCode()};
-        Page<HelpRecord> successHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        Page<HelpRecord> successHelpRecords = filterHelpRecords(helpChannel, pageable, status);
         return successHelpRecords;
     }
 
     @Override
     public Page<HelpRecord> getFailedHelpRecords(int helpChannel, Pageable pageable) {
         int[] status = {HelpStatusEnum.HELP_FAILED.getCode()};
-        Page<HelpRecord> failedHelpRecords = helpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
+        Page<HelpRecord> failedHelpRecords = filterHelpRecords(helpChannel, pageable, status);
         return failedHelpRecords;
     }
 

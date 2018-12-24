@@ -68,14 +68,11 @@ public class HelpRequestModel {
     /**
      * 文献信息
      */
-    @ApiModelProperty(value = "文献信息", example = "大头儿子小头爸爸：2018-12-18，郑春华，普通的三口之家每天发生的趣事，直击当代儿童生活现状。")
+    @ApiModelProperty(value = "补充信息", example = "doi:01923959101,xxx:102030104")
     private String remark;
 
-    /**
-     * 是否匿名
-     */
-    @ApiModelProperty(value = "是否匿名")
-    private boolean anonymous;
+    @ApiModelProperty(value = "是否匿名,默认false", example = "false")
+    private boolean anonymous = false;
 
     public boolean isAnonymous() {
         return anonymous;
@@ -157,5 +154,4 @@ public class HelpRequestModel {
     public void setHelperScname(String helperScname) {
         this.helperScname = helperScname;
     }
-
 }
