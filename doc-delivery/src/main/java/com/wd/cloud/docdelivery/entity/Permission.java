@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * @author He Zhigang
@@ -9,7 +10,7 @@ import javax.persistence.Table;
  * @Description:
  */
 @Entity
-@Table(name = "permission")
+@Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_id", "rule"})})
 public class Permission extends AbstractEntity {
 
     private Long orgId;
