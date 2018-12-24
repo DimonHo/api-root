@@ -84,4 +84,12 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
     @Query("DELETE FROM GiveRecord WHERE giverType = 2 AND docFile IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmtCreate, now())")
     List<GiveRecord> deleteTimeOutRecord();
 
+    /**
+     * 我的应助
+     * @param giverId
+     * @return
+     */
+    @Query(value = "select count(giver_id) as shouldHelp from give_record where giver_id =?1",nativeQuery = true)
+    int getShouldHelp(long giverId);
+
 }

@@ -22,4 +22,7 @@ public interface OrgServerApi {
     @GetMapping("/orginfo/{id}")
     ResponseModel getOrg(@PathVariable(value = "id") Long id);
 
+    @GetMapping("/getIpRang")
+    ResponseModel<List<JSONObject>> getIpRang();
+
 }

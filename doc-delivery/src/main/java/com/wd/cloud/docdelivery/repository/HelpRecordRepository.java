@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -59,7 +60,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      * @param pageable
      * @return
      */
-    Page<HelpRecord> findByHelperIdAndStatus(long helperId,int status, Pageable pageable);
+    Page<HelpRecord> findByHelperIdAndStatus(long helperId,Integer status, Pageable pageable);
 
     /**
      * 根据求助邮箱查询
@@ -87,5 +88,36 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     Page<HelpRecord> findByHelpChannelAndStatusIn(int helpChannel, int[] status, Pageable pageable);
 
     List<HelpRecord> findBySend(boolean send);
+
+    /**
+     * 平台中求助量
+     * @return
+     */
+    @Query(value = "select count(helper_id) from help_record",nativeQuery = true)
+    int getAmount();
+
+    /**
+     * 平台传递成功率
+     * @return
+     */
+    @Query(value = "select count(helper_id) from help_record where status =?1",nativeQuery = true)
+    int getSuccessRate(int status);
+
+    /**
+     * 平台今日已求助量
+     * @return
+     */
+    @Query(value = "select count(helper_id)  from help_record where TO_DAYS(gmt_create) = TO_DAYS(NOW())",nativeQuery = true)
+    int getSameDay();
+
+    /**
+     * 我的求助
+     * @param helperId
+     * @return
+     */
+    @Query(value = "select count(helper_id) as forHelp from help_record where helper_id =?1",nativeQuery = true)
+    int getForHelp(long helperId);
+
+
 
 }

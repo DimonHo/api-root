@@ -116,7 +116,7 @@ public interface FrontService {
      * @param helpUserId
      * @return
      */
-    Page<HelpRecord> getHelpRecordsForUser(long helpUserId,int status, Pageable pageable);
+    Page<HelpRecord> getHelpRecordsForUser(long helpUserId,Integer status, Pageable pageable);
 
     /**
      * 获取用户的求助记录
@@ -165,5 +165,37 @@ public interface FrontService {
     Page<HelpRecord> search(String keyword, Pageable pageable);
 
     String checkExistsGiveing(long giverId);
+
+    /**
+     * 平台中求助量
+     * @return
+     */
+    int getAmount();
+
+    /**
+     * 平台传递成功率
+     * @return
+     */
+    int getSuccessRate(int status);
+
+    /**
+     * 平台今日已求助量
+     * @return
+     */
+    int getSameDay();
+
+    /**
+     * 我的求助
+     * @param helperId
+     * @return
+     */
+    int getForHelp(long helperId);
+
+    /**
+     * 我的应助
+     * @param giverId
+     * @return
+     */
+    int getShouldHelp(long giverId);
 
 }

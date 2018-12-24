@@ -33,6 +33,7 @@ public class IpSettingController {
     @GetMapping("/getIpRang")
     public ResponseModel getIpRang(HttpServletRequest req) {
         String ip = IpUtil.getIpAddr(req);
+        //String ip = "1111.11.11.11";
         log.info("ip={}",ip);
         List<IpRange> all = ipSettingService.getAll();
         Org org = null;
