@@ -1,5 +1,9 @@
 package com.wd.cloud.commons.util;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2018/8/13
@@ -12,7 +16,7 @@ public class IpUtil {
         String[] numbers = ip.split("\\.");
         //等价上面
         for (int i = 0; i < 4; ++i) {
-            ips = ips << 8 | Integer.parseInt(numbers[i]);
+            ips = ips << 8 | Integer.parseInt(numbers[i].trim());
         }
         return ips;
     }
@@ -45,6 +49,28 @@ public class IpUtil {
         }else{
             return ipToLong(ip) >= ipToLong(endIp) && ipToLong(ip) <= ipToLong(beginIp);
         }
+    }
+
+    /**
+     * 获取ip
+     * @param request
+     * @return
+     */
+    public static String getIpAddr(HttpServletRequest request) {
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        if (ip.equals("0:0:0:0:0:0:0:1")) {
+            ip = "127.0.0.1";
+        }
+        return ip;
     }
 
 }

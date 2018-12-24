@@ -1,5 +1,7 @@
 package com.wd.cloud.orgserver.service.impl;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.wd.cloud.orgserver.entity.Org;
 import com.wd.cloud.orgserver.repository.IpRangeRepository;
 import com.wd.cloud.orgserver.repository.OrgRepository;
@@ -20,6 +22,8 @@ import java.util.List;
 @Service("orgService")
 @Transactional(rollbackFor = Exception.class)
 public class OrgInfoServiceImpl implements OrgInfoService {
+
+    private static final Log log = LogFactory.get();
 
     @Autowired
     OrgRepository orgRepository;

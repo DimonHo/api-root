@@ -92,7 +92,19 @@ public class HelpRecord extends AbstractEntity  {
     @Column(name = "is_anonymous", columnDefinition = "bit default 0 COMMENT '0：未匿名， 1：已匿名'")
     private boolean anonymous;
 
+    /**
+     * 文献信息
+     */
+    @Column(name = "remark")
     private String remark;
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remake) {
+        this.remark = remake;
+    }
 
     public Literature getLiterature() {
         return literature;

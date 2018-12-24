@@ -10,13 +10,11 @@ import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.entity.*;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.feign.OrgServerApi;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
@@ -37,6 +35,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -63,6 +65,10 @@ public class FrontendController {
     @Autowired
     FsServerApi fsServerApi;
 
+    @Autowired
+    OrgServerApi orgServerApi;
+
+
     /**
      * 1. 文献求助
      *
@@ -71,7 +77,6 @@ public class FrontendController {
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
-
         HelpRecord helpRecord = new HelpRecord();
         String helpEmail = helpRequestModel.getHelperEmail();
         helpRecord.setHelpChannel(helpRequestModel.getHelpChannel());
@@ -79,12 +84,40 @@ public class FrontendController {
         helpRecord.setHelperScname(helpRequestModel.getHelperScname());
         helpRecord.setHelperId(helpRequestModel.getHelperId());
         helpRecord.setHelperName(helpRequestModel.getHelperName());
+        helpRecord.setRemark(helpRequestModel.getRemark());
+        helpRecord.setAnonymous(helpRequestModel.isAnonymous());
+        helpRecord.setHelperIp(request.getLocalAddr());
         helpRecord.setHelperIp(request.getHeader("CLIENT_IP"));
         helpRecord.setHelperEmail(helpEmail);
         helpRecord.setSend(true);
-        helpRecord.setAnonymous(helpRequestModel.isAnonymous());
-        helpRecord.setRemark(helpRequestModel.getRemark());
-        log.info("用户:[{}]正在求助文献:[{}],IP={}", helpEmail, helpRequestModel.getDocTitle(), request.getHeader("CLIENT_IP"));
+
+        //判断是否是校外登陆
+        ResponseModel<List<JSONObject>> ipRang = orgServerApi.getIpRang();
+        List<JSONObject> body = ipRang.getBody();
+        //校外访问
+        if (body == null) {
+            //判断登陆账号是否是第三方
+//            if (){//第三方设置总求助上线
+//
+//            }else{
+//
+//            }
+
+            //判断登陆用户是否已认证
+
+        } else {//校内访问
+            //判断用户是否登陆
+            String helperScname = helpRecord.getHelperScname();
+            //未登录
+            if (helperScname == null) {
+
+            } else {//已登陆
+                //判断登陆用户是否已认证
+            }
+
+        }
+
+        log.info("用户:[{}]正在求助文献:[{}]", helpEmail, helpRequestModel.getDocTitle());
         Literature literature = new Literature();
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
         literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));
@@ -144,11 +177,14 @@ public class FrontendController {
      * @return
      */
     @ApiOperation(value = "待应助列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
     @GetMapping("/help/wait/{helpChannel}")
     public ResponseModel helpWaitList(@PathVariable int helpChannel,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> waitHelpRecords = frontService.getWaitHelpRecords(helpChannel, pageable);
+        for (HelpRecord helpRecord : waitHelpRecords) {
+            Anonymous(helpRecord);
+        }
         return ResponseModel.ok().setBody(waitHelpRecords);
     }
 
@@ -160,20 +196,27 @@ public class FrontendController {
      * @return
      */
     @ApiOperation(value = "求助完成列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
     @GetMapping("/help/finish/{helpChannel}")
     public ResponseModel helpSuccessList(@PathVariable Integer helpChannel,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+        for (HelpRecord helpRecord : finishHelpRecords) {
+            Anonymous(helpRecord);
+        }
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
 
+
     @ApiOperation(value = "疑难文献列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
     @GetMapping("/help/failed/{helpChannel}")
     public ResponseModel helpFailedList(@PathVariable Integer helpChannel,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+        for (HelpRecord helpRecord : finishHelpRecords) {
+            Anonymous(helpRecord);
+        }
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
 
@@ -187,9 +230,10 @@ public class FrontendController {
     @ApiImplicitParam(name = "helperId", value = "用户ID", dataType = "Long", paramType = "path")
     @GetMapping("/help/records/{helperId}")
     public ResponseModel myRecords(@PathVariable Long helperId,
+                                   @RequestParam(value = "status", required = false) Integer status,
                                    @PageableDefault(sort = {"gmtCreate"},
                                            direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> myHelpRecords = frontService.getHelpRecordsForUser(helperId, pageable);
+        Page<HelpRecord> myHelpRecords = frontService.getHelpRecordsForUser(helperId, status, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
@@ -349,6 +393,71 @@ public class FrontendController {
     public ResponseModel getUserHelpCountToDay(@RequestParam String email) {
 
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
+    }
+
+
+    @ApiOperation(value = "获取平台总求助量、成功率、今日求助量、我的求助、我的应助")
+    @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Long", paramType = "query")
+    @GetMapping("/getHeadTotalFor")
+    public ResponseModel getHeadTotalFor(@RequestParam(value = "userId", required = false) Long userId){
+        NumberFormat numberFormat = NumberFormat.getPercentInstance();
+        numberFormat.setMinimumFractionDigits(2);
+        //总求助
+        int amount = frontService.getAmount();
+        //求助成功数量
+        int successRate = frontService.getSuccessRate(4);
+        //求助成功概率
+        String result = numberFormat.format((float) successRate /(float) amount);
+        //今天求助数量
+        int sameDay = frontService.getSameDay();
+        //我的求助
+        if (userId == null){
+            long user = 0;
+            userId = user;
+        }
+        int forHelp = frontService.getForHelp(userId);
+        //我的应助
+        int shouldHelp = frontService.getShouldHelp(userId);
+
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("amount",amount);
+        map.put("result",result);
+        map.put("sameDay",sameDay);
+        map.put("forHelp",forHelp);
+        map.put("shouldHelp",shouldHelp);
+
+        return ResponseModel.ok().setBody(map);
+    }
+
+//    @ApiOperation(value = "聚合统计求助记录")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "orgId", value = "机构ID", dataType = "Long", paramType = "query"),
+//            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "date", value = "当前时间", dataType = "Date", paramType = "query"),
+//            @ApiImplicitParam(name = "type", value = "统计类型0：按分钟统计，1：按小时统计，2按天统计，3，按月统计，4：按年统计", dataType = "Integer", paramType = "query")
+//
+//    })
+////    @GetMapping("/help/count/org")
+////    public ResponseModel getOrgHelpCountToMinute(@RequestParam(required = false) Long orgId,
+////                                                 @RequestParam(required = false) String orgName,
+////                                                 @RequestParam(required = false) String date,
+////                                                 @RequestParam(required = false, defaultValue = "0") Integer type) {
+////        if (orgId == null && orgName == null) {
+////            return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
+////        }
+////        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId, orgName, date, type));
+////    }
+
+    private void Anonymous(HelpRecord helpRecord) {
+        boolean anonymous = helpRecord.isAnonymous();
+        if (anonymous == true) {
+            helpRecord.setHelperName("匿名");
+            helpRecord.setHelperEmail("匿名");
+        } else {
+            String helperEmail = helpRecord.getHelperEmail();
+            String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
+            helpRecord.setHelperEmail(s);
+        }
     }
 
 }

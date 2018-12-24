@@ -1,5 +1,7 @@
 package com.wd.cloud.orgserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,6 +18,7 @@ public class IpRange extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "org_id")
+    @JsonIgnore
     private Org org;
 
     private String begin;

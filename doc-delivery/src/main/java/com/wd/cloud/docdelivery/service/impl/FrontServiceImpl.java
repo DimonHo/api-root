@@ -186,8 +186,8 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Page<HelpRecord> getHelpRecordsForUser(long helperId, Pageable pageable) {
-        return helpRecordRepository.findByHelperId(helperId, pageable);
+    public Page<HelpRecord> getHelpRecordsForUser(long helperId,Integer status, Pageable pageable) {
+        return helpRecordRepository.findByHelperIdAndStatus(helperId,status, pageable);
     }
 
     @Override
@@ -289,6 +289,31 @@ public class FrontServiceImpl implements FrontService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public int getAmount() {
+        return helpRecordRepository.getAmount();
+    }
+
+    @Override
+    public int getSuccessRate(int status) {
+        return helpRecordRepository.getSuccessRate(status);
+    }
+
+    @Override
+    public int getSameDay() {
+        return helpRecordRepository.getSameDay();
+    }
+
+    @Override
+    public int getForHelp(long helperId) {
+        return helpRecordRepository.getForHelp(helperId);
+    }
+
+    @Override
+    public int getShouldHelp(long giverId) {
+        return giveRecordRepository.getShouldHelp(giverId);
     }
 
 
