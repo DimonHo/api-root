@@ -36,10 +36,13 @@ public class TjController {
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
     @GetMapping("/tj/user")
     public ResponseModel getUserHelpCountToDay(@RequestParam String email, HttpServletRequest request) {
-
-        MyTjDTO myTotalModel = tjService.tjUser(email, HttpUtil.getClientIP(request));
-        //未完待续
-        return ResponseModel.ok().setBody(myTotalModel);
+        try {
+            MyTjDTO myTotalModel = tjService.tjUser(email, HttpUtil.getClientIP(request));
+            return ResponseModel.ok().setBody(myTotalModel);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
     }
 
     @ApiOperation(value = "文献传递量统计")

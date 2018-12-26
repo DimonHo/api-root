@@ -26,6 +26,9 @@ public class ApiExceptionHandlerAdvice {
             responseModel.setMessage(exception.getMessage());
             responseModel.setStatus(((ApiException) exception).getStatus());
             responseModel.setBody(((ApiException) exception).getBody());
+        } else {
+            responseModel.setStatus(response.getStatus());
+            responseModel.setMessage(exception.getMessage());
         }
         return responseModel;
     }
