@@ -75,13 +75,13 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public MyTjDTO tjUser(String email, String ip) {
+        int rule = 0;
+        log.info("用户IP: {}", ip);
         ResponseModel<JSONObject> orgResponse = orgServerApi.getByIp(ip);
+        log.info("机构返回信息: {}", orgResponse.toString());
         JSONObject orgInfo = null;
         if (!orgResponse.isError()) {
             orgInfo = orgResponse.getBody();
-        }
-        int rule = 0;
-        if (orgInfo != null) {
             rule += 1;
         }
         Permission permission = orgInfo == null ? permissionRepository.findByOrgIdIsNullAndRule(rule) : permissionRepository.findByOrgIdAndRule(orgInfo.getLong("id"), rule);
