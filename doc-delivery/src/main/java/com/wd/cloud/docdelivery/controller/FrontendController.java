@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -399,38 +398,38 @@ public class FrontendController {
     }
 
 
-    @ApiOperation(value = "获取平台总求助量、成功率、今日求助量、我的求助、我的应助")
-    @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Long", paramType = "query")
-    @GetMapping("/getHeadTotalFor")
-    public ResponseModel getHeadTotalFor(@RequestParam(value = "userId", required = false) Long userId){
-        NumberFormat numberFormat = NumberFormat.getPercentInstance();
-        numberFormat.setMinimumFractionDigits(2);
-        //总求助
-        int amount = frontService.getAmount();
-        //求助成功数量
-        int successRate = frontService.getSuccessRate(4);
-        //求助成功概率
-        String result = numberFormat.format((float) successRate /(float) amount);
-        //今天求助数量
-        int sameDay = frontService.getSameDay();
-        //我的求助
-        if (userId == null){
-            long user = 0;
-            userId = user;
-        }
-        int forHelp = frontService.getForHelp(userId);
-        //我的应助
-        int shouldHelp = frontService.getShouldHelp(userId);
-
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("amount",amount);
-        map.put("result",result);
-        map.put("sameDay",sameDay);
-        map.put("forHelp",forHelp);
-        map.put("shouldHelp",shouldHelp);
-
-        return ResponseModel.ok().setBody(map);
-    }
+//    @ApiOperation(value = "获取平台总求助量、成功率、今日求助量、我的求助、我的应助")
+//    @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Long", paramType = "query")
+//    @GetMapping("/getHeadTotalFor")
+//    public ResponseModel getHeadTotalFor(@RequestParam(value = "userId", required = false) Long userId){
+//        NumberFormat numberFormat = NumberFormat.getPercentInstance();
+//        numberFormat.setMinimumFractionDigits(2);
+//        //总求助
+//        int amount = frontService.getAmount();
+//        //求助成功数量
+//        int successRate = frontService.getSuccessRate(4);
+//        //求助成功概率
+//        String result = numberFormat.format((float) successRate /(float) amount);
+//        //今天求助数量
+//        int sameDay = frontService.getSameDay();
+//        //我的求助
+//        if (userId == null){
+//            long user = 0;
+//            userId = user;
+//        }
+//        int forHelp = frontService.getForHelp(userId);
+//        //我的应助
+//        int shouldHelp = frontService.getShouldHelp(userId);
+//
+//        Map<String,Object> map = new HashMap<String, Object>();
+//        map.put("amount",amount);
+//        map.put("result",result);
+//        map.put("sameDay",sameDay);
+//        map.put("forHelp",forHelp);
+//        map.put("shouldHelp",shouldHelp);
+//
+//        return ResponseModel.ok().setBody(map);
+//    }
 
 //    @ApiOperation(value = "聚合统计求助记录")
 //    @ApiImplicitParams({
