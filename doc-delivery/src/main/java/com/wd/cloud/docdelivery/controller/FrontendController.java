@@ -10,7 +10,10 @@ import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.entity.*;
+import com.wd.cloud.docdelivery.entity.DocFile;
+import com.wd.cloud.docdelivery.entity.GiveRecord;
+import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
@@ -35,10 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -77,6 +77,7 @@ public class FrontendController {
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
+        String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
         String helpEmail = helpRequestModel.getHelperEmail();
         helpRecord.setHelpChannel(helpRequestModel.getHelpChannel());
@@ -86,14 +87,13 @@ public class FrontendController {
         helpRecord.setHelperName(helpRequestModel.getHelperName());
         helpRecord.setRemark(helpRequestModel.getRemark());
         helpRecord.setAnonymous(helpRequestModel.isAnonymous());
-        helpRecord.setHelperIp(request.getLocalAddr());
-        helpRecord.setHelperIp(request.getHeader("CLIENT_IP"));
+        helpRecord.setHelperIp(ip);
         helpRecord.setHelperEmail(helpEmail);
         helpRecord.setSend(true);
 
         //判断是否是校外登陆
-        ResponseModel<List<JSONObject>> ipRang = orgServerApi.getIpRang();
-        List<JSONObject> body = ipRang.getBody();
+        ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
+        JSONObject body = ipRang.getBody();
         //校外访问
         if (body == null) {
             //判断登陆账号是否是第三方
@@ -180,7 +180,7 @@ public class FrontendController {
      * @return
      */
     @ApiOperation(value = "待应助列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
     @GetMapping("/help/wait/{helpChannel}")
     public ResponseModel helpWaitList(@PathVariable int helpChannel,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {

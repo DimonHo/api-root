@@ -48,13 +48,6 @@ public class Org extends AbstractEntity {
     private boolean enabled;
 
     /**
-     * 机构IP范围
-     */
-    @OrderBy("begin ASC, end DESC")
-    @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
-    private List<IpRange> ipRanges;
-
-    /**
      * 机构联系人
      */
     @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
@@ -137,14 +130,6 @@ public class Org extends AbstractEntity {
         return this;
     }
 
-    public List<IpRange> getIpRanges() {
-        return ipRanges;
-    }
-
-    public Org setIpRanges(List<IpRange> ipRanges) {
-        this.ipRanges = ipRanges;
-        return this;
-    }
 
     public List<OrgLinkman> getOrgLinkmans() {
         return orgLinkmans;

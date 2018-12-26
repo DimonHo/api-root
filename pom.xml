@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.wd.cloud</groupId>
@@ -26,8 +27,8 @@
         <module>org-server</module><!-- 机构管理服务-->
         <module>sub-analysis</module><!--主题分析服务-->
         <module>wdtj-server</module><!--访问统计服务-->
-    <module>bse-server</module>
-  </modules>
+        <module>bse-server</module>
+    </modules>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -57,6 +58,7 @@
         <hbase.client.version>1.1.2</hbase.client.version>
         <spring.data.hadoop.version>2.5.0.RELEASE</spring.data.hadoop.version>
         <spring.data.elasticsearch.version>3.0.9.RELEASE</spring.data.elasticsearch.version>
+        <lombok.version>1.16.20</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -68,7 +70,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-elasticsearch</artifactId>

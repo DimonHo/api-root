@@ -89,7 +89,6 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
      * @param giverId
      * @return
      */
-    @Query(value = "select count(giver_id) as shouldHelp from give_record where giver_id =?1",nativeQuery = true)
-    int getShouldHelp(long giverId);
+    long countByGiverId(Long giverId);
 
 }
