@@ -7,8 +7,6 @@ import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Date;
-
 /**
  * @author He Zhigang
  * @date 2018/5/7
@@ -18,7 +16,7 @@ public interface FrontService {
 
     boolean checkExists(String email, Literature literature);
 
-    DocFile saveDocFile(Literature literature, String fileId,String filaName);
+    DocFile saveDocFile(Literature literature, String fileId, String filaName);
 
     /**
      * 我要应助
@@ -116,7 +114,7 @@ public interface FrontService {
      * @param helpUserId
      * @return
      */
-    Page<HelpRecord> getHelpRecordsForUser(long helpUserId,Integer status, Pageable pageable);
+    Page<HelpRecord> getHelpRecordsForUser(long helpUserId, Integer status, Pageable pageable);
 
     /**
      * 获取用户的求助记录
@@ -144,6 +142,7 @@ public interface FrontService {
 
     /**
      * 求助成功列表
+     *
      * @param helpChannel
      * @param pageable
      * @return
@@ -152,6 +151,7 @@ public interface FrontService {
 
     /**
      * 疑难文献（无结果，求助失败）列表
+     *
      * @param helpChannel
      * @param pageable
      * @return
@@ -165,37 +165,5 @@ public interface FrontService {
     Page<HelpRecord> search(String keyword, Pageable pageable);
 
     String checkExistsGiveing(long giverId);
-
-    /**
-     * 平台中求助量
-     * @return
-     */
-    int getAmount();
-
-    /**
-     * 平台传递成功率
-     * @return
-     */
-    int getSuccessRate(int status);
-
-    /**
-     * 平台今日已求助量
-     * @return
-     */
-    int getSameDay();
-
-    /**
-     * 我的求助
-     * @param helperId
-     * @return
-     */
-    int getForHelp(long helperId);
-
-    /**
-     * 我的应助
-     * @param giverId
-     * @return
-     */
-    int getShouldHelp(long giverId);
 
 }

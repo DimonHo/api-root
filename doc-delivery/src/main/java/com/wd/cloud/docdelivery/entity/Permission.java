@@ -26,14 +26,14 @@ public class Permission extends AbstractEntity {
     private Integer rule;
 
     /**
-     * 每天求助上限
+     * 每天求助上限 ，-1则表示无上限
      */
-    private Integer count;
+    private Long todayTotal;
 
     /**
-     * 总求助上限
+     * 总求助上限，-1则表示无上限
      */
-    private Integer sumCount;
+    private Long total;
 
     public Long getOrgId() {
         return orgId;
@@ -62,21 +62,21 @@ public class Permission extends AbstractEntity {
         return this;
     }
 
-    public Integer getCount() {
-        return count;
+    public Long getTodayTotal() {
+        return todayTotal;
     }
 
-    public Permission setCount(Integer count) {
-        this.count = count;
+    public Permission setTodayTotal(Long todayTotal) {
+        this.todayTotal = todayTotal;
         return this;
     }
 
-    public Integer getSumCount() {
-        return sumCount;
+    public Long getTotal() {
+        return total;
     }
 
-    public Permission setSumCount(Integer sumCount) {
-        this.sumCount = sumCount;
+    public Permission setTotal(Long total) {
+        this.total = total;
         return this;
     }
 }

@@ -12,5 +12,7 @@ import java.util.List;
  */
 public interface IpRangeRepository extends JpaRepository<IpRange, Long> {
 
-    IpRange findByBeginAndEnd(String begin,String end);
+    IpRange findByBeginAndEnd(String begin, String end);
+
+    List<IpRange> findByOrgId(Long orgId);
 }

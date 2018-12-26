@@ -21,12 +21,13 @@ public class UserVo implements Serializable {
     private String qq;
     private Integer sex;
     private String username;
+    private boolean verify;
 
     private String registerIp;
 
     private Date registerTime;
 
-    private SchoolVo school;
+    private OrgVo orgVo;
 
     private String qqOpenid;
     private String wechatOpenid;
@@ -54,6 +55,15 @@ public class UserVo implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isVerify() {
+        return verify;
+    }
+
+    public UserVo setVerify(boolean verify) {
+        this.verify = verify;
+        return this;
     }
 
     public Boolean getForbidden() {
@@ -136,12 +146,13 @@ public class UserVo implements Serializable {
         this.registerTime = registerTime;
     }
 
-    public SchoolVo getSchool() {
-        return school;
+    public OrgVo getOrgVo() {
+        return orgVo;
     }
 
-    public void setSchool(SchoolVo school) {
-        this.school = school;
+    public UserVo setOrgVo(OrgVo orgVo) {
+        this.orgVo = orgVo;
+        return this;
     }
 
     public String getQqOpenid() {

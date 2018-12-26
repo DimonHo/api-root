@@ -1,10 +1,13 @@
 package com.wd.cloud.orgserver.controller;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
+import com.wd.cloud.commons.exception.UndefinedException;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.orgserver.dto.OrgBasicDTO;
 import com.wd.cloud.orgserver.entity.Org;
+import com.wd.cloud.orgserver.exception.NotFoundOrgException;
+import com.wd.cloud.orgserver.exception.NotOneOrgException;
 import com.wd.cloud.orgserver.service.OrgInfoService;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -112,8 +114,34 @@ public class OrgInfoController {
      * @param ip
      * @return
      */
+    @ApiOperation(value = "获取IP所属机构信息", tags = {"机构查询"})
+    @ApiImplicitParam(name = "ip", value = "IP", dataType = "String", paramType = "query")
+    @GetMapping("/orginfo/get")
+    public ResponseModel<OrgBasicDTO> getByIp(@RequestParam String ip) {
+        try {
+            OrgBasicDTO org = orgInfoService.findByIp(ip);
+            return ResponseModel.ok().setBody(org);
+        } catch (NotOneOrgException e) {
+            throw new NotOneOrgException(e.getBody());
+        } catch (NotFoundOrgException e) {
+            throw new NotFoundOrgException();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new UndefinedException();
+        }
+    }
+
+    /**
+     * 获取IP所属机构
+     *
+     * @param orgName
+     * @param flag
+     * @return
+     */
     @GetMapping("/orginfo/find")
-    public ResponseModel<Org> getOrg(@RequestParam String ip) {
-        return ResponseModel.ok();
+    public ResponseModel<List<Org>> find(@RequestParam(required = false) String orgName,
+                                         @RequestParam(required = false) String flag) {
+        Org org = new Org();
+        return ResponseModel.ok().setBody(org);
     }
 }

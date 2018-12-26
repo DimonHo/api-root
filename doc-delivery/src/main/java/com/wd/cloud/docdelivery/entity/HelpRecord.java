@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.entity;
 
 import cn.hutool.core.util.ReflectUtil;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -17,7 +16,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "help_record")
-public class HelpRecord extends AbstractEntity  {
+public class HelpRecord extends AbstractEntity {
 
     /**
      * 文献ID
@@ -98,13 +97,6 @@ public class HelpRecord extends AbstractEntity  {
     @Column(name = "remark")
     private String remark;
 
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remake) {
-        this.remark = remake;
-    }
 
     public Literature getLiterature() {
         return literature;
@@ -230,8 +222,8 @@ public class HelpRecord extends AbstractEntity  {
                 .append("helperIp", helperIp)
                 .append("helpChannel", helpChannel)
                 .append("status", status)
-                .append("send",send)
-                .append("anonymous",anonymous)
+                .append("send", send)
+                .append("anonymous", anonymous)
                 .append("id", id)
                 .append("gmtModified", gmtModified)
                 .append("gmtCreate", gmtCreate)

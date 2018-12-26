@@ -1,5 +1,6 @@
 package com.wd.cloud.orgserver.service;
 
+import com.wd.cloud.orgserver.dto.OrgBasicDTO;
 import com.wd.cloud.orgserver.entity.Org;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,8 @@ public interface OrgInfoService {
     List<Org> getAll();
 
     Org get(Long id);
+
+    OrgBasicDTO findByIp(String ip);
 
     Org getOrgInfoByFlag(String flag);
 }

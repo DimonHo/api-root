@@ -10,4 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  */
 public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
 
+    Permission findByOrgIdAndRule(Long orgId, Integer rule);
+
+    Permission findByOrgIdIsNullAndRule(Integer rule);
 }
