@@ -59,9 +59,8 @@ public class TjController {
 
 
     @ApiOperation(value = "获取平台总求助量、成功量、成功率、今日求助量")
-    @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Long", paramType = "query")
     @GetMapping("/tj/total")
-    public ResponseModel<TjDTO> getHeadTotalFor(@RequestParam(value = "userId", required = false) Long userId) {
+    public ResponseModel<TjDTO> getHeadTotalFor() {
         TjDTO body = new TjDTO();
         NumberFormat numberFormat = NumberFormat.getPercentInstance();
         numberFormat.setMinimumFractionDigits(2);
