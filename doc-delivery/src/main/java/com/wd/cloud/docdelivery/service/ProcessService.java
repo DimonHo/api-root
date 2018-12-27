@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface ProcessService {
 
-    void third(Long helpRecordId,Long giverId,String giverName);
+    void third(Long helpRecordId, Long giverId, String giverName);
 
     void give(Long helpRecordId, Long giverId, String giverName, MultipartFile file);
 

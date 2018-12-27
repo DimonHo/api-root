@@ -2,8 +2,6 @@ package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.Literature;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +20,7 @@ public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
     List<DocFile> findByFileIdIsNull();
 
-    @Query(value = "select * from doc_file where literature_id =?1 order by is_reusing desc,gmt_modified desc",nativeQuery = true)
+    @Query(value = "select * from doc_file where literature_id =?1 order by is_reusing desc,gmt_modified desc", nativeQuery = true)
     List<DocFile> findByLiteratureId(Long literatureId);
 
     DocFile findByLiteratureAndReusingIsTrue(Literature literature);

@@ -19,7 +19,7 @@ public class MailModel extends Mail {
     /**
      * 有效期
      */
-    private String expStr = DateUtil.offsetMillisecond(DateTime.now(),exp).toString("yyyy-MM-dd HH:mm:ss");
+    private String expStr = DateUtil.offsetMillisecond(DateTime.now(), exp).toString("yyyy-MM-dd HH:mm:ss");
 
     /**
      * 内容模板文件

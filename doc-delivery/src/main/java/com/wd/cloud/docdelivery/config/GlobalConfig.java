@@ -1,13 +1,8 @@
 package com.wd.cloud.docdelivery.config;
 
-import freemarker.template.Configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**

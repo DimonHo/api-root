@@ -1,15 +1,11 @@
 package com.wd.cloud.docdelivery.entity;
 
-import cn.hutool.core.util.ReflectUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author He Zhigang

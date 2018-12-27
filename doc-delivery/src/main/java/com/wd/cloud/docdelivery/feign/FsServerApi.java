@@ -8,8 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-
 /**
  * @author He Zhigang
  * @date 2018/11/22

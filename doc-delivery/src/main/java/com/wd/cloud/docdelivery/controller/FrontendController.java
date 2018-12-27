@@ -100,7 +100,7 @@ public class FrontendController {
 //
 //        }
         String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
-        msg = frontService.help(helpRecord,helpRequestModel.getDocTitle(),helpRequestModel.getDocHref());
+        msg = frontService.help(helpRecord, helpRequestModel.getDocTitle(), helpRequestModel.getDocHref());
         return ResponseModel.ok().setMessage(msg);
     }
 
@@ -183,7 +183,7 @@ public class FrontendController {
                                 @RequestParam String giverName,
                                 HttpServletRequest request) {
         String ip = HttpUtil.getClientIP(request);
-        HelpRecord helpRecord = frontService.give(helpRecordId,giverId,giverName,ip);
+        HelpRecord helpRecord = frontService.give(helpRecordId, giverId, giverName, ip);
         return ResponseModel.ok().setBody(helpRecord);
     }
 
@@ -238,7 +238,7 @@ public class FrontendController {
         if (helpRecord == null) {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
-        frontService.uploadFile(helpRecord,giverId,file,ip);
+        frontService.uploadFile(helpRecord, giverId, file, ip);
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");
     }
 

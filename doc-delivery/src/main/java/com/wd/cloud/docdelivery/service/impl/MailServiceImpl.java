@@ -47,12 +47,10 @@ public class MailServiceImpl implements MailService {
 
     @Autowired
     GlobalConfig globalConfig;
-
-    @Autowired
-    private FreeMarkerConfigurer freeMarkerConfigurer;
-
     @Autowired
     HelpRecordRepository helpRecordRepository;
+    @Autowired
+    private FreeMarkerConfigurer freeMarkerConfigurer;
 
     /**
      * 地址拆分

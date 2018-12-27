@@ -4,7 +4,6 @@ import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.Header;
-import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
 import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.service.FileService;

@@ -2,8 +2,6 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.SecureUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -21,13 +19,9 @@ import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author He Zhigang

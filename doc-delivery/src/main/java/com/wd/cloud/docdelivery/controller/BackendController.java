@@ -2,14 +2,8 @@ package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.enums.AuditEnum;
-import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
@@ -210,7 +204,7 @@ public class BackendController {
     })
     @PatchMapping("/audit/nopass/{id}")
     public ResponseModel auditNoPass(@PathVariable Long id, @RequestParam Long auditorId, @RequestParam String auditorName) {
-        backendService.auditNoPass(id,auditorId,auditorName);
+        backendService.auditNoPass(id, auditorId, auditorName);
         return ResponseModel.ok();
     }
 

@@ -1,7 +1,5 @@
 package com.wd.cloud.docdelivery.exception;
 
-import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
-
 /**
  * @author He Zhigang
  * @date 2018/12/26

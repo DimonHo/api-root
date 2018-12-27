@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
-    List<GiveRecord> findByHelpRecordIdAndAuditStatusNot(Long helpRecordId,Integer auditStatus);
+    List<GiveRecord> findByHelpRecordIdAndAuditStatusNot(Long helpRecordId, Integer auditStatus);
 
     /**
      * 查询待审核记录

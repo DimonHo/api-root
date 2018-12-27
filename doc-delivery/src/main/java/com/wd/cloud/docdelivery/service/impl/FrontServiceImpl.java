@@ -3,11 +3,9 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
@@ -120,7 +118,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public String help(HelpRecord helpRecord,String docTitle,String docHref) {
+    public String help(HelpRecord helpRecord, String docTitle, String docHref) {
         log.info("用户:[{}]正在求助文献:[{}]", helpRecord.getHelperEmail(), docTitle);
         Literature literature = new Literature();
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
@@ -134,7 +132,7 @@ public class FrontServiceImpl implements FrontService {
             literatureData = saveLiterature(literature);
         }
         if (checkExists(helpRecord.getHelperEmail(), literatureData.getId())) {
-            throw new HelpException(2008,"error:您最近15天内已求助过这篇文献,请注意查收邮箱");
+            throw new HelpException(2008, "error:您最近15天内已求助过这篇文献,请注意查收邮箱");
         }
         helpRecord.setLiteratureId(literatureData.getId());
         DocFile docFile = getReusingFile(literatureData);
@@ -165,7 +163,7 @@ public class FrontServiceImpl implements FrontService {
                 // 发送通知邮件
                 mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpRecord.getHelperScname(), helpRecord.getHelperEmail(), helpRecord.getId());
             } catch (Exception e) {
-                throw new HelpException(1002,msg);
+                throw new HelpException(1002, msg);
             }
         }
         return msg;
@@ -193,7 +191,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public void uploadFile(HelpRecord helpRecord,Long giverId,MultipartFile file,String ip) {
+    public void uploadFile(HelpRecord helpRecord, Long giverId, MultipartFile file, String ip) {
         String fileId = null;
         try {
             String fileMd5 = FileUtil.fileMd5(file.getInputStream());

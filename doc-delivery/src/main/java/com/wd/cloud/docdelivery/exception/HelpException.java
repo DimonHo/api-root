@@ -9,7 +9,7 @@ import com.wd.cloud.commons.exception.ApiException;
  */
 public class HelpException extends ApiException {
 
-    public HelpException(Integer status,String message){
-        super(status,message);
+    public HelpException(Integer status, String message) {
+        super(status, message);
     }
 }
