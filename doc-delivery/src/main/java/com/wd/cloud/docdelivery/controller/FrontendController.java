@@ -141,7 +141,7 @@ public class FrontendController {
     @GetMapping("/help/failed/{helpChannel}")
     public ResponseModel helpFailedList(@PathVariable Integer helpChannel,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(helpChannel, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
