@@ -15,6 +15,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class HelpRecordDTO {
 
+    private Long id;
+
     private String docTitle;
 
     private String docHref;
