@@ -48,4 +48,9 @@ public class HelpRecordDTO {
     private String remark;
 
     private List<GiveRecord> giveRecords;
+
+    /**
+     * 正在被其它用户应助
+     */
+    private GiveRecord giving;
 }

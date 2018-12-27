@@ -327,6 +327,8 @@ public class FrontServiceImpl implements FrontService {
             anonymous(helpRecord);
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
             BeanUtil.copyProperties(helpRecord, helpRecordDTO);
+            Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
+            helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
             return helpRecordDTO;
         });
     }
@@ -348,10 +350,16 @@ public class FrontServiceImpl implements FrontService {
         Page<HelpRecord> waitHelpRecords = filterHelpRecords(helpChannel, pageable, status);
         Page<HelpRecordDTO> waitHelps = waitHelpRecords.map(helpRecord -> {
             anonymous(helpRecord);
+
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
             BeanUtil.copyProperties(helpRecord, helpRecordDTO);
-            List<GiveRecord> giveRecordList = giveRecordRepository.findByHelpRecordIdAndAuditStatusNot(helpRecord.getId(), AuditEnum.NO_PASS.getCode());
-            helpRecordDTO.setGiveRecords(giveRecordList);
+            Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
+            helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
+            //如果有用户正在应助
+            if (helpRecord.getStatus() == HelpStatusEnum.HELPING.getCode()) {
+                GiveRecord givingRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecord.getId(), AuditEnum.WAIT_UPLOAD.getCode());
+                helpRecordDTO.setGiving(givingRecord);
+            }
             return helpRecordDTO;
         });
         return waitHelps;
