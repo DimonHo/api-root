@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Component
 @ConfigurationProperties(value = "help.global")
-public class GlobalConfig {
+public class Global {
 
     private String cloudDomain;
     /**
@@ -77,7 +77,7 @@ public class GlobalConfig {
         return templatesBase;
     }
 
-    public GlobalConfig setTemplatesBase(String templatesBase) {
+    public Global setTemplatesBase(String templatesBase) {
         this.templatesBase = templatesBase;
         return this;
     }

@@ -12,4 +12,5 @@ public class ExceptionCode extends com.wd.cloud.commons.exception.ExceptionCode 
     public static final Integer GIVING = 2004;
 
     public static final Integer DOC_FINISH_GIVING = 2005;
+
 }

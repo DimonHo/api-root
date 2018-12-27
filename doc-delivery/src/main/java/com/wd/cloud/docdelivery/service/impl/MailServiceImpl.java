@@ -6,7 +6,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.enums.ChannelEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
@@ -46,7 +46,7 @@ public class MailServiceImpl implements MailService {
     MailModel zhy;
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
     @Autowired
     HelpRecordRepository helpRecordRepository;
     @Autowired
@@ -90,6 +90,11 @@ public class MailServiceImpl implements MailService {
     public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id) {
         ChannelEnum channelEnum = getChannelEnum(channel);
         sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
+    }
+
+    @Override
+    public void sendMail(HelpRecord helpRecord) {
+
     }
 
     @Override
@@ -154,7 +159,7 @@ public class MailServiceImpl implements MailService {
         HelpRecord helpRecord = Optional.get();
         DefaultMailNotifyModel notifyModel = new DefaultMailNotifyModel();
         notifyModel.setHelperScname(helperScname).setHelperName(helpEmail);
-        mailModel.setTos(globalConfig.getNotifyMail());
+        mailModel.setTos(global.getNotifyMail());
         mailModel.setNotifyModel(notifyModel);
         mailModel.setTitle(mailModel.getNotifyModel().getMailTitle())
                 .setContent(buildNotifyContent(mailModel, helperScname));
@@ -227,9 +232,9 @@ public class MailServiceImpl implements MailService {
      */
     private boolean templateNotExists(String templateFile) {
         String suffix = "/";
-        String path = globalConfig.getTemplatesBase() + suffix + templateFile;
-        if (StrUtil.endWith(globalConfig.getTemplatesBase(), suffix)) {
-            path = globalConfig.getTemplatesBase() + templateFile;
+        String path = global.getTemplatesBase() + suffix + templateFile;
+        if (StrUtil.endWith(global.getTemplatesBase(), suffix)) {
+            path = global.getTemplatesBase() + templateFile;
         }
         return !FileUtil.exist(path);
     }
@@ -255,7 +260,7 @@ public class MailServiceImpl implements MailService {
         try {
             // 如果templateFile不包含“default”字符串，就去外部目录去加载
             if (!isDefault) {
-                freeMarkerConfigurer.getConfiguration().setDirectoryForTemplateLoading(new File(globalConfig.getTemplatesBase()));
+                freeMarkerConfigurer.getConfiguration().setDirectoryForTemplateLoading(new File(global.getTemplatesBase()));
             }
             Template template = freeMarkerConfigurer.getConfiguration().getTemplate(templateFile);
             content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailModel);

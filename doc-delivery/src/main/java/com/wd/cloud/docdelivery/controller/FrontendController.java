@@ -7,7 +7,7 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
@@ -41,7 +41,7 @@ public class FrontendController {
 
     private static final Log log = LogFactory.get();
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     @Autowired
     FileService fileService;
@@ -230,7 +230,7 @@ public class FrontendController {
         String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
-        } else if (!globalConfig.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
+        } else if (!global.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_TYPE_ERROR);
         }
         // 检查求助记录状态是否为HelpStatusEnum.HELPING

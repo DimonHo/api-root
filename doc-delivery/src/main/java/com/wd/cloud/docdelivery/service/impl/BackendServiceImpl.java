@@ -8,7 +8,7 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.DocFileDTO;
 import com.wd.cloud.docdelivery.dto.LiteratureDTO;
 import com.wd.cloud.docdelivery.entity.DocFile;
@@ -57,7 +57,7 @@ public class BackendServiceImpl implements BackendService {
     private static final Log log = LogFactory.get();
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     @Autowired
     HelpRecordRepository helpRecordRepository;
@@ -167,10 +167,7 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public DocFile saveDocFile(Literature literature, String fileId, String fileName) {
-        DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId);
-        if (docFile == null) {
-            docFile = new DocFile();
-        }
+        DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId).orElse(new DocFile());
         docFile.setFileId(fileId);
         docFile.setLiterature(literature);
         docFile.setAuditStatus(null);
@@ -192,13 +189,13 @@ public class BackendServiceImpl implements BackendService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(), fileMd5);
+        ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(global.getHbaseTableName(), fileMd5);
         if (!checkResult.isError() && checkResult.getBody() != null) {
             log.info("文件已存在，秒传成功！");
             fileId = checkResult.getBody().getStr("fileId");
         }
         if (fileId == null) {
-            ResponseModel<JSONObject> uploadResult = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
+            ResponseModel<JSONObject> uploadResult = fsServerApi.uploadFile(global.getHbaseTableName(), file);
             if (uploadResult.isError()) {
                 log.error("文件服务调用失败：{}", uploadResult.getMessage());
                 log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
@@ -208,7 +205,7 @@ public class BackendServiceImpl implements BackendService {
             fileId = uploadResult.getBody().getStr("fileId");
         }
         String fileName = file.getOriginalFilename();
-        Literature literature = literatureRepository.findById(helpRecord.getId()).get();
+        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
         docFile = saveDocFile(literature, fileId, fileName);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         GiveRecord giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecord.getId(), GiveTypeEnum.THIRD.getCode());
@@ -379,7 +376,6 @@ public class BackendServiceImpl implements BackendService {
         doc.setReusing(reusing);
         doc.setAuditorId((long) param.get("auditorId"));
         doc.setAuditorName((String) param.get("auditorName"));
-        doc.setReMark((String) param.get("reMark"));
         literature.setReusing(reusing);
         docFileRepository.save(doc);
         literatureRepository.save(literature);

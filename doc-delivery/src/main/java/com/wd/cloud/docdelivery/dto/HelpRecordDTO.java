@@ -4,6 +4,7 @@ import com.wd.cloud.docdelivery.entity.GiveRecord;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +17,8 @@ import java.util.List;
 public class HelpRecordDTO {
 
     private Long id;
+
+    private Date gmtCreate;
 
     private String docTitle;
 

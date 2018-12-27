@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -25,7 +26,9 @@ public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
     DocFile findByLiteratureAndReusingIsTrue(Literature literature);
 
-    DocFile findByLiteratureAndFileId(Literature literature, String fileId);
+    Optional<DocFile> findByLiteratureAndFileId(Literature literature, String fileId);
+
+    //DocFile findByLiteratureAndFileId(Literature literature, String fileId);
 
     @Query(value = "select * from doc_file where literature_id = ?1 and (audit_status is null or audit_status = 1)", nativeQuery = true)
     List<DocFile> getResuingDoc(@Param("literature") Long literatureId);

@@ -27,6 +27,7 @@ public class GiveRecord extends AbstractEntity {
      * 文件ID
      */
     private Long docFileId;
+
     /**
      * 应助者ID
      */
@@ -46,18 +47,22 @@ public class GiveRecord extends AbstractEntity {
      * 应助者类型：
      * 0：系统自动应助，
      * 1：管理员应助
-     * 2：用户应助，
-     * 3：第三方应助,
-     * 4:其它
+     * 2：用户应助
      */
-    @Column(columnDefinition = "tinyint COMMENT '应助者类型： 0：系统自动应助， 1：管理员应助 2：用户应助， 3：第三方应助,  4:其它'")
+    @Column(columnDefinition = "tinyint COMMENT '应助者类型： 0：系统自动应助， 1：管理员应助 2：用户应助'")
     private Integer giverType;
+
+    /**
+     * 0，待上传，1，求助第三方，2，应助成功，3，应助失败
+     */
+    private Integer giveStatus;
 
     /**
      * 0：待审核，1：审核通过，2：审核不通过，4：待上传
      */
-    @Column(columnDefinition = "tinyint COMMENT '0：待审核，1：审核通过，2：审核不通过，4：待上传'")
+    @Column(columnDefinition = "tinyint COMMENT '0：待审核，1：审核通过，2：审核不通过'")
     private Integer auditStatus;
+
 
     /**
      * 审核人

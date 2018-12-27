@@ -5,7 +5,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
@@ -34,7 +34,7 @@ public class FileServiceImpl implements FileService {
     private static final Log log = LogFactory.get();
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     @Autowired
     DocFileRepository docFileRepository;
@@ -105,7 +105,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String getDownloadUrl(Long helpRecordId) {
-        return globalConfig.getCloudDomain() + "/doc-delivery/file/download/" + helpRecordId;
+        return global.getCloudDomain() + "/doc-delivery/file/download/" + helpRecordId;
     }
 
 }

@@ -10,7 +10,7 @@ import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.commons.util.FileUtil;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -62,7 +62,7 @@ public class FrontServiceImpl implements FrontService {
     private static final Log log = LogFactory.get();
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
     @Autowired
     LiteratureRepository literatureRepository;
 
@@ -107,10 +107,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public DocFile saveDocFile(Literature literature, String fileId, String filaName) {
-        DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId);
-        if (docFile == null) {
-            docFile = new DocFile();
-        }
+        DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId).orElse(new DocFile());
         docFile.setFileId(fileId);
         docFile.setLiterature(literature);
         docFile.setAuditStatus(0);
@@ -195,7 +192,7 @@ public class FrontServiceImpl implements FrontService {
         String fileId = null;
         try {
             String fileMd5 = FileUtil.fileMd5(file.getInputStream());
-            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(), fileMd5);
+            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(global.getHbaseTableName(), fileMd5);
             if (!checkResult.isError() && checkResult.getBody() != null) {
                 log.info("文件已存在，秒传成功！");
                 fileId = checkResult.getBody().getStr("fileId");
@@ -205,7 +202,7 @@ public class FrontServiceImpl implements FrontService {
         }
         if (StrUtil.isBlank(fileId)) {
             //保存文件
-            ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
+            ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(global.getHbaseTableName(), file);
             if (responseModel.isError()) {
                 log.error("文件服务调用失败：{}", responseModel.getMessage());
                 throw new FeignException("fsServer.uploadFile");

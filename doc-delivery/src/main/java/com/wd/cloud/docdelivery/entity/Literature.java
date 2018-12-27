@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.entity;
 
+import cn.hutool.crypto.SecureUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Where;
@@ -63,4 +64,14 @@ public class Literature extends AbstractEntity {
     @Where(clause = "audit_status not in (0,2) or audit_status is null")
     private Set<DocFile> docFiles;
 
+
+    @PrePersist
+    public void createUnid() {
+        this.unid = SecureUtil.md5(this.docTitle + this.docHref);
+    }
+
+    @PreUpdate
+    public void updateUnid() {
+        this.unid = SecureUtil.md5(this.docTitle + this.docHref);
+    }
 }

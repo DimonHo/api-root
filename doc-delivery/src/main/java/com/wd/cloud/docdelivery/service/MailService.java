@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.service;
 
+import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.enums.ChannelEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 
@@ -9,6 +10,8 @@ import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
  * @Description:
  */
 public interface MailService {
+
+    void sendMail(HelpRecord helpRecord);
 
     /**
      * 发送邮件
