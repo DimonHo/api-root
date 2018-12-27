@@ -26,6 +26,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,9 +36,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.jar.Attributes;
 
 /**
  * @author He Zhigang
@@ -395,6 +398,13 @@ public class FrontendController {
     public ResponseModel getUserHelpCountToDay(@RequestParam String email) {
 
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
+    }
+
+    @ApiOperation(value = "获取sso登陆信息")
+    @GetMapping("/help/getSso")
+    public ResponseModel getSso(HttpServletRequest request){
+        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
+        return ResponseModel.ok().setBody(principal);
     }
 
 
