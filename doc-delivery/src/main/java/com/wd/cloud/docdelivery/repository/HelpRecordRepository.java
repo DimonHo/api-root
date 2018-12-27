@@ -1,13 +1,11 @@
 package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -70,8 +68,8 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      */
     Page<HelpRecord> findByHelperEmail(String helperEmail, Pageable pageable);
 
-    @Query("FROM HelpRecord where helperEmail = :helperEmail AND literature = :literature AND 15 > TIMESTAMPDIFF(DAY, gmtCreate, now())")
-    HelpRecord findByHelperEmailAndLiterature(@Param("helperEmail") String helperEmail, @Param("literature") Literature literature);
+    @Query(value = "select * FROM Help_record where helper_email = ?1 AND literature_id = ?2 AND 15 > TIMESTAMPDIFF(DAY, gmt_create, now())", nativeQuery = true)
+    HelpRecord findByHelperEmailAndLiteratureId(String helperEmail, Long literatureId);
 
     /**
      * 根据互助状态查询

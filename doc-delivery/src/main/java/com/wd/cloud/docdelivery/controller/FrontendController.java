@@ -2,22 +2,14 @@ package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
-import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
-import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.feign.FsServerApi;
-import com.wd.cloud.docdelivery.feign.OrgServerApi;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
@@ -37,8 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * @author He Zhigang
@@ -62,13 +52,6 @@ public class FrontendController {
     @Autowired
     FrontService frontService;
 
-    @Autowired
-    FsServerApi fsServerApi;
-
-    @Autowired
-    OrgServerApi orgServerApi;
-
-
     /**
      * 1. 文献求助
      *
@@ -90,84 +73,34 @@ public class FrontendController {
         helpRecord.setHelperIp(ip);
         helpRecord.setHelperEmail(helpEmail);
         helpRecord.setSend(true);
-
-        //判断是否是校外登陆
-        ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
-        JSONObject body = ipRang.getBody();
-        //校外访问
-        if (body == null) {
-            //判断登陆账号是否是第三方
-//            if (){//第三方设置总求助上线
 //
-//            }else{
+//        //判断是否是校外登陆
+//        ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
+//        JSONObject body = ipRang.getBody();
+//        //校外访问
+//        if (body == null) {
+//            //判断登陆账号是否是第三方
+////            if (){//第三方设置总求助上线
+////
+////            }else{
+////
+////            }
 //
+//            //判断登陆用户是否已认证
+//
+//        } else {//校内访问
+//            //判断用户是否登陆
+//            String helperScname = helpRecord.getHelperScname();
+//            //未登录
+//            if (helperScname == null) {
+//
+//            } else {//已登陆
+//                //判断登陆用户是否已认证
 //            }
-
-            //判断登陆用户是否已认证
-
-        } else {//校内访问
-            //判断用户是否登陆
-            String helperScname = helpRecord.getHelperScname();
-            //未登录
-            if (helperScname == null) {
-
-            } else {//已登陆
-                //判断登陆用户是否已认证
-            }
-
-        }
-
-        log.info("用户:[{}]正在求助文献:[{}]", helpEmail, helpRequestModel.getDocTitle());
-        Literature literature = new Literature();
-        // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));
-        literature.setDocHref(helpRequestModel.getDocHref().trim());
-        // 先查询元数据是否存在
-        Literature literatureData = frontService.queryLiterature(literature);
+//
+//        }
         String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
-        if (null == literatureData) {
-            // 如果不存在，则新增一条元数据
-            literatureData = frontService.saveLiterature(literature);
-        }
-        if (frontService.checkExists(helpEmail, literatureData)) {
-            return ResponseModel
-                    .fail(StatusEnum.DOC_HELP_REPEATED)
-                    .setMessage("error:您最近15天内已求助过这篇文献,请注意查收邮箱");
-        }
-        helpRecord.setLiterature(literatureData);
-        DocFile docFile = frontService.getReusingFile(literatureData);
-        // 如果文件已存在，自动应助成功
-        if (null != docFile) {
-            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
-            GiveRecord giveRecord = new GiveRecord();
-            giveRecord.setDocFile(docFile);
-            giveRecord.setGiverType(GiveTypeEnum.AUTO.getCode());
-            giveRecord.setGiverName("自动应助");
-            //先保存求助记录，得到求助ID，再关联应助记录
-            helpRecord = frontService.saveHelpRecord(helpRecord);
-            giveRecord.setHelpRecord(helpRecord);
-            frontService.saveGiveRecord(giveRecord);
-            String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
-            mailService.sendMail(helpRecord.getHelpChannel(),
-                    helpRequestModel.getHelperScname(),
-                    helpEmail,
-                    helpRecord.getLiterature().getDocTitle(),
-                    downloadUrl,
-                    HelpStatusEnum.HELP_SUCCESSED,
-                    helpRecord.getId());
-            msg = "success:文献求助成功,请登陆邮箱" + helpEmail + "查收结果";
-        } else {
-            try {
-                // 保存求助记录
-                frontService.saveHelpRecord(helpRecord);
-                // 发送通知邮件
-                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpRequestModel.getHelperScname(), helpRequestModel.getHelperEmail(), helpRecord.getId());
-            } catch (Exception e) {
-                return ResponseModel
-                        .fail(StatusEnum.DB_PRIMARY_EXCEPTION)
-                        .setMessage(msg);
-            }
-        }
+        msg = frontService.help(helpRecord,helpRequestModel.getDocTitle(),helpRequestModel.getDocHref());
         return ResponseModel.ok().setMessage(msg);
     }
 
@@ -177,14 +110,12 @@ public class FrontendController {
      * @return
      */
     @ApiOperation(value = "待应助列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
     @GetMapping("/help/wait/{helpChannel}")
     public ResponseModel helpWaitList(@PathVariable int helpChannel,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> waitHelpRecords = frontService.getWaitHelpRecords(helpChannel, pageable);
-        for (HelpRecord helpRecord : waitHelpRecords) {
-            anonymous(helpRecord);
-        }
+        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(helpChannel, pageable);
+
         return ResponseModel.ok().setBody(waitHelpRecords);
     }
 
@@ -196,27 +127,22 @@ public class FrontendController {
      * @return
      */
     @ApiOperation(value = "求助完成列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
     @GetMapping("/help/finish/{helpChannel}")
     public ResponseModel helpSuccessList(@PathVariable Integer helpChannel,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
-        for (HelpRecord helpRecord : finishHelpRecords) {
-            anonymous(helpRecord);
-        }
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
 
-
     @ApiOperation(value = "疑难文献列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道", dataType = "Integer", paramType = "path")
+    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
     @GetMapping("/help/failed/{helpChannel}")
     public ResponseModel helpFailedList(@PathVariable Integer helpChannel,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
-        for (HelpRecord helpRecord : finishHelpRecords) {
-            anonymous(helpRecord);
-        }
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
 
@@ -233,7 +159,7 @@ public class FrontendController {
                                    @RequestParam(value = "status", required = false) Integer status,
                                    @PageableDefault(sort = {"gmtCreate"},
                                            direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> myHelpRecords = frontService.getHelpRecordsForUser(helperId, status, pageable);
+        Page<HelpRecordDTO> myHelpRecords = frontService.getHelpRecordsForUser(helperId, status, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
@@ -256,20 +182,8 @@ public class FrontendController {
                                 @RequestParam Long giverId,
                                 @RequestParam String giverName,
                                 HttpServletRequest request) {
-        HelpRecord helpRecord = frontService.getWaitOrThirdHelpRecord(helpRecordId);
-        // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
-        if (helpRecord == null) {
-            return ResponseModel
-                    .fail(StatusEnum.DOC_OTHER_GIVING);
-        }
-        //检查用户是否已经认领了应助
-        String docTitle = frontService.checkExistsGiveing(giverId);
-        if (docTitle != null) {
-            return ResponseModel
-                    .fail(StatusEnum.DOC_FINISH_GIVING)
-                    .setMessage("请先完成您正在应助的文献:" + docTitle);
-        }
-        helpRecord = frontService.givingHelp(helpRecordId, giverId, giverName, HttpUtil.getClientIP(request));
+        String ip = HttpUtil.getClientIP(request);
+        HelpRecord helpRecord = frontService.give(helpRecordId,giverId,giverName,ip);
         return ResponseModel.ok().setBody(helpRecord);
     }
 
@@ -313,6 +227,7 @@ public class FrontendController {
                                 @RequestParam Long giverId,
                                 @NotNull MultipartFile file,
                                 HttpServletRequest request) {
+        String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
         } else if (!globalConfig.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
@@ -323,30 +238,7 @@ public class FrontendController {
         if (helpRecord == null) {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
-        String fileId = null;
-        try {
-            String fileMd5 = FileUtil.fileMd5(file.getInputStream());
-            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(), fileMd5);
-            if (!checkResult.isError() && checkResult.getBody() != null) {
-                log.info("文件已存在，秒传成功！");
-                fileId = checkResult.getBody().getStr("fileId");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (StrUtil.isBlank(fileId)) {
-            //保存文件
-            ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
-            if (responseModel.isError()) {
-                log.error("文件服务调用失败：{}", responseModel.getMessage());
-                return ResponseModel.fail().setMessage("文件上传失败，请重试");
-            }
-            fileId = responseModel.getBody().getStr("fileId");
-        }
-        String fileName = file.getOriginalFilename();
-        DocFile docFile = frontService.saveDocFile(helpRecord.getLiterature(), fileId, fileName);
-        //更新记录
-        frontService.createGiveRecord(helpRecord, giverId, docFile, HttpUtil.getClientIP(request));
+        frontService.uploadFile(helpRecord,giverId,file,ip);
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");
     }
 
@@ -362,7 +254,7 @@ public class FrontendController {
     @GetMapping("/help/records")
     public ResponseModel recordsByEmail(@RequestParam String email,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> helpRecords = frontService.getHelpRecordsForEmail(email, pageable);
+        Page<HelpRecordDTO> helpRecords = frontService.getHelpRecordsForEmail(email, pageable);
         return ResponseModel.ok().setBody(helpRecords);
     }
 
@@ -370,7 +262,7 @@ public class FrontendController {
     @ApiImplicitParam(name = "keyword", value = "条件keyword", dataType = "String", paramType = "query")
     @GetMapping("/help/search")
     public ResponseModel recordsBySearch(@RequestParam String keyword, @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> helpRecords = frontService.search(keyword, pageable);
+        Page<HelpRecordDTO> helpRecords = frontService.search(keyword, pageable);
 
         return ResponseModel.ok().setBody(helpRecords);
     }
@@ -395,16 +287,5 @@ public class FrontendController {
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
     }
 
-
-    private void anonymous(HelpRecord helpRecord) {
-        if (helpRecord.isAnonymous()) {
-            helpRecord.setHelperName("匿名");
-            helpRecord.setHelperEmail("匿名");
-        } else {
-            String helperEmail = helpRecord.getHelperEmail();
-            String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
-            helpRecord.setHelperEmail(s);
-        }
-    }
 
 }

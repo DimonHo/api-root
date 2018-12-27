@@ -1,9 +1,11 @@
 package com.wd.cloud.docdelivery.task;
 
 import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.enums.ChannelEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
+import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ import java.util.List;
 public class HelpRecordTask {
     @Autowired
     HelpRecordRepository helpRecordRepository;
+
+    @Autowired
+    LiteratureRepository literatureRepository;
     @Autowired
     FileService fileService;
     @Autowired
@@ -35,22 +40,23 @@ public class HelpRecordTask {
             Integer channel = helpRecord.getHelpChannel();
             ChannelEnum channelEnum = getChannelEnum(channel);
             String helperScname = helpRecord.getHelperScname();
-            String helpEmail=  helpRecord.getHelperEmail();
-            String docTitle = helpRecord.getLiterature().getDocTitle();
+            String helpEmail = helpRecord.getHelperEmail();
+            Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
+            String docTitle = literature != null ? literature.getDocTitle() : null;
             long id = helpRecord.getId();
             int status = helpRecord.getStatus();
-            if (HelpStatusEnum.HELP_THIRD.getCode() == status){
-                String  downloadUrl = null;
+            if (HelpStatusEnum.HELP_THIRD.getCode() == status) {
+                String downloadUrl = null;
                 HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_THIRD;
-                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
-            }else if(HelpStatusEnum.HELP_SUCCESSED.getCode() == status){
+                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
+            } else if (HelpStatusEnum.HELP_SUCCESSED.getCode() == status) {
                 String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
                 HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_SUCCESSED;
-                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
-            }else if(HelpStatusEnum.HELP_FAILED.getCode() == status){
-                String  downloadUrl = null;
+                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
+            } else if (HelpStatusEnum.HELP_FAILED.getCode() == status) {
+                String downloadUrl = null;
                 HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_FAILED;
-                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum,id);
+                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
 
             }
         }

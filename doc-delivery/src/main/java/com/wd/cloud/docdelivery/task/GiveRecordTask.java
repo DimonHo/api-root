@@ -31,8 +31,10 @@ public class GiveRecordTask {
 
     private void updateHelpStatus(GiveRecord giveRecord) {
         giveRecordRepository.delete(giveRecord);
-        HelpRecord helpRecord = giveRecord.getHelpRecord();
-        helpRecord.setStatus(0);
-        helpRecordRepository.save(helpRecord);
+        HelpRecord helpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId()).orElse(null);
+        if (helpRecord != null) {
+            helpRecord.setStatus(0);
+            helpRecordRepository.save(helpRecord);
+        }
     }
 }

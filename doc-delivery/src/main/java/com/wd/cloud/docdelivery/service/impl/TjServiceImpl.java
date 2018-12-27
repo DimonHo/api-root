@@ -110,7 +110,7 @@ public class TjServiceImpl implements TjService {
         }
         todayRestTotal = (todayRestTotal != null && restTotal != null && todayRestTotal > restTotal) ? restTotal : todayRestTotal;
         MyTjDTO myTjDTO = new MyTjDTO();
-        myTjDTO.setEmail(email).setTotal(total)
+        myTjDTO.setTotal(total)
                 .setTodayTotal(todayTotal)
                 .setHelpCount(myHelpCount)
                 .setTodayHelpCount(myTodayHelpCount)

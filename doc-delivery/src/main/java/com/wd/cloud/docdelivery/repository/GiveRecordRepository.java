@@ -1,11 +1,9 @@
 package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -16,6 +14,8 @@ import java.util.List;
  * @Description:
  */
 public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
+
+    List<GiveRecord> findByHelpRecordIdAndAuditStatusNot(Long helpRecordId,Integer auditStatus);
 
     /**
      * 查询待审核记录
@@ -38,54 +38,55 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
     /**
      * 特定状态的应助记录
      *
-     * @param helpRecord
+     * @param helpRecordId
      * @param auditStatus
      * @param giverId
      * @return
      */
-    GiveRecord findByHelpRecordAndAuditStatusAndGiverId(HelpRecord helpRecord, int auditStatus, long giverId);
+    GiveRecord findByHelpRecordIdAndAuditStatusAndGiverId(Long helpRecordId, int auditStatus, long giverId);
 
     /**
      * 取消应助，删除应助记录
      *
-     * @param helpRecord
+     * @param helpRecordId
      * @param auditStatus
      * @param giverId
      * @return
      */
-    int deleteByHelpRecordAndAuditStatusAndGiverId(HelpRecord helpRecord, int auditStatus, long giverId);
+    void deleteByHelpRecordIdAndAuditStatusAndGiverId(Long helpRecordId, int auditStatus, long giverId);
 
     /**
      * 特定应助类型的应助记录
      *
-     * @param helpRecord
+     * @param helpRecordId
      * @param auditStatus
      * @param giverType
      * @return
      */
-    GiveRecord findByHelpRecordAndAuditStatusAndGiverType(HelpRecord helpRecord, int auditStatus, int giverType);
+    GiveRecord findByHelpRecordIdAndAuditStatusAndGiverType(Long helpRecordId, int auditStatus, int giverType);
 
     /**
      * 已审核通过的 或 非用户应助的应助记录
      *
-     * @param helpRecord
+     * @param helpRecordId
      * @return
      */
-    @Query("FROM GiveRecord WHERE helpRecord = :helpRecord AND (auditStatus = 1 OR giverType <> 2)")
-    GiveRecord findByHelpRecord(@Param("helpRecord") HelpRecord helpRecord);
+    @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND (audit_status = 1 OR giver_type <> 2)", nativeQuery = true)
+    GiveRecord findByHelpRecordId(Long helpRecordId);
 
-    GiveRecord findByHelpRecordAndAuditStatusEquals(HelpRecord helpRecord, Integer status);
+    GiveRecord findByHelpRecordIdAndAuditStatusEquals(Long helpRecordId, Integer status);
 
-    @Query("FROM GiveRecord WHERE giverType = 2 AND docFile IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmtCreate, now())")
+    @Query(value = "select * FROM give_record WHERE giver_type = 2 AND doc_file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
     List<GiveRecord> findTimeOutRecord();
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM GiveRecord WHERE giverType = 2 AND docFile IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmtCreate, now())")
+    @Query(value = "DELETE FROM give_record WHERE giver_type = 2 AND doc_file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
     List<GiveRecord> deleteTimeOutRecord();
 
     /**
      * 我的应助
+     *
      * @param giverId
      * @return
      */

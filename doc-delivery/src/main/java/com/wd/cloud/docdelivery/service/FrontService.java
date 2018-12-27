@@ -1,11 +1,13 @@
 package com.wd.cloud.docdelivery.service;
 
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author He Zhigang
@@ -14,9 +16,15 @@ import org.springframework.data.domain.Pageable;
  */
 public interface FrontService {
 
-    boolean checkExists(String email, Literature literature);
+    boolean checkExists(String email, Long literatureId);
 
     DocFile saveDocFile(Literature literature, String fileId, String filaName);
+
+    String help(HelpRecord helpRecord, String docTitle, String docHref);
+
+    HelpRecord give(Long helpRecordId, Long giverId, String giverName, String ip);
+
+    void uploadFile(HelpRecord helpRecord, Long giverId, MultipartFile file, String ip);
 
     /**
      * 我要应助
@@ -114,7 +122,7 @@ public interface FrontService {
      * @param helpUserId
      * @return
      */
-    Page<HelpRecord> getHelpRecordsForUser(long helpUserId, Integer status, Pageable pageable);
+    Page<HelpRecordDTO> getHelpRecordsForUser(long helpUserId, Integer status, Pageable pageable);
 
     /**
      * 获取用户的求助记录
@@ -122,14 +130,14 @@ public interface FrontService {
      * @param helpEmail
      * @return
      */
-    Page<HelpRecord> getHelpRecordsForEmail(String helpEmail, Pageable pageable);
+    Page<HelpRecordDTO> getHelpRecordsForEmail(String helpEmail, Pageable pageable);
 
     /**
      * 获取待应助的求助记录
      *
      * @return
      */
-    Page<HelpRecord> getWaitHelpRecords(int helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getWaitHelpRecords(int helpChannel, Pageable pageable);
 
     /**
      * 求助完成列表
@@ -138,7 +146,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecord> getFinishHelpRecords(int helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getFinishHelpRecords(int helpChannel, Pageable pageable);
 
     /**
      * 求助成功列表
@@ -147,7 +155,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecord> getSuccessHelpRecords(int helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getSuccessHelpRecords(int helpChannel, Pageable pageable);
 
     /**
      * 疑难文献（无结果，求助失败）列表
@@ -156,13 +164,13 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecord> getFailedHelpRecords(int helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getFailedHelpRecords(int helpChannel, Pageable pageable);
 
-    Page<HelpRecord> getAllHelpRecord(Pageable pageable);
+    Page<HelpRecordDTO> getAllHelpRecord(Pageable pageable);
 
     DocFile getReusingFile(Literature literature);
 
-    Page<HelpRecord> search(String keyword, Pageable pageable);
+    Page<HelpRecordDTO> search(String keyword, Pageable pageable);
 
     String checkExistsGiveing(long giverId);
 

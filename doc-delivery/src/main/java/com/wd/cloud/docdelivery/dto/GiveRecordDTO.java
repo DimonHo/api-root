@@ -1,32 +1,17 @@
-package com.wd.cloud.docdelivery.entity;
+package com.wd.cloud.docdelivery.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
 /**
  * @author He Zhigang
- * @date 2018/5/22
- * @Description: 应助记录
+ * @date 2018/12/26
+ * @Description:
  */
 @Data
 @Accessors(chain = true)
-@Entity
-@Table(name = "give_record")
-public class GiveRecord extends AbstractEntity {
+public class GiveRecordDTO {
 
-    /**
-     * 一个求助可能有多个应助，但只有一个应助有效，失败的应助作为应助记录存在
-     */
-    private Long helpRecordId;
-
-    /**
-     * 文件ID
-     */
-    private Long docFileId;
     /**
      * 应助者ID
      */
@@ -50,13 +35,11 @@ public class GiveRecord extends AbstractEntity {
      * 3：第三方应助,
      * 4:其它
      */
-    @Column(columnDefinition = "tinyint COMMENT '应助者类型： 0：系统自动应助， 1：管理员应助 2：用户应助， 3：第三方应助,  4:其它'")
     private Integer giverType;
 
     /**
      * 0：待审核，1：审核通过，2：审核不通过，4：待上传
      */
-    @Column(columnDefinition = "tinyint COMMENT '0：待审核，1：审核通过，2：审核不通过，4：待上传'")
     private Integer auditStatus;
 
     /**
