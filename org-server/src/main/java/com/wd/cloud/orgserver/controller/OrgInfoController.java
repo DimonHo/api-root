@@ -144,4 +144,9 @@ public class OrgInfoController {
         Org org = new Org();
         return ResponseModel.ok().setBody(org);
     }
+
+    @GetMapping("/orginfo/cd")
+    public ResponseModel cd() {
+        return ResponseModel.ok().setBody(orgInfoService.cd());
+    }
 }

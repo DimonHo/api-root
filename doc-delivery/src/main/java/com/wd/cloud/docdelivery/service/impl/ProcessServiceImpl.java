@@ -61,12 +61,13 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public void third(Long helpRecordId, Long giverId, String giverName) {
         HelpRecord helpRecord = helpRecordRepository.findById(helpRecordId).orElse(null);
-        if (helpRecord == null || helpRecord.getStatus() > HelpStatusEnum.WAIT_HELP.getCode()) {
+        // 如果不是待应助状态，中断操作
+        if (helpRecord == null || helpRecord.getStatus() != HelpStatusEnum.WAIT_HELP.getCode()) {
             throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "状态不合法");
         }
         helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getCode());
         GiveRecord giveRecord = new GiveRecord();
-        giveRecord.setGiverId(giverId).setGiverName(giverName).setGiverType(GiveTypeEnum.THIRD.getCode());
+        giveRecord.setGiverId(giverId).setGiverName(giverName).setGiverType(GiveTypeEnum.MANAGER.getCode());
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
         String docTitle = literature != null ? literature.getDocTitle() : "";
         mailService.sendMail(helpRecord);

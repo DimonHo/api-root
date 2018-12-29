@@ -20,6 +20,7 @@ public class ApiExceptionHandlerAdvice {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public ResponseModel exception(Exception exception, HttpServletResponse response) {
+        exception.printStackTrace();
         ResponseModel responseModel = ResponseModel.fail();
         //api异常
         if (exception instanceof ApiException) {
