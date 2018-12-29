@@ -318,9 +318,8 @@ public class FrontServiceImpl implements FrontService {
 
     private Page<HelpRecordDTO> coversHelpRecordDTO(Page<HelpRecord> helpRecordPage) {
         return helpRecordPage.map(helpRecord -> {
-            anonymous(helpRecord);
-            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(helpRecord, helpRecordDTO);
+
+            HelpRecordDTO helpRecordDTO = anonymous(helpRecord);
             Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
             helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
             return helpRecordDTO;
@@ -343,10 +342,7 @@ public class FrontServiceImpl implements FrontService {
 
         Page<HelpRecord> waitHelpRecords = filterHelpRecords(helpChannel, pageable, status);
         Page<HelpRecordDTO> waitHelps = waitHelpRecords.map(helpRecord -> {
-            anonymous(helpRecord);
-
-            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(helpRecord, helpRecordDTO);
+            HelpRecordDTO helpRecordDTO = anonymous(helpRecord);
             Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
             helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
             //如果有用户正在应助
@@ -434,15 +430,17 @@ public class FrontServiceImpl implements FrontService {
         return permissionRepository.getOrgIdAndRule(orgId,rule);
     }
 
-    private void anonymous(HelpRecord helpRecord) {
+    private HelpRecordDTO anonymous(HelpRecord helpRecord) {
+        HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
+        BeanUtil.copyProperties(helpRecord,helpRecordDTO);
         if (helpRecord.isAnonymous()) {
-            helpRecord.setHelperName("匿名");
-            helpRecord.setHelperEmail("匿名");
+            helpRecordDTO.setHelperEmail("匿名").setHelperName("匿名");
         } else {
             String helperEmail = helpRecord.getHelperEmail();
             String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
-            helpRecord.setHelperEmail(s);
+            helpRecordDTO.setHelperEmail(s);
         }
+        return helpRecordDTO;
     }
 
 

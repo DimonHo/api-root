@@ -282,13 +282,11 @@ public class FrontendController {
         } else {//校内访问
             Long id = body.getLong("id");
             int rule = 1;
-            int getRule = getRule(rule);
+            int nexRule = nexLevel(rule);
             //登录状态
-            Permission permission = frontService.getOrgIdAndRule(id, getRule);
+            Permission permission = frontService.getOrgIdAndRule(id, nexRule);
             if (permission == null){
-                long todayTota = 20;
-                Long todayTotal = todayTota;
-                map.put("todayTotal",todayTotal);
+                map.put("todayTotal",20);
             }else{
                 Long todayTotal = permission.getTodayTotal();
                 map.put("todayTotal",todayTotal);
@@ -297,7 +295,7 @@ public class FrontendController {
         return ResponseModel.ok().setBody(map);
     }
 
-    public int getRule(int rule){
+    private int nexLevel(int rule){
         switch (rule){
             default:
             case '0':
