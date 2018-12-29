@@ -12,10 +12,7 @@ import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.entity.*;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
@@ -24,10 +21,7 @@ import com.wd.cloud.docdelivery.exception.GiveException;
 import com.wd.cloud.docdelivery.exception.HelpException;
 import com.wd.cloud.docdelivery.exception.NotFoundException;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
-import com.wd.cloud.docdelivery.repository.DocFileRepository;
-import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
-import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
-import com.wd.cloud.docdelivery.repository.LiteratureRepository;
+import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -83,6 +77,9 @@ public class FrontServiceImpl implements FrontService {
 
     @Autowired
     MailService mailService;
+
+    @Autowired
+    PermissionRepository permissionRepository;
 
     @Override
     public Literature queryLiterature(Literature literature) {
@@ -432,6 +429,10 @@ public class FrontServiceImpl implements FrontService {
             return null;
         }
     }
+    @Override
+    public Permission getOrgIdAndRule(Long orgId,int rule){
+        return permissionRepository.getOrgIdAndRule(orgId,rule);
+    }
 
     private void anonymous(HelpRecord helpRecord) {
         if (helpRecord.isAnonymous()) {
@@ -443,4 +444,6 @@ public class FrontServiceImpl implements FrontService {
             helpRecord.setHelperEmail(s);
         }
     }
+
+
 }

@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
@@ -10,6 +11,8 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.entity.Permission;
+import com.wd.cloud.docdelivery.feign.OrgServerApi;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
@@ -29,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -52,6 +57,9 @@ public class FrontendController {
     @Autowired
     FrontService frontService;
 
+    @Autowired
+    OrgServerApi orgServerApi;
+
     /**
      * 1. 文献求助
      *
@@ -73,32 +81,6 @@ public class FrontendController {
         helpRecord.setHelperIp(ip);
         helpRecord.setHelperEmail(helpEmail);
         helpRecord.setSend(true);
-//
-//        //判断是否是校外登陆
-//        ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
-//        JSONObject body = ipRang.getBody();
-//        //校外访问
-//        if (body == null) {
-//            //判断登陆账号是否是第三方
-////            if (){//第三方设置总求助上线
-////
-////            }else{
-////
-////            }
-//
-//            //判断登陆用户是否已认证
-//
-//        } else {//校内访问
-//            //判断用户是否登陆
-//            String helperScname = helpRecord.getHelperScname();
-//            //未登录
-//            if (helperScname == null) {
-//
-//            } else {//已登陆
-//                //判断登陆用户是否已认证
-//            }
-//
-//        }
         String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
         msg = frontService.help(helpRecord, helpRequestModel.getDocTitle(), helpRequestModel.getDocHref());
         return ResponseModel.ok().setMessage(msg);
@@ -285,6 +267,54 @@ public class FrontendController {
     public ResponseModel getUserHelpCountToDay(@RequestParam String email) {
 
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
+    }
+
+    @ApiOperation(value = "获取当前是否是校外还是校内访问")
+    @GetMapping("/help/getHelpFromCount")
+    public ResponseModel getHelpFromCount(HttpServletRequest request){
+        String ip = HttpUtil.getClientIP(request);
+        //String ip = "5431.152.1.230";
+        ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
+        JSONObject body = ipRang.getBody();
+        Map<String , Object> map = new HashMap<>();
+        if (body == null) {
+
+        } else {//校内访问
+            Long id = body.getLong("id");
+            int rule = 1;
+            int getRule = getRule(rule);
+            //登录状态
+            Permission permission = frontService.getOrgIdAndRule(id, getRule);
+            if (permission == null){
+                long todayTota = 20;
+                Long todayTotal = todayTota;
+                map.put("todayTotal",todayTotal);
+            }else{
+                Long todayTotal = permission.getTodayTotal();
+                map.put("todayTotal",todayTotal);
+            }
+        }
+        return ResponseModel.ok().setBody(map);
+    }
+
+    public int getRule(int rule){
+        switch (rule){
+            default:
+            case '0':
+                rule = 2;
+                break;
+            case '1':
+                rule = 3;
+                break;
+            case '2':
+                rule = 6;
+                break;
+            case '3':
+                rule = 7;
+                break;
+
+        }
+        return rule;
     }
 
 
