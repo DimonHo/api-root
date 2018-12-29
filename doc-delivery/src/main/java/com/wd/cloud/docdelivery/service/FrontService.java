@@ -1,10 +1,7 @@
 package com.wd.cloud.docdelivery.service;
 
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.entity.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -173,5 +170,7 @@ public interface FrontService {
     Page<HelpRecordDTO> search(String keyword, Pageable pageable);
 
     String checkExistsGiveing(long giverId);
+
+    Permission getOrgIdAndRule(Long orgId,int rule);
 
 }
