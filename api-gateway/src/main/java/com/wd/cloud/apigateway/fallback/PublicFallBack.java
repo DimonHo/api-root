@@ -1,11 +1,10 @@
 package com.wd.cloud.apigateway.fallback;
 
 import cn.hutool.json.JSONUtil;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
-import com.wd.cloud.commons.enums.StatusEnum;
+import com.wd.cloud.commons.exception.ApiException;
 import com.wd.cloud.commons.model.ResponseModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,9 +21,9 @@ import java.io.InputStream;
  * @date 2018/10/17
  * @Description:
  */
+@Slf4j
 @Component
 public class PublicFallBack implements FallbackProvider {
-    private static final Log log = LogFactory.get();
 
     @Override
     public String getRoute() {
@@ -34,45 +33,40 @@ public class PublicFallBack implements FallbackProvider {
     @Override
     public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
         if (cause != null && cause.getMessage() != null) {
-            String reason = cause.getMessage();
-            log.info("调用异常： {}", reason);
+            log.info("【{}】服务调用异常： {}", route, cause.getMessage());
         }
-        if (cause instanceof HystrixTimeoutException) {
-            return fallbackResponse(HttpStatus.GATEWAY_TIMEOUT, cause);
-        } else {
-            return fallbackResponse(HttpStatus.INTERNAL_SERVER_ERROR, cause);
-        }
-
+        return buildResponse(route, cause);
     }
 
-    private ClientHttpResponse fallbackResponse(HttpStatus status, Throwable cause) {
+    private ClientHttpResponse buildResponse(String route, Throwable cause) {
         return new ClientHttpResponse() {
             @Override
             public HttpStatus getStatusCode() throws IOException {
-                return status;
+                return HttpStatus.OK;
             }
 
             @Override
             public int getRawStatusCode() throws IOException {
-                return status.value();
+                return this.getStatusCode().value();
             }
 
             @Override
             public String getStatusText() throws IOException {
-                return status.getReasonPhrase();
-            }
-
-            @Override
-            public void close() {
-
+                return this.getStatusCode().getReasonPhrase();
             }
 
             @Override
             public InputStream getBody() throws IOException {
-
-                ResponseModel responseModel = ResponseModel.fail()
-                        .setStatus(StatusEnum.FALL_BACK.value())
-                        .setMessage(cause.getMessage());
+                String message = "[" + route + "]" + cause.getMessage();
+                ResponseModel responseModel = ResponseModel.fail().setMessage(message);
+                if (cause instanceof HystrixTimeoutException) {
+                    responseModel.setStatus(HttpStatus.GATEWAY_TIMEOUT.value());
+                } else if (cause instanceof ApiException) {
+                    responseModel.setStatus(((ApiException) cause).getStatus());
+                    responseModel.setBody(((ApiException) cause).getBody());
+                } else {
+                    responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                }
                 //返回前端的内容
                 return new ByteArrayInputStream(JSONUtil.toJsonStr(responseModel).getBytes());
             }
@@ -83,6 +77,10 @@ public class PublicFallBack implements FallbackProvider {
                 //设置头
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
                 return httpHeaders;
+            }
+
+            @Override
+            public void close() {
             }
         };
     }
