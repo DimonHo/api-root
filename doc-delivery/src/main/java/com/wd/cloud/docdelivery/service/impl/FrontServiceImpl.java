@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
@@ -114,22 +115,22 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public String help(HelpRecord helpRecord, String docTitle, String docHref) {
         log.info("用户:[{}]正在求助文献:[{}]", helpRecord.getHelperEmail(), docTitle);
-        Literature literature = new Literature();
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        literature.setDocTitle(clearHtml(docTitle.trim()));
-        literature.setDocHref(docHref.trim());
+        docTitle = clearHtml(docTitle.trim());
+        docHref = docHref.trim();
+        String unid = SecureUtil.md5(docTitle + docHref);
         // 先查询元数据是否存在
-        Literature literatureData = queryLiterature(literature);
+        Literature literature = literatureRepository.findByUnid(unid);
         String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
-        if (null == literatureData) {
+        if (null == literature) {
             // 如果不存在，则新增一条元数据
-            literatureData = saveLiterature(literature);
+            literature = saveLiterature(docTitle, docHref);
         }
-        if (checkExists(helpRecord.getHelperEmail(), literatureData.getId())) {
+        if (checkExists(helpRecord.getHelperEmail(), literature.getId())) {
             throw new HelpException(2008, "error:您最近15天内已求助过这篇文献,请注意查收邮箱");
         }
-        helpRecord.setLiteratureId(literatureData.getId());
-        DocFile docFile = getReusingFile(literatureData);
+        helpRecord.setLiteratureId(literature.getId());
+        DocFile docFile = getReusingFile(literature);
         // 如果文件已存在，自动应助成功
         if (null != docFile) {
             helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
@@ -145,7 +146,7 @@ public class FrontServiceImpl implements FrontService {
             mailService.sendMail(helpRecord.getHelpChannel(),
                     helpRecord.getHelperScname(),
                     helpRecord.getHelperEmail(),
-                    literatureData.getDocTitle(),
+                    literature.getDocTitle(),
                     downloadUrl,
                     HelpStatusEnum.HELP_SUCCESSED,
                     helpRecord.getId());
@@ -274,6 +275,12 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public Literature saveLiterature(Literature literature) {
+        return literatureRepository.save(literature);
+    }
+
+    public Literature saveLiterature(String docTitle, String docHref) {
+        Literature literature = new Literature();
+        literature.setDocTitle(docTitle).setDocHref(docHref);
         return literatureRepository.save(literature);
     }
 
@@ -425,14 +432,15 @@ public class FrontServiceImpl implements FrontService {
             return null;
         }
     }
+
     @Override
-    public Permission getOrgIdAndRule(Long orgId,int rule){
-        return permissionRepository.getOrgIdAndRule(orgId,rule);
+    public Permission getOrgIdAndRule(Long orgId, int rule) {
+        return permissionRepository.getOrgIdAndRule(orgId, rule);
     }
 
     private HelpRecordDTO anonymous(HelpRecord helpRecord) {
         HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-        BeanUtil.copyProperties(helpRecord,helpRecordDTO);
+        BeanUtil.copyProperties(helpRecord, helpRecordDTO);
         if (helpRecord.isAnonymous()) {
             helpRecordDTO.setHelperEmail("匿名").setHelperName("匿名");
         } else {

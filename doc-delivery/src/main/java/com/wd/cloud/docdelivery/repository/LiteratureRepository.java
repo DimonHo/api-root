@@ -12,6 +12,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface LiteratureRepository extends JpaRepository<Literature, Long>, JpaSpecificationExecutor<Literature> {
 
     /**
+     * 根据unid唯一码查询
+     *
+     * @param unid
+     * @return
+     */
+    Literature findByUnid(String unid);
+
+    /**
      * 根据文献标题查询文献元数据
      *
      * @param docTitle

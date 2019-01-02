@@ -269,14 +269,14 @@ public class FrontendController {
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
     }
 
-    @ApiOperation(value = "获取当前是否是校外还是校内访问")
-    @GetMapping("/help/getHelpFromCount")
-    public ResponseModel getHelpFromCount(HttpServletRequest request){
+    @ApiOperation(value = "下一个级别的求助上限")
+    @GetMapping("/help/nextTotal")
+    public ResponseModel getHelpFromCount(HttpServletRequest request) {
         String ip = HttpUtil.getClientIP(request);
         //String ip = "5431.152.1.230";
         ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
         JSONObject body = ipRang.getBody();
-        Map<String , Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         if (body == null) {
 
         } else {//校内访问
@@ -285,18 +285,18 @@ public class FrontendController {
             int nexRule = nexLevel(rule);
             //登录状态
             Permission permission = frontService.getOrgIdAndRule(id, nexRule);
-            if (permission == null){
-                map.put("todayTotal",20);
-            }else{
+            if (permission == null) {
+                map.put("todayTotal", 20);
+            } else {
                 Long todayTotal = permission.getTodayTotal();
-                map.put("todayTotal",todayTotal);
+                map.put("todayTotal", todayTotal);
             }
         }
         return ResponseModel.ok().setBody(map);
     }
 
-    private int nexLevel(int rule){
-        switch (rule){
+    private int nexLevel(int rule) {
+        switch (rule) {
             default:
             case '0':
                 rule = 2;

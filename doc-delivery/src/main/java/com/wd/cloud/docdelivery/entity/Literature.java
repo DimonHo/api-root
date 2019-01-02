@@ -23,14 +23,14 @@ public class Literature extends AbstractEntity {
     /**
      * 文献的链接地址
      */
-    @Column(name = "doc_href", length = 1000, columnDefinition = "default ''")
-    private String docHref = "";
+    @Column(name = "doc_href", length = 1000)
+    private String docHref;
     /**
      * 文献标题
      */
     @NotNull
-    @Column(name = "doc_title", length = 1000, columnDefinition = "default ''")
-    private String docTitle = "";
+    @Column(name = "doc_title", length = 1000)
+    private String docTitle;
 
     @Column(name = "unid")
     private String unid;
