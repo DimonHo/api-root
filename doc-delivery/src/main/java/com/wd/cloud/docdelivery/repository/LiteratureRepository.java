@@ -4,6 +4,8 @@ import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2018/5/7
@@ -18,6 +20,8 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
      * @return
      */
     Literature findByUnid(String unid);
+
+    List<Literature> findByUnidIsNull();
 
     /**
      * 根据文献标题查询文献元数据
