@@ -3,10 +3,10 @@ package com.wd.cloud.docdelivery.service.impl;
 import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.TempService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,6 +14,7 @@ import java.util.List;
  * @date 2019/1/2
  * @Description:
  */
+@Slf4j
 @Service("tempService")
 public class TempServiceImpl implements TempService {
 
@@ -24,16 +25,15 @@ public class TempServiceImpl implements TempService {
     @Override
     public int updateLiteratureUnid() {
         List<Literature> literatures = literatureRepository.findByUnidIsNull();
-        List<Literature> newLiteratures = new ArrayList<>();
         for (Literature literature : literatures) {
             literature.updateUnid();
-            newLiteratures.add(literature);
-            if (newLiteratures.size() % 1000 == 0) {
-                literatureRepository.saveAll(newLiteratures);
-                newLiteratures = new ArrayList<>();
+            try {
+                literatureRepository.save(literature);
+            } catch (Exception e) {
+                log.error("唯一主键冲突:[{}]", literature.getUnid());
             }
+
         }
-        literatureRepository.saveAll(newLiteratures);
         return literatures.size();
     }
 }
