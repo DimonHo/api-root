@@ -1,13 +1,23 @@
 package com.wd.cloud.docdelivery.service.impl;
 
+import com.wd.cloud.docdelivery.entity.DocFile;
+import com.wd.cloud.docdelivery.entity.GiveRecord;
+import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.repository.DocFileRepository;
+import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
+import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.TempService;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -20,6 +30,15 @@ public class TempServiceImpl implements TempService {
 
     @Autowired
     LiteratureRepository literatureRepository;
+
+    @Autowired
+    HelpRecordRepository helpRecordRepository;
+
+    @Autowired
+    GiveRecordRepository giveRecordRepository;
+
+    @Autowired
+    DocFileRepository docFileRepository;
 
 
     @Override
@@ -36,4 +55,72 @@ public class TempServiceImpl implements TempService {
         }
         return literatures.size();
     }
+
+    @Override
+    public int deleteLiteratureUnid() {
+
+        //查询所有为null的数据
+        List<Map<String, String>> literatures = literatureRepository.findByUnidIsNullGroupBy();
+        //遍历处所有null的数据得到它的doc_href与doc_title
+        for (Map literature : literatures) {
+            update(literature);
+        }
+        return 0;
+    }
+
+    @Transactional
+    void update(Map literature) {
+        //根据doc_href与doc_title查询数据。
+        String docHref = literature.get("doc_href") == null ? null : literature.get("doc_href").toString();
+        String docTitle = literature.get("doc_title").toString();
+        log.info("[{}],[{}]", docHref, docTitle);
+        List<Literature> byDocTitleAndDocHref = docHref == null ? literatureRepository.findByDocHrefIsNullAndDocTitle(docTitle) : literatureRepository.findByDocHrefAndDocTitle(docHref, docTitle);
+        Literature unidLiterature = null;
+        List<Long> ids = new ArrayList<>();
+
+        List<Literature> idsi = new ArrayList<>();
+        //遍历得到重复数据
+        for (Literature literature1 : byDocTitleAndDocHref) {
+            //遍历数据得到uuid不为NULL的数据
+            if (literature1.getUnid() != null) {
+                unidLiterature = literature1;
+            } else {
+                ids.add(literature1.getId());
+                idsi.add(literature1);
+            }
+        }
+        //遍历所有的数据根据ID到help_record表与doc_file找到对应的ID
+        List<HelpRecord> byLiteratureId = helpRecordRepository.findByLiteratureIdIn(ids);
+        for (HelpRecord helpRecord : byLiteratureId) {
+            helpRecord.setLiteratureId(unidLiterature.getId());
+            //修改表中的id
+            try {
+                helpRecordRepository.save(helpRecord);
+            } catch (Exception e) {
+                helpRecordRepository.delete(helpRecord);
+                giveRecordRepository.deleteByhelpRecordId(helpRecord.getId());
+
+            }
+        }
+
+        List<DocFile> byLiteratureId1 = docFileRepository.findByLiteratureIn(idsi);
+        for (DocFile docFile : byLiteratureId1) {
+            docFile.setLiterature(unidLiterature);
+            try {
+                docFileRepository.save(docFile);
+            } catch (Exception e) {
+                DocFile byFileIdAndLiterature = docFileRepository.findByFileIdAndLiterature(docFile.getFileId(), docFile.getLiterature());
+                List<GiveRecord> byDocFileId = giveRecordRepository.findByDocFileId(docFile.getId());
+                for (GiveRecord giveRecord : byDocFileId) {
+                    giveRecord.setDocFileId(byFileIdAndLiterature.getId());
+                }
+                giveRecordRepository.saveAll(byDocFileId);
+                docFileRepository.deleteById(docFile.getId());
+
+            }
+
+        }
+    }
+
+
 }

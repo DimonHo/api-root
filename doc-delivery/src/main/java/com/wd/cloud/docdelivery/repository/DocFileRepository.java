@@ -33,4 +33,10 @@ public interface DocFileRepository extends JpaRepository<DocFile, Long> {
     @Query(value = "select * from doc_file where literature_id = ?1 and (audit_status is null or audit_status = 1)", nativeQuery = true)
     List<DocFile> getResuingDoc(@Param("literature") Long literatureId);
 
+    List<DocFile> findByLiteratureIn(List ids);
+
+    DocFile findByFileIdAndLiterature(String fileId ,Literature literature);
+
+
+
 }

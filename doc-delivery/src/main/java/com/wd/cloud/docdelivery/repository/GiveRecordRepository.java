@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
+    GiveRecord deleteByhelpRecordId(Long helpRecordId);
+
     List<GiveRecord> findByHelpRecordIdAndAuditStatusNot(Long helpRecordId, Integer auditStatus);
 
     /**
@@ -72,7 +74,10 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
      * @return
      */
     @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND (audit_status = 1 OR giver_type <> 2)", nativeQuery = true)
-    GiveRecord findByHelpRecordId(Long helpRecordId);
+    GiveRecord findByHelpRecordIdPassOrManagerGive(Long helpRecordId);
+
+    List<GiveRecord> findByHelpRecordId(Long helpRecordId);
+
 
     GiveRecord findByHelpRecordIdAndAuditStatusEquals(Long helpRecordId, Integer status);
 
@@ -91,5 +96,7 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
      * @return
      */
     long countByGiverId(Long giverId);
+
+    List<GiveRecord> findByDocFileId(long docFileId);
 
 }

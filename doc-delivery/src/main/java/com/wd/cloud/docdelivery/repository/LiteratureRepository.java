@@ -3,8 +3,10 @@ package com.wd.cloud.docdelivery.repository;
 import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -23,6 +25,9 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
 
     List<Literature> findByUnidIsNull();
 
+    @Query(value = "select doc_href,doc_title from literature where unid is null group by doc_href,doc_title",nativeQuery = true)
+    List<Map<String,String>> findByUnidIsNullGroupBy();
+
     /**
      * 根据文献标题查询文献元数据
      *
@@ -40,5 +45,11 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
      * @return
      */
     Literature findByDocTitleAndDocHref(String docTitle, String docHref);
+
+    List<Literature> findByDocHrefAndDocTitle(String docHref, String docTitle);
+
+    List<Literature> findByDocHrefIsNullAndDocTitle(String docTitle);
+
+    List<Literature> deleteByIdIn(List ids);
 
 }

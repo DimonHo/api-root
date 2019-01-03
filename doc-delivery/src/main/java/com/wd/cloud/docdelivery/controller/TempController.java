@@ -22,4 +22,11 @@ public class TempController {
         int upCount = tempService.updateLiteratureUnid();
         return ResponseModel.ok().setBody(upCount);
     }
+
+
+    @GetMapping("/deleteLiteratureUnid")
+    public ResponseModel deleteLiteratureUnid(){
+        tempService.deleteLiteratureUnid();
+        return ResponseModel.ok();
+    }
 }

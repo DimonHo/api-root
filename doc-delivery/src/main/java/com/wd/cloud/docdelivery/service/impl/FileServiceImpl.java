@@ -63,7 +63,7 @@ public class FileServiceImpl implements FileService {
             log.error("未找到id为{}的数据", helpRecordId);
             return null;
         }
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordId(helpRecordId);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdPassOrManagerGive(helpRecordId);
         DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         return downloadFileModel;
     }

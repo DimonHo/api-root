@@ -8,4 +8,6 @@ package com.wd.cloud.docdelivery.service;
 public interface TempService {
 
     int updateLiteratureUnid();
+
+    int deleteLiteratureUnid();
 }
