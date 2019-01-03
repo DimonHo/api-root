@@ -3,6 +3,7 @@ package com.wd.cloud.docdelivery.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -64,11 +65,31 @@ public class HelpRequestModel {
     @NotNull
     private String helperEmail;
 
+    /**
+     * 文献信息
+     */
     @ApiModelProperty(value = "补充信息", example = "doi:01923959101,xxx:102030104")
     private String remark;
 
     @ApiModelProperty(value = "是否匿名,默认false", example = "false")
     private boolean anonymous = false;
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remake) {
+        this.remark = remake;
+    }
+
 
     public Long getHelperId() {
         return helperId;
@@ -132,23 +153,5 @@ public class HelpRequestModel {
 
     public void setHelperScname(String helperScname) {
         this.helperScname = helperScname;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public HelpRequestModel setRemark(String remark) {
-        this.remark = remark;
-        return this;
-    }
-
-    public boolean isAnonymous() {
-        return anonymous;
-    }
-
-    public HelpRequestModel setAnonymous(boolean anonymous) {
-        this.anonymous = anonymous;
-        return this;
     }
 }

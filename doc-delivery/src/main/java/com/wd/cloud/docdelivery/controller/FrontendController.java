@@ -21,6 +21,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,10 +31,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.IOException;
+import java.util.jar.Attributes;
 
 /**
  * @author He Zhigang
@@ -58,7 +62,11 @@ public class FrontendController {
     FrontService frontService;
 
     @Autowired
+    FsServerApi fsServerApi;
+
+    @Autowired
     OrgServerApi orgServerApi;
+
 
     /**
      * 1. 文献求助
@@ -269,28 +277,75 @@ public class FrontendController {
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
     }
 
-    @ApiOperation(value = "下一个级别的求助上限")
-    @GetMapping("/help/nextTotal")
-    public ResponseModel getHelpFromCount(HttpServletRequest request) {
-        String ip = HttpUtil.getClientIP(request);
-        //String ip = "5431.152.1.230";
-        ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
-        JSONObject body = ipRang.getBody();
-        Map<String, Object> map = new HashMap<>();
-        if (body == null) {
+    @ApiOperation(value = "获取sso登陆信息")
+    @GetMapping("/help/getSso")
+    public ResponseModel getSso(HttpServletRequest request){
+        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
+        return ResponseModel.ok().setBody(principal);
+    }
 
-        } else {//校内访问
-            Long id = body.getLong("id");
-            int rule = 1;
-            int nexRule = nexLevel(rule);
-            //登录状态
-            Permission permission = frontService.getOrgIdAndRule(id, nexRule);
-            if (permission == null) {
-                map.put("todayTotal", 20);
-            } else {
-                Long todayTotal = permission.getTodayTotal();
-                map.put("todayTotal", todayTotal);
-            }
+
+//    @ApiOperation(value = "获取平台总求助量、成功率、今日求助量、我的求助、我的应助")
+//    @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Long", paramType = "query")
+//    @GetMapping("/getHeadTotalFor")
+//    public ResponseModel getHeadTotalFor(@RequestParam(value = "userId", required = false) Long userId){
+//        NumberFormat numberFormat = NumberFormat.getPercentInstance();
+//        numberFormat.setMinimumFractionDigits(2);
+//        //总求助
+//        int amount = frontService.getAmount();
+//        //求助成功数量
+//        int successRate = frontService.getSuccessRate(4);
+//        //求助成功概率
+//        String result = numberFormat.format((float) successRate /(float) amount);
+//        //今天求助数量
+//        int sameDay = frontService.getSameDay();
+//        //我的求助
+//        if (userId == null){
+//            long user = 0;
+//            userId = user;
+//        }
+//        int forHelp = frontService.getForHelp(userId);
+//        //我的应助
+//        int shouldHelp = frontService.getShouldHelp(userId);
+//
+//        Map<String,Object> map = new HashMap<String, Object>();
+//        map.put("amount",amount);
+//        map.put("result",result);
+//        map.put("sameDay",sameDay);
+//        map.put("forHelp",forHelp);
+//        map.put("shouldHelp",shouldHelp);
+//
+//        return ResponseModel.ok().setBody(map);
+//    }
+
+//    @ApiOperation(value = "聚合统计求助记录")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "orgId", value = "机构ID", dataType = "Long", paramType = "query"),
+//            @ApiImplicitParam(name = "orgName", value = "机构名称", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "date", value = "当前时间", dataType = "Date", paramType = "query"),
+//            @ApiImplicitParam(name = "type", value = "统计类型0：按分钟统计，1：按小时统计，2按天统计，3，按月统计，4：按年统计", dataType = "Integer", paramType = "query")
+//
+//    })
+////    @GetMapping("/help/count/org")
+////    public ResponseModel getOrgHelpCountToMinute(@RequestParam(required = false) Long orgId,
+////                                                 @RequestParam(required = false) String orgName,
+////                                                 @RequestParam(required = false) String date,
+////                                                 @RequestParam(required = false, defaultValue = "0") Integer type) {
+////        if (orgId == null && orgName == null) {
+////            return ResponseModel.fail(StatusEnum.PAYMENT_REQUIRED).setMessage("机构id和机构名称不能同时为空！");
+////        }
+////        return ResponseModel.ok().setBody(frontService.getCountByOrg(orgId, orgName, date, type));
+////    }
+
+    private void Anonymous(HelpRecord helpRecord) {
+        boolean anonymous = helpRecord.isAnonymous();
+        if (anonymous == true) {
+            helpRecord.setHelperName("匿名");
+            helpRecord.setHelperEmail("匿名");
+        } else {
+            String helperEmail = helpRecord.getHelperEmail();
+            String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
+            helpRecord.setHelperEmail(s);
         }
         return ResponseModel.ok().setBody(map);
     }
