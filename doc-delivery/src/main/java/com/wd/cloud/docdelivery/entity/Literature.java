@@ -53,15 +53,8 @@ public class Literature extends AbstractEntity {
      */
     private String summary;
 
-    /**
-     * 复用
-     */
-    @Column(name = "is_reusing", columnDefinition = "tinyint(1) COMMENT '0：未复用，1：已复用'")
-    private boolean reusing;
-
     @OneToMany(mappedBy = "literature")
     @OrderBy(value = "gmt_create desc")
-    @Where(clause = "audit_status not in (0,2) or audit_status is null")
     private Set<DocFile> docFiles;
 
 

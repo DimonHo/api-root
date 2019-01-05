@@ -157,7 +157,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      */
     long countByHelperIdAndStatus(Long userId, Integer status);
 
-    HelpRecord findByLiteratureId(Long literatureId);
+    List<HelpRecord> findByLiteratureId(Long literatureId);
 
     List<HelpRecord> findByLiteratureIdIn(List ids);
 

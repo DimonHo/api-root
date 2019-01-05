@@ -106,14 +106,6 @@ public interface FrontService {
     HelpRecord getHelpRecord(long helpRecordId);
 
     /**
-     * 查询元数据
-     *
-     * @param literature
-     * @return
-     */
-    Literature queryLiterature(Literature literature);
-
-    /**
      * 获取用户的求助记录
      *
      * @param helpUserId

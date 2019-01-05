@@ -25,24 +25,10 @@ public class DocFile extends AbstractEntity {
     @JsonIgnore
     private Literature literature;
 
-    private Long auditorId;
-
-    private String auditorName;
-
-    /**
-     * 审核状态，默认null,0:待审核，1为审核通过，2为审核不通过
-     * 审核不通过和0的文件不可复用
-     */
-    @Column(name = "audit_status", columnDefinition = "tinyint default null COMMENT '0:待审核，1：审核通过，2：审核不通过'")
-    private Integer auditStatus;
     /**
      * 复用
      */
     @Column(name = "is_reusing", columnDefinition = "tinyint(1) default 0 COMMENT '0:未复用，1：已复用'")
     private boolean reusing;
 
-    /**
-     * 备注
-     */
-    private String reMark;
 }

@@ -1,30 +1,28 @@
 package com.wd.cloud.docdelivery.task;
 
+import cn.hutool.cron.task.Task;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
  * @author He Zhigang
- * @date 2018/7/17
- * @Description: 定时删除用户过期的应助记录
+ * @date 2019/1/4
+ * @Description:
  */
-@Component
-public class GiveRecordTask {
-
+public class GiveTimeOutTask implements Task {
     @Autowired
     GiveRecordRepository giveRecordRepository;
     @Autowired
     HelpRecordRepository helpRecordRepository;
 
-    @Scheduled(fixedRate = 1000 * 30)
-    public void deleteGiveRecord() {
+    @Override
+    public void execute() {
         List<GiveRecord> giveRecords = giveRecordRepository.findTimeOutRecord();
         giveRecords.forEach(this::updateHelpStatus);
     }

@@ -82,17 +82,6 @@ public class FrontServiceImpl implements FrontService {
     @Autowired
     PermissionRepository permissionRepository;
 
-    @Override
-    public Literature queryLiterature(Literature literature) {
-        Literature literatureData;
-        if (StrUtil.isNotEmpty(literature.getDocHref())) {
-            literatureData = literatureRepository.findByDocTitleAndDocHref(literature.getDocTitle(), literature.getDocHref());
-        } else {
-            literatureData = literatureRepository.findByDocTitle(literature.getDocTitle());
-        }
-        return literatureData;
-    }
-
 
     @Override
     public boolean checkExists(String email, Long literatureId) {

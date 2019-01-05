@@ -1,11 +1,11 @@
 package com.wd.cloud.docdelivery.entity;
 
+import cn.hutool.crypto.SecureUtil;
+import com.wd.cloud.commons.util.DateUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Data
 @Accessors(chain = true)
 @Entity
-@Table(name = "help_record")
+@Table(name = "help_record", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
 public class HelpRecord extends AbstractEntity {
 
     /**
@@ -85,46 +85,21 @@ public class HelpRecord extends AbstractEntity {
     @Column(name = "is_anonymous", columnDefinition = "bit default 0 COMMENT '0：未匿名， 1：已匿名'")
     private boolean anonymous;
 
+    private String unid;
     /**
      * 文献信息
      */
     @Column(name = "remark")
     private String remark;
 
+    @PrePersist
+    public void createUnid() {
+        this.unid = SecureUtil.md5(this.helperEmail + this.literatureId + DateUtil.formatDate(this.gmtCreate));
+    }
 
-//    public HelpRecord filterByNotIn(String fieldName, List<Object> values) {
-//        List<GiveRecord> giveRecords = new ArrayList<>();
-//        this.getGiveRecords().stream()
-//                .filter(g -> values.contains(ReflectUtil.getFieldValue(g, fieldName)))
-//                .forEach(giveRecords::add);
-//        this.getGiveRecords().removeAll(giveRecords);
-//        return this;
-//    }
-//
-//    public HelpRecord filterByNotEq(String fieldName, Object value) {
-//        List<GiveRecord> giveRecords = new ArrayList<>();
-//        this.getGiveRecords().stream()
-//                .filter(g -> value.equals(ReflectUtil.getFieldValue(g, fieldName)))
-//                .forEach(giveRecords::add);
-//        this.getGiveRecords().removeAll(giveRecords);
-//        return this;
-//    }
-//
-//    public HelpRecord filterByIn(String fieldName, List<Object> values) {
-//        List<GiveRecord> giveRecords = new ArrayList<>();
-//        this.getGiveRecords().stream()
-//                .filter(g -> !values.contains(ReflectUtil.getFieldValue(g, fieldName)))
-//                .forEach(giveRecords::add);
-//        this.getGiveRecords().removeAll(giveRecords);
-//        return this;
-//    }
-//
-//    public HelpRecord filterByEq(String fieldName, Object value) {
-//        List<GiveRecord> giveRecords = new ArrayList<>();
-//        this.getGiveRecords().stream()
-//                .filter(g -> !value.equals(ReflectUtil.getFieldValue(g, fieldName)))
-//                .forEach(giveRecords::add);
-//        this.getGiveRecords().removeAll(giveRecords);
-//        return this;
-//    }
+    @PreUpdate
+    public void updateUnid() {
+        this.unid = SecureUtil.md5(this.helperEmail + this.literatureId + DateUtil.formatDate(this.gmtCreate));
+    }
+
 }

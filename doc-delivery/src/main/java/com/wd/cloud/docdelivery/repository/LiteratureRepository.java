@@ -44,7 +44,9 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
      * @param docHref
      * @return
      */
-    Literature findByDocTitleAndDocHref(String docTitle, String docHref);
+    //Literature findByDocTitleAndDocHref(String docTitle, String docHref);
+
+    List<Literature> findByDocTitleAndDocHref(String docTitle, String docHref);
 
     List<Literature> findByDocHrefAndDocTitle(String docHref, String docTitle);
 
