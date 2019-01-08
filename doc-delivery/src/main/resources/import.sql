@@ -32,3 +32,7 @@
 --  ADD COLUMN `is_anonymous`  bit(1) NULL DEFAULT b'0' COMMENT '0：不匿名，1：匿名' AFTER `literature_id`,
 --  ADD COLUMN `is_send`  bit(1) NULL DEFAULT b'1' COMMENT '0：未发送邮件，1：已发送邮件' AFTER `is_anonymous`,
 --  ADD COLUMN `remark`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '求助详情' AFTER `is_send`;
+
+
+-- drop view v_help_record;
+-- CREATE VIEW v_help_record AS SELECT t1.id AS help_record_id, t1.gmt_create, t1.gmt_modified, t1.helper_email, t1.helper_id, t1.helper_ip, t1.helper_name, t1.helper_scid, t1.helper_scname, t1.help_channel, t1.is_anonymous, t1.is_send, t1.literature_id, t1.`status`, t1.remark, t2.doc_title, t2.doc_href, t2.`authors`, t2.doi, t2.summary, t2.unid, t2.year_of_publication FROM help_record t1, literature t2 WHERE t1.literature_id = t2.id;

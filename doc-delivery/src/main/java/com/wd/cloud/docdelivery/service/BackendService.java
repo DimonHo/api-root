@@ -1,10 +1,8 @@
 package com.wd.cloud.docdelivery.service;
 
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.dto.LiteratureDTO;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.entity.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +23,7 @@ public interface BackendService {
      *
      * @return
      */
-    Page<HelpRecord> getHelpList(Pageable pageable, Map<String, Object> param);
+    Page<HelpRecordDTO> getHelpList(Pageable pageable, Map<String, Object> param);
 
     Page<LiteratureDTO> getLiteratureList(Pageable pageable, Map<String, Object> param);
 

@@ -56,7 +56,7 @@ public class GiveRecord extends AbstractEntity {
     /**
      * 0：待上传，1：已取消，2：待审核，3：求助第三方，4：已超时，5：审核已通过，6：审核未通过，7：直接处理成功，8：无结果
      */
-    @Column(columnDefinition = "tinyint COMMENT '应助者类型： 0：待上传，1：已取消，2：待审核，3：求助第三方，4：已超时，5：审核已通过，6：审核未通过，7：直接处理成功，8：无结果'")
+    @Column(columnDefinition = "tinyint COMMENT '应助者类型： 0：待上传，1：待审核，2：求助第三方，3：已取消，4：已超时，5：审核已通过，6：审核未通过，7：直接处理成功，8：无结果'")
     private Integer status;
 
     /**

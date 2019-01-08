@@ -62,7 +62,7 @@ public class BackendController {
             @ApiImplicitParam(name = "beginTime", value = "开始时间", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", paramType = "query")
     })
-    @GetMapping("/help/list")
+    @GetMapping("/helpRecords/view")
     public ResponseModel helpList(@RequestParam(required = false) Short status,
                                   @RequestParam(required = false) Short helperScid,
                                   @RequestParam(required = false) String keyword,

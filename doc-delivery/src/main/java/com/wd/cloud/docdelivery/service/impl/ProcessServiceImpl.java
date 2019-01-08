@@ -1,31 +1,45 @@
 package com.wd.cloud.docdelivery.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.dto.LiteratureDTO;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.entity.VHelpRecord;
+import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
+import com.wd.cloud.docdelivery.exception.NotFoundException;
 import com.wd.cloud.docdelivery.exception.ProcessException;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
-import com.wd.cloud.docdelivery.repository.DocFileRepository;
-import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
-import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
-import com.wd.cloud.docdelivery.repository.LiteratureRepository;
+import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.MailService;
 import com.wd.cloud.docdelivery.service.ProcessService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
+import java.util.*;
 
 /**
  * @author He Zhigang
@@ -38,6 +52,9 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     HelpRecordRepository helpRecordRepository;
+
+    @Autowired
+    VHelpRecordRepository vHelpRecordRepository;
 
     @Autowired
     GiveRecordRepository giveRecordRepository;
@@ -57,55 +74,180 @@ public class ProcessServiceImpl implements ProcessService {
     @Autowired
     Global global;
 
-
     @Override
-    public void third(Long helpRecordId, Long giverId, String giverName) {
-        HelpRecord helpRecord = helpRecordRepository.findById(helpRecordId).orElse(null);
+    public void third(Long helpRecordId, Long handlerId, String handlerName) {
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         // 如果不是待应助状态，中断操作
-        if (helpRecord == null || helpRecord.getStatus() != HelpStatusEnum.WAIT_HELP.getCode()) {
-            throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "状态不合法");
+        if (optionalHelpRecord.isPresent()) {
+            HelpRecord helpRecord = optionalHelpRecord.get();
+            if (helpRecord.getStatus() != HelpStatusEnum.WAIT_HELP.getValue()) {
+                throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
+            }
+            helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getValue());
+            GiveRecord giveRecord = new GiveRecord();
+            giveRecord.setHelpRecordId(helpRecord.getId())
+                    .setHandlerId(handlerId)
+                    .setHandlerName(handlerName)
+                    .setType(GiveTypeEnum.MANAGER.getCode());
+            giveRecordRepository.save(giveRecord);
+            helpRecordRepository.save(helpRecord);
+            VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecordId);
+            mailService.sendMail(vHelpRecord);
+        } else {
+            throw new NotFoundException("没有找到ID为【" + helpRecordId + "】的求助记录");
         }
-        helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getCode());
-        GiveRecord giveRecord = new GiveRecord();
-        giveRecord.setGiverId(giverId).setGiverName(giverName).setGiverType(GiveTypeEnum.MANAGER.getCode());
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
-        String docTitle = literature != null ? literature.getDocTitle() : "";
-        mailService.sendMail(helpRecord);
-        giveRecord.setHelpRecordId(helpRecord.getId());
-        giveRecordRepository.save(giveRecord);
-        helpRecordRepository.save(helpRecord);
     }
 
     @Override
-    public void give(Long helpRecordId, Long giverId, String giverName, MultipartFile file) {
-        HelpRecord helpRecord = helpRecordRepository.findById(helpRecordId).orElse(null);
-        if (helpRecord == null || helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.getCode()) {
-            throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "该求助不存在或已完成");
+    public void give(Long helpRecordId, Long handlerId, String handlerName, MultipartFile file) {
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
+        if (optionalHelpRecord.isPresent()) {
+            HelpRecord helpRecord = optionalHelpRecord.get();
+            if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.getValue()) {
+                throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
+            }
+            // 获取fileId
+            String fileId = getFileId(file);
+            // 没有则上传文件
+            fileId = fileId == null ? uploadFile(file) : fileId;
+            DocFile docFile = new DocFile();
+            docFile.setLiteratureId(helpRecord.getLiteratureId()).setFileId(fileId);
+
+            //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
+            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.THIRD.getValue()).orElse(new GiveRecord());
+            giveRecord.setHelpRecordId(helpRecord.getId())
+                    .setFileId(fileId)
+                    .setType(GiveTypeEnum.MANAGER.getCode())
+                    .setStatus(GiveStatusEnum.SUCCESS.getValue())
+                    .setHandlerId(handlerId)
+                    .setHandlerName(handlerName);
+            //修改求助状态为应助成功
+            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+            docFileRepository.save(docFile);
+            giveRecordRepository.save(giveRecord);
+            helpRecordRepository.save(helpRecord);
+            VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecordId);
+            mailService.sendMail(vHelpRecord);
+        } else {
+            throw new NotFoundException("没有找到ID为【" + helpRecordId + "】的求助记录");
         }
-        String fileId = fileExists(file);
-        fileId = fileId == null ? uploadFile(file) : fileId;
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
-        DocFile docFile = new DocFile();
-        docFile.setLiterature(literature).setFileId(fileId);
-        //保存文件上传记录
-        docFileRepository.save(docFile);
-        //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        GiveRecord giveRecord = new GiveRecord();
-        if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.getCode()) {
-            giveRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecord.getId(), GiveTypeEnum.THIRD.getCode());
-        }
-        giveRecord.setHelpRecordId(helpRecord.getId());
-        giveRecord.setDocFileId(docFile.getId());
-        //设置应助类型为管理员应助
-        giveRecord.setGiverType(GiveTypeEnum.MANAGER.getCode());
-        giveRecord.setGiverId(giverId);
-        giveRecord.setGiverName(giverName);
-        //修改求助状态为应助成功
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
-        giveRecordRepository.save(giveRecord);
-        helpRecordRepository.save(helpRecord);
-        mailService.sendMail(helpRecord);
     }
+
+    @Override
+    public void failed(Long helpRecordId, Long handlerId, String handlerName) {
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
+        if (optionalHelpRecord.isPresent()) {
+            HelpRecord helpRecord = optionalHelpRecord.get();
+            if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.getValue()) {
+                throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
+            }
+            helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getValue());
+            //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
+            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.getValue()).orElse(new GiveRecord());
+
+            giveRecord.setHandlerId(handlerId)
+                    .setHandlerName(handlerName)
+                    .setType(GiveTypeEnum.MANAGER.getCode())
+                    .setStatus(GiveStatusEnum.NO_RESULT.getValue())
+                    .setHelpRecordId(helpRecordId);
+            giveRecordRepository.save(giveRecord);
+            helpRecordRepository.save(helpRecord);
+
+            VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecordId);
+            mailService.sendMail(vHelpRecord);
+        } else {
+            throw new NotFoundException("没有找到ID为【" + helpRecordId + "】的求助记录");
+        }
+    }
+
+    @Override
+    public Page<HelpRecordDTO> waitHelpRecordList(Pageable pageable) {
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.WAIT_HELP.getValue(), HelpStatusEnum.HELP_THIRD.getValue());
+        Map<String, Object> param = MapUtil.of("status", waitStatusList);
+        return helpRecordList(param, pageable);
+    }
+
+    @Override
+    public Page<HelpRecordDTO> successHelpRecordList(Pageable pageable) {
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        Map<String, Object> param = MapUtil.of("status", waitStatusList);
+        return helpRecordList(param, pageable);
+    }
+
+    @Override
+    public Page<HelpRecordDTO> failedHelpRecordList(Pageable pageable) {
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELP_FAILED.getValue());
+        Map<String, Object> param = MapUtil.of("status", waitStatusList);
+        return helpRecordList(param, pageable);
+    }
+
+    @Override
+    public Page<HelpRecordDTO> waitAuditHelpRecordList(Pageable pageable) {
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.WAIT_AUDIT.getValue());
+        Map<String, Object> param = MapUtil.of("status", waitStatusList);
+        return helpRecordList(param, pageable);
+    }
+
+    @Override
+    public Page<HelpRecordDTO> helpingHelpRecordList(Pageable pageable) {
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELPING.getValue());
+        Map<String, Object> param = MapUtil.of("status", waitStatusList);
+        return helpRecordList(param, pageable);
+    }
+
+    @Override
+    public Page<HelpRecordDTO> helpRecordList(Map<String, Object> param, Pageable pageable) {
+        Short helpUserScid = MapUtil.getShort(param, "helperScid");
+        List<Integer> statusList = MapUtil.get(param, "status", List.class);
+        String keyword = MapUtil.getStr(param, "keyword") == null ? null : MapUtil.getStr(param, "keyword").replaceAll("\\\\", "\\\\\\\\");
+        Date beginTime = MapUtil.getDate(param, "beginTime");
+        Date endTime = DateUtil.endOfDay(MapUtil.getDate(param, "endTime"));
+        Long helperId = MapUtil.getLong(param,"helperId");
+        Page<VHelpRecord> result = vHelpRecordRepository.findAll(new Specification<VHelpRecord>() {
+            @Override
+            public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                // 机构过滤
+                if (helpUserScid != null) {
+                    list.add(cb.equal(root.get("helperScid"), helpUserScid));
+                }
+                if (helperId != null){
+                    list.add(cb.equal(root.get("helperId"), helperId));
+                }
+                // 状态过滤
+                if (statusList != null && statusList.size() > 0) {
+                    CriteriaBuilder.In<Integer> inStatus = cb.in(root.get("status"));
+                    statusList.forEach(inStatus::value);
+                    list.add(inStatus);
+                }
+                // 时间范围过滤
+                if (beginTime != null) {
+                    list.add(cb.between(root.get("gmtCreate").as(Date.class), beginTime, endTime));
+                }
+                // 模糊查询文献标题或邮箱
+                if (!StringUtils.isEmpty(keyword)) {
+                    list.add(cb.or(cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
+                            cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            }
+        }, pageable);
+
+        Page<HelpRecordDTO> helpRecordDTOS = result.map(vHelpRecord -> {
+            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
+            BeanUtil.copyProperties(vHelpRecord, helpRecordDTO);
+            helpRecordDTO.setGiveRecords(giveRecordRepository.findByHelpRecordId(vHelpRecord.getHelpRecordId()));
+            return helpRecordDTO;
+        });
+        return helpRecordDTOS;
+    }
+
+    @Override
+    public Page<LiteratureDTO> literatureList(Map<String, Object> query, Pageable pageable) {
+        return null;
+    }
+
 
     private String uploadFile(MultipartFile file) {
         ResponseModel<JSONObject> uploadResult = fsServerApi.uploadFile(global.getHbaseTableName(), file);
@@ -117,7 +259,13 @@ public class ProcessServiceImpl implements ProcessService {
         return uploadResult.getBody().getStr("fileId");
     }
 
-    private String fileExists(MultipartFile file) {
+    /**
+     * 检查文件是否已存在于文件服务器,如果存在，得到fileId
+     *
+     * @param file
+     * @return
+     */
+    private String getFileId(MultipartFile file) {
         try {
             String fileMd5 = FileUtil.fileMd5(file.getInputStream());
             ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(global.getHbaseTableName(), fileMd5);
@@ -131,8 +279,19 @@ public class ProcessServiceImpl implements ProcessService {
         return null;
     }
 
-    @Override
-    public void notFound(Long helpRecordId, Long giverId, String giverName) {
-
+    /**
+     * 匿名
+     * @param vHelpRecord
+     * @return
+     */
+    private VHelpRecord anonymous(VHelpRecord vHelpRecord) {
+        if (vHelpRecord.isAnonymous()) {
+            vHelpRecord.setHelperEmail("匿名").setHelperName("匿名");
+        } else {
+            String helperEmail = vHelpRecord.getHelperEmail();
+            String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
+            vHelpRecord.setHelperEmail(s);
+        }
+        return vHelpRecord;
     }
 }

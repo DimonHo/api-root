@@ -3,7 +3,10 @@ package com.wd.cloud.docdelivery.entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -17,8 +20,9 @@ import java.util.Date;
 @Table(name = "v_help_record")
 public class VHelpRecord {
 
+
     @Id
-    private Long id;
+    private Long helpRecordId;
 
     private Date gmtCreate;
 
@@ -50,12 +54,23 @@ public class VHelpRecord {
 
     private String helperIp;
 
-    private int helpChannel;
+    private Long helpChannel;
+
+    private String channelName;
+
+    private String channelUrl;
+
+    private String channelTemplate;
+
+    private String bccs;
+
+    private Long exp;
 
     private int status;
 
     private boolean send;
 
+    @Column(name = "is_anonynous")
     private boolean anonymous;
 
     private String unid;

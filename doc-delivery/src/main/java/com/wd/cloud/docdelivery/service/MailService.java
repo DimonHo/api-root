@@ -1,8 +1,6 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.enums.ChannelEnum;
-import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
+import com.wd.cloud.docdelivery.entity.VHelpRecord;
 
 /**
  * @author He Zhigang
@@ -11,52 +9,5 @@ import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
  */
 public interface MailService {
 
-    void sendMail(HelpRecord helpRecord);
-
-    /**
-     * 发送邮件
-     *
-     * @param channelEnum    渠道enum
-     * @param helperScname   机构名称
-     * @param helperEmail    求助者邮箱
-     * @param docTitle       文献标题
-     * @param downloadUrl    下载链接
-     * @param helpStatusEnum 求助状态
-     */
-    void sendMail(ChannelEnum channelEnum, String helperScname, String helperEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id);
-
-    /**
-     * 发送邮件
-     *
-     * @param channel        渠道code
-     * @param helperScname   机构名称
-     * @param helperEmail    求助者邮箱
-     * @param docTitle       文献标题
-     * @param downloadUrl    下载链接
-     * @param helpStatusEnum 求助状态
-     */
-    void sendMail(Integer channel, String helperScname, String helperEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id);
-
-    /**
-     * 发送邮件
-     *
-     * @param channel      渠道code
-     * @param helperScname 机构名称
-     * @param helperEmail  求助者邮箱
-     * @param docTitle     文献标题
-     * @param downloadUrl  下载链接
-     * @param processType  处理方式
-     */
-    void sendMail(Integer channel, String helperScname, String helperEmail, String docTitle, String downloadUrl, Integer processType, long id);
-
-    /**
-     * 通知邮件
-     *
-     * @param channel      渠道code
-     * @param helperScname 机构名称
-     * @param helperEmail  求助者邮箱
-     */
-    void sendNotifyMail(Integer channel, String helperScname, String helperEmail, long id);
-
-
+    void sendMail(VHelpRecord vHelpRecord);
 }

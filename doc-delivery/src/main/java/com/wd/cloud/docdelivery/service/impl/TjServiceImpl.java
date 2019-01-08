@@ -64,7 +64,7 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public long successTotal() {
-        return helpRecordRepository.countByStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
+        return helpRecordRepository.countByStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class TjServiceImpl implements TjService {
         long myTodayHelpCount = helpRecordRepository.myTodayTotal(email);
         //我的总求助数量
         long myHelpCount = helpRecordRepository.countByHelperEmail(email);
-        long successHelpCount = helpRecordRepository.countByHelperEmailAndStatus(email, HelpStatusEnum.HELP_SUCCESSED.getCode());
+        long successHelpCount = helpRecordRepository.countByHelperEmailAndStatus(email, HelpStatusEnum.HELP_SUCCESSED.getValue());
         //总上限
         Long total = permission.getTotal();
         //每日上限

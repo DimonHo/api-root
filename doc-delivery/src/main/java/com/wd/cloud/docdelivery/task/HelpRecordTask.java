@@ -45,15 +45,15 @@ public class HelpRecordTask {
             String docTitle = literature != null ? literature.getDocTitle() : null;
             long id = helpRecord.getId();
             int status = helpRecord.getStatus();
-            if (HelpStatusEnum.HELP_THIRD.getCode() == status) {
+            if (HelpStatusEnum.HELP_THIRD.getValue() == status) {
                 String downloadUrl = null;
                 HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_THIRD;
                 mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-            } else if (HelpStatusEnum.HELP_SUCCESSED.getCode() == status) {
+            } else if (HelpStatusEnum.HELP_SUCCESSED.getValue() == status) {
                 String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
                 HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_SUCCESSED;
                 mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-            } else if (HelpStatusEnum.HELP_FAILED.getCode() == status) {
+            } else if (HelpStatusEnum.HELP_FAILED.getValue() == status) {
                 String downloadUrl = null;
                 HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_FAILED;
                 mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);

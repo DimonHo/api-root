@@ -4,17 +4,17 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.enums.ChannelEnum;
+import com.wd.cloud.docdelivery.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.model.*;
+import com.wd.cloud.docdelivery.model.MailModel;
+import com.wd.cloud.docdelivery.model.MailTemplateModel;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.service.MailService;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -30,20 +30,9 @@ import java.util.Optional;
  * @date 2018/5/17
  * @Description:
  */
-
+@Slf4j
 @Service("mailService")
 public class MailServiceImpl implements MailService {
-
-    private static final Log log = LogFactory.get();
-
-    @Autowired
-    MailModel spis;
-
-    @Autowired
-    MailModel crs;
-
-    @Autowired
-    MailModel zhy;
 
     @Autowired
     Global global;
@@ -52,8 +41,116 @@ public class MailServiceImpl implements MailService {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
+    @Override
+    public void sendMail(VHelpRecord vHelpRecord) {
+        List<String> tos = splitAddress(vHelpRecord.getHelperEmail());
+        if (tos == null) {
+            throw new NullPointerException("收件人邮箱为空！");
+        }
+        MailTemplateModel mailTemplateModel = buildMailTemplateModel(vHelpRecord);
+        MailModel mailModel = new MailModel();
+        mailModel.setTos(ArrayUtil.toArray(tos, String.class));
+        mailModel.setTitle(mailTemplateModel.getMailTitle())
+                .setContent(buildContent(mailTemplateModel, vHelpRecord.getStatus(), vHelpRecord.getChannelName()));
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getHelperId());
+        optionalHelpRecord.ifPresent(helpRecord -> excuteSend(mailModel, helpRecord));
+    }
+
+    private MailTemplateModel buildMailTemplateModel(VHelpRecord vHelpRecord) {
+        MailTemplateModel mailTemplateModel = new MailTemplateModel();
+        mailTemplateModel.setChannelName(vHelpRecord.getChannelName())
+                .setChannelUrl(vHelpRecord.getChannelUrl())
+                .setDocTitle(vHelpRecord.getDocTitle());
+
+        Optional<HelpStatusEnum> optionalHelpStatusEnum = HelpStatusEnum.match(vHelpRecord.getStatus());
+        if (optionalHelpStatusEnum.isPresent()) {
+            switch (optionalHelpStatusEnum.get()) {
+                case WAIT_HELP:
+                    mailTemplateModel.setMailTitle("用户文献互助")
+                            .setHelperName(vHelpRecord.getHelperName())
+                            .setHelperOrgName(vHelpRecord.getHelperScname())
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-notify"));
+                    break;
+                case HELP_THIRD:
+                    mailTemplateModel.setMailTitle(String.format("[文献互助•疑难文献]-%s", vHelpRecord.getDocTitle()))
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-third"));
+                    break;
+                case HELP_SUCCESSED:
+                    mailTemplateModel.setMailTitle(String.format("[文献互助•成功]-%s", vHelpRecord.getDocTitle()))
+                            .setDownloadUrl(buildDownloadUrl(vHelpRecord.getHelpRecordId()))
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-success"));
+                    break;
+                case HELP_FAILED:
+                    mailTemplateModel.setMailTitle(String.format("[文献互助•失败]-%s", vHelpRecord.getDocTitle()))
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-failed"));
+                    break;
+                default:
+                    mailTemplateModel.setMailTitle("错误邮件");
+                    break;
+            }
+        }
+        return mailTemplateModel;
+    }
+
+    private void excuteSend(MailModel mailModel, HelpRecord helpRecord) {
+        try {
+            mailModel.send();
+            helpRecord.setSend(true);
+            helpRecordRepository.save(helpRecord);
+        } catch (Exception e) {
+            helpRecord.setSend(false);
+            helpRecordRepository.save(helpRecord);
+            log.error("发送邮件至{}失败：", helpRecord.getHelperEmail(), e);
+        }
+    }
+
+
     /**
-     * 地址拆分
+     * 构建邮件内容
+     *
+     * @param helpStatusEnum
+     * @param helperScname
+     * @return
+     */
+    private String buildContent(MailTemplateModel mailTemplateModel, Integer helpStatusEnum, String helperScname) {
+        String templateFile = mailTemplateModel.getTemplate();
+        if (templateNotExists(templateFile)) {
+            log.info("模板文件[{}]不存在，使用默认模板", templateFile);
+            templateFile = templateFile.replace(StrUtil.subBefore(templateFile, "-", false), "default");
+        }
+        String content = null;
+        boolean isDefault = templateFile.contains("default");
+        try {
+            // 如果templateFile不包含“default”字符串，就去外部目录去加载
+            if (!isDefault) {
+                freeMarkerConfigurer.getConfiguration().setDirectoryForTemplateLoading(new File(global.getTemplatesBase()));
+            }
+            Template template = freeMarkerConfigurer.getConfiguration().getTemplate(templateFile);
+            content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailTemplateModel);
+        } catch (TemplateException | IOException e) {
+            e.printStackTrace();
+        }
+        return content;
+    }
+
+    /**
+     * 检查模板文件是否存在
+     *
+     * @param templateFile
+     * @return
+     */
+    private boolean templateNotExists(String templateFile) {
+        String suffix = "/";
+        String path = global.getTemplatesBase() + suffix + templateFile;
+        if (StrUtil.endWith(global.getTemplatesBase(), suffix)) {
+            path = global.getTemplatesBase() + templateFile;
+        }
+        return !FileUtil.exist(path);
+    }
+
+
+    /**
+     * 收件人地址拆分
      *
      * @param addresses
      * @return
@@ -74,199 +171,7 @@ public class MailServiceImpl implements MailService {
         return result;
     }
 
-    @Override
-    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, Integer processType, long id) {
-        HelpStatusEnum helpStatusEnum = null;
-        for (HelpStatusEnum helpStatusInstance : HelpStatusEnum.values()) {
-            if (helpStatusInstance.getCode() == processType) {
-                helpStatusEnum = helpStatusInstance;
-            }
-        }
-        sendMail(channel, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-    }
-
-
-    @Override
-    public void sendMail(Integer channel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id) {
-        ChannelEnum channelEnum = getChannelEnum(channel);
-        sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-    }
-
-    @Override
-    public void sendMail(HelpRecord helpRecord) {
-
-    }
-
-    @Override
-    public void sendMail(ChannelEnum channelEnum, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id) {
-        if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendMail(spis, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-        } else if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendMail(crs, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-        } else if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendMail(zhy, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-        }
-    }
-
-    @Override
-    public void sendNotifyMail(Integer channel, String helperScname, String helpEmail, long id) {
-        ChannelEnum channelEnum = getChannelEnum(channel);
-        if (ChannelEnum.SPIS.equals(channelEnum)) {
-            sendNotifyMail(spis, helperScname, helpEmail, id);
-        }
-        if (ChannelEnum.CRS.equals(channelEnum)) {
-            sendNotifyMail(crs, helperScname, helpEmail, id);
-        }
-        if (ChannelEnum.ZHY.equals(channelEnum)) {
-            sendNotifyMail(zhy, helperScname, helpEmail, id);
-        }
-    }
-
-    private void sendMail(MailModel mailModel, String helperScname, String helpEmail, String docTitle, String downloadUrl, HelpStatusEnum helpStatusEnum, long id) {
-        List<String> tos = splitAddress(helpEmail);
-        if (tos == null) {
-            throw new NullPointerException("收件人邮箱为空！");
-        }
-        mailModel.setTos(ArrayUtil.toArray(tos, String.class));
-        if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
-            DefaultMailSuccessModel successModel = new DefaultMailSuccessModel();
-            successModel.setDownloadUrl(downloadUrl).setDocTitle(docTitle);
-            mailModel.setSuccessModel(successModel);
-            mailModel.setTitle(String.format(mailModel.getSuccessModel().getMailTitle(), docTitle))
-                    .setContent(buildContent(mailModel, helpStatusEnum, helperScname));
-        } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
-            DefaultMailThirdModel thirdModel = new DefaultMailThirdModel();
-            thirdModel.setDocTitle(docTitle);
-            mailModel.setThirdModel(thirdModel);
-            mailModel.setTitle(String.format(mailModel.getThirdModel().getMailTitle(), docTitle))
-                    .setContent(buildContent(mailModel, helpStatusEnum, helperScname));
-
-        } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
-            DefaultMailFailedModel failedModel = new DefaultMailFailedModel();
-            failedModel.setDocTitle(docTitle);
-            mailModel.setFailedModel(failedModel);
-            mailModel.setTitle(String.format(mailModel.getFailedModel().getMailTitle(), docTitle))
-                    .setContent(buildContent(mailModel, helpStatusEnum, helperScname));
-        }
-        Optional<HelpRecord> Optional = helpRecordRepository.findById(id);
-        HelpRecord helpRecord = Optional.get();
-
-        excuteSend(mailModel, helpRecord);
-    }
-
-    private void sendNotifyMail(MailModel mailModel, String helperScname, String helpEmail, long id) {
-        Optional<HelpRecord> Optional = helpRecordRepository.findById(id);
-        HelpRecord helpRecord = Optional.get();
-        DefaultMailNotifyModel notifyModel = new DefaultMailNotifyModel();
-        notifyModel.setHelperScname(helperScname).setHelperName(helpEmail);
-        mailModel.setTos(global.getNotifyMail());
-        mailModel.setNotifyModel(notifyModel);
-        mailModel.setTitle(mailModel.getNotifyModel().getMailTitle())
-                .setContent(buildNotifyContent(mailModel, helperScname));
-        excuteSend(mailModel, helpRecord);
-    }
-
-    private void excuteSend(MailModel mailModel, HelpRecord helpRecord) {
-        try {
-            mailModel.send();
-            helpRecord.setSend(true);
-            helpRecordRepository.save(helpRecord);
-        } catch (Exception e) {
-            helpRecord.setSend(false);
-            helpRecordRepository.save(helpRecord);
-            log.error(e, "发送邮件至{}失败：", helpRecord.getHelperEmail());
-        }
-    }
-
-    /**
-     * 获取渠道
-     *
-     * @param channel
-     * @return
-     */
-    public ChannelEnum getChannelEnum(Integer channel) {
-        ChannelEnum channelEnum = null;
-        for (ChannelEnum channelInstance : ChannelEnum.values()) {
-            if (channelInstance.getCode() == channel) {
-                channelEnum = channelInstance;
-            }
-        }
-        return channelEnum;
-    }
-
-    /**
-     * 构建邮件内容
-     *
-     * @param mailModel
-     * @param helpStatusEnum
-     * @param helperScname
-     * @return
-     */
-    private String buildContent(MailModel mailModel, HelpStatusEnum helpStatusEnum, String helperScname) {
-        String templateFile = null;
-        if (HelpStatusEnum.HELP_SUCCESSED.equals(helpStatusEnum)) {
-            templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-success");
-            if (templateNotExists(templateFile)) {
-                log.info("模板文件[{}]不存在，使用默认模板", templateFile);
-                templateFile = "default-success.ftl";
-            }
-        } else if (HelpStatusEnum.HELP_FAILED.equals(helpStatusEnum)) {
-            templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-failed");
-            if (templateNotExists(templateFile)) {
-                templateFile = "default-failed.ftl";
-            }
-        } else if (HelpStatusEnum.HELP_THIRD.equals(helpStatusEnum)) {
-            templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-third");
-            if (templateNotExists(templateFile)) {
-                templateFile = "default-third.ftl";
-            }
-        }
-        return buildContent(mailModel, templateFile);
-    }
-
-    /**
-     * 检查模板文件是否存在
-     *
-     * @param templateFile
-     * @return
-     */
-    private boolean templateNotExists(String templateFile) {
-        String suffix = "/";
-        String path = global.getTemplatesBase() + suffix + templateFile;
-        if (StrUtil.endWith(global.getTemplatesBase(), suffix)) {
-            path = global.getTemplatesBase() + templateFile;
-        }
-        return !FileUtil.exist(path);
-    }
-
-    private String buildNotifyContent(MailModel mailModel, String helperScname) {
-        String templateFile = String.format(mailModel.getTemplateFile(), helperScname + "-notify");
-        if (templateNotExists(templateFile)) {
-            templateFile = "default-notify.ftl";
-        }
-        return buildContent(mailModel, templateFile);
-    }
-
-    /**
-     * 构建邮件内容
-     *
-     * @param mailModel
-     * @param templateFile
-     * @return
-     */
-    private String buildContent(MailModel mailModel, String templateFile) {
-        String content = null;
-        boolean isDefault = templateFile.contains("default");
-        try {
-            // 如果templateFile不包含“default”字符串，就去外部目录去加载
-            if (!isDefault) {
-                freeMarkerConfigurer.getConfiguration().setDirectoryForTemplateLoading(new File(global.getTemplatesBase()));
-            }
-            Template template = freeMarkerConfigurer.getConfiguration().getTemplate(templateFile);
-            content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailModel);
-        } catch (TemplateException | IOException e) {
-            e.printStackTrace();
-        }
-        return content;
+    private String buildDownloadUrl(Long helpRecordId) {
+        return global.getCloudDomain() + "/doc-delivery/file/download/" + helpRecordId;
     }
 }

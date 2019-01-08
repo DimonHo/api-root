@@ -112,7 +112,7 @@ public class TempServiceImpl implements TempService {
                 DocFile byFileIdAndLiterature = docFileRepository.findByFileIdAndLiterature(docFile.getFileId(), docFile.getLiterature());
                 List<GiveRecord> byDocFileId = giveRecordRepository.findByDocFileId(docFile.getId());
                 for (GiveRecord giveRecord : byDocFileId) {
-                    giveRecord.setDocFileId(byFileIdAndLiterature.getId());
+                    giveRecord.setFileId(byFileIdAndLiterature.getFileId());
                 }
                 giveRecordRepository.saveAll(byDocFileId);
                 docFileRepository.deleteById(docFile.getId());

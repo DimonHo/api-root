@@ -1,5 +1,7 @@
 package com.wd.cloud.docdelivery.enums;
 
+import java.util.Optional;
+
 /**
  * @author He Zhigang
  * @date 2018/5/7
@@ -30,24 +32,32 @@ public enum HelpStatusEnum {
     /**
      * 应助完成
      */
-    HELP_FAILED("应助失败", 5);
+    HELP_FAILED("疑难文献", 5);
 
 
     private String name;
-    private int code;
+    private int value;
 
-    private HelpStatusEnum(String name, int code) {
+    private HelpStatusEnum(String name, int value) {
         this.name = name;
-        this.code = code;
+        this.value = value;
+    }
+
+    public static Optional<HelpStatusEnum> match(int value) {
+        for (HelpStatusEnum helpStatusEnum : HelpStatusEnum.values()) {
+            if (helpStatusEnum.getValue() == value) {
+                return Optional.of(helpStatusEnum);
+            }
+        }
+        return Optional.empty();
     }
 
     public String getName() {
         return name;
     }
 
-    public int getCode() {
-        return code;
+    public int getValue() {
+        return value;
     }
-
 
 }

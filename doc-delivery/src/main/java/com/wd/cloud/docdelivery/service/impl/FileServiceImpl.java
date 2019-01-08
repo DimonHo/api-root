@@ -10,7 +10,7 @@ import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
-import com.wd.cloud.docdelivery.enums.AuditEnum;
+import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -63,7 +64,7 @@ public class FileServiceImpl implements FileService {
             log.error("未找到id为{}的数据", helpRecordId);
             return null;
         }
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdPassOrManagerGive(helpRecordId);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusSuccess(helpRecordId);
         DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         return downloadFileModel;
     }
@@ -71,14 +72,16 @@ public class FileServiceImpl implements FileService {
     @Override
     public DownloadFileModel getWaitAuditFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecordId, AuditEnum.WAIT.getCode());
-        DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
-        return downloadFileModel;
+        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.WAIT_AUDIT.getValue());
+        if (optionalGiveRecord.isPresent()) {
+            DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, optionalGiveRecord.get());
+            return downloadFileModel;
+        }
+        return null;
     }
 
     private DownloadFileModel buildDownloadModel(HelpRecord helpRecord, GiveRecord giveRecord) {
-        DocFile docFile = docFileRepository.findById(giveRecord.getDocFileId()).orElse(null);
-        String fileId = docFile != null ? docFile.getFileId() : null;
+        String fileId = giveRecord.getFileId();
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
         String docTitle = literature != null ? literature.getDocTitle() : null;
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。

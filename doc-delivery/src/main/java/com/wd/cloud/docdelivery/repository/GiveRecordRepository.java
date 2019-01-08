@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -73,13 +74,18 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
      * @param helpRecordId
      * @return
      */
-    @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND (audit_status = 1 OR giver_type <> 2)", nativeQuery = true)
-    GiveRecord findByHelpRecordIdPassOrManagerGive(Long helpRecordId);
+    @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND status = 6", nativeQuery = true)
+    GiveRecord findByHelpRecordIdAndStatusSuccess(Long helpRecordId);
 
     List<GiveRecord> findByHelpRecordId(Long helpRecordId);
 
-
-    GiveRecord findByHelpRecordIdAndAuditStatusEquals(Long helpRecordId, Integer status);
+    /**
+     * 查询指定状态的记录
+     * @param helpRecordId
+     * @param status
+     * @return
+     */
+    Optional<GiveRecord> findByHelpRecordIdAndStatus(Long helpRecordId, Integer status);
 
     @Query(value = "select * FROM give_record WHERE giver_type = 2 AND doc_file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
     List<GiveRecord> findTimeOutRecord();
