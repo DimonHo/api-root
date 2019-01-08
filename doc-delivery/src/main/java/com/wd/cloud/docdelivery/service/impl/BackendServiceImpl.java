@@ -11,19 +11,13 @@ import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.DocFileDTO;
 import com.wd.cloud.docdelivery.dto.LiteratureDTO;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.entity.*;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.exception.NotFoundException;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
-import com.wd.cloud.docdelivery.repository.DocFileRepository;
-import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
-import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
-import com.wd.cloud.docdelivery.repository.LiteratureRepository;
+import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -80,18 +74,27 @@ public class BackendServiceImpl implements BackendService {
     @Autowired
     FileService fileService;
 
+    @Autowired
+    ReusingLogRepository reusingLogRepository;
+
+    @Autowired
+    VHelpRecordRepository vHelpRecordRepository;
+
+    @Autowired
+    VLiteratureRepository vLiteratureRepository;
+
+
     @Override
-    public Page<HelpRecord> getHelpList(Pageable pageable, Map<String, Object> param) {
+    public Page<VHelpRecord> getHelpList(Pageable pageable, Map<String, Object> param) {
         Short helpUserScid = (Short) param.get("helperScid");
         Short status = (Short) param.get("status");
-        //  https://www.tapd.cn/33969136/bugtrace/bugs/view?bug_id=1133969136001000485
         String keywords = ((String) param.get("keyword"));
         String keyword = keywords != null ? keywords.replaceAll("\\\\", "\\\\\\\\") : null;
         String beginTime = (String) param.get("beginTime");
         String endTime = (String) param.get("endTime") + " 23:59:59";
-        Page<HelpRecord> result = helpRecordRepository.findAll(new Specification<HelpRecord>() {
+        Page<VHelpRecord> result = vHelpRecordRepository.findAll(new Specification<VHelpRecord>() {
             @Override
-            public Predicate toPredicate(Root<HelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (helpUserScid != null && helpUserScid != 0) {
                     list.add(cb.equal(root.get("helperScid").as(Integer.class), helpUserScid));
@@ -106,7 +109,7 @@ public class BackendServiceImpl implements BackendService {
                 }
                 if (!StringUtils.isEmpty(keyword)) {
                     list.add(cb.or(
-                            cb.like(root.get("literature").get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
+                            cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
                             cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")
                             )
                     );
@@ -127,9 +130,9 @@ public class BackendServiceImpl implements BackendService {
         Boolean reusing = (Boolean) param.get("reusing");
         String keywords = ((String) param.get("keyword"));
         String keyword = keywords != null ? keywords.replaceAll("\\\\", "\\\\\\\\") : null;
-        Page<Literature> literaturePage = literatureRepository.findAll(new Specification<Literature>() {
+        Page<VLiterature> literaturePage = vLiteratureRepository.findAll(new Specification<VLiterature>() {
             @Override
-            public Predicate toPredicate(Root<Literature> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root<VLiterature> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (reusing != null) {
                     list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
@@ -137,7 +140,7 @@ public class BackendServiceImpl implements BackendService {
                 if (!StringUtils.isEmpty(keyword)) {
                     list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));
                 }
-                list.add(cb.isNotEmpty(root.get("docFiles")));
+                //list.add(cb.isNotEmpty(root.get("docFiles")));
                 Predicate[] p = new Predicate[list.size()];
                 return cb.and(list.toArray(p));
             }
@@ -145,9 +148,9 @@ public class BackendServiceImpl implements BackendService {
 
         Page<LiteratureDTO> literatureDTOPage = literaturePage.map(literature -> {
             LiteratureDTO literatureDTO = new LiteratureDTO();
-            BeanUtil.copyProperties(literature, literatureDTO, "docFiles");
+            //BeanUtil.copyProperties(literature, literatureDTO, "docFiles");
 
-            List<DocFile> docFiles = docFileRepository.findByLiteratureId(literature.getId());
+            List<DocFile> docFiles = docFileRepository.findByLiteratureId(literature.getLiteratureId());
             List<DocFileDTO> docFileDTOS = new ArrayList<>();
             docFiles.forEach(docFile -> {
                 DocFileDTO docFileDTO = new DocFileDTO();
@@ -166,13 +169,10 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public DocFile saveDocFile(Literature literature, String fileId, String fileName) {
-        DocFile docFile = docFileRepository.findByLiteratureAndFileId(literature, fileId).orElse(new DocFile());
+    public DocFile saveDocFile(Long literatureId, String fileId, String fileName) {
+        DocFile docFile = docFileRepository.findByLiteratureIdAndFileId(literatureId, fileId).orElse(new DocFile());
         docFile.setFileId(fileId);
-        docFile.setLiterature(literature);
-        docFile.setAuditStatus(null);
-        docFile.setAuditorId(null);
-        docFile.setAuditorName(null);
+        docFile.setLiteratureId(literatureId);
         docFile = docFileRepository.save(docFile);
         return docFile;
     }
@@ -206,17 +206,17 @@ public class BackendServiceImpl implements BackendService {
         }
         String fileName = file.getOriginalFilename();
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
-        docFile = saveDocFile(literature, fileId, fileName);
+        docFile = saveDocFile(helpRecordId, fileId, fileName);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        GiveRecord giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecord.getId(), GiveTypeEnum.THIRD.getCode());
+        GiveRecord giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatusEquals(helpRecord.getId(), GiveTypeEnum.THIRD.getCode());
 
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = giveRecordOptional == null ? new GiveRecord() : giveRecordOptional;
 
         giveRecord.setHelpRecordId(helpRecord.getId());
-        giveRecord.setDocFileId(docFile.getId());
+        giveRecord.setFileId(docFile.getFileId());
         //设置应助类型为管理员应助
-        giveRecord.setGiverType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
         giveRecord.setGiverId(giverId);
         giveRecord.setGiverName(giverName);
         //修改求助状态为应助成功
@@ -241,7 +241,7 @@ public class BackendServiceImpl implements BackendService {
         helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getCode());
         GiveRecord giveRecord = new GiveRecord();
         giveRecord.setGiverId(giverId);
-        giveRecord.setGiverType(GiveTypeEnum.THIRD.getCode());
+        giveRecord.setType(GiveTypeEnum.THIRD.getCode());
         giveRecord.setGiverName(giverName);
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
         String docTitle = literature != null ? literature.getDocTitle() : "";
@@ -262,12 +262,12 @@ public class BackendServiceImpl implements BackendService {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
         helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getCode());
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecordId, GiveTypeEnum.THIRD.getCode());
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusEquals(helpRecordId, GiveTypeEnum.THIRD.getCode());
 
         //如果没有第三方状态的记录，则新建一条应助记录
         giveRecord = giveRecord != null ? giveRecord : new GiveRecord();
         giveRecord.setGiverId(giverId);
-        giveRecord.setGiverType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
         giveRecord.setGiverName(giverName);
         giveRecord.setHelpRecordId(helpRecordId);
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
@@ -284,22 +284,22 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public void auditPass(Long helpRecordId, Long auditorId, String auditorName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusAndGiverType(helpRecordId, 0, 2);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, 0, 2);
         if (giveRecord == null) {
             throw new NotFoundException("未找到待审核的应助记录");
         }
 
-        giveRecord.setAuditStatus(AuditEnum.PASS.getCode());
-        giveRecord.setAuditorId(auditorId);
-        giveRecord.setAuditorName(auditorName);
+        giveRecord.setStatus(AuditEnum.PASS.getCode());
+        giveRecord.setHandlerId(auditorId);
+        giveRecord.setHandlerName(auditorName);
+        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
 
-        DocFile docFile = docFileRepository.findById(giveRecord.getDocFileId()).get();
-        docFile.setAuditStatus(1);
+        DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(),literature.getId());
         docFileRepository.save(docFile);
 
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
         helpRecordRepository.save(helpRecord);
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
+
         String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
         mailService.sendMail(helpRecord.getHelpChannel(),
                 helpRecord.getHelperScname(),
@@ -313,15 +313,13 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public void auditNoPass(Long helpRecordId, Long auditorId, String auditorName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusAndGiverType(helpRecordId, 0, 2);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, 0, 2);
         if (giveRecord == null) {
             throw new NotFoundException("未找到待审核的应助记录");
         }
-        giveRecord.setAuditStatus(AuditEnum.NO_PASS.getCode());
-        giveRecord.setAuditorId(auditorId);
-        giveRecord.setAuditorName(auditorName);
-        DocFile docFile = docFileRepository.findById(giveRecord.getDocFileId()).get();
-        docFile.setAuditStatus(2);
+        giveRecord.setStatus(AuditEnum.NO_PASS.getCode());
+        giveRecord.setHandlerId(auditorId);
+        giveRecord.setHandlerName(auditorName);
         helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getCode());
         helpRecordRepository.save(helpRecord);
     }
@@ -339,14 +337,14 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public GiveRecord getWaitAudit(Long id) {
-        GiveRecord giveRecord = giveRecordRepository.findByIdAndAuditStatus(id, AuditEnum.WAIT.getCode());
+        GiveRecord giveRecord = giveRecordRepository.findByIdAndStatus(id, AuditEnum.WAIT.getCode());
         return giveRecord;
     }
 
 
     @Override
     public GiveRecord getGiverRecord(Long helpRecordId, int auditStatus, int giverType) {
-        return giveRecordRepository.findByHelpRecordIdAndAuditStatusAndGiverType(helpRecordId, auditStatus, giverType);
+        return giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, auditStatus, giverType);
     }
 
 
@@ -358,6 +356,7 @@ public class BackendServiceImpl implements BackendService {
         boolean reusing = (boolean) param.get("reusing");
         List<DocFile> list = docFileRepository.getResuingDoc(literatureId);
         DocFile doc = null;
+        ReusingLog reusingLog = null;
         for (DocFile docFile : list) {
             //如果是复用操作，并且已经有文档被复用，则返回false，如果是取消复用，则不会进入
             if (docFile.isReusing() && reusing) {
@@ -374,9 +373,10 @@ public class BackendServiceImpl implements BackendService {
             return false;
         }
         doc.setReusing(reusing);
-        doc.setAuditorId((long) param.get("auditorId"));
-        doc.setAuditorName((String) param.get("auditorName"));
-        literature.setReusing(reusing);
+        reusingLog.setReusing(reusing);
+        reusingLog.setHandlerId((String) param.get("handlerId"));
+        reusingLog.setHandlerName((String) param.get("handlerName"));
+        reusingLogRepository.save(reusingLog);
         docFileRepository.save(doc);
         literatureRepository.save(literature);
         return true;

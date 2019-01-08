@@ -17,9 +17,9 @@ import javax.persistence.Table;
 @Table(name = "reusing_log")
 public class ReusingLog extends AbstractEntity{
 
-    private String userId;
+    private String handlerId;
 
-    private String userName;
+    private String handlerName;
 
     /**
      * 0：取消复用，1：复用

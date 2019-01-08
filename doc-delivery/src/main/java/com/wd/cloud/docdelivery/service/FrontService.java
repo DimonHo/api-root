@@ -15,7 +15,7 @@ public interface FrontService {
 
     boolean checkExists(String email, Long literatureId);
 
-    DocFile saveDocFile(Literature literature, String fileId, String filaName);
+    DocFile saveDocFile(Long literatureId, String fileId, String filaName);
 
     String help(HelpRecord helpRecord, String docTitle, String docHref);
 
@@ -157,7 +157,7 @@ public interface FrontService {
 
     Page<HelpRecordDTO> getAllHelpRecord(Pageable pageable);
 
-    DocFile getReusingFile(Literature literature);
+    DocFile getReusingFile(Long literatureId);
 
     Page<HelpRecordDTO> search(String keyword, Pageable pageable);
 

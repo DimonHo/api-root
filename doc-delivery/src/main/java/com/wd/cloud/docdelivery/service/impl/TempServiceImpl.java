@@ -98,21 +98,21 @@ public class TempServiceImpl implements TempService {
                 helpRecordRepository.save(helpRecord);
             } catch (Exception e) {
                 helpRecordRepository.delete(helpRecord);
-                giveRecordRepository.deleteByhelpRecordId(helpRecord.getId());
+                giveRecordRepository.deleteByHelpRecordId(helpRecord.getId());
 
             }
         }
 
-        List<DocFile> byLiteratureId1 = docFileRepository.findByLiteratureIn(idsi);
+        List<DocFile> byLiteratureId1 = docFileRepository.findByLiteratureIdIn(idsi);
         for (DocFile docFile : byLiteratureId1) {
-            docFile.setLiterature(unidLiterature);
+            docFile.setLiteratureId(unidLiterature.getId());
             try {
                 docFileRepository.save(docFile);
             } catch (Exception e) {
-                DocFile byFileIdAndLiterature = docFileRepository.findByFileIdAndLiterature(docFile.getFileId(), docFile.getLiterature());
-                List<GiveRecord> byDocFileId = giveRecordRepository.findByDocFileId(docFile.getId());
+                DocFile byFileIdAndLiterature = docFileRepository.findByFileIdAndLiteratureId(docFile.getFileId(), docFile.getLiteratureId());
+                List<GiveRecord> byDocFileId = giveRecordRepository.findByFileId(docFile.getFileId());
                 for (GiveRecord giveRecord : byDocFileId) {
-                    giveRecord.setDocFileId(byFileIdAndLiterature.getId());
+                    giveRecord.setFileId(byFileIdAndLiterature.getFileId());
                 }
                 giveRecordRepository.saveAll(byDocFileId);
                 docFileRepository.deleteById(docFile.getId());

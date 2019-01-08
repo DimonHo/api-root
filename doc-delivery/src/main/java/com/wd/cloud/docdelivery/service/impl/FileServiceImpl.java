@@ -71,15 +71,15 @@ public class FileServiceImpl implements FileService {
     @Override
     public DownloadFileModel getWaitAuditFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecordId, AuditEnum.WAIT.getCode());
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusEquals(helpRecordId, AuditEnum.WAIT.getCode());
         DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         return downloadFileModel;
     }
 
     private DownloadFileModel buildDownloadModel(HelpRecord helpRecord, GiveRecord giveRecord) {
-        DocFile docFile = docFileRepository.findById(giveRecord.getDocFileId()).orElse(null);
-        String fileId = docFile != null ? docFile.getFileId() : null;
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
+        DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(),literature.getId());
+        String fileId = docFile != null ? docFile.getFileId() : null;
         String docTitle = literature != null ? literature.getDocTitle() : null;
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);

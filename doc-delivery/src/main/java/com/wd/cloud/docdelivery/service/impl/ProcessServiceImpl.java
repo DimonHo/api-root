@@ -67,7 +67,7 @@ public class ProcessServiceImpl implements ProcessService {
         }
         helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getCode());
         GiveRecord giveRecord = new GiveRecord();
-        giveRecord.setGiverId(giverId).setGiverName(giverName).setGiverType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setGiverId(giverId).setGiverName(giverName).setType(GiveTypeEnum.MANAGER.getCode());
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
         String docTitle = literature != null ? literature.getDocTitle() : "";
         mailService.sendMail(helpRecord);
@@ -86,18 +86,18 @@ public class ProcessServiceImpl implements ProcessService {
         fileId = fileId == null ? uploadFile(file) : fileId;
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
         DocFile docFile = new DocFile();
-        docFile.setLiterature(literature).setFileId(fileId);
+        docFile.setLiteratureId(literature.getId()).setFileId(fileId);
         //保存文件上传记录
         docFileRepository.save(docFile);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         GiveRecord giveRecord = new GiveRecord();
         if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.getCode()) {
-            giveRecord = giveRecordRepository.findByHelpRecordIdAndAuditStatusEquals(helpRecord.getId(), GiveTypeEnum.THIRD.getCode());
+            giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusEquals(helpRecord.getId(), GiveTypeEnum.THIRD.getCode());
         }
         giveRecord.setHelpRecordId(helpRecord.getId());
-        giveRecord.setDocFileId(docFile.getId());
+        giveRecord.setFileId(docFile.getFileId());
         //设置应助类型为管理员应助
-        giveRecord.setGiverType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
         giveRecord.setGiverId(giverId);
         giveRecord.setGiverName(giverName);
         //修改求助状态为应助成功

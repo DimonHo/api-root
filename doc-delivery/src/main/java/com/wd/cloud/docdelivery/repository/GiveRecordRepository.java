@@ -15,57 +15,58 @@ import java.util.List;
  */
 public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
-    GiveRecord deleteByhelpRecordId(Long helpRecordId);
+    GiveRecord deleteByHelpRecordId(Long helpRecordId);
 
-    List<GiveRecord> findByHelpRecordIdAndAuditStatusNot(Long helpRecordId, Integer auditStatus);
+    List<GiveRecord> findByHelpRecordIdAndStatusNot(Long helpRecordId, Integer auditStatus);
 
     /**
      * 查询待审核记录
      *
      * @param id
-     * @param auditStatus
+     * @param status
      * @return
      */
-    GiveRecord findByIdAndAuditStatus(Long id, int auditStatus);
+    GiveRecord findByIdAndStatus(Long id, int status);
 
     /**
      * 审核记录
      *
      * @param giverId
-     * @param auditStatus
+     * @param status
      * @return
      */
-    GiveRecord findByGiverIdAndAuditStatus(Long giverId, int auditStatus);
+    GiveRecord findByGiverIdAndStatus(Long giverId, int status);
 
     /**
      * 特定状态的应助记录
      *
      * @param helpRecordId
-     * @param auditStatus
+     * @param status
      * @param giverId
      * @return
      */
-    GiveRecord findByHelpRecordIdAndAuditStatusAndGiverId(Long helpRecordId, int auditStatus, long giverId);
+    GiveRecord findByHelpRecordIdAndStatusAndGiverId(Long helpRecordId, int status, long giverId);
 
     /**
      * 取消应助，删除应助记录
      *
      * @param helpRecordId
-     * @param auditStatus
+     * @param status
      * @param giverId
      * @return
      */
-    void deleteByHelpRecordIdAndAuditStatusAndGiverId(Long helpRecordId, int auditStatus, long giverId);
+    void deleteByHelpRecordIdAndStatusAndGiverId(Long helpRecordId, int status, long giverId);
 
     /**
      * 特定应助类型的应助记录
      *
      * @param helpRecordId
-     * @param auditStatus
+     * @param status
      * @param giverType
      * @return
      */
-    GiveRecord findByHelpRecordIdAndAuditStatusAndGiverType(Long helpRecordId, int auditStatus, int giverType);
+
+    GiveRecord findByHelpRecordIdAndStatusAndType(Long helpRecordId, int status, int giverType);
 
     /**
      * 已审核通过的 或 非用户应助的应助记录
@@ -73,20 +74,20 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
      * @param helpRecordId
      * @return
      */
-    @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND (audit_status = 1 OR giver_type <> 2)", nativeQuery = true)
+    @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND (status = 1 OR type <> 2)", nativeQuery = true)
     GiveRecord findByHelpRecordIdPassOrManagerGive(Long helpRecordId);
 
     List<GiveRecord> findByHelpRecordId(Long helpRecordId);
 
 
-    GiveRecord findByHelpRecordIdAndAuditStatusEquals(Long helpRecordId, Integer status);
+    GiveRecord findByHelpRecordIdAndStatusEquals(Long helpRecordId, Integer status);
 
-    @Query(value = "select * FROM give_record WHERE giver_type = 2 AND doc_file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
+    @Query(value = "select * FROM give_record WHERE type = 2 AND file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
     List<GiveRecord> findTimeOutRecord();
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM give_record WHERE giver_type = 2 AND doc_file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
+    @Query(value = "DELETE FROM give_record WHERE type = 2 AND file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
     List<GiveRecord> deleteTimeOutRecord();
 
     /**
@@ -97,6 +98,6 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
      */
     long countByGiverId(Long giverId);
 
-    List<GiveRecord> findByDocFileId(long docFileId);
+    List<GiveRecord> findByFileId(String fileId);
 
 }

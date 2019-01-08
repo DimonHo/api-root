@@ -3,11 +3,8 @@ package com.wd.cloud.docdelivery.entity;
 import cn.hutool.crypto.SecureUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 /**
  * @author He Zhigang
@@ -53,9 +50,9 @@ public class Literature extends AbstractEntity {
      */
     private String summary;
 
-    @OneToMany(mappedBy = "literature")
-    @OrderBy(value = "gmt_create desc")
-    private Set<DocFile> docFiles;
+//    @OneToMany(mappedBy = "literature")
+//    @OrderBy(value = "gmt_create desc")
+//    private Set<DocFile> docFiles;
 
 
     @PrePersist

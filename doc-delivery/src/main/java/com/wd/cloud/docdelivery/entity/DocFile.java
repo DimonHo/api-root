@@ -1,6 +1,5 @@
 package com.wd.cloud.docdelivery.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -21,9 +20,8 @@ public class DocFile extends AbstractEntity {
     @Column(name = "file_id")
     private String fileId;
 
-    @ManyToOne
-    @JsonIgnore
-    private Literature literature;
+    @Column(name = "literature_id")
+    private Long literatureId;
 
     /**
      * 复用

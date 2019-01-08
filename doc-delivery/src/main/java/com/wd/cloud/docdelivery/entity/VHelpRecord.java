@@ -18,7 +18,7 @@ import java.util.Date;
 public class VHelpRecord {
 
     @Id
-    private Long id;
+    private Long helpRecordId;
 
     private Date gmtCreate;
 
@@ -54,8 +54,10 @@ public class VHelpRecord {
 
     private int status;
 
+    @Column(name = "is_send")
     private boolean send;
 
+    @Column(name = "is_anonymous")
     private boolean anonymous;
 
     private String unid;
