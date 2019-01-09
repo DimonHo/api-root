@@ -58,6 +58,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
+
+        <!-- 单点登陆 -->
+        <dependency>
+            <groupId>org.jasig.cas.client</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+
     </dependencies>
 
 
