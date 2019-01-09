@@ -36,6 +36,7 @@ public class VLiterature {
     @Column(name = "is_reusing")
     private boolean reusing;
 
+    @Column(name = "file_id")
     private String fileId;
 
     private Date gmtModified;

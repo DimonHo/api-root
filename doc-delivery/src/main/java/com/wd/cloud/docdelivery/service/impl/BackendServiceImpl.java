@@ -331,8 +331,8 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public HelpRecord getWaitAuditHelpRecord(Long id) {
-        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.getCode());
+    public HelpRecord getWaitAuditHelpRecord(Long helperId) {
+        return helpRecordRepository.findByHelperIdAndStatus(helperId, HelpStatusEnum.WAIT_AUDIT.getCode());
     }
 
     @Override

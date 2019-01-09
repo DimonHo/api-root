@@ -157,7 +157,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public HelpRecord give(Long helpRecordId, Long giverId, String giverName, String ip) {
-        HelpRecord helpRecord = helpRecordRepository.findById(helpRecordId).get();
+        HelpRecord helpRecord = helpRecordRepository.findByHelperId(helpRecordId);
         // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
         if (HelpStatusEnum.HELPING.getCode() == helpRecord.getStatus()) {
             throw new GiveException(ExceptionCode.GIVING, "该求助正在被应助");
@@ -207,7 +207,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public HelpRecord givingHelp(long helpRecordId, long giverId, String giverName, String giverIp) {
-        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.getCode());
+        HelpRecord helpRecord = helpRecordRepository.findByHelperIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.getCode());
         if (helpRecord != null) {
             helpRecord.setStatus(HelpStatusEnum.HELPING.getCode());
             GiveRecord giveRecord = new GiveRecord();
@@ -226,7 +226,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public boolean cancelGivingHelp(long helpRecordId, long giverId) {
-        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.getCode());
+        HelpRecord helpRecord = helpRecordRepository.findByHelperIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.getCode());
         boolean flag = false;
         if (helpRecord != null) {
             giveRecordRepository.deleteByHelpRecordIdAndStatusAndGiverId(helpRecordId, AuditEnum.WAIT_UPLOAD.getCode(), giverId);
@@ -427,7 +427,7 @@ public class FrontServiceImpl implements FrontService {
     public String checkExistsGiveing(long giverId) {
         GiveRecord giveRecord = giveRecordRepository.findByGiverIdAndStatus(giverId, AuditEnum.WAIT_UPLOAD.getCode());
         if (giveRecord != null) {
-            HelpRecord helpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId()).orElse(null);
+            HelpRecord helpRecord = helpRecordRepository.findByHelperId(giveRecord.getHelpRecordId());
             Literature literature = helpRecord != null ? literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null) : null;
             return literature != null ? literature.getDocTitle() : null;
         } else {
