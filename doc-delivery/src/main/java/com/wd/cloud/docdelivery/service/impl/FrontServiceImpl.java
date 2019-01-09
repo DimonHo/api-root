@@ -134,6 +134,8 @@ public class FrontServiceImpl implements FrontService {
             helpRecord = saveHelpRecord(helpRecord);
             giveRecord.setHelpRecordId(helpRecord.getId());
             saveGiveRecord(giveRecord);
+            VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecord.getId());
+            mailService.sendMail(vHelpRecord);
             msg = "success:文献求助成功,请登陆邮箱" + helpRecord.getHelperEmail() + "查收结果";
         } else {
             try {

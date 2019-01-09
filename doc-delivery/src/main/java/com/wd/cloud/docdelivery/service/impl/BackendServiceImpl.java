@@ -230,7 +230,8 @@ public class BackendServiceImpl implements BackendService {
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-
+        VHelpRecord byHelpRecordId = vHelpRecordRepository.findByHelpRecordId(helpRecord.getId());
+        mailService.sendMail(byHelpRecordId);
     }
 
     @Override
@@ -248,6 +249,8 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setHelpRecordId(helpRecord.getId());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
+        VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecord.getId());
+        mailService.sendMail(vHelpRecord);
     }
 
     @Override
@@ -263,8 +266,9 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
         giveRecord.setGiverName(giverName);
         giveRecord.setHelpRecordId(helpRecordId);
-
         giveRecordRepository.save(giveRecord);
+        VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecord.getId());
+        mailService.sendMail(vHelpRecord);
     }
 
     @Override
@@ -285,7 +289,8 @@ public class BackendServiceImpl implements BackendService {
 
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
         helpRecordRepository.save(helpRecord);
-
+        VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecord.getId());
+        mailService.sendMail(vHelpRecord);
     }
 
     @Override

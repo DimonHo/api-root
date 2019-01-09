@@ -46,7 +46,7 @@ public class MailServiceImpl implements MailService {
         MailTemplateModel mailTemplateModel = buildMailTemplateModel(vHelpRecord);
         String mailTitle = mailTemplateModel.getMailTitle();
         String mailContent = buildContent(mailTemplateModel);
-        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getHelperId());
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getHelpRecordId());
         optionalHelpRecord.ifPresent(helpRecord -> {
             try {
                 if (HelpStatusEnum.match(helpRecord.getStatus()).isPresent()
