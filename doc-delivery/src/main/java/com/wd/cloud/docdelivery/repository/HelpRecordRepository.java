@@ -28,6 +28,8 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      */
     HelpRecord findByIdAndStatus(long id, int status);
 
+    HelpRecord findByHelperIdAndStatus(long helperId, int status);
+
     HelpRecord findByIdAndStatusNot(long id, int status);
 
     HelpRecord findByIdAndStatusIn(long id, int[] status);
@@ -160,5 +162,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     List<HelpRecord> findByLiteratureId(Long literatureId);
 
     List<HelpRecord> findByLiteratureIdIn(List ids);
+
+    HelpRecord findByHelperId(Long helperId);
 
 }
