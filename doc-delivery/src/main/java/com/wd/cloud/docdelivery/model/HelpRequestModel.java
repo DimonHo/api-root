@@ -3,6 +3,7 @@ package com.wd.cloud.docdelivery.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -48,7 +49,7 @@ public class HelpRequestModel {
      * 求助文件标题
      */
     @ApiModelProperty(value = "求助文献标题", example = "关于xxx可行性研究")
-    @NotNull
+    @NotBlank
     private String docTitle;
 
     /**
@@ -61,7 +62,7 @@ public class HelpRequestModel {
      * 求助用户邮箱
      */
     @ApiModelProperty(value = "求助用户邮箱", example = "hezhigang@qq.com")
-    @NotNull
+    @NotBlank
     private String helperEmail;
 
     @ApiModelProperty(value = "补充信息", example = "doi:01923959101,xxx:102030104")

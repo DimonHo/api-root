@@ -1,14 +1,14 @@
 package com.wd.cloud.docdelivery.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.mail.MailException;
+import cn.hutool.extra.mail.MailUtil;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.model.MailModel;
 import com.wd.cloud.docdelivery.model.MailTemplateModel;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -22,7 +22,6 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,19 +42,35 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void sendMail(VHelpRecord vHelpRecord) {
-        List<String> tos = splitAddress(vHelpRecord.getHelperEmail());
-        if (tos == null) {
-            throw new NullPointerException("收件人邮箱为空！");
-        }
+
         MailTemplateModel mailTemplateModel = buildMailTemplateModel(vHelpRecord);
-        MailModel mailModel = new MailModel();
-        mailModel.setTos(ArrayUtil.toArray(tos, String.class));
-        mailModel.setTitle(mailTemplateModel.getMailTitle())
-                .setContent(buildContent(mailTemplateModel, vHelpRecord.getStatus(), vHelpRecord.getChannelName()));
+        String mailTitle = mailTemplateModel.getMailTitle();
+        String mailContent = buildContent(mailTemplateModel);
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getHelperId());
-        optionalHelpRecord.ifPresent(helpRecord -> excuteSend(mailModel, helpRecord));
+        optionalHelpRecord.ifPresent(helpRecord -> {
+            try {
+                if (HelpStatusEnum.match(helpRecord.getStatus()).isPresent()
+                        && HelpStatusEnum.WAIT_HELP.equals(HelpStatusEnum.match(helpRecord.getStatus()).get())) {
+                    MailUtil.sendHtml(CollectionUtil.newArrayList(global.getNotifyMail()), mailTitle, mailContent);
+                } else {
+                    MailUtil.sendHtml(helpRecord.getHelperEmail(), mailTitle, mailContent);
+                }
+                helpRecord.setSend(true);
+            } catch (Exception e) {
+                helpRecord.setSend(false);
+                log.error("发送邮件至{}失败：", helpRecord.getHelperEmail(), e);
+            } finally {
+                helpRecordRepository.save(helpRecord);
+            }
+        });
     }
 
+    /**
+     * 构建邮件内容模板
+     *
+     * @param vHelpRecord
+     * @return
+     */
     private MailTemplateModel buildMailTemplateModel(VHelpRecord vHelpRecord) {
         MailTemplateModel mailTemplateModel = new MailTemplateModel();
         mailTemplateModel.setChannelName(vHelpRecord.getChannelName())
@@ -68,7 +83,7 @@ public class MailServiceImpl implements MailService {
                 case WAIT_HELP:
                     mailTemplateModel.setMailTitle("用户文献互助")
                             .setHelperName(vHelpRecord.getHelperName())
-                            .setHelperOrgName(vHelpRecord.getHelperScname())
+                            .setHelperScname(vHelpRecord.getHelperScname())
                             .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-notify"));
                     break;
                 case HELP_THIRD:
@@ -85,34 +100,19 @@ public class MailServiceImpl implements MailService {
                             .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-failed"));
                     break;
                 default:
-                    mailTemplateModel.setMailTitle("错误邮件");
-                    break;
+                    throw new MailException("邮件构建错误");
             }
         }
         return mailTemplateModel;
-    }
-
-    private void excuteSend(MailModel mailModel, HelpRecord helpRecord) {
-        try {
-            mailModel.send();
-            helpRecord.setSend(true);
-            helpRecordRepository.save(helpRecord);
-        } catch (Exception e) {
-            helpRecord.setSend(false);
-            helpRecordRepository.save(helpRecord);
-            log.error("发送邮件至{}失败：", helpRecord.getHelperEmail(), e);
-        }
     }
 
 
     /**
      * 构建邮件内容
      *
-     * @param helpStatusEnum
-     * @param helperScname
      * @return
      */
-    private String buildContent(MailTemplateModel mailTemplateModel, Integer helpStatusEnum, String helperScname) {
+    private String buildContent(MailTemplateModel mailTemplateModel) {
         String templateFile = mailTemplateModel.getTemplate();
         if (templateNotExists(templateFile)) {
             log.info("模板文件[{}]不存在，使用默认模板", templateFile);
@@ -148,29 +148,12 @@ public class MailServiceImpl implements MailService {
         return !FileUtil.exist(path);
     }
 
-
     /**
-     * 收件人地址拆分
+     * 构建全文下载链接
      *
-     * @param addresses
+     * @param helpRecordId
      * @return
      */
-    private static List<String> splitAddress(String addresses) {
-        if (StrUtil.isBlank(addresses)) {
-            return null;
-        }
-
-        List<String> result;
-        if (StrUtil.contains(addresses, ',')) {
-            result = StrUtil.splitTrim(addresses, ',');
-        } else if (StrUtil.contains(addresses, ';')) {
-            result = StrUtil.splitTrim(addresses, ';');
-        } else {
-            result = CollUtil.newArrayList(addresses);
-        }
-        return result;
-    }
-
     private String buildDownloadUrl(Long helpRecordId) {
         return global.getCloudDomain() + "/doc-delivery/file/download/" + helpRecordId;
     }

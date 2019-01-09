@@ -14,10 +14,6 @@ import java.util.List;
 public class Global {
 
     private String cloudDomain;
-    /**
-     * 求助的来源渠道
-     */
-    private List<String> channels;
 
     /**
      * 文件在hbase的位置
@@ -32,14 +28,6 @@ public class Global {
     private String[] notifyMail;
 
     private String templatesBase;
-
-    public List<String> getChannels() {
-        return channels;
-    }
-
-    public void setChannels(List<String> channels) {
-        this.channels = channels;
-    }
 
     public String getHbaseTableName() {
         return hbaseTableName;

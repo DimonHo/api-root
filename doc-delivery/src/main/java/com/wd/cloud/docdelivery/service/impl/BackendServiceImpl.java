@@ -13,7 +13,7 @@ import com.wd.cloud.docdelivery.dto.DocFileDTO;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.dto.LiteratureDTO;
 import com.wd.cloud.docdelivery.entity.*;
-import com.wd.cloud.docdelivery.enums.AuditEnum;
+import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.exception.NotFoundException;
@@ -275,7 +275,7 @@ public class BackendServiceImpl implements BackendService {
             throw new NotFoundException("未找到待审核的应助记录");
         }
 
-        giveRecord.setStatus(AuditEnum.PASS.getCode());
+        giveRecord.setStatus(GiveStatusEnum.SUCCESS.getValue());
         giveRecord.setHandlerId(auditorId);
         giveRecord.setHandlerName(auditorName);
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
@@ -295,7 +295,7 @@ public class BackendServiceImpl implements BackendService {
         if (giveRecord == null) {
             throw new NotFoundException("未找到待审核的应助记录");
         }
-        giveRecord.setStatus(AuditEnum.NO_PASS.getCode());
+        giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.getValue());
         giveRecord.setHandlerId(auditorId);
         giveRecord.setHandlerName(auditorName);
         helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getValue());
@@ -315,7 +315,7 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public GiveRecord getWaitAudit(Long id) {
-        GiveRecord giveRecord = giveRecordRepository.findByIdAndStatus(id, AuditEnum.WAIT.getCode());
+        GiveRecord giveRecord = giveRecordRepository.findByIdAndStatus(id, GiveStatusEnum.WAIT_AUDIT.getValue());
         return giveRecord;
     }
 
