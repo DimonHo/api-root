@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.service;
 
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.dto.LiteratureDTO;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
@@ -31,7 +32,7 @@ public interface BackendService {
 
     List<DocFile> getDocFileList(Pageable pageable, Long literatureId);
 
-    DocFile saveDocFile(Literature literature, String fileId, String fileName);
+    DocFile saveDocFile(Long literatureId, String fileId);
 
     void give(Long id, Long giverId, String giverName, MultipartFile file);
 

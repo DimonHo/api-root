@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
-    GiveRecord deleteByhelpRecordId(Long helpRecordId);
+    GiveRecord deleteByHelpRecordId(Long helpRecordId);
 
     List<GiveRecord> findByHelpRecordIdAndStatusNot(Long helpRecordId, Integer auditStatus);
 

@@ -22,7 +22,7 @@ public class Channel extends AbstractEntity {
     private String url;
     private String template;
     /**
-     * 文献过期时间
+     * 下载链接有效期
      */
     @Column(columnDefinition = "bigint(11) default 1296000000 COMMENT '全文下载过期时间'")
     private long exp;

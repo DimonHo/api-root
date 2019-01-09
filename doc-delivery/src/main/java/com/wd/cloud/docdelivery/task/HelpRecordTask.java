@@ -1,11 +1,9 @@
 package com.wd.cloud.docdelivery.task;
 
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
-import com.wd.cloud.docdelivery.enums.ChannelEnum;
-import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
+import com.wd.cloud.docdelivery.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.LiteratureRepository;
+import com.wd.cloud.docdelivery.repository.VHelpRecordRepository;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,9 @@ public class HelpRecordTask {
     HelpRecordRepository helpRecordRepository;
 
     @Autowired
+    VHelpRecordRepository vHelpRecordRepository;
+
+    @Autowired
     LiteratureRepository literatureRepository;
     @Autowired
     FileService fileService;
@@ -34,41 +35,7 @@ public class HelpRecordTask {
     @Scheduled(cron = "0 0/1 * * * ?")
     public void updateGiveRecord() {
         //查询所有状态为未发送的求助记录
-        List<HelpRecord> bySend = helpRecordRepository.findBySend(false);
-        //循环遍历出所有的未发送邮箱的求助记录
-        for (HelpRecord helpRecord : bySend) {
-            Integer channel = helpRecord.getHelpChannel();
-            ChannelEnum channelEnum = getChannelEnum(channel);
-            String helperScname = helpRecord.getHelperScname();
-            String helpEmail = helpRecord.getHelperEmail();
-            Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
-            String docTitle = literature != null ? literature.getDocTitle() : null;
-            long id = helpRecord.getId();
-            int status = helpRecord.getStatus();
-            if (HelpStatusEnum.HELP_THIRD.getValue() == status) {
-                String downloadUrl = null;
-                HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_THIRD;
-                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-            } else if (HelpStatusEnum.HELP_SUCCESSED.getValue() == status) {
-                String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
-                HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_SUCCESSED;
-                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-            } else if (HelpStatusEnum.HELP_FAILED.getValue() == status) {
-                String downloadUrl = null;
-                HelpStatusEnum helpStatusEnum = HelpStatusEnum.HELP_FAILED;
-                mailService.sendMail(channelEnum, helperScname, helpEmail, docTitle, downloadUrl, helpStatusEnum, id);
-
-            }
-        }
-    }
-
-    public ChannelEnum getChannelEnum(Integer channel) {
-        ChannelEnum channelEnum = null;
-        for (ChannelEnum channelInstance : ChannelEnum.values()) {
-            if (channelInstance.getCode() == channel) {
-                channelEnum = channelInstance;
-            }
-        }
-        return channelEnum;
+        List<VHelpRecord> bySend = vHelpRecordRepository.findBySend(false);
+        bySend.forEach(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 }

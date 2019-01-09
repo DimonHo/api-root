@@ -10,6 +10,7 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.DocFileDTO;
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.dto.LiteratureDTO;
 import com.wd.cloud.docdelivery.entity.*;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
@@ -34,10 +35,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -79,9 +77,6 @@ public class BackendServiceImpl implements BackendService {
 
     @Autowired
     ReusingLogRepository reusingLogRepository;
-
-    @Autowired
-    VHelpRecordRepository vHelpRecordRepository;
 
     @Autowired
     VLiteratureRepository vLiteratureRepository;
@@ -129,7 +124,7 @@ public class BackendServiceImpl implements BackendService {
         Page<HelpRecordDTO> helpRecordDTOS = result.map(vHelpRecord -> {
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
             BeanUtil.copyProperties(vHelpRecord,helpRecordDTO);
-            helpRecordDTO.setGiveRecords(giveRecordRepository.findByHelpRecordId(vHelpRecord.getId()));
+            helpRecordDTO.setGiveRecords(giveRecordRepository.findByHelpRecordId(vHelpRecord.getHelpRecordId()));
             return helpRecordDTO;
         });
         return helpRecordDTOS;
@@ -179,8 +174,8 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public DocFile saveDocFile(Long literatureId, String fileId, String fileName) {
-        Optional<DocFile> optionalDocFile = docFileRepository.findByLiteratureAndFileId(literature, fileId);
+    public DocFile saveDocFile(Long literatureId, String fileId) {
+        Optional<DocFile> optionalDocFile = docFileRepository.findByLiteratureIdAndFileId(literatureId, fileId);
         if (!optionalDocFile.isPresent()){
             DocFile docFile = new DocFile();
             docFile.setFileId(fileId);
@@ -218,14 +213,12 @@ public class BackendServiceImpl implements BackendService {
             log.info("文件{}上传成功!", file.getOriginalFilename());
             fileId = uploadResult.getBody().getStr("fileId");
         }
-        String fileName = file.getOriginalFilename();
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
-        docFile = saveDocFile(literature, fileId, fileName);
+        docFile = saveDocFile(helpRecord.getLiteratureId(), fileId);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        GiveRecord giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatusEquals(helpRecord.getId(), GiveTypeEnum.THIRD.getCode());
+        Optional<GiveRecord> giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveTypeEnum.MANAGER.getCode());
 
         //如果没有第三方状态的记录，则新建一条应助记录
-        GiveRecord giveRecord = giveRecordOptional == null ? new GiveRecord() : giveRecordOptional;
+        GiveRecord giveRecord = giveRecordOptional.orElseGet(GiveRecord::new);
 
         giveRecord.setHelpRecordId(helpRecord.getId());
         giveRecord.setFileId(docFile.getFileId());
@@ -234,38 +227,24 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setGiverId(giverId);
         giveRecord.setGiverName(giverName);
         //修改求助状态为应助成功
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-        String url = fileService.getDownloadUrl(helpRecord.getId());
-
-        mailService.sendMail(helpRecord.getHelpChannel(),
-                helpRecord.getHelperScname(),
-                helpRecord.getHelperEmail(),
-                literature.getDocTitle(), url, HelpStatusEnum.HELP_SUCCESSED, helpRecord.getId());
 
     }
 
     @Override
     public void third(Long helpRecordId, Long giverId, String giverName) {
-        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.getCode());
+        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.getValue());
         if (helpRecord == null) {
             throw new NotFoundException("没有找到待求助记录");
         }
-        helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getCode());
+        helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getValue());
         GiveRecord giveRecord = new GiveRecord();
         giveRecord.setGiverId(giverId);
-        giveRecord.setType(GiveTypeEnum.THIRD.getCode());
+        giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
         giveRecord.setGiverName(giverName);
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
-        String docTitle = literature != null ? literature.getDocTitle() : "";
-        mailService.sendMail(helpRecord.getHelpChannel(),
-                helpRecord.getHelperScname(),
-                helpRecord.getHelperEmail(),
-                docTitle,
-                null,
-                HelpStatusEnum.HELP_THIRD,
-                helpRecord.getId());
+
         giveRecord.setHelpRecordId(helpRecord.getId());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
@@ -274,24 +253,17 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public void failed(Long helpRecordId, Long giverId, String giverName) {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
-        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getCode());
+        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getValue());
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusEquals(helpRecordId, GiveTypeEnum.THIRD.getCode());
+        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveTypeEnum.MANAGER.getCode());
 
         //如果没有第三方状态的记录，则新建一条应助记录
-        giveRecord = giveRecord != null ? giveRecord : new GiveRecord();
+        GiveRecord giveRecord = optionalGiveRecord.orElseGet(GiveRecord::new);
         giveRecord.setGiverId(giverId);
         giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
         giveRecord.setGiverName(giverName);
         giveRecord.setHelpRecordId(helpRecordId);
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
-        mailService.sendMail(helpRecord.getHelpChannel(),
-                helpRecord.getHelperScname(),
-                helpRecord.getHelperEmail(),
-                literature.getDocTitle(),
-                null,
-                HelpStatusEnum.HELP_FAILED,
-                helpRecord.getId());
+
         giveRecordRepository.save(giveRecord);
     }
 
@@ -311,17 +283,9 @@ public class BackendServiceImpl implements BackendService {
         DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(),literature.getId());
         docFileRepository.save(docFile);
 
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
         helpRecordRepository.save(helpRecord);
 
-        String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
-        mailService.sendMail(helpRecord.getHelpChannel(),
-                helpRecord.getHelperScname(),
-                helpRecord.getHelperEmail(),
-                literature.getDocTitle(),
-                downloadUrl,
-                HelpStatusEnum.HELP_SUCCESSED,
-                helpRecord.getId());
     }
 
     @Override
@@ -334,19 +298,19 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setStatus(AuditEnum.NO_PASS.getCode());
         giveRecord.setHandlerId(auditorId);
         giveRecord.setHandlerName(auditorName);
-        helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getCode());
+        helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getValue());
         helpRecordRepository.save(helpRecord);
     }
 
     @Override
     public HelpRecord getWaitOrThirdHelpRecord(Long id) {
         return helpRecordRepository.findByIdAndStatusIn(id,
-                new int[]{HelpStatusEnum.WAIT_HELP.getCode(), HelpStatusEnum.HELP_THIRD.getCode()});
+                new int[]{HelpStatusEnum.WAIT_HELP.getValue(), HelpStatusEnum.HELP_THIRD.getValue()});
     }
 
     @Override
     public HelpRecord getWaitAuditHelpRecord(Long id) {
-        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.getCode());
+        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.getValue());
     }
 
     @Override
