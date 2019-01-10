@@ -1,72 +1,88 @@
 package com.wd.cloud.bse.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.hnlat.esmapping.annotation.Property;
+import com.hnlat.esmapping.annotation.Property.FieldType;
+import com.hnlat.esmapping.annotation.Property.IndexType;
+import com.wd.cloud.bse.service.transfrom.convert.AccessionNumConvert;
+import com.wd.cloud.bse.vo.LatConstant;
 
 public class Periodical extends Document {
 
 	/**期刊*/
+	@Property(type = FieldType.TEXT,analyzer="mmseg", includeInAll=true, boost=8)
 	private String journalTitle;
 	
-	private String jourTitleFacet;
-	
 	/**ISSN*/
+	@Property(index=IndexType.NOT_ANALYZED)
 	private String issn;
 	
-	private String eissn;
-	
-	private String cssn;
-	
 	/**卷*/
+	@Property(index=IndexType.NO)
 	private String volume;
 	
 	/**期*/
+	@Property(index=IndexType.NO)
 	private String number;
 	
 	/**页码*/
+	@Property(index=IndexType.NO)
 	private String pageRange;
 	
 	/**通讯作者*/
+	@Property(type = FieldType.TEXT,analyzer="mmseg", boost=4.9)
 	private String reprintAuthor;
 	
-	/**通讯作者机构*/
-	//@Property(indexAnalyzer="ansj_normal", searchAnalyzer="ansj_search", boost=4.9)
+	/**通讯作者机构*/	
+	@Property(type = FieldType.TEXT,analyzer="mmseg",  boost=4.9)
 	private String reprintAuthorOrg;
 	
-	/**第一作者机构*/
-	//@Property(indexAnalyzer="ansj_normal", searchAnalyzer="ansj_search", boost=4.9)
-	private String firstAuthorOrg;
+	/**学科*/
+	@Property(type=FieldType.TEXT, analyzer="semicolon_spliter", includeInAll=true, boost = 4.5)
+	private String subjects;
 	
-	/**ESI高水平论文期数;格式201705*/
-	private List<String> esiIssue;
+	/**期刊会议：研究方向*/
+	@Property(type=FieldType.TEXT, analyzer="semicolon_spliter", includeInAll=true, boost = 4.5)
+	private String researchField;
+	
+	/**wos被引频次*/
+	@Property(index=IndexType.NOT_ANALYZED)
+	private Integer wosCites = 0;
+	
+	/**邮箱*/
+	@Property(index=IndexType.NOT_ANALYZED)
+	private String email;
 	
 	/**文献类别*/
+	@Property(type= FieldType.KEYEORD,index=IndexType.NOT_ANALYZED)
 	private String category;
 	
+	/**入藏号*/
+	@Property(analyzer="semicolon_spliter", includeInAll=true)
+	private String accessionNum;
+	
+	@Property(index=IndexType.NOT_ANALYZED)
+	private String doi;
+	
 	/**基金类别*/
+	@Property(index=IndexType.NO)
 	private String fund;
 	
 	/**参考文献*/
+	@Property(type=FieldType.TEXT)
 	private String references;
 	
-	/**入藏号*/
-	private String accessionNum;
-	
+	@Property(type= FieldType.TEXT, index=IndexType.NOT_ANALYZED)
 	private List<String> shoulu = new ArrayList<String>();
-	
-	private String doi;
-	
-	private Integer wosCites = 0;
-	
-	private String subject;
-	
-	private String subjects;
 
-	/**邮箱*/
-	private String emails;
-	
 	public String getJournalTitle() {
 		return journalTitle;
 	}
@@ -81,22 +97,6 @@ public class Periodical extends Document {
 
 	public void setIssn(String issn) {
 		this.issn = issn;
-	}
-
-	public String getEissn() {
-		return eissn;
-	}
-
-	public void setEissn(String eissn) {
-		this.eissn = eissn;
-	}
-
-	public String getCssn() {
-		return cssn;
-	}
-
-	public void setCssn(String cssn) {
-		this.cssn = cssn;
 	}
 
 	public String getVolume() {
@@ -124,8 +124,7 @@ public class Periodical extends Document {
 	}
 
 	public String getReprintAuthor() {
-		return repeat(reprintAuthor, ";");
-//		return reprintAuthor;
+		return reprintAuthor;
 	}
 
 	public void setReprintAuthor(String reprintAuthor) {
@@ -140,20 +139,49 @@ public class Periodical extends Document {
 		this.reprintAuthorOrg = reprintAuthorOrg;
 	}
 
-	public String getFirstAuthorOrg() {
-		return firstAuthorOrg;
+	public String getSubjects() {
+		return subjects;
+	}
+	
+//	public String getSubjects() {
+//		if(StringUtils.isNoneEmpty(subjects)) {
+//			subjects = "ESI学科类别:" + subjects;
+//		}
+//		if(StringUtils.isNoneEmpty(subjects) && StringUtils.isNoneEmpty(researchField)) {
+//			subjects = subjects + ";";
+//		}
+//		if(StringUtils.isNoneEmpty(researchField)) {
+//			subjects = subjects + "WOS学科类别:" + researchField;
+//		}
+//		return subjects;
+//	}
+
+	public void setSubjects(String subjects) {
+		this.subjects = subjects;
 	}
 
-	public void setFirstAuthorOrg(String firstAuthorOrg) {
-		this.firstAuthorOrg = firstAuthorOrg;
+	public String getResearchField() {
+		return researchField;
 	}
 
-	public List<String> getEsiIssue() {
-		return esiIssue;
+	public void setResearchField(String researchField) {
+		this.researchField = researchField;
 	}
 
-	public void setEsiIssue(List<String> esiIssue) {
-		this.esiIssue = esiIssue;
+	public Integer getWosCites() {
+		return wosCites;
+	}
+
+	public void setWosCites(Integer wosCites) {
+		this.wosCites = wosCites;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getCategory() {
@@ -162,6 +190,22 @@ public class Periodical extends Document {
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	public String getAccessionNum() {
+		return accessionNum;
+	}
+
+	public void setAccessionNum(String accessionNum) {
+		this.accessionNum = accessionNum;
+	}
+
+	public String getDoi() {
+		return doi;
+	}
+
+	public void setDoi(String doi) {
+		this.doi = doi;
 	}
 
 	public String getFund() {
@@ -180,91 +224,12 @@ public class Periodical extends Document {
 		this.references = references;
 	}
 
-	public String getAccessionNum() {
-		return accessionNum;
-	}
-
-	public void setAccessionNum(String accessionNum) {
-		this.accessionNum = accessionNum;
-	}
-
-//	public List<String> getShoulu() {		//2018-03-20：问题10362收录体系的展示顺序有误
-//		shoulu = findSame();
-//		shoulu.sort(new Comparator<String>(){
-//			@Override
-//			public int compare(String o1, String o2) {
-//				int index1= 1, index2 = 2;
-//				for(int i =0; i<Constants.SHOULUS.length;i++){
-//					String sl = Constants.SHOULUS[i];
-//					if(sl.equals(o1)){
-//						index1 = i;
-//					}
-//					if(sl.equals(o2)){
-//						index2= i;
-//					}
-//				}
-//				return index1-index2;
-//			}
-//			
-//		});
+//	public List<String> getShoulu() {
 //		return shoulu;
 //	}
 
 	public void setShoulu(List<String> shoulu) {
 		this.shoulu = shoulu;
-	}
-
-	public String getDoi() {
-		return doi;
-	}
-
-	public void setDoi(String doi) {
-		this.doi = doi;
-	}
-
-	public Integer getWosCites() {
-		return wosCites;
-	}
-
-	public void setWosCites(Integer wosCites) {
-		this.wosCites = wosCites;
-	}
-
-	public String getSubject() {
-		return subject;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public String getSubjects() {
-		return subjects;
-	}
-
-	public void setSubjects(String subjects) {
-		this.subjects = subjects;
-	}
-
-	public String getEmails() {
-		return emails;
-	}
-
-	public void setEmails(String emails) {
-		this.emails = emails;
-	}
-
-	public String getJourTitleFacet() {
-		return jourTitleFacet;
-	}
-
-	public void setJourTitleFacet(String jourTitleFacet) {
-		this.jourTitleFacet = jourTitleFacet;
-	}
-
-	@Override
-	public Document newInstance() {
-		return new Periodical();
 	}
 	
 	public void addShulu(Set<String> set) {
@@ -272,22 +237,49 @@ public class Periodical extends Document {
 		shoulu = new ArrayList<String>(set);
 	}
 	
+	public Map<String, String> getShoulu_ex() {
+		return AccessionNumConvert.convert(getAccessionNum());
+	}
+	
+	public List<String> getShoulu() {		//2018-03-20：问题10362收录体系的展示顺序有误
+		shoulu = findSame();
+		shoulu.sort(new Comparator<String>(){
+			@Override
+			public int compare(String o1, String o2) {
+				int index1= 1, index2 = 2;
+				for(int i =0; i<LatConstant.SHOULUS.length;i++){
+					String sl = LatConstant.SHOULUS[i];
+					if(sl.equals(o1)){
+						index1 = i;
+					}
+					if(sl.equals(o2)){
+						index2= i;
+					}
+				}
+				return index1-index2;
+			}
+			
+		});
+		return shoulu;
+	}
 	/**
 	 * 2018-03-20：问题10362收录体系的展示顺序有误
 	 * （未剔除不正确的收录）
 	 * @return
 	 */
-//	private List<String> findSame() {
-//		List<String> new_shoulu = new ArrayList<String>();
-//		for (String soulu : shoulu) {		//剔除不正确的收录
-//			if(soulu.equals("MEDLINE")) soulu = "Medline";
-//			if(soulu.equals("A&amp;HCI")) soulu = "A&HCI";
-//			List<String> SHOULUS = Arrays.asList(Constants.SHOULUS);
-////			if(SHOULUS.contains(soulu)) {
-//				new_shoulu.add(soulu);
-////			}
-//		}
-//		return new_shoulu;
-//	}
+	private List<String> findSame() {
+		List<String> new_shoulu = new ArrayList<String>();
+		for (String soulu : shoulu) {		//剔除不正确的收录
+			if(soulu.equals("MEDLINE")) soulu = "Medline";
+			if(soulu.equals("A&amp;HCI")) soulu = "A&HCI";
+			if(soulu.toUpperCase().equals("CPCI")) soulu = "CPCI-S";
+			if(soulu.toUpperCase().equals("AHCI")) soulu = "A&HCI";
+			List<String> SHOULUS = Arrays.asList(LatConstant.SHOULUS);
+			if(SHOULUS.contains(soulu)) {
+				new_shoulu.add(soulu);
+			}
+		}
+		return new_shoulu;
+	}
 
 }

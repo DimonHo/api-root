@@ -6,7 +6,7 @@ package com.wd.cloud.bse.es;
  * @author Administrator
  *
  */
-public interface FacetFilterBuilder extends IFilterBuilderStrategy{
+public interface FacetFilterBuilder extends FilterBuilderStrategyI{
 	
 	/**
 	 * Nested路径

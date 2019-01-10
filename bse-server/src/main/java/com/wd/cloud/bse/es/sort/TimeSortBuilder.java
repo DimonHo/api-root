@@ -1,7 +1,7 @@
 package com.wd.cloud.bse.es.sort;
 
 import org.apache.commons.lang.StringUtils;
-import com.wd.cloud.bse.es.SortBuilderStrategy;
+import com.wd.cloud.bse.es.SortBuilderStrategyI;
 import com.wd.cloud.bse.vo.SortCondition;
 import com.wd.cloud.bse.vo.SortEnum;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -11,7 +11,15 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Component;
 
 @Component("timeSort")
-public class TimeSortBuilder implements SortBuilderStrategy{
+public class TimeSortBuilder implements SortBuilderStrategyI{
+	
+	private String field;
+	
+	private String nested;
+	
+	private String path;
+	
+	private String mode;
 	
 	@Override
 	public SortBuilder build(SortCondition sortCondition) {
@@ -36,5 +44,39 @@ public class TimeSortBuilder implements SortBuilderStrategy{
 		builder.order(order);
 		return builder;
 	}
+
+	public String getField() {
+		return field;
+	}
+
+	public void setField(String field) {
+		this.field = field;
+	}
+
+	public String getNested() {
+		return nested;
+	}
+
+	public void setNested(String nested) {
+		this.nested = nested;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+	
+	
 
 }

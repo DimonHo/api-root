@@ -1,6 +1,6 @@
 package com.wd.cloud.bse.service;
 
-import com.wd.cloud.bse.entity.School;
+import com.wd.cloud.bse.entity.school.School;
 
 public interface SchoolService {
 	

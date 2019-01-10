@@ -1,4 +1,4 @@
-package com.wd.cloud.bse.entity;
+package com.wd.cloud.bse.entity.school;
 
 import javax.persistence.*;
 import java.util.Date;

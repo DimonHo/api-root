@@ -1,98 +1,62 @@
 package com.wd.cloud.bse.data;
 
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import com.hnlat.esmapping.annotation.Property;
+import com.hnlat.esmapping.annotation.Property.FieldType;
+import com.hnlat.esmapping.annotation.Property.IndexType;
 
-public abstract class Document {
-	
+public class Document {
+
 	private String id;
-
-	/**文档类型*/
-	private List<Integer> docType;
 	
-	/**语言*/
+	/**文档类型*/
+	@Property(type=FieldType.INTEGER, index = IndexType.NOT_ANALYZED)
+	private String docType;
+	
+	private List<Integer> docTypes;
+	
+	/**语言  1中文2英文*/
+	@Property(type=FieldType.INTEGER, index = IndexType.NOT_ANALYZED)
 	private Integer docLan;
 	
 	/**标题*/
+	@Property(type=FieldType.TEXT, analyzer="mmseg", includeInAll=true, boost=12)
 	private String docTitle;
 	
 	/**摘要*/
+	@Property(type=FieldType.STRING, analyzer="mmseg", includeInAll=true)
 	private String description;
 	
 	/**访问地址*/
+	@Property(type=FieldType.OBJECT)
 	private List<Url> url = new ArrayList<Url>();
 	
 	/**年份*/
+	@Property(type=FieldType.INTEGER, index = IndexType.NOT_ANALYZED)
 	private Integer year;
 	
 	/**关键词*/
+	@Property(type=FieldType.TEXT, analyzer="mmseg", includeInAll=true, boost=9)
 	private String keywords;
 	
-	/**关键词(用于聚合查询)*/
-	private List<String> keywordList;
-	
 	/**作者*/
+	@Property(type=FieldType.TEXT, analyzer="semicolon_spliter", includeInAll=true, boost = 4.5)
 	private String author;
 	
-	/**作者(用于聚合查询)*/
-	private List<String> authorList;
-	
+	@Property(type=FieldType.TEXT, analyzer="mmseg", boost = 4)
 	private String authorAnalyzed;
 	
 	/**机构*/
+	@Property(type=FieldType.TEXT, analyzer="mmseg", includeInAll=true, boost=4)
 	private String org;
 	
-	/**第一作者*/
-	private String firstAuthor;
+	/**导出题录*/
+	private Map<String,Object> source;
 	
-	/**存储时间*/
-	private Long storageTime;
-	
-	/**学校ID*/
-	private Integer scid;
-	
-	/**提交用户ID*/
-	private Integer userid;
-	
-	/**提交用户院系*/
-	private Integer userCollege;
-	
-	/**来源类型*/
-	private Integer sourceType;
-	
-	/**来源编码，如知网期刊为1,wos为400*/
-	private Integer sourceCode;
-
-	private Float myBoostField = 1.6f;
-	
-	/**机构签名*/
-	private List<Integer> orgSign = new ArrayList<Integer>();
-	
-	/**院系*/
-	private List<Integer> colleges = new ArrayList<Integer>();
-	
-	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof Document){
-			if(this.id != null){
-				return this.id.equals(((Document) obj).id);
-			}
-		}else if(obj instanceof Map){
-			String _id = (String)((Map)obj).get("id");
-			if(this.id != null){
-				return this.id.equals(_id);
-			}
-		}
-		return false;
-	}
+	private List<String> linkUrl = new ArrayList<String>();
 
 	public String getId() {
 		return id;
@@ -100,14 +64,6 @@ public abstract class Document {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public List<Integer> getDocType() {
-		return docType;
-	}
-
-	public void setDocType(List<Integer> docType) {
-		this.docType = docType;
 	}
 
 	public Integer getDocLan() {
@@ -124,14 +80,6 @@ public abstract class Document {
 
 	public void setDocTitle(String docTitle) {
 		this.docTitle = docTitle;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public List<Url> getUrl() {
@@ -158,12 +106,8 @@ public abstract class Document {
 		this.keywords = keywords;
 	}
 
-//	public String getAuthor() {
-//		return author;
-//	}
-	
 	public String getAuthor() {
-		return repeat(author, ";");
+		return author;
 	}
 
 	public void setAuthor(String author) {
@@ -178,77 +122,23 @@ public abstract class Document {
 		this.org = org;
 	}
 
-	public String getFirstAuthor() {
-		return firstAuthor;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setFirstAuthor(String firstAuthor) {
-		this.firstAuthor = firstAuthor;
-	}
-
-	public Long getStorageTime() {
-		return storageTime;
-	}
-
-	public void setStorageTime(Long storageTime) {
-		this.storageTime = storageTime;
-	}
-
-	public Integer getScid() {
-		return scid;
-	}
-
-	public void setScid(Integer scid) {
-		this.scid = scid;
-	}
-
-	public Integer getUserid() {
-		return userid;
-	}
-
-	public void setUserid(Integer userid) {
-		this.userid = userid;
-	}
-
-	public Integer getUserCollege() {
-		return userCollege;
-	}
-
-	public void setUserCollege(Integer userCollege) {
-		this.userCollege = userCollege;
-	}
-
-	public Integer getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(Integer sourceType) {
-		this.sourceType = sourceType;
-	}
-
-	public Integer getSourceCode() {
-		return sourceCode;
-	}
-
-	public void setSourceCode(Integer sourceCode) {
-		this.sourceCode = sourceCode;
-	}
-
-	public String getAuthorAnalyzed() {
-		return authorAnalyzed;
-	}
-
-	public void setAuthorAnalyzed(String authorAnalyzed) {
-		this.authorAnalyzed = authorAnalyzed;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
-	public Float getMyBoostField() {
-		return myBoostField;
-	}
-
-	public void setMyBoostField(Float myBoostField) {
-		this.myBoostField = myBoostField;
-	}
+	
+	
+	/**机构签名*/
+	@Property(index = IndexType.NOT_ANALYZED)
+	private List<Integer> orgSign = new ArrayList<Integer>();
+	
+	/**院系*/
+	@Property(index = IndexType.NOT_ANALYZED)
+	private List<Integer> colleges = new ArrayList<Integer>();
 
 	public List<Integer> getOrgSign() {
 		return orgSign;
@@ -265,69 +155,45 @@ public abstract class Document {
 	public void setColleges(List<Integer> colleges) {
 		this.colleges = colleges;
 	}
-	
-	public List<String> getKeywordList() {
-		return keywordList;
+
+	public String getDocType() {
+		return docType;
 	}
 
-	public void setKeywordList(List<String> keywordList) {
-		this.keywordList = keywordList;
+	public void setDocType(String docType) {
+		this.docType = docType;
 	}
 
-	public List<String> getAuthorList() {
-		return authorList;
+	public List<Integer> getDocTypes() {
+		return docTypes;
 	}
 
-	public void setAuthorList(List<String> authorList) {
-		this.authorList = authorList;
+	public void setDocTypes(List<Integer> docTypes) {
+		this.docTypes = docTypes;
 	}
 
-	protected Integer extractYear(String time) {
-		Integer t = null;
-		if(StringUtils.isNotBlank(time)&&time.length()>=4){
-			try {
-				t = Integer.parseInt(time.substring(0,4));
-			} catch (Exception e) {
-			}			
-		}
-		return t;
+	public String getAuthorAnalyzed() {
+		return authorAnalyzed;
+	}
+
+	public void setAuthorAnalyzed(String authorAnalyzed) {
+		this.authorAnalyzed = authorAnalyzed;
+	}
+
+	public Map<String, Object> getSource() {
+		return source;
+	}
+
+	public void setSource(Map<String, Object> source) {
+		this.source = source;
+	}
+
+	public List<String> getLinkUrl() {
+		return linkUrl;
+	}
+
+	public void setLinkUrl(List<String> linkUrl) {
+		this.linkUrl = linkUrl;
 	}
 	
-	
-	/**
-	 * String数据去重
-	 * @param val
-	 * @return
-	 */
-	protected String repeat(String val,String split) {
-		if(StringUtils.isEmpty(val)) {
-			return val;
-		}
-		String[] vals = val.split(split);
-		Map<String,Object> map = new HashMap<String,Object>();
-		String value = "";
-		for (String string : vals) {
-			if(map.containsKey(string)) {
-				
-			} else {
-				map.put(string, 1);
-				value  = value + string.trim() + ";";
-			}
-		}
-		
-//		Set set = new HashSet();
-//        //遍历数组并存入集合,如果元素已存在则不会重复存入
-//        for (int i = 0; i < vals.length; i++) {
-//            set.add(vals[i]);
-//        }
-//        Iterator<String> it = set.iterator(); 
-//        String value = "";
-//        while (it.hasNext()) {  
-//        	String str = it.next();  
-//        	value = value + str + ";";
-//    	}  
-		return value;
-	}
-	
-	public abstract Document newInstance();
 }

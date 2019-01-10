@@ -5,6 +5,6 @@ package com.wd.cloud.bse.es;
  * @author Administrator
  *
  */
-public interface FilterQueryBuilder extends IFilterBuilderStrategy{
+public interface FilterQueryBuilder extends FilterBuilderStrategyI{
 
 }

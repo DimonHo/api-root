@@ -23,6 +23,7 @@ public class QueryCondition implements Serializable {
     public QueryCondition(String fieldFlag) {
         super();
         this.fieldFlag = fieldFlag;
+        this.beanName = fieldFlag;
     }
 
     public QueryCondition(String fieldFlag, String value) {
@@ -59,6 +60,14 @@ public class QueryCondition implements Serializable {
         this.fieldFlag = fieldFlag;
         this.beanName = fieldFlag;
         this.values = values;
+    }
+    
+    public QueryCondition(String fieldFlag, List<String> values, int logic) {
+        super();
+        this.fieldFlag = fieldFlag;
+        this.beanName = fieldFlag;
+        this.values = values;
+        this.logic = logic;
     }
 
     public QueryCondition addValue(String value) {

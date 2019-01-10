@@ -1,8 +1,9 @@
-package com.wd.cloud.bse.repository;
+package com.wd.cloud.bse.repository.school;
 
-import com.wd.cloud.bse.entity.School;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import com.wd.cloud.bse.entity.school.School;
 
 
 /**

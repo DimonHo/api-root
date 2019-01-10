@@ -1,12 +1,18 @@
 package com.wd.cloud.bse.vo;
 
+import org.springframework.stereotype.Component;
 
 /**
  * 分类统计的字段
  * @author Administrator
  *
  */
+@Component
 public class FacetField {
+	
+	public FacetField() {
+		
+	}
 	
 	private String name;
 	
@@ -33,6 +39,19 @@ public class FacetField {
 
 	public void setOrder(boolean order) {
 		this.order = order;
+	}
+	
+	public FacetField(String name,String field,int size){
+		this.name = name;
+		this.field = field;
+		this.size =size;
+	}
+	
+	public FacetField(String name,String field,int size,boolean order){
+		this.name = name;
+		this.field = field;
+		this.size =size;
+		this.order =order;
 	}
 
 	public FacetField(String name,String field,int size,boolean order,boolean orderByCount,String nested){
