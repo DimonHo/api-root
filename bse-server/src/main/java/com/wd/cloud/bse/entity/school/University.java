@@ -1,25 +1,23 @@
-package com.wd.cloud.bse.entity;
+package com.wd.cloud.bse.entity.school;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "school")
-public class School {
+@Table(name = "university")
+public class University {
 	
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	 @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "name")
+    @Column(name = "Name")
     private String name;
     
-    @Column(name = "scid")
-    private Integer scid;
+    @Column(name = "Shorthand")
+    private String shorthand;
 
 	public Integer getId() {
 		return id;
@@ -37,16 +35,14 @@ public class School {
 		this.name = name;
 	}
 
-	public Integer getScid() {
-		return scid;
+	public String getShorthand() {
+		return shorthand;
 	}
 
-	public void setScid(Integer scid) {
-		this.scid = scid;
+	public void setShorthand(String shorthand) {
+		this.shorthand = shorthand;
 	}
 
 	
-    
-    
 
 }

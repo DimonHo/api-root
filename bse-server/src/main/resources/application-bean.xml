@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd ">
+
+	<bean id="queryBuilderStrategyContext" class="com.wd.cloud.bse.es.QueryBuildContext">
+		<property name="queryBuilders">
+			<map>
+				<entry key="_all" value-ref="allFieldQuery" /><!-- 所有字段 -->
+				<entry key="all" value-ref="allFieldQuery" /><!-- 所有字段 -->
+				<entry key="docTitle" value-ref="titleQuery" /><!-- 标题 -->
+				<entry key="author" value-ref="creatorQuery" />
+				<entry key="org" value-ref="orgQuery" />
+				<entry key="journal" value-ref="kmQuery" /><!-- 期刊 -->
+				<entry key="journalTitle" value-ref="kmQuery" /><!-- 期刊 -->
+				<entry key="meetingName" value-ref="mettingNameQuery" /><!-- 会议名称 -->
+				<entry key="guider" value-ref="guiderQuery" /><!-- 学位导师 -->
+				<entry key="relationSubject" value-ref="relationSubjectQuery" /><!--  -->
+				<entry key="year" value-ref="commTermsQuery" />
+				<entry key="yearRange" value-ref="rangeQuery" />
+			</map>
+		</property>
+		<property name="filterBuilders">
+			<map>
+				<entry key="docType" value-ref="commTermsFilter" />
+				<entry key="year" value-ref="commTermsFilter" />
+				<entry key="docLan" value-ref="docLanFilter" />
+				<entry key="jourTitleFacet" value-ref="commTermsFilter" />
+				<entry key="authorList" value-ref="commTermsFilter" />
+				<entry key="keywordList" value-ref="commTermsFilter" />
+				<!-- <entry key="esiIssue" value-ref="esiIssueFilter" /> -->
+				<entry key="esiIssue" value-ref="commTermsFilter" />
+				<entry key="colleges" value-ref="commTermsFilter" /><!-- 院系筛选 -->
+				<entry key="orgSign" value-ref="commTermsFilter" />
+				<entry key="scids" value-ref="commTermsFilter" /><!-- 发文机构 -->
+				<entry key="subject" value-ref="commTermsFilter" /><!-- ESI学科类别-->
+				<entry key="subjects" value-ref="commTermsFilter" /><!-- wos学科类别 -->
+				<entry key="discipline" value-ref="commTermsFilter" /><!-- 学科专业 -->
+				<entry key="researchField" value-ref="commTermsFilter" /><!-- 研究方向 -->
+				<entry key="guiderList" value-ref="commTermsFilter" /><!-- 导师 -->
+				<entry key="degree" value-ref="commTermsFilter" /><!-- 学位-->
+				<entry key="degreeAwarder" value-ref="commTermsFilter" /><!-- 学位授予单位 -->
+				
+				<entry key="shoulu" value-ref="commTermsFilter" />
+				<entry key="relationSubject" value-ref="commTermsFilter" /><!--  -->
+				<entry key="yearRange" value-ref="rangeFilter" />
+			</map>
+		</property>
+		<property name="sortBuilders">
+			<map>
+				<entry key="year" value-ref="timeSort" />
+				<entry key="wosCites" value-ref="timeSort" />
+				<entry key="docTitleFacet" value-ref="timeSort" />
+				<entry key="boostField" value-ref="timeSort" />
+				<!-- <entry key="year">
+					<bean class="com.wd.cloud.bse.es.sort.TimeSortBuilder">
+						<property name="field" value="orgRecordList.document.year"></property>
+					</bean>
+				</entry> -->
+			</map>
+		</property>
+		<property name="facets">
+			<map>
+				<entry key="all">
+					<list>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docType"></property>
+							<property name="field" value="docType"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="year"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="yearRange"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="shoulu"></property>
+							<property name="field" value="shoulu"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="esiIssue"></property>
+							<property name="field" value="esiIssue"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="subject"></property>
+							<property name="field" value="subject"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docLan"></property>
+							<property name="field" value="docLan"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="journalTitle"></property>
+							<property name="field" value="jourTitleFacet"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="author"></property>
+							<property name="field" value="authorList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="keyword"></property>
+							<property name="field" value="keywordList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<!-- 研究方向 -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="researchField"></property>
+							<property name="field" value="researchField"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="subjects"></property>
+							<property name="field" value="subjects"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="org"></property>
+							<property name="field" value="org"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="orgSign"></property>
+							<property name="field" value="orgSign"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="colleges"></property>
+							<property name="field" value="colleges"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField" >
+							<property name="name" value="degree"></property>
+							<property name="field" value="degree"></property>
+							<property name="size" value="20" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField" >
+							<property name="name" value="guider"></property>
+							<property name="field" value="guiderList"></property>
+							<property name="size" value="20" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField" >
+							<property name="name" value="degreeAwarder"></property>
+							<property name="field" value="degreeAwarder"></property>
+							<property name="size" value="20" />
+						</bean>
+						<!-- 学科专业 -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="discipline"></property>
+							<property name="field" value="discipline"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="scids"></property>
+							<property name="field" value="scids"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+					</list>
+				</entry>
+				<entry key="periodical">
+					<list>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docType"></property>
+							<property name="field" value="docType"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="year"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="yearRange"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="shoulu"></property>
+							<property name="field" value="shoulu"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="esiIssue"></property>
+							<property name="field" value="esiIssue"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="subject"></property>
+							<property name="field" value="subject"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docLan"></property>
+							<property name="field" value="docLan"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="journalTitle"></property>
+							<property name="field" value="jourTitleFacet"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="author"></property>
+							<property name="field" value="authorList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="keyword"></property>
+							<property name="field" value="keywordList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<!-- 研究方向 -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="researchField"></property>
+							<property name="field" value="researchField"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="subjects"></property>
+							<property name="field" value="subjects"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="org"></property>
+							<property name="field" value="org"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="orgSign"></property>
+							<property name="field" value="orgSign"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="colleges"></property>
+							<property name="field" value="colleges"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="scids"></property>
+							<property name="field" value="scids"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+					</list>
+				</entry>
+				<entry key="proceedings">
+					<list>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docType"></property>
+							<property name="field" value="docType"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="year"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="yearRange"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="shoulu"></property>
+							<property name="field" value="shoulu"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="esiIssue"></property>
+							<property name="field" value="esiIssue"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="subject"></property>
+							<property name="field" value="subject"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docLan"></property>
+							<property name="field" value="docLan"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="journalTitle"></property>
+							<property name="field" value="jourTitleFacet"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="author"></property>
+							<property name="field" value="authorList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="keyword"></property>
+							<property name="field" value="keywordList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<!-- 研究方向 -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="researchField"></property>
+							<property name="field" value="researchField"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="subjects"></property>
+							<property name="field" value="subjects"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="org"></property>
+							<property name="field" value="org"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="orgSign"></property>
+							<property name="field" value="orgSign"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="colleges"></property>
+							<property name="field" value="colleges"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="scids"></property>
+							<property name="field" value="scids"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+					</list>
+				</entry>
+				<entry key="dissertation">
+					<list>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docType"></property>
+							<property name="field" value="docType"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="year"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="yearRange"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="docLan"></property>
+							<property name="field" value="docLan"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<!-- <bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="author"></property>
+							<property name="field" value="authorList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean> 
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="keyword"></property>
+							<property name="field" value="keywordList"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>-->
+						<bean class="com.wd.cloud.bse.vo.FacetField" >
+							<property name="name" value="degree"></property>
+							<property name="field" value="degree"></property>
+							<property name="size" value="20" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField" >
+							<property name="name" value="guider"></property>
+							<property name="field" value="guiderList"></property>
+							<property name="size" value="20" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField" >
+							<property name="name" value="degreeAwarder"></property>
+							<property name="field" value="degreeAwarder"></property>
+							<property name="size" value="20" />
+						</bean>
+						<!-- 学科专业 -->
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="discipline"></property>
+							<property name="field" value="discipline"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="scids"></property>
+							<property name="field" value="scids"></property>
+							<property name="size" value="20" />
+							<property name="orderByCount" value="true" />
+						</bean>
+					</list>
+				</entry>
+				<entry key="yearRange">
+					<list>
+						<bean class="com.wd.cloud.bse.vo.FacetField">
+							<property name="name" value="yearRange"></property>
+							<property name="field" value="year"></property>
+							<property name="size" value="100" />
+							<property name="order" value="true" />
+						</bean>
+					</list>
+				</entry>
+			</map>
+		</property>
+		
+	</bean>
+</beans>

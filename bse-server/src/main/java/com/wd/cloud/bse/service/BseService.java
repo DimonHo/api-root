@@ -1,15 +1,46 @@
 package com.wd.cloud.bse.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.wd.cloud.bse.vo.QueryCondition;
 import com.wd.cloud.bse.vo.SearchCondition;
+import com.wd.cloud.bse.vo.SearchPager;
 
 
 public interface BseService {
+	/**
+	 * 根据学者查询学者成果
+	 * @param condition
+	 * @return
+	 */
+	public List<String> searchScholar(SearchCondition condition);
 	
-	public List<String> search(List<QueryCondition> list);
+	/**
+	 * 学科列表查询
+	 * @param condition
+	 * @return
+	 */
+	public SearchPager query(SearchCondition condition);
+	/**
+	 * 学科详细文章
+	 * @param id
+	 * @param index
+	 * @return
+	 */
+	public SearchPager getDocByIds(String[] ids,String index);
 	
-	public void query(SearchCondition condition);
+	/**
+	 * 最新100条查询
+	 * @param condition
+	 * @return
+	 */
+	public <T> SearchPager searchNew(SearchCondition condition);
+	
+	public <T> SearchPager searchEsiHot(SearchCondition condition);
+	
+	public <T> SearchPager searchEsiTop(SearchCondition condition);
+	
+	
 
 }

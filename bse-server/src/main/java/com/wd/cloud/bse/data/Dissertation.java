@@ -1,6 +1,9 @@
 package com.wd.cloud.bse.data;
 
-import java.util.List;
+
+import com.hnlat.esmapping.annotation.Property;
+import com.hnlat.esmapping.annotation.Property.FieldType;
+import com.hnlat.esmapping.annotation.Property.IndexType;
 
 /**
  * 学位论文
@@ -10,47 +13,37 @@ import java.util.List;
 public class Dissertation extends Document{
 	
 	/**导师*/
-	private String reprintAuthor;
-	
-	/**导师(用于聚合查询)*/
-	private List<String> reprintAuthorList;
+	@Property(type=FieldType.TEXT, analyzer="mmseg", boost=4.9)
+	private String guider;
 	
 	/**导师所属机构*/
-	private String reprintAuthorOrg;
+	@Property(type=FieldType.TEXT, analyzer="mmseg", includeInAll=true, boost = 4.5)
+	private String guiderOrg;
 	
+	@Property(index=IndexType.NOT_ANALYZED)
 	private String doi;
 	
+	@Property(type= FieldType.KEYEORD, index=IndexType.NOT_ANALYZED)
 	private String degree;//学位
 	
 	/**学位授予单位*/
+	@Property(type=FieldType.TEXT, analyzer="mmseg", includeInAll=true, boost = 4.5)
 	private String degreeAwarder;
 	
 	/**学科专业*/
-//	@Property(analyzer="mmseg", boost=4.9) 2018-08-02
+	@Property(type= FieldType.KEYEORD, index=IndexType.NOT_ANALYZED)
+	private String discipline;
 	private String researchFields;
 	
 	/**分类号*/
+	@Property(index=IndexType.NOT_ANALYZED)
 	private String subjectClc;
 	
 	/**参考文献*/
+	@Property(type=FieldType.TEXT)
 	private String references;
 	
-	public String getReprintAuthor() {
-		return reprintAuthor;
-	}
-
-	public void setReprintAuthor(String reprintAuthor) {
-		this.reprintAuthor = reprintAuthor;
-	}
-
-	public String getReprintAuthorOrg() {
-		return reprintAuthorOrg;
-	}
-
-	public void setReprintAuthorOrg(String reprintAuthorOrg) {
-		this.reprintAuthorOrg = reprintAuthorOrg;
-	}
-
+	
 	public String getDoi() {
 		return doi;
 	}
@@ -75,14 +68,6 @@ public class Dissertation extends Document{
 		this.degreeAwarder = degreeAwarder;
 	}
 
-	public String getResearchFields() {
-		return researchFields;
-	}
-
-	public void setResearchFields(String researchFields) {
-		this.researchFields = researchFields;
-	}
-
 	public String getSubjectClc() {
 		return subjectClc;
 	}
@@ -99,16 +84,37 @@ public class Dissertation extends Document{
 		this.references = references;
 	}
 
-	public List<String> getReprintAuthorList() {
-		return reprintAuthorList;
+	public String getGuider() {
+		return guider;
 	}
 
-	public void setReprintAuthorList(List<String> reprintAuthorList) {
-		this.reprintAuthorList = reprintAuthorList;
+	public void setGuider(String guider) {
+		this.guider = guider;
 	}
 
-	@Override
-	public Document newInstance() {
-		return new Dissertation();
+	public String getGuiderOrg() {
+		return guiderOrg;
 	}
+
+	public void setGuiderOrg(String guiderOrg) {
+		this.guiderOrg = guiderOrg;
+	}
+
+	public String getDiscipline() {
+		return discipline;
+	}
+
+	public void setDiscipline(String discipline) {
+		this.discipline = discipline;
+	}
+
+	public String getResearchFields() {
+		return researchFields;
+	}
+
+	public void setResearchFields(String researchFields) {
+		this.researchFields = researchFields;
+	}
+	
+
 }

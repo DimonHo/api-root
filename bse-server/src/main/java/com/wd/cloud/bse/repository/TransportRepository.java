@@ -9,7 +9,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -17,30 +19,27 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.wd.cloud.bse.repository.TransportRepository.BulkInterator;
+import com.wd.cloud.bse.util.ClientFactory;
+import com.wd.cloud.bse.util.FacetBuildUtil;
+import com.wd.cloud.bse.util.RequestBuildUtil;
+import com.wd.cloud.bse.vo.SearchCondition;
+
 @Component
 public class TransportRepository {
 	
 	 @Autowired
 	 TransportClient transportClient;
 	 
-	 public SearchResponse query(QueryBuilder queryBuilder, QueryBuilder filterBuilder, List<AggregationBuilder> aggregations,SortBuilder sort, String type,int from,int size) {
-		 SearchRequestBuilder searchRequest = transportClient.prepareSearch("res").setTypes("paper").setFrom(from).setSize(size);
-		 searchRequest.setSearchType(SearchType.DEFAULT);
-		 if (null != queryBuilder && null != filterBuilder) {
-			 searchRequest.setQuery(queryBuilder).setPostFilter(filterBuilder);
-		 } else if (null != queryBuilder) {
-			 searchRequest.setQuery(queryBuilder);
-		 } else if (null != filterBuilder) {
-			 searchRequest.setPostFilter(filterBuilder);
-		 }
-		 if (null != aggregations) {
-			 for (AggregationBuilder aggregation : aggregations) {
-				 searchRequest.addAggregation(aggregation);
-			 }
-		 }
-		 if(null != sort) {
-			 searchRequest.addSort(sort);
-		 }
+	 @Autowired
+	 RequestBuildUtil requestBuildUtil;
+	 
+	 @Autowired
+	 FacetBuildUtil facetBuildUtil;
+	 
+	 public SearchResponse query(SearchCondition condition) {
+		 SearchRequestBuilder searchRequest = transportClient.prepareSearch(condition.getIndexName()).setTypes(condition.getTypes());
+		 requestBuildUtil.build(condition, searchRequest);
 		 System.out.println(searchRequest.toString());
 		 SearchResponse response = searchRequest.get();
 		 return response;
@@ -69,10 +68,24 @@ public class TransportRepository {
 		 return new BulkInterator(response);
 	 }
 	 
-	 
-	 
-	 
-	 
+	public SearchResponse queryByIds(String[] id,String index) {
+		SearchResponse resp = transportClient.prepareSearch(index).setQuery(QueryBuilders.idsQuery().addIds(id)).execute().actionGet();
+		return resp;
+	}
+	
+	
+	public SearchResponse search(String[] id,SearchCondition condition) {
+		SearchRequestBuilder searchRequest = transportClient.prepareSearch(condition.getIndexName()).setTypes(condition.getTypes());
+		if(id != null) {
+			searchRequest.setQuery(QueryBuilders.idsQuery().addIds(id));
+		}
+		if(condition != null) {
+			requestBuildUtil.build(condition, searchRequest,id);
+		}
+		SearchResponse resp = searchRequest.execute().actionGet();
+		return resp;
+	}
+	
 	 public class BulkInterator implements Iterator<SearchHit>{
 			
 			private SearchHit[] hits;

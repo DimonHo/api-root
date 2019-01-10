@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.wd.cloud.bse.service.CacheService;
+import com.wd.cloud.bse.util.ParamsAnalyze;
 import com.wd.cloud.bse.util.SpringContextUtil;
 
 import net.sf.json.JSON;
@@ -89,22 +91,6 @@ public class QueryParam {
 		return null;
 	}
 	
-//	public String[] getIds(){
-//		if(params.has("ids")){
-//			JSONArray jArr = JSONArray.fromObject(params.getString("ids"));
-//			String[] arr = new String[jArr.size()];
-//			for(int i=0;i<jArr.size();i++){
-//				JSONObject jObj = jArr.getJSONObject(i);
-//				if(jObj.containsKey("id")){
-//					arr[i] = jObj.getString("id");
-//				}else{
-//					arr[i] = null;
-//				}
-//			}
-//			return arr;
-//		}
-//		return new String[0];
-//	}
 	/**
 	 * 获取参数ids（如果有id_no[剔除的数据]返回剔除后的数据）
 	 * @return
@@ -170,17 +156,6 @@ public class QueryParam {
 			value = jObj.get("value");
 		}
 		int logic = getInt(jObj,"logic",1);
-		if(fieldName.equals("missing")){
-			if(value != null && value instanceof String){
-				if(value.equals("authorAffiliations.claimUsers.uid")){
-					fieldName = "cliamUser";
-					logic = Logic.AND.value();
-				}
-				if(value.equals("submitStatus")){//debug 9595
-					fieldName = "missingSubmitStatus";
-				}
-			}
-		}
 		QueryCondition condition = new QueryCondition(fieldName);
 		condition.setLogic(logic);
 		if(value != null){
@@ -203,9 +178,6 @@ public class QueryParam {
 			JSON json = (JSON)filters.get("field");
 			List<QueryCondition> list = toFields(json);
 			for (QueryCondition queryCondition : list) {
-				if (queryCondition.getFieldFlag().equals("userAuditStatus")) {
-					userAuditStatus = queryCondition.getValue();
-				}
 				if (queryCondition.getFieldFlag().equals("esiIssue")) {
 					esiIssues = new HashSet<>();
 					if(queryCondition.getValue()!=null) {
@@ -221,6 +193,42 @@ public class QueryParam {
 		return null;
 	}
 	
+	public List<List<QueryCondition>> getFiltersList(){
+		JSONObject filters = null;
+		List<List<QueryCondition>> list = new ArrayList<>();
+		if(!params.has("filter")){
+			return null;
+		}
+		filters = params.getJSONObject("filter");
+		for (Object key : filters.keySet()) {
+			String shoulu = key.toString();
+			if(filters.get(key) instanceof String) {
+				String relationSubject = filters.get(key).toString();
+				List<QueryCondition> l = new ArrayList<>();
+				l.add(new QueryCondition("relationSubject",relationSubject));
+				l.add(new QueryCondition("shoulu",shoulu));
+				list.add(l);
+			} else {
+				JSONArray arr = filters.getJSONArray(key.toString());
+				for (int i=0;i<arr.size();i++) {
+					String relationSubject = arr.getString(i);
+					List<QueryCondition> l = new ArrayList<>();
+					l.add(new QueryCondition("relationSubject",relationSubject));
+					l.add(new QueryCondition("shoulu",shoulu));
+					list.add(l);
+				}
+			}
+		}
+		return list;
+	}
+	
+	
+//	public static void main(String[] args) throws Exception {
+//		String reqParams = "<params><filter>{\"SCI-E\":[\"Toxicology\"],\"EI\":[\"483\",\"631\"]}</filter><types>[1]</types></params>";
+//		QueryParam params = ParamsAnalyze.parse(reqParams);
+//		params.getFiltersList();
+//	}
+	
 	/**
 	 * 
 	 * @return
@@ -230,7 +238,8 @@ public class QueryParam {
 		if(params.has("types")){
 			JSONArray jArr = JSONArray.fromObject(params.getString("types"));
 			for(int i=0;i<jArr.size();i++){
-				types.add(jArr.get(i).toString());
+//				types.add(jArr.get(i).toString());
+				types.add(DocType.valueOf(Integer.parseInt(jArr.get(i).toString())).getValue());
 			}
 		}
 		String[] result  = new String[types.size()];
@@ -253,14 +262,28 @@ public class QueryParam {
 		return  time.toArray(result);
 	}
 	
+	public String[] getStringArr(String name) {
+		List<String> arr = new ArrayList<>();
+		if(params.has(name)){
+			JSONArray jArr = JSONArray.fromObject(params.getString(name));
+			for(int i=0;i<jArr.size();i++){
+				arr.add(jArr.get(i).toString());
+			}
+		}
+		String[] result  = new String[arr.size()];
+		return  arr.toArray(result);
+	}
+	
 	public SearchCondition converToSearchCondition(){
 		SearchCondition condition = new SearchCondition();
 		Integer from = getInt("offset",-1);
 		condition.setSize(getInt("size",10));
 		condition.setTypes(getTypes());
-		
+		Integer isTop = getInt("is_top", 0);
+		condition.setIsTop(isTop);
+		Integer isFacets = getInt("is_facets", 0);
+		condition.setIsFacets(isFacets);
 		if(from >=0){
-			
 		}else{//没有设置offset,取offset
 			Integer page = getInt("page",0);
 			if(page ==0){
@@ -269,205 +292,101 @@ public class QueryParam {
 				from = (page-1)*condition.getSize();
 			}
 		}
+		if(isTop == 1 && from >= 100) {
+			return null;
+		}
 		condition.setFrom(from);
 		List<QueryCondition> conditions = getQueryField();
 		if(conditions!=null){
 			condition.setQueryConditions(conditions);
 		}
 		conditions = getFilterField();
-//		if(conditions!=null){
-//			int logic =Logic.OR.value();
-//			List<String> esiIssues = null;
-//			for(QueryCondition q : conditions){
-//				if("esiIssue".equals(q.getFieldFlag()) && q.getValues()!=null && q.getValues().size()>0){
-//					esiIssues = q.getValues();
-//				}
-//			}
-//			if(esiIssues == null){
-//				SchoolDao schoolDao = SpringContextUtil.getBean(SchoolDao.class);
-//				String lastEsiIssue = schoolDao.getLastEsiIssue();
-//				esiIssues = Arrays.asList(lastEsiIssue);
-//			}
-//			
-//			Iterator<QueryCondition> ite = conditions.iterator();
-//			List<QueryCondition> esiQc = new ArrayList<>();
-//			while(ite.hasNext()){
-//				QueryCondition q = ite.next();
-//				if("uid".equals(q.getFieldFlag()) || "uid1".equals(q.getFieldFlag())){
-//					condition.setUid(Integer.parseInt(q.getValue()));
-//				}
-//				if("shoulu".equals(q.getFieldFlag())){
-//					logic = q.getLogic();
-//					List<String> values = q.getValues();
-//					if(values.contains("ESI热点")){
-//						values.remove("ESI热点");
-//						List<String> esi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							esi.add(esiIssue+"^ESI热点");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", esi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.contains("ESI高被引")){
-//						values.remove("ESI高被引");
-//						List<String> esi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							esi.add(esiIssue+"^ESI高被引");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", esi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.size() ==0){
-//						ite.remove();
-//					}
-//				}
-//				if("shoulus".equals(q.getFieldFlag())){
-//					logic = q.getLogic();
-//					List<String> values = q.getValues();
-//					if(values.contains("ESI热点")){
-//						values.remove("ESI热点");
-//						List<String> rightEsi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							rightEsi.add(esiIssue+"^ESI热点");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", rightEsi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.contains("ESI高被引")){
-//						values.remove("ESI高被引");
-//						List<String> rightEsi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							rightEsi.add(esiIssue+"^ESI高被引");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", rightEsi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.size() ==0){
-//						ite.remove();
-//					}
-//				}
-//			}
-//			if(esiQc.size() > 0) {
-//				conditions.addAll(esiQc);
-//			}
-//			condition.setFilterConditions(conditions);
-//		}
+		if(conditions!=null){
+			condition.setFilterConditions(conditions);
+		}
+		List<List<QueryCondition>> filters = getFiltersList();
+		condition.setFilters(filters);
+		if(conditions!=null){
+			List<String> esiIssues = null;
+			for(QueryCondition q : conditions){
+				if("esiIssue".equals(q.getFieldFlag()) && q.getValues()!=null && q.getValues().size()>0){
+					esiIssues = q.getValues();
+				}
+			}
+			if(esiIssues == null){
+				CacheService cacheService = SpringContextUtil.getBean(CacheService.class);
+				String lastEsiIssue = cacheService.getEsiIssue();
+				esiIssues = Arrays.asList(lastEsiIssue);
+			}
+			List<QueryCondition> esiQc = new ArrayList<>();
+			Iterator<QueryCondition> ite = conditions.iterator();
+			while(ite.hasNext()){
+				QueryCondition q = ite.next();
+				if("shoulu".equals(q.getFieldFlag())){
+					int logic = q.getLogic();
+					List<String> values = q.getValues();
+					if(values.contains("ESI热点")){
+						values.remove("ESI热点");
+						List<String> esi = new ArrayList<String>();
+						for(String esiIssue : esiIssues){
+							esi.add(esiIssue+"^ESI热点");
+						}
+						QueryCondition qc = new QueryCondition("esiIssue", esi, logic);
+						esiQc.add(qc);
+					}
+					if(values.contains("ESI高被引")){
+						values.remove("ESI高被引");
+						List<String> esi = new ArrayList<String>();
+						for(String esiIssue : esiIssues){
+							esi.add(esiIssue+"^ESI高被引");
+						}
+						QueryCondition qc = new QueryCondition("esiIssue", esi, logic);
+						esiQc.add(qc);
+					}
+					if(values.size() ==0){
+						ite.remove();
+					}
+				}
+			}
+			if(esiQc.size() > 0) {
+				conditions.addAll(esiQc);
+			}
+			condition.setFilterConditions(conditions);
+		}
 		
-		
-		conditions = getQueryField();
-//		if(conditions!=null){
-//			int logic =Logic.OR.value();
-//			List<String> esiIssues = null;
-//			for(QueryCondition q : conditions){
-//				if("esiIssue".equals(q.getFieldFlag()) && q.getValues()!=null && q.getValues().size()>0){
-//					esiIssues = q.getValues();
-//				}
-//			}
-//			if(esiIssues == null){
-//				SchoolDao schoolDao = SpringContextUtil.getBean(SchoolDao.class);
-//				String lastEsiIssue = schoolDao.getLastEsiIssue();
-//				esiIssues = Arrays.asList(lastEsiIssue);
-//			}
-//			
-//			Iterator<QueryCondition> ite = conditions.iterator();
-//			List<QueryCondition> esiQc = new ArrayList<>();
-//			while(ite.hasNext()){
-//				QueryCondition q = ite.next();
-//				if("uid".equals(q.getFieldFlag()) || "uid1".equals(q.getFieldFlag())){
-//					condition.setUid(Integer.parseInt(q.getValue()));
-//				}
-//				if("shoulu".equals(q.getFieldFlag())){
-//					logic = q.getLogic();
-//					List<String> values = q.getValues();
-//					if(values.contains("ESI热点")){
-//						values.remove("ESI热点");
-//						List<String> esi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							esi.add(esiIssue+"^ESI热点");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", esi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.contains("ESI高被引")){
-//						values.remove("ESI高被引");
-//						List<String> esi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							esi.add(esiIssue+"^ESI高被引");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", esi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.size() ==0){
-//						ite.remove();
-//					}
-//				}
-//				if("shoulus".equals(q.getFieldFlag())){
-//					logic = q.getLogic();
-//					List<String> values = q.getValues();
-//					if(values.contains("ESI热点")){
-//						values.remove("ESI热点");
-//						List<String> rightEsi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							rightEsi.add(esiIssue+"^ESI热点");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", rightEsi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.contains("ESI高被引")){
-//						values.remove("ESI高被引");
-//						List<String> rightEsi = new ArrayList<String>();
-//						for(String esiIssue : esiIssues){
-//							rightEsi.add(esiIssue+"^ESI高被引");
-//						}
-//						QueryCondition qc = new QueryCondition("esiWildcardIssue", rightEsi, logic );
-//						esiQc.add(qc);
-//					}
-//					if(values.size() ==0){
-//						ite.remove();
-//					}
-//				}
-//			}
-//			if(esiQc.size() > 0) {
-//				conditions.addAll(esiQc);
-//			}
-//			condition.setQueryConditions(conditions);
-//		}
-		
-		int order = getInt("sort",0);
+//		int order = getInt("sort",0);
 		int scid = getInt("school",0),uid =getInt("uid",0);
 		if(scid>0){
 			condition.setScid(scid);
 		}
-		if(uid>0){
-			condition.setUid(uid);
-		}
-//		boolean isPatent = isPatent(condition);
-		switch(order){
-		case 1://时间降序
-			condition.addSort("timeSort", "documents.year", 2);
-			break;
-		case 2://时间升序
-			condition.addSort("timeSort", "documents.year", 1);
-			break;
-//		case 3://wos被引降序
-//			condition.addSort("wosCitesNested", SortEnum.desc.value());
-//			break;
-//		case 4://wos被引升序
-//			condition.addSort("wosCitesNested", SortEnum.asc.value());
-//			break;
-//		case 13:
-//			condition.addSort("scoreNested", SortEnum.asc.value());
-//			break;
-//		case 14:
-//			condition.addSort("scoreNested", SortEnum.desc.value());
-//			break;
-//
-//		default:
-//			if(condition.getQueryConditions()!=null  && condition.getQueryConditions().size()>0){
-//			}else{//没有筛选条件，使用默认的排序方式
-//				condition.addSort("boostField", SortEnum.desc.value());
-//			}
-//			break;
+		String[] orders = getStringArr("sort");
+		for (String order : orders) {
+			switch(Integer.parseInt(order)){
+			case 1://时间降序
+				condition.addSort("year", SortEnum.desc.value());
+				break;
+			case 2://时间升序
+				condition.addSort("year", SortEnum.asc.value());
+				break;
+			case 3://wos被引降序
+				condition.addSort("wosCites", SortEnum.desc.value());
+				break;
+			case 4://wos被引升序
+				condition.addSort("wosCites", SortEnum.asc.value());
+				break;
+			case 5:
+				condition.addSort("docTitleFacet", SortEnum.desc.value());
+				break;
+			case 6:
+				condition.addSort("docTitleFacet", SortEnum.asc.value());
+				break;
+			default:
+				if(condition.getQueryConditions()!=null  && condition.getQueryConditions().size()>0){
+				}else{//没有筛选条件，使用默认的排序方式
+					condition.addSort("boostField", SortEnum.desc.value());
+				}
+				break;
+			}
 		}
 		return condition;
 	}

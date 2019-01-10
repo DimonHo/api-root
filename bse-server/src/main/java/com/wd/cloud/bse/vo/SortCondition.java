@@ -7,8 +7,6 @@ package com.wd.cloud.bse.vo;
  */
 public class SortCondition {
 	
-	private String beanName;
-	
 	private String field;
 	
 	private String nested;
@@ -17,21 +15,18 @@ public class SortCondition {
 	
 	private int orderKey = 1;
 	
-	public SortCondition(String beanName,String field,int orderKey) {
-		this.beanName = beanName;
+	public SortCondition(String field,int orderKey) {
 		this.field = field;
 		this.orderKey = orderKey;
 	}
 	
-	public SortCondition(String beanName,String field, String nested,int orderKey) {
-		this.beanName = beanName;
+	public SortCondition(String field, String nested,int orderKey) {
 		this.field = field;
 		this.nested = nested;
 		this.orderKey = orderKey;
 	}
 	
-	public SortCondition(String beanName,String field, String nested,String mode,int orderKey) {
-		this.beanName = beanName;
+	public SortCondition(String field, String nested,String mode,int orderKey) {
 		this.field = field;
 		this.nested = nested;
 		this.mode = mode;
@@ -71,15 +66,5 @@ public class SortCondition {
 		this.orderKey = orderKey;
 	}
 
-	public String getBeanName() {
-		return beanName;
-	}
-
-	public void setBeanName(String beanName) {
-		this.beanName = beanName;
-	}
-	
-	
-	
 
 }

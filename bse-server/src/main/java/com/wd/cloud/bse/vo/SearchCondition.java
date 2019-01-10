@@ -24,13 +24,15 @@ public class SearchCondition {
 	/**过滤条件*/
 	private List<QueryCondition> filterConditions = new ArrayList<QueryCondition>();
 	
+	private List<List<QueryCondition>> filters =  new ArrayList<List<QueryCondition>>();
+	
 	/**高亮显示字段*/
 	private List<String> highLightFields;
 	
 	private List<FacetField> facetFields = null;
 	
 	/** 排序字段*/
-	private SortCondition sorts;
+	private List<SortCondition> sorts;
 	
 	/**仅统计数据，不获取数据*/
 	private boolean facetOnly =false;
@@ -38,23 +40,22 @@ public class SearchCondition {
 	/**导出数据*/
 	private boolean export = false;
 	
-	private int from;
+	private int from=0;
 	
 	private int size=10;
 	
 	private int scid;
 	
-	private int uid;
-	
 	private int isLocal;
+	
+	private Integer isTop = 0;
+	
+	private Integer isFacets = 0;
+	
+	private int maxSize=100;
 	
 	public SearchCondition addQueryCondition(QueryCondition qc){
 		this.queryConditions.add(qc);
-		return this;
-	}
-	
-	public SearchCondition addQueryConditions(List<QueryCondition> list){
-		this.queryConditions.addAll(list);
 		return this;
 	}
 	
@@ -71,10 +72,19 @@ public class SearchCondition {
 		return this;
 	}
 	
-	public SearchCondition addSort(String beanName,String field,Integer sort){
-		//if(sorts == null){
-			sorts = new SortCondition(beanName,field,sort);
-		//}
+	public SearchCondition addSort(String field,Integer sort){
+		if(sorts == null){
+			sorts = new ArrayList<>();
+		}
+		sorts.add(new SortCondition(field,sort));
+		return this;
+	}
+	
+	public SearchCondition addSort(String field,String nested,Integer sort){
+		if(sorts == null){
+			sorts = new ArrayList<>();
+		}
+		sorts.add(new SortCondition(field,nested,sort));
 		return this;
 	}
 	
@@ -95,7 +105,6 @@ public class SearchCondition {
 	
 	public SearchCondition(int scid,int uid){
 		this.scid = scid;
-		this.uid = uid;
 	}
 	
 	public SearchCondition(Builder builder){
@@ -110,7 +119,6 @@ public class SearchCondition {
 		this.from = builder.from;
 		this.size = builder.size;
 		this.size = builder.scid;
-		this.uid = builder.uid;
 	}
 	
 	/**
@@ -132,7 +140,7 @@ public class SearchCondition {
 		
 		private List<FacetField> facetFields = null;
 		
-		private SortCondition sorts;
+		private List<SortCondition> sorts;
 		
 		private boolean facetOnly =false;
 		
@@ -142,8 +150,6 @@ public class SearchCondition {
 		
 		private int scid;
 		
-		private int uid;
-
 		public Builder setIndexName(String indexName) {
 			this.indexName = indexName;
 			return this;
@@ -174,7 +180,7 @@ public class SearchCondition {
 			return this;
 		}
 
-		public void setSorts(SortCondition sorts) {
+		public void setSorts(List<SortCondition> sorts) {
 			this.sorts = sorts;
 		}
 
@@ -213,7 +219,10 @@ public class SearchCondition {
 		}
 		
 		public Builder addSort(String beanName,String field,Integer sort){
-			sorts = new SortCondition(beanName,field,sort);
+			if(sorts == null){
+				sorts = new ArrayList<>();
+			}
+			sorts.add(new SortCondition(beanName,field,sort));
 			return this;
 		}
 
@@ -222,11 +231,6 @@ public class SearchCondition {
 			return this;
 		}
 
-		public Builder setUid(int uid) {
-			this.uid = uid;
-			return this;
-		}
-		
 	}
 	
 	public String getIndexName() {
@@ -289,11 +293,11 @@ public class SearchCondition {
 		return this;
 	}
 
-	public SortCondition getSorts() {
+	public List<SortCondition> getSorts() {
 		return sorts;
 	}
 
-	public void setSorts(SortCondition sorts) {
+	public void setSorts(List<SortCondition> sorts) {
 		this.sorts = sorts;
 	}
 
@@ -330,14 +334,6 @@ public class SearchCondition {
 		this.scid = scid;
 	}
 
-	public int getUid() {
-		return uid;
-	}
-
-	public void setUid(int uid) {
-		this.uid = uid;
-	}
-
 	public int getIsLocal() {
 		return isLocal;
 	}
@@ -345,5 +341,38 @@ public class SearchCondition {
 	public void setIsLocal(int isLocal) {
 		this.isLocal = isLocal;
 	}
+
+	public Integer getIsTop() {
+		return isTop;
+	}
+
+	public void setIsTop(Integer isTop) {
+		this.isTop = isTop;
+	}
+
+	public Integer getIsFacets() {
+		return isFacets;
+	}
+
+	public void setIsFacets(Integer isFacets) {
+		this.isFacets = isFacets;
+	}
+
+	public List<List<QueryCondition>> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(List<List<QueryCondition>> filters) {
+		this.filters = filters;
+	}
+
+	public int getMaxSize() {
+		return maxSize;
+	}
+
+	public void setMaxSize(int maxSize) {
+		this.maxSize = maxSize;
+	}
+
 
 }

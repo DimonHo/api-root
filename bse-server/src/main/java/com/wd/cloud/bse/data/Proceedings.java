@@ -1,42 +1,56 @@
 package com.wd.cloud.bse.data;
 
 
+import com.hnlat.esmapping.annotation.Property;
+import com.hnlat.esmapping.annotation.Property.FieldType;
+import com.hnlat.esmapping.annotation.Property.IndexType;
 
 public class Proceedings extends Periodical{
-	
+
 	/**论文集*/
+	@Property(type=FieldType.TEXT,index = IndexType.ANALYZED, analyzer="mmseg", boost=7.4)
 	private String corpus;
 	
 	/**会议日期(开始日期)*/
+	@Property(type= FieldType.TEXT, index=IndexType.NO)
 	private String meetingDate;
 	
 	/**地址（会议地点）*/
+	@Property(index = IndexType.ANALYZED, analyzer="mmseg")
 	private String address;
-
+	
 	/**机构（会议主办单位）*/
+	@Property(index = IndexType.ANALYZED, analyzer="mmseg")
 	private String meetingOrg;
 	
 	/**会议名称*/
+	@Property(type= FieldType.TEXT, index = IndexType.ANALYZED, analyzer="mmseg", boost=7.4)
 	private String meetingName;
 	
-	/**主编*/
-	private String editor;
-	
 	/**结束时间*/
+	@Property(index=IndexType.NO)
 	private String endDate;
 	
-	/**会议赞助商*/
-	private String sponsor;
-	
 	/**出版地*/
+	@Property(index=IndexType.NO)
 	private String pubAddr;
 	
 	/**出版者*/
+	@Property(index=IndexType.NO)
 	private String publisher;
 	
 	/**ISBN*/
+	@Property(index=IndexType.NO)
 	private String isbn;
-
+	
+	/**会议赞助商*/
+	@Property(index=IndexType.NO)
+	private String sponsor;
+	
+	/**主编*/
+	@Property(index=IndexType.NO)
+	private String editor;
+	
 	public String getCorpus() {
 		return corpus;
 	}
@@ -77,28 +91,12 @@ public class Proceedings extends Periodical{
 		this.meetingName = meetingName;
 	}
 
-	public String getEditor() {
-		return editor;
-	}
-
-	public void setEditor(String editor) {
-		this.editor = editor;
-	}
-
 	public String getEndDate() {
 		return endDate;
 	}
 
 	public void setEndDate(String endDate) {
 		this.endDate = endDate;
-	}
-
-	public String getSponsor() {
-		return sponsor;
-	}
-
-	public void setSponsor(String sponsor) {
-		this.sponsor = sponsor;
 	}
 
 	public String getPubAddr() {
@@ -125,9 +123,20 @@ public class Proceedings extends Periodical{
 		this.isbn = isbn;
 	}
 
-	@Override
-	public Document newInstance() {
-		return new Proceedings();
+	public String getSponsor() {
+		return sponsor;
 	}
-	
+
+	public void setSponsor(String sponsor) {
+		this.sponsor = sponsor;
+	}
+
+	public String getEditor() {
+		return editor;
+	}
+
+	public void setEditor(String editor) {
+		this.editor = editor;
+	}
+
 }

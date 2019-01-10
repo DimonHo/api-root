@@ -5,7 +5,7 @@ import com.wd.cloud.bse.vo.QueryCondition;
 import org.elasticsearch.index.query.QueryBuilder;
 
 
-public interface IFilterBuilderStrategy {
+public interface FilterBuilderStrategyI {
 
 	public QueryBuilder build(QueryCondition queryCondition);
 }

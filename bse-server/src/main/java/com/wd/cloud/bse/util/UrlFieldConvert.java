@@ -7,7 +7,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.wd.cloud.bse.data.Url;
 import com.wd.cloud.bse.service.CacheService;
+import com.wd.cloud.bse.vo.ArticleSource;
 import com.wd.cloud.bse.vo.RuleInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,6 +51,69 @@ public class UrlFieldConvert {
 						}
 						return URL;
 					}
+				}
+			}
+		}
+		return null;
+	}
+	
+//	public String convert(Url url) {
+//		Map<Integer, List<RuleInfo>> ruleMap = cache.getRuleMap();
+//		// 如果参数和规则都不为空，则尝试使用规则组装url
+//		if (null != ruleMap && !ruleMap.isEmpty()) {
+//			// 获取指定的数据库规则
+//			List<RuleInfo> docRules = ruleMap.get(url.getSource());
+//			if (null != docRules && !docRules.isEmpty()) {
+//				// 有配置该数据库下的连接规则，则尝试组装url地址
+//				String linkPattern = null;
+//				for (RuleInfo lseDocruleConfig : docRules) {
+//					String URL = null;
+//					linkPattern = lseDocruleConfig.getDocLinkPattern();
+//					String param = url.getParam();
+//					if(param.contains("http://")) {
+//						URL = param;
+//						return URL;
+//					}
+//					URL = composeMessage(linkPattern, getUrlParams(param));
+//					if(URL == null) {			//如果没有根据上个规则生成正确url，则用新规则
+//						linkPattern = lseDocruleConfig.getNewDocLinkPattern();
+//						if(StringUtils.isNotEmpty(linkPattern)) {
+//							URL = composeMessage(linkPattern, getUrlParams(param));
+//						}
+//					}
+//					return URL;
+//				}
+//			}
+//		}
+//		return null;
+//	}
+	
+	public ArticleSource convert(Url url) {
+
+		Map<Integer, List<RuleInfo>> ruleMap = cache.getRuleMap();
+		// 如果参数和规则都不为空，则尝试使用规则组装url
+		if (null != ruleMap && !ruleMap.isEmpty()) {
+			// 获取指定的数据库规则
+			List<RuleInfo> docRules = ruleMap.get(url.getSource());
+			if (null != docRules && !docRules.isEmpty()) {
+				// 有配置该数据库下的连接规则，则尝试组装url地址
+				String linkPattern = null;
+				for (RuleInfo lseDocruleConfig : docRules) {
+					ArticleSource articleSource = new ArticleSource();
+					String URL = null;
+					linkPattern = lseDocruleConfig.getDocLinkPattern();
+					
+					URL = composeMessage(linkPattern, getUrlParams(url.getParam()));
+					if(URL == null) {			//如果没有根据上个规则生成正确url，则用新规则
+						linkPattern = lseDocruleConfig.getNewDocLinkPattern();
+						URL = composeMessage(linkPattern, getUrlParams(url.getParam()));
+					}
+					if(url.getSource() == 10) {
+						URL = WFJournalUrlField.conver(linkPattern, getUrlParams(url.getParam()));
+					}
+					articleSource.setUrl(URL);
+					articleSource.setRuleName(lseDocruleConfig.getRuleName());
+					return articleSource;
 				}
 			}
 		}
