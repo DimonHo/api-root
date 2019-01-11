@@ -31,12 +31,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseModel<UserInfoDTO> login(@RequestParam String username, @RequestParam String pwd) {
         UserInfoDTO userInfoDTO = authService.loing(username, pwd);
-        JSONObject userInfo = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userInfo != null) {
+        if (request.getSession().getAttribute(SessionConstant.LOGIN_USER) != null) {
             request.getSession().removeAttribute(SessionConstant.LOGIN_USER);
         }
         request.getSession().setAttribute(SessionConstant.LOGIN_USER, JSONUtil.parseObj(userInfoDTO));
-        return ResponseModel.ok().setBody(userInfo);
+        return ResponseModel.ok().setBody(userInfoDTO);
     }
 
     @GetMapping("/logout")
