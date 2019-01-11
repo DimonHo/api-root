@@ -1,11 +1,10 @@
 package com.wd.cloud.authserver.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.wd.cloud.authserver.entity.User;
+import cn.hutool.json.JSONUtil;
+import com.wd.cloud.authserver.dto.UserInfoDTO;
 import com.wd.cloud.authserver.service.AuthService;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.vo.UserVo;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,18 +27,19 @@ public class AuthController {
     @Autowired
     AuthService authService;
 
+    @Autowired
+    HttpServletRequest request;
+
     @GetMapping("/login")
-    public ResponseModel<UserVo> login(@RequestParam String username, @RequestParam String pwd, HttpServletRequest request) {
-        User user = authService.loing(username, pwd);
-        UserVo userVo = new UserVo();
-        BeanUtil.copyProperties(user, userVo);
-        request.getSession().setAttribute(SessionConstant.LOGIN_USER, userVo);
-        return ResponseModel.ok().setBody(userVo);
+    public ResponseModel<UserInfoDTO> login(@RequestParam String username, @RequestParam String pwd) {
+        UserInfoDTO userInfo = authService.loing(username, pwd);
+        request.getSession().setAttribute(SessionConstant.LOGIN_USER, JSONUtil.parseObj(userInfo));
+        return ResponseModel.ok().setBody(userInfo);
     }
 
-    @GetMapping("/index")
-    public ResponseModel index(HttpServletRequest request) {
-        String sessionId = request.getSession().getId();
-        return ResponseModel.ok().setBody("sessionId: " + sessionId);
+    @GetMapping("/logout")
+    public ResponseModel logout() {
+        request.getSession().invalidate();
+        return ResponseModel.ok();
     }
 }

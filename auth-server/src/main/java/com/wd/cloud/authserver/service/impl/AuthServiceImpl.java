@@ -1,8 +1,12 @@
 package com.wd.cloud.authserver.service.impl;
 
-import com.wd.cloud.authserver.entity.User;
-import com.wd.cloud.authserver.repository.UserRepository;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONObject;
+import com.wd.cloud.authserver.dto.UserInfoDTO;
+import com.wd.cloud.authserver.exception.AuthException;
+import com.wd.cloud.authserver.feign.SsoServerApi;
 import com.wd.cloud.authserver.service.AuthService;
+import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +19,16 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     @Autowired
-    UserRepository userRepository;
+    SsoServerApi ssoServerApi;
 
     @Override
-    public User loing(String username, String pwd) {
-
-        return userRepository.findByUsernameAndPwd(username, pwd);
+    public UserInfoDTO loing(String username, String pwd) {
+        ResponseModel<JSONObject> responseModel = ssoServerApi.login(username, pwd);
+        if (responseModel.isError()) {
+            throw new AuthException(401, "用户名或密码错误");
+        }
+        UserInfoDTO userInfo = new UserInfoDTO();
+        BeanUtil.copyProperties(responseModel.getBody(), userInfo);
+        return userInfo;
     }
 }

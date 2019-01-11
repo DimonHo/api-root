@@ -69,6 +69,7 @@ public class FrontendController {
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
+        JSONObject userInfo = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
         String helpEmail = helpRequestModel.getHelperEmail();
@@ -298,7 +299,7 @@ public class FrontendController {
 
     @ApiOperation(value = "获取sso登陆信息")
     @GetMapping("/help/getSso")
-    public ResponseModel getSso(HttpServletRequest request){
+    public ResponseModel getSso(HttpServletRequest request) {
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
         return ResponseModel.ok().setBody(principal);
     }
