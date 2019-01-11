@@ -1,5 +1,6 @@
 package com.wd.cloud.authserver.controller;
 
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.wd.cloud.authserver.dto.UserInfoDTO;
 import com.wd.cloud.authserver.service.AuthService;
@@ -29,14 +30,21 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseModel<UserInfoDTO> login(@RequestParam String username, @RequestParam String pwd) {
-        UserInfoDTO userInfo = authService.loing(username, pwd);
-        request.getSession().setAttribute(SessionConstant.LOGIN_USER, JSONUtil.parseObj(userInfo));
+        UserInfoDTO userInfoDTO = authService.loing(username, pwd);
+        JSONObject userInfo = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userInfo != null) {
+            request.getSession().removeAttribute(SessionConstant.LOGIN_USER);
+        }
+        request.getSession().setAttribute(SessionConstant.LOGIN_USER, JSONUtil.parseObj(userInfoDTO));
         return ResponseModel.ok().setBody(userInfo);
     }
 
     @GetMapping("/logout")
     public ResponseModel logout() {
-        request.getSession().invalidate();
+        JSONObject userInfo = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userInfo != null) {
+            request.getSession().removeAttribute(SessionConstant.LOGIN_USER);
+        }
         return ResponseModel.ok();
     }
 }
