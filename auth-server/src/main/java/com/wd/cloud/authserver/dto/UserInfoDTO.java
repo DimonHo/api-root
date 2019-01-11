@@ -19,7 +19,7 @@ public class UserInfoDTO {
     private String username;
     private String email;
     private String orgName;
-    private String orgId;
+    private Long orgId;
 
     private String nickname;
     private String phone;

@@ -7,10 +7,7 @@ import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,7 +27,7 @@ public class AuthController {
     @Autowired
     HttpServletRequest request;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseModel<UserInfoDTO> login(@RequestParam String username, @RequestParam String pwd) {
         UserInfoDTO userInfo = authService.loing(username, pwd);
         request.getSession().setAttribute(SessionConstant.LOGIN_USER, JSONUtil.parseObj(userInfo));

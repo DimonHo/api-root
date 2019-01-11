@@ -27,7 +27,10 @@ public class AuthServiceImpl implements AuthService {
         if (responseModel.isError()) {
             throw new AuthException(401, "用户名或密码错误");
         }
+        JSONObject userJson = responseModel.getBody();
         UserInfoDTO userInfo = new UserInfoDTO();
+        userInfo.setOrgId(userJson.getLong("school_id"));
+        userInfo.setOrgName(userJson.getStr("school_name"));
         BeanUtil.copyProperties(responseModel.getBody(), userInfo);
         return userInfo;
     }
