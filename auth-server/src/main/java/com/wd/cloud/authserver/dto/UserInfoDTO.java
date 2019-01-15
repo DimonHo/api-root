@@ -16,6 +16,7 @@ import java.util.Date;
 @Accessors(chain = true)
 public class UserInfoDTO {
 
+    private Long userId;
     private String username;
     private String email;
     private String orgName;

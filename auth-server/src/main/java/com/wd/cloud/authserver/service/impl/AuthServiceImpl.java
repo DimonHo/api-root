@@ -29,9 +29,10 @@ public class AuthServiceImpl implements AuthService {
         }
         JSONObject userJson = responseModel.getBody();
         UserInfoDTO userInfo = new UserInfoDTO();
-        userInfo.setOrgId(userJson.getLong("school_id"));
-        userInfo.setOrgName(userJson.getStr("school_name"));
         BeanUtil.copyProperties(responseModel.getBody(), userInfo);
+        userInfo.setUserId(userJson.getLong("id"))
+                .setOrgId(userJson.getLong("school_id"))
+                .setOrgName(userJson.getStr("school_name"));
         return userInfo;
     }
 }

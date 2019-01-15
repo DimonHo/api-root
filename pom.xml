@@ -46,7 +46,7 @@
         <com.alibaba.druid.version>1.1.9</com.alibaba.druid.version>
         <javax.mail.version>1.4.7</javax.mail.version>
         <swagger.version>1.8.0.RELEASE</swagger.version>
-        <cn.hutool.all.version>4.1.8</cn.hutool.all.version>
+        <cn.hutool.all.version>4.4.0</cn.hutool.all.version>
         <guava.version>23.0</guava.version>
         <jackson.databind.version>2.9.5</jackson.databind.version>
         <jackson.core.version>2.9.5</jackson.core.version>
@@ -60,6 +60,7 @@
         <spring.data.elasticsearch.version>3.0.9.RELEASE</spring.data.elasticsearch.version>
         <lombok.version>1.16.20</lombok.version>
         <cas.client.version>3.4.1</cas.client.version>
+        <cas.starter.version>2.0.0-GA</cas.starter.version>
     </properties>
 
     <dependencyManagement>
@@ -69,6 +70,13 @@
                 <artifactId>cas-client-core</artifactId>
                 <version>${cas.client.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>net.unicon.cas</groupId>
+                <artifactId>cas-client-autoconfig-support</artifactId>
+                <version>${cas.starter.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
