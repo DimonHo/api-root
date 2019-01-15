@@ -19,14 +19,6 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
 
     Page<VHelpRecord> findByStatusIn(int[] status, Pageable pageable);
 
-    /**
-     * 查询求助记录
-     *
-     * @param helpRecordId
-     * @return
-     */
-    VHelpRecord findByHelpRecordId(Long helpRecordId);
-
     Page<VHelpRecord> findByHelpChannelAndStatusIn(int helpChannel, int[] status, Pageable pageable);
 
     List<VHelpRecord> findBySend(boolean isSend);

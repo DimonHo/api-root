@@ -91,8 +91,8 @@ public class ProcessServiceImpl implements ProcessService {
                     .setType(GiveTypeEnum.MANAGER.getCode());
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
-            VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecordId);
-            mailService.sendMail(vHelpRecord);
+            Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+            optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
         } else {
             throw new NotFoundException("没有找到ID为【" + helpRecordId + "】的求助记录");
         }
@@ -126,8 +126,8 @@ public class ProcessServiceImpl implements ProcessService {
             docFileRepository.save(docFile);
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
-            VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecordId);
-            mailService.sendMail(vHelpRecord);
+            Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+            optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
         } else {
             throw new NotFoundException("没有找到ID为【" + helpRecordId + "】的求助记录");
         }
@@ -153,8 +153,8 @@ public class ProcessServiceImpl implements ProcessService {
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
 
-            VHelpRecord vHelpRecord = vHelpRecordRepository.findByHelpRecordId(helpRecordId);
-            mailService.sendMail(vHelpRecord);
+            Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+            optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
         } else {
             throw new NotFoundException("没有找到ID为【" + helpRecordId + "】的求助记录");
         }
@@ -202,7 +202,7 @@ public class ProcessServiceImpl implements ProcessService {
         String keyword = MapUtil.getStr(param, "keyword") == null ? null : MapUtil.getStr(param, "keyword").replaceAll("\\\\", "\\\\\\\\");
         Date beginTime = MapUtil.getDate(param, "beginTime");
         Date endTime = DateUtil.endOfDay(MapUtil.getDate(param, "endTime"));
-        Long helperId = MapUtil.getLong(param,"helperId");
+        Long helperId = MapUtil.getLong(param, "helperId");
         Page<VHelpRecord> result = vHelpRecordRepository.findAll(new Specification<VHelpRecord>() {
             @Override
             public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -211,7 +211,7 @@ public class ProcessServiceImpl implements ProcessService {
                 if (helpUserScid != null) {
                     list.add(cb.equal(root.get("helperScid"), helpUserScid));
                 }
-                if (helperId != null){
+                if (helperId != null) {
                     list.add(cb.equal(root.get("helperId"), helperId));
                 }
                 // 状态过滤
@@ -281,6 +281,7 @@ public class ProcessServiceImpl implements ProcessService {
 
     /**
      * 匿名
+     *
      * @param vHelpRecord
      * @return
      */
