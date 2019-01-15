@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,8 +13,7 @@ import lombok.experimental.Accessors;
  * @Description:
  */
 @Accessors(chain = true)
-@Getter
-@Setter
+@Data
 @ApiModel(value = "个人统计数据")
 public class MyTjDTO {
 

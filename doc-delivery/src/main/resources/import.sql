@@ -37,55 +37,55 @@
 
 # insert into channel (id,name,url,template) values (1,"QQ",null,null),(2,"Spischolar学术资源在线","http://www.spischolar.com","spis/%s.ftl"),(3,"智汇云","http://www.yunscholar.com","zhy/%s.ftl"),(4,"crscholar核心论文库","http://www.crscholar.com","crs/%s.ftl");
 #
-# drop view v_help_record;
-# CREATE VIEW v_help_record AS SELECT
-#                                     t1.id AS help_record_id,
-#                                     t1.gmt_create,
-#                                     t1.gmt_modified,
-#                                     t1.helper_email,
-#                                     t1.helper_id,
-#                                     t1.helper_ip,
-#                                     t1.helper_name,
-#                                     t1.helper_scid,
-#                                     t1.helper_scname,
-#                                     t1.help_channel,
-#                                     t3.name as channel_name,
-#                                     t3.url as channel_url,
-#                                     t3.template as channel_template,
-#                                     t3.bccs as bccs,
-#                                     t3.exp as exp,
-#                                     t1.is_anonymous,
-#                                     t1.is_send,
-#                                     t1.literature_id,
-#                                     t1.`status`,
-#                                     t1.remark,
-#                                     t2.doc_title,
-#                                     t2.doc_href,
-#                                     t2.`authors`,
-#                                     t2.doi,
-#                                     t2.summary,
-#                                     t2.unid,
-#                                     t2.year_of_publication
-#                              FROM
-#                                   help_record t1,
-#                                   literature t2,
-#                                   channel t3
-#                              WHERE
-#                                  t1.literature_id = t2.id and t1.help_channel = t3.id;
-#
-# drop view v_literature;
-# create view v_literature as SELECT
-#                                    `t1`.`id` AS `literature_id`,
-#                                    `t1`.`gmt_create` AS `gmt_create`,
-#                                    `t1`.`gmt_modified` AS `gmt_modified`,
-#                                    `t1`.`doc_href` AS `doc_href`,
-#                                    `t1`.`doc_title` AS `doc_title`,
-#                                    `t1`.`unid` AS `unid`,
-#                                    `t1`.`authors` AS `authors`,
-#                                    `t1`.`year_of_publication` AS `year_of_publication`,
-#                                    `t1`.`doi` AS `doi`,
-#                                    `t1`.`summary` AS `summary`,
-#                                    `t2`.`is_reusing` AS `is_reusing`,
-#                                    `t2`.`file_id` AS `file_id`
-#                             FROM `literature` `t1` JOIN `doc_file` `t2`
-#                             WHERE `t1`.`id` = `t2`.`literature_id`;
+drop view v_help_record;
+CREATE VIEW v_help_record AS SELECT
+                                    t1.id AS id,
+                                    t1.gmt_create,
+                                    t1.gmt_modified,
+                                    t1.helper_email,
+                                    t1.helper_id,
+                                    t1.helper_ip,
+                                    t1.helper_name,
+                                    t1.helper_scid,
+                                    t1.helper_scname,
+                                    t1.help_channel,
+                                    t3.name as channel_name,
+                                    t3.url as channel_url,
+                                    t3.template as channel_template,
+                                    t3.bccs as bccs,
+                                    t3.exp as exp,
+                                    t1.is_anonymous,
+                                    t1.is_send,
+                                    t1.literature_id,
+                                    t1.`status`,
+                                    t1.remark,
+                                    t2.doc_title,
+                                    t2.doc_href,
+                                    t2.`authors`,
+                                    t2.doi,
+                                    t2.summary,
+                                    t2.unid,
+                                    t2.year_of_publication
+                             FROM
+                                  help_record t1,
+                                  literature t2,
+                                  channel t3
+                             WHERE
+                                 t1.literature_id = t2.id and t1.help_channel = t3.id;
+
+drop view v_literature;
+create view v_literature as SELECT
+                                   `t1`.`id` AS `id`,
+                                   `t1`.`gmt_create` AS `gmt_create`,
+                                   `t1`.`gmt_modified` AS `gmt_modified`,
+                                   `t1`.`doc_href` AS `doc_href`,
+                                   `t1`.`doc_title` AS `doc_title`,
+                                   `t1`.`unid` AS `unid`,
+                                   `t1`.`authors` AS `authors`,
+                                   `t1`.`year_of_publication` AS `year_of_publication`,
+                                   `t1`.`doi` AS `doi`,
+                                   `t1`.`summary` AS `summary`,
+                                   `t2`.`is_reusing` AS `is_reusing`,
+                                   `t2`.`file_id` AS `file_id`
+                            FROM `literature` `t1` JOIN `doc_file` `t2`
+                            WHERE `t1`.`id` = `t2`.`literature_id`;

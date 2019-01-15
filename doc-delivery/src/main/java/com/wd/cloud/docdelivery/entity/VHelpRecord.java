@@ -18,7 +18,7 @@ import java.util.Date;
 public class VHelpRecord {
 
     @Id
-    private Long helpRecordId;
+    private Long id;
 
     private Date gmtCreate;
 

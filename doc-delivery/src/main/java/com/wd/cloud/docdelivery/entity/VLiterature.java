@@ -14,7 +14,7 @@ import java.util.Date;
 @Table(name = "v_literature")
 public class VLiterature {
     @Id
-    private Long literatureId;
+    private Long id;
 
     @Column(name = "doc_href")
     private String docHref;
