@@ -345,7 +345,7 @@ public class FrontServiceImpl implements FrontService {
             optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
             //如果有用户正在应助
             if (helpRecord.getStatus() == HelpStatusEnum.HELPING.getValue()) {
-                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getHelperId(), GiveStatusEnum.WAIT_UPLOAD.getValue());
+                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.getValue());
                 optionalGiveRecord.ifPresent(helpRecordDTO::setGiving);
             }
             return helpRecordDTO;
