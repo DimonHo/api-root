@@ -124,7 +124,7 @@ public class BackendServiceImpl implements BackendService {
         Page<HelpRecordDTO> helpRecordDTOS = result.map(vHelpRecord -> {
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
             BeanUtil.copyProperties(vHelpRecord,helpRecordDTO);
-            helpRecordDTO.setGiveRecords(giveRecordRepository.findByHelpRecordId(vHelpRecord.getHelpRecordId()));
+            helpRecordDTO.setGiveRecords(giveRecordRepository.findByHelpRecordId(vHelpRecord.getId()));
             return helpRecordDTO;
         });
         return helpRecordDTOS;
@@ -151,11 +151,11 @@ public class BackendServiceImpl implements BackendService {
             }
         }, pageable);
 
-        Page<LiteratureDTO> literatureDTOPage = literaturePage.map(literature -> {
+        Page<LiteratureDTO> literatureDTOPage = literaturePage.map(vLiterature -> {
             LiteratureDTO literatureDTO = new LiteratureDTO();
             //BeanUtil.copyProperties(literature, literatureDTO, "docFiles");
 
-            List<DocFile> docFiles = docFileRepository.findByLiteratureId(literature.getLiteratureId());
+            List<DocFile> docFiles = docFileRepository.findByLiteratureId(vLiterature.getId());
             List<DocFileDTO> docFileDTOS = new ArrayList<>();
             docFiles.forEach(docFile -> {
                 DocFileDTO docFileDTO = new DocFileDTO();

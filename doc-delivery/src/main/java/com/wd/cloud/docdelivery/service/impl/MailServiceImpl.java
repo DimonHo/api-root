@@ -46,7 +46,7 @@ public class MailServiceImpl implements MailService {
         MailTemplateModel mailTemplateModel = buildMailTemplateModel(vHelpRecord);
         String mailTitle = mailTemplateModel.getMailTitle();
         String mailContent = buildContent(mailTemplateModel);
-        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getHelpRecordId());
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getId());
         optionalHelpRecord.ifPresent(helpRecord -> {
             try {
                 if (HelpStatusEnum.match(helpRecord.getStatus()).isPresent()
@@ -92,7 +92,7 @@ public class MailServiceImpl implements MailService {
                     break;
                 case HELP_SUCCESSED:
                     mailTemplateModel.setMailTitle(String.format("[文献互助•成功]-%s", vHelpRecord.getDocTitle()))
-                            .setDownloadUrl(buildDownloadUrl(vHelpRecord.getHelpRecordId()))
+                            .setDownloadUrl(buildDownloadUrl(vHelpRecord.getId()))
                             .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-success"));
                     break;
                 case HELP_FAILED:
