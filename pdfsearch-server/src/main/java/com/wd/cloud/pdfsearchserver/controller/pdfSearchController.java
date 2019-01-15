@@ -20,6 +20,9 @@ public class pdfSearchController {
     @RequestMapping(value = "/searchpdf",method = RequestMethod.POST)
     public ResponseModel<byte[]> getpdf(HttpServletRequest request, HttpServletResponse response){
         String title = request.getParameter("title");
+        if(title==null || "".equals(title)){
+            return ResponseModel.fail().setMessage("标题不能为空");
+        }
         Map<String,Object> map =new HashMap<>();
         map.put("title",title);
         if(request.getParameter("journal")!=null){

@@ -50,6 +50,7 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
     public ResponseModel<byte[]> getpdf(Map<String, Object> map) {
         ResponseModel<byte[]> responseModel = ResponseModel.fail();
         String rowKey =getRokey(map);
+        log.info("rowKey = "+rowKey);
         if(rowKey!=null){
             //查询hbase;
             byte[] file = getValue(tableName,rowKey,family,column);
