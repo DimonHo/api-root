@@ -1,7 +1,6 @@
 package com.wd.cloud.reportanalysis.service.impl;
 
-import com.wd.cloud.apifeign.FsServerApi;
-import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.reportanalysis.feign.FsServerApi;
 import com.wd.cloud.reportanalysis.service.DocumentGenerationI;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

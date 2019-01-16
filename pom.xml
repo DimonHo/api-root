@@ -13,7 +13,7 @@
 
     <modules>
         <module>commons</module><!--提取的公共方法和类-->
-        <module>api-feign</module><!--内部互调接口定义-->
+        <module>service-spring-boot-starter</module><!--微服务基础包-->
         <module>config-server</module><!--配置中心-->
         <module>eureka-server</module><!--服务注册中心-->
         <module>zipkin-server</module><!--链路追踪服务-->
@@ -161,7 +161,7 @@
             </dependency>
             <dependency>
                 <groupId>com.wd.cloud</groupId>
-                <artifactId>api-feign</artifactId>
+                <artifactId>service-spring-boot-starter</artifactId>
                 <version>${version}</version>
             </dependency>
             <dependency>
