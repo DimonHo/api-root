@@ -3,12 +3,14 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.dto.MyTjDTO;
 import com.wd.cloud.docdelivery.entity.Permission;
+import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.OrgServerApi;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
@@ -17,11 +19,16 @@ import com.wd.cloud.docdelivery.repository.PermissionRepository;
 import com.wd.cloud.docdelivery.service.TjService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author He Zhigang
@@ -75,34 +82,61 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public MyTjDTO tjUser(UserDTO userDTO, OrgDTO ipOrg) {
-        Integer level = 0;
-        if (userDTO != null){
+    public MyTjDTO tjUser(UserDTO userDTO) {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpSession session = request.getSession();
+        Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
+        OrgDTO ipOrg = (OrgDTO) session.getAttribute(SessionConstant.IP_ORG);
+        //如果用户信息中没有机构信息则去IP_ORG中取，都没有则为null
+        Long orgId = userDTO.getOrg() != null ? userDTO.getOrg().getId() : ipOrg != null ? ipOrg.getId() : null;
+        Permission permission = orgId == null?permissionRepository.findByOrgIdIsNullAndLevel(level):permissionRepository.findByOrgIdAndLevel(orgId,level);
+        //今日已求助数量
+        long myTodayHelpCount = helpRecordRepository.myTodayTotal(userDTO.getId());
+        //我的总求助数量
+        long myHelpCount = helpRecordRepository.countByHelperId(userDTO.getId());
+        //我的求助成功数量
+        long successHelpCount = helpRecordRepository.countByHelperIdAndStatus(userDTO.getId(), HelpStatusEnum.HELP_SUCCESSED.getValue());
 
+        long giveCount = giveRecordRepository.countByGiverId(userDTO.getId());
+        //总上限
+        Long total = permission.getTotal();
+        //每日上限
+        Long todayTotal = permission.getTodayTotal();
+        //总剩余
+        Long restTotal = total == null ? null : total - myHelpCount;
+        if (restTotal != null && restTotal < 0) {
+            restTotal = 0L;
         }
-        if (ipOrg != null){
-
+        // 今日剩余
+        Long todayRestTotal = todayTotal == null ? null : todayTotal - myTodayHelpCount;
+        //如果今日剩余量大于总剩余量，则今日最多还能求助总剩余数量个
+        if (todayRestTotal != null && todayRestTotal < 0) {
+            todayRestTotal = 0L;
         }
-        
-        return null;
+        todayRestTotal = (todayRestTotal != null && restTotal != null && todayRestTotal > restTotal) ? restTotal : todayRestTotal;
+        MyTjDTO myTjDTO = new MyTjDTO();
+        myTjDTO.setTotal(total)
+                .setTodayTotal(todayTotal)
+                .setHelpCount(myHelpCount)
+                .setGiveCount(giveCount)
+                .setTodayHelpCount(myTodayHelpCount)
+                .setRestTotal(restTotal)
+                .setTodayRestTotal(todayRestTotal)
+                .setSuccessHelpCount(successHelpCount);
+        return myTjDTO;
     }
 
 
     @Override
     public MyTjDTO tjEmail(String email, String ip) {
-        int rule = 0;
-        log.info("用户IP: {}", ip);
-        ResponseModel<JSONObject> orgResponse = orgServerApi.getByIp(ip);
-        log.info("机构返回信息: {}", orgResponse.toString());
-        JSONObject orgInfo = null;
-        if (!orgResponse.isError()) {
-            orgInfo = orgResponse.getBody();
-            rule += 1;
-        }
-        Permission permission = orgInfo == null ? permissionRepository.findByOrgIdIsNullAndLevel(rule) : permissionRepository.findByOrgIdAndLevel(orgInfo.getLong("id"), rule);
-        if (permission == null) {
-            permission = permissionRepository.findByOrgIdIsNullAndLevel(rule);
-        }
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpSession session = request.getSession();
+        Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
+        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
+        OrgDTO ipOrg = (OrgDTO) session.getAttribute(SessionConstant.IP_ORG);
+        Long orgId = userDTO.getOrg() != null ? userDTO.getOrg().getId() : ipOrg != null ? ipOrg.getId() : null;
+        Permission permission = orgId == null ? permissionRepository.findByOrgIdIsNullAndLevel(level) : permissionRepository.findByOrgIdAndLevel(orgId, level);
+
         //今日已求助数量
         long myTodayHelpCount = helpRecordRepository.myTodayTotal(email);
         //我的总求助数量

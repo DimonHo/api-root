@@ -57,11 +57,10 @@ public class TjController {
     public ResponseModel getUserHelpCountToDay() {
         try {
             UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-            OrgDTO ipOrg = (OrgDTO) request.getSession().getAttribute(SessionConstant.IP_ORG);
             if (userDTO == null) {
                 throw new NotLoginException();
             }
-            MyTjDTO myTotalModel = tjService.tjUser(userDTO, ipOrg);
+            MyTjDTO myTotalModel = tjService.tjUser(userDTO);
             return ResponseModel.ok().setBody(myTotalModel);
         } catch (Exception e) {
             e.printStackTrace();

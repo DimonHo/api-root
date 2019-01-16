@@ -20,7 +20,7 @@ public class MyTjDTO {
     /**
      * 可求助总数量
      */
-    @ApiModelProperty(value = "总求助上线", example = "100")
+    @ApiModelProperty(value = "总求助上限", example = "100")
     private Long total;
 
     /**
@@ -42,7 +42,7 @@ public class MyTjDTO {
     private Long todayRestTotal;
 
     /**
-     * 我的应助数量
+     * 我的总应助次数
      */
     @ApiModelProperty(value = "我的总应助次数", example = "23")
     private Long giveCount;

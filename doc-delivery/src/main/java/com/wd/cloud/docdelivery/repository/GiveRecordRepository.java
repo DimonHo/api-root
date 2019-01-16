@@ -30,13 +30,24 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
     GiveRecord findByIdAndStatus(Long id, int status);
 
     /**
-     * 审核记录
+     * 应助者的应助记录
      *
      * @param giverId
      * @param status
      * @return
      */
-    GiveRecord findByGiverIdAndStatus(Long giverId, int status);
+    List<GiveRecord> findByGiverIdAndStatus(Long giverId, int status);
+
+    /**
+     * 用户应助中
+     * @param giverId
+     * @return
+     */
+    @Query(value = "select * from give_record where giver_id = ?1 and status = 0", nativeQuery = true)
+    GiveRecord findByGiverIdGiving(Long giverId);
+
+    List<GiveRecord> findByGiverId(Long giverId);
+
 
     /**
      * 特定状态的应助记录
@@ -82,6 +93,7 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
     /**
      * 查询指定状态的记录
+     *
      * @param helpRecordId
      * @param status
      * @return

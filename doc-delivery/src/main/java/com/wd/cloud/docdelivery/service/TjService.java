@@ -41,10 +41,9 @@ public interface TjService {
     /**
      * 我的统计
      *
-     * @param userDTO
      * @return
      */
-    MyTjDTO tjUser(UserDTO userDTO, OrgDTO ipOrg);
+    MyTjDTO tjUser(UserDTO userDTO);
 
 
     MyTjDTO tjEmail(String email, String ip);

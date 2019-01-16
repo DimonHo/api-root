@@ -415,7 +415,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public String checkExistsGiveing(long giverId) {
-        GiveRecord giveRecord = giveRecordRepository.findByGiverIdAndStatus(giverId, GiveStatusEnum.WAIT_UPLOAD.getValue());
+        GiveRecord giveRecord = giveRecordRepository.findByGiverIdGiving(giverId);
         if (giveRecord != null) {
             HelpRecord helpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId()).orElse(null);
             Literature literature = helpRecord != null ? literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null) : null;
