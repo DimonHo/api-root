@@ -1,26 +1,22 @@
-package com.wd.cloud.orgserver.dto;
+package com.wd.cloud.commons.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author He Zhigang
- * @date 2018/12/25
+ * @date 2018/11/14
  * @Description:
  */
 @Data
 @Accessors(chain = true)
-public class OrgBasicDTO {
-
+public class OrgDTO implements Serializable {
     private Long id;
-    /**
-     * 机构名称
-     */
     private String name;
-
     /**
      * 机构默认标识
      */
@@ -35,7 +31,6 @@ public class OrgBasicDTO {
      * 兼容智汇云，学科机构标识
      */
     private String eduFlag;
-
     /**
      * 省份
      */
@@ -45,12 +40,6 @@ public class OrgBasicDTO {
      * 市、区
      */
     private String city;
-
-    /**
-     * 是否激活使用0：否，1：是
-     */
+    private List<IpRangeDTO> ipRanges;
     private boolean enabled;
-
-    private List<IpRangDTO> ipRang = new ArrayList<>();
-
 }

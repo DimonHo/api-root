@@ -33,5 +33,4 @@ public class TjDTO {
      * 求助成功率
      */
     private String successRate;
-
 }

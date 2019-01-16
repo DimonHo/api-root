@@ -1,6 +1,6 @@
 package com.wd.cloud.authserver.service;
 
-import com.wd.cloud.authserver.dto.UserInfoDTO;
+import com.wd.cloud.commons.dto.UserDTO;
 
 /**
  * @author He Zhigang
@@ -9,5 +9,5 @@ import com.wd.cloud.authserver.dto.UserInfoDTO;
  */
 public interface AuthService {
 
-    UserInfoDTO loing(String username, String pwd);
+    UserDTO loing(String username, String pwd);
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @date 2019/1/9
  * @Description:
  */
-@FeignClient(value = "ssoServer", url = "${cas.server-url-prefix}", fallback = SsoServerApi.Fallback.class)
+@FeignClient(value = "sso-server", url = "${cas.server-url-prefix}", fallback = SsoServerApi.Fallback.class)
 public interface SsoServerApi {
 
     @PostMapping("/oauth/user/login")

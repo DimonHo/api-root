@@ -4,9 +4,9 @@ import cn.hutool.http.Header;
 import cn.hutool.http.useragent.UserAgentUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.wd.cloud.authserver.dto.UserInfoDTO;
 import com.wd.cloud.authserver.service.AuthService;
 import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.ClientType;
 import com.wd.cloud.commons.model.ResponseModel;
 import io.swagger.annotations.Api;
@@ -44,22 +44,33 @@ public class AuthController {
     RedisOperationsSessionRepository redisOperationsSessionRepository;
 
     @PostMapping("/login")
-    public ResponseModel<UserInfoDTO> login(@RequestParam String username, @RequestParam String pwd) {
+    public ResponseModel<UserDTO> login(@RequestParam String username, @RequestParam String pwd) {
         HttpSession session = request.getSession();
         log.info("sessionId={}", session.getId());
         //验证用户名密码
-        UserInfoDTO userInfoDTO = authService.loing(username, pwd);
+        UserDTO userInfoDTO = authService.loing(username, pwd);
+        // sessionKey
+        String sessionKey = null;
         //如果是移动端
         if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
             session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);
+            sessionKey = username +"-"+ClientType.MOBILE;
         } else {
             session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.PC);
+            sessionKey = username +"-"+ClientType.PC;
         }
 
-        redisTemplate.opsForValue().set(username, session.getId());
+        //踢出同类型客户端的session
+        String oldSessionId = redisTemplate.opsForValue().get(sessionKey);
+        if (oldSessionId != null && !oldSessionId.equals(session.getId())) {
+            redisOperationsSessionRepository.deleteById(oldSessionId);
+            log.info("踢出session：{}", oldSessionId);
+        }
+        redisTemplate.opsForValue().set(sessionKey, session.getId());
+
         log.info("用户[{}]登陆成功", username);
         session.setAttribute(SessionConstant.LOGIN_USER, JSONUtil.parseObj(userInfoDTO));
-        session.setAttribute(SessionConstant.KICKOUT, false);
+
         return ResponseModel.ok().setBody(userInfoDTO);
     }
 

@@ -1,13 +1,14 @@
 package com.wd.cloud.orgserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.google.common.collect.Lists;
+import com.wd.cloud.commons.dto.IpRangeDTO;
+import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.util.IpUtil;
-import com.wd.cloud.orgserver.dto.IpRangDTO;
-import com.wd.cloud.orgserver.dto.OrgBasicDTO;
 import com.wd.cloud.orgserver.entity.IpRange;
 import com.wd.cloud.orgserver.entity.Org;
 import com.wd.cloud.orgserver.exception.NotFoundOrgException;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author He Zhigang
@@ -50,12 +52,26 @@ public class OrgInfoServiceImpl implements OrgInfoService {
     }
 
     @Override
-    public Org get(Long id) {
-        return orgRepository.getOne(id);
+    public OrgDTO get(Long id) {
+        Optional<Org> optionalOrg = orgRepository.findById(id);
+        OrgDTO orgDTO = null;
+        if (optionalOrg.isPresent()) {
+            Org org = optionalOrg.get();
+            List<IpRange> ipRanges = ipRangeRepository.findByOrgId(org.getId());
+            List<IpRangeDTO> ipRangeDTOS = ipRanges.stream().map(ipRange -> {
+                IpRangeDTO ipRangeDTO = new IpRangeDTO();
+                BeanUtil.copyProperties(ipRange, ipRangeDTO);
+                return ipRangeDTO;
+            }).collect(Collectors.toList());
+            orgDTO = new OrgDTO();
+            BeanUtil.copyProperties(optionalOrg.get(), orgDTO);
+            orgDTO.setIpRanges(ipRangeDTOS);
+        }
+        return orgDTO;
     }
 
     @Override
-    public OrgBasicDTO findByIp(String ip) {
+    public OrgDTO findByIp(String ip) {
         List<IpRange> ipRanges = ipRangeRepository.findAll();
         Map<Long, List<IpRange>> orgIpMap = new HashMap<>();
         for (IpRange ipRange : ipRanges) {
@@ -75,22 +91,26 @@ public class OrgInfoServiceImpl implements OrgInfoService {
             log.warn("查询到多个IP范围重叠：{}", JSONUtil.parseFromMap(orgIpMap).toStringPretty());
             //throw new NotOneOrgException(orgIpMap);
         }
-        OrgBasicDTO orgBasicDTO = null;
+        OrgDTO orgDTO = null;
         for (Map.Entry<Long, List<IpRange>> entry : orgIpMap.entrySet()) {
             Long orgId = entry.getKey();
             Org org = orgRepository.findById(orgId).orElse(null);
-            orgBasicDTO = new OrgBasicDTO();
-            BeanUtil.copyProperties(org, orgBasicDTO);
+            orgDTO = new OrgDTO();
+            BeanUtil.copyProperties(org, orgDTO);
             for (IpRange ipRange : ipRangeRepository.findByOrgId(orgId)) {
-                IpRangDTO ipRangDTO = new IpRangDTO();
-                BeanUtil.copyProperties(ipRange, ipRangDTO);
-                orgBasicDTO.getIpRang().add(ipRangDTO);
+                IpRangeDTO ipRangeDTO = new IpRangeDTO();
+                BeanUtil.copyProperties(ipRange, ipRangeDTO);
+                if (orgDTO.getIpRanges() == null) {
+                    orgDTO.setIpRanges(CollectionUtil.newArrayList(ipRangeDTO));
+                } else {
+                    orgDTO.getIpRanges().add(ipRangeDTO);
+                }
             }
         }
-        if (orgBasicDTO == null) {
+        if (orgDTO == null) {
             throw new NotFoundOrgException();
         }
-        return orgBasicDTO;
+        return orgDTO;
     }
 
     @Override
@@ -100,9 +120,9 @@ public class OrgInfoServiceImpl implements OrgInfoService {
 
 
     @Override
-    public Map<IpRangDTO, Set<IpRange>> cd() {
+    public Map<IpRangeDTO, Set<IpRange>> cd() {
         List<IpRange> ipRanges = ipRangeRepository.findAll();
-        Map<IpRangDTO, Set<IpRange>> orgIpMap = new HashMap<>();
+        Map<IpRangeDTO, Set<IpRange>> orgIpMap = new HashMap<>();
         for (int i = 0; i < ipRanges.size(); i++) {
             IpRange ipRange1 = ipRanges.get(i);
             long beginIp = IpUtil.ipToLong(ipRange1.getBegin());
@@ -129,7 +149,7 @@ public class OrgInfoServiceImpl implements OrgInfoService {
                     endIp2 = endIp;
                 }
                 if (beginIp2 < endIp2) {
-                    IpRangDTO ipRangDTOKey = new IpRangDTO();
+                    IpRangeDTO ipRangDTOKey = new IpRangeDTO();
                     ipRangDTOKey.setBegin(IpUtil.longToIp(beginIp2)).setEnd(IpUtil.longToIp(endIp2));
                     if (orgIpMap.get(ipRangDTOKey) != null) {
                         orgIpMap.get(ipRangDTOKey).add(ipRange1);

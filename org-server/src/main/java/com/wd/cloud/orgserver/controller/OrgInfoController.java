@@ -1,8 +1,8 @@
 package com.wd.cloud.orgserver.controller;
 
+import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.exception.UndefinedException;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.orgserver.dto.OrgBasicDTO;
 import com.wd.cloud.orgserver.entity.Org;
 import com.wd.cloud.orgserver.exception.NotFoundOrgException;
 import com.wd.cloud.orgserver.exception.NotOneOrgException;
@@ -35,7 +35,7 @@ public class OrgInfoController {
      *
      * @return
      */
-    @PostMapping("/orginfo")
+    @PostMapping("/org")
     public ResponseModel addOrg(@RequestParam String orgName) {
         return ResponseModel.ok();
     }
@@ -46,7 +46,7 @@ public class OrgInfoController {
      * @param id
      * @return
      */
-    @DeleteMapping("/orginfo/{id}")
+    @DeleteMapping("/org/{id}")
     public ResponseModel removeOrg(Long id) {
         return ResponseModel.ok();
     }
@@ -59,7 +59,7 @@ public class OrgInfoController {
      * @param orgFlag
      * @return
      */
-    @PatchMapping("/orginfo/{id}")
+    @PatchMapping("/org/{id}")
     public ResponseModel modifyOrg(@PathVariable Long id,
                                    @RequestParam String orgName,
                                    @RequestParam String orgFlag) {
@@ -73,9 +73,9 @@ public class OrgInfoController {
      * @return
      */
     @ApiOperation(value = "查询机构信息", tags = {"机构管理"})
-    @GetMapping("/orginfo/{id}")
+    @GetMapping("/org/{id}")
     public ResponseModel getOrg(@PathVariable Long id) {
-        Org org = orgInfoService.get(id);
+        OrgDTO org = orgInfoService.get(id);
         if (org != null) {
             return ResponseModel.ok().setBody(org);
         }
@@ -89,7 +89,7 @@ public class OrgInfoController {
      * @sort 排序字段，默认为name
      */
     @ApiOperation(value = "分页获取所有机构信息", tags = {"机构管理"})
-    @GetMapping("/orginfo/page")
+    @GetMapping("/org/page")
     public ResponseModel<Page> getPage(@PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
         Page<Org> orgPages = orgInfoService.getPageOrg(pageable);
         return ResponseModel.ok().setBody(orgPages);
@@ -102,7 +102,7 @@ public class OrgInfoController {
      * @sort 排序字段，默认为name
      */
     @ApiOperation(value = "获取所有机构信息", tags = {"机构管理"})
-    @GetMapping("/orginfo/all")
+    @GetMapping("/org/all")
     public ResponseModel getAll() {
         List<Org> orgs = orgInfoService.getAll();
         return ResponseModel.ok().setBody(orgs);
@@ -116,10 +116,10 @@ public class OrgInfoController {
      */
     @ApiOperation(value = "获取IP所属机构信息", tags = {"机构查询"})
     @ApiImplicitParam(name = "ip", value = "IP", dataType = "String", paramType = "query")
-    @GetMapping("/orginfo/get")
-    public ResponseModel<OrgBasicDTO> getByIp(@RequestParam String ip) {
+    @GetMapping("/org/get")
+    public ResponseModel<OrgDTO> getByIp(@RequestParam String ip) {
         try {
-            OrgBasicDTO org = orgInfoService.findByIp(ip);
+            OrgDTO org = orgInfoService.findByIp(ip);
             return ResponseModel.ok().setBody(org);
         } catch (NotOneOrgException e) {
             throw new NotOneOrgException(e.getBody());
@@ -138,14 +138,14 @@ public class OrgInfoController {
      * @param flag
      * @return
      */
-    @GetMapping("/orginfo/find")
+    @GetMapping("/org/find")
     public ResponseModel<List<Org>> find(@RequestParam(required = false) String orgName,
                                          @RequestParam(required = false) String flag) {
         Org org = new Org();
         return ResponseModel.ok().setBody(org);
     }
 
-    @GetMapping("/orginfo/cd")
+    @GetMapping("/org/cd")
     public ResponseModel cd() {
         return ResponseModel.ok().setBody(orgInfoService.cd());
     }

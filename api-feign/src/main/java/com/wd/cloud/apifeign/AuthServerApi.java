@@ -1,9 +1,8 @@
 package com.wd.cloud.apifeign;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.vo.UserVo;
+import com.wd.cloud.commons.dto.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -22,6 +21,6 @@ public interface AuthServerApi {
      * @return
      */
     @GetMapping("/user/info/{userId}")
-    ResponseModel<UserVo> getUserInfo(@PathVariable(value = "userId") Long userId);
+    ResponseModel<UserDTO> getUserInfo(@PathVariable(value = "userId") Long userId);
 
 }

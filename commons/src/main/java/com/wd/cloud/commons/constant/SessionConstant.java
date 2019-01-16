@@ -13,11 +13,6 @@ public class SessionConstant {
     public static final String LOGIN_USER = "loginUser";
 
     /**
-     * 登陆用户账户所属机构
-     */
-    public static final String USER_ORG = "userOrg";
-
-    /**
      * 登陆ip所属机构
      */
     public static final String IP_ORG = "ipOrg";

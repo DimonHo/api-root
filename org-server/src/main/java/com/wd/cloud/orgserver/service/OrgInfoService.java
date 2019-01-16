@@ -1,7 +1,7 @@
 package com.wd.cloud.orgserver.service;
 
-import com.wd.cloud.orgserver.dto.IpRangDTO;
-import com.wd.cloud.orgserver.dto.OrgBasicDTO;
+import com.wd.cloud.commons.dto.IpRangeDTO;
+import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.orgserver.entity.IpRange;
 import com.wd.cloud.orgserver.entity.Org;
 import org.springframework.data.domain.Page;
@@ -22,11 +22,11 @@ public interface OrgInfoService {
 
     List<Org> getAll();
 
-    Org get(Long id);
+    OrgDTO get(Long id);
 
-    OrgBasicDTO findByIp(String ip);
+    OrgDTO findByIp(String ip);
 
     Org getOrgInfoByFlag(String flag);
 
-    Map<IpRangDTO, Set<IpRange>> cd();
+    Map<IpRangeDTO, Set<IpRange>> cd();
 }
