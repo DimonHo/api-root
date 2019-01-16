@@ -13,7 +13,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  * @date 2018/04/08
  */
 @EnableSwagger2Doc
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds= 3600,redisNamespace = "api")
+@EnableRedisHttpSession
 @EnableFeignClients
 @SpringCloudApplication
 public class AuthServerApplication {
