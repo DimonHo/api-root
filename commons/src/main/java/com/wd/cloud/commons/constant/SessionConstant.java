@@ -18,13 +18,18 @@ public class SessionConstant {
     public static final String IP_ORG = "ipOrg";
 
     /**
+     * 是否是校外访问
+     */
+    public static final String IS_OUT = "isOut";
+
+    /**
      * 访问客户端类型，1：pc,2:mobile
      */
     public static final String CLIENT_TYPE = "clientType";
 
     /**
-     * 是否被踢出登陆：true or false
+     * session级别
      */
-    public static final String KICKOUT = "kickout";
+    public static final String LEVEL = "level";
 
 }

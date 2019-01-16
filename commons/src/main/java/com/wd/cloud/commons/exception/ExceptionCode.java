@@ -10,4 +10,6 @@ public class ExceptionCode {
     public static final Integer UNDEFINED = -1;
 
     public static final Integer FEIGN_EXCEPTION = -2;
+
+    public static final Integer NOT_LOGIN = 502;
 }

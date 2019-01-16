@@ -9,7 +9,7 @@ public class ExceptionStatus {
 
     public static final Integer UNDEFINED = 4000;
 
-    public static final Integer NOT_FOUND_ORG = 4001;
+    public static final Integer NOT_FOUND_ORG = 404;
 
     public static final Integer NOT_ONE_RESULT = 4002;
 }

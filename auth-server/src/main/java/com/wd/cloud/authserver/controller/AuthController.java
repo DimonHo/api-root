@@ -2,8 +2,6 @@ package com.wd.cloud.authserver.controller;
 
 import cn.hutool.http.Header;
 import cn.hutool.http.useragent.UserAgentUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.wd.cloud.authserver.service.AuthService;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
@@ -13,7 +11,6 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,16 +45,16 @@ public class AuthController {
         HttpSession session = request.getSession();
         log.info("sessionId={}", session.getId());
         //验证用户名密码
-        UserDTO userInfoDTO = authService.loing(username, pwd);
+        UserDTO userDTO = authService.loing(username, pwd);
         // sessionKey
         String sessionKey = null;
         //如果是移动端
         if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
             session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);
-            sessionKey = username +"-"+ClientType.MOBILE;
+            sessionKey = username + "-" + ClientType.MOBILE;
         } else {
             session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.PC);
-            sessionKey = username +"-"+ClientType.PC;
+            sessionKey = username + "-" + ClientType.PC;
         }
 
         //踢出同类型客户端的session
@@ -69,18 +66,25 @@ public class AuthController {
         redisTemplate.opsForValue().set(sessionKey, session.getId());
 
         log.info("用户[{}]登陆成功", username);
-        session.setAttribute(SessionConstant.LOGIN_USER, JSONUtil.parseObj(userInfoDTO));
-
-        return ResponseModel.ok().setBody(userInfoDTO);
+        session.setAttribute(SessionConstant.LOGIN_USER, userDTO);
+        // 登陆成功 level +2
+        Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
+        level += 2;
+        // 如果是已认证用户，level + 4
+        if (userDTO.isValidated()) {
+            level += 4;
+        }
+        session.setAttribute(SessionConstant.LEVEL, level);
+        return ResponseModel.ok().setBody(userDTO);
     }
 
     @GetMapping("/logout")
     public ResponseModel logout() {
         log.info("sessionId={}", request.getSession().getId());
-        JSONObject oldUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (oldUser != null) {
+        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO != null) {
             request.getSession().invalidate();
-            log.info("用户[{}]注销成功", oldUser.getStr("username"));
+            log.info("用户[{}]注销成功", userDTO.getUsername());
         }
         return ResponseModel.ok();
     }

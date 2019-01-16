@@ -427,7 +427,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public Permission getOrgIdAndRule(Long orgId, int rule) {
-        return permissionRepository.getOrgIdAndRule(orgId, rule);
+        return permissionRepository.getOrgIdAndLevel(orgId, rule);
     }
 
     private HelpRecordDTO anonymous(VHelpRecord vHelpRecord) {

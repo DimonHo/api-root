@@ -1,6 +1,7 @@
 package com.wd.cloud.docdelivery.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
@@ -15,6 +16,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "doc_file",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"literature_id", "file_id"})})

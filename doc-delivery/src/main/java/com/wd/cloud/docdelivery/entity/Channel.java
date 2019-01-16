@@ -1,6 +1,7 @@
 package com.wd.cloud.docdelivery.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
  */
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "channel")
 public class Channel extends AbstractEntity {

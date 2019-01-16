@@ -1,9 +1,13 @@
 package com.wd.cloud.apigateway.filter;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
+import cn.hutool.http.HttpUtil;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import com.wd.cloud.apigateway.feign.OrgServerApi;
+import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.model.ResponseModel;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,18 +17,32 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2018/12/20
  * @Description:
  */
+@Slf4j
 @Component
 public class ClientIpFilter extends ZuulFilter {
-    private static final Log log = LogFactory.get();
-    private static final String CLIENT_IP = "CLIENT_IP";
+
+    @Autowired
+    OrgServerApi orgServerApi;
 
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
-        String remoteAddr = getIpAddr(request);
-        log.info("真实IP={}", remoteAddr);
-        ctx.getZuulRequestHeaders().put(CLIENT_IP, remoteAddr);
+        Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);
+        if (isOut == null) {
+            String clientIp = HttpUtil.getClientIP(request);
+            ResponseModel orgResponse = orgServerApi.getByIp(clientIp);
+            if (!orgResponse.isError()) {
+                //非校外访问
+                request.getSession().setAttribute(SessionConstant.IS_OUT, false);
+                request.getSession().setAttribute(SessionConstant.LEVEL, 1);
+                request.getSession().setAttribute(SessionConstant.IP_ORG, orgResponse.getBody());
+            } else {
+                //校外访问
+                request.getSession().setAttribute(SessionConstant.IS_OUT, true);
+                request.getSession().setAttribute(SessionConstant.LEVEL, 0);
+            }
+        }
         return null;
     }
 
@@ -43,41 +61,4 @@ public class ClientIpFilter extends ZuulFilter {
         return 0;
     }
 
-    /**
-     * 获取登录用户IP地址
-     *
-     * @param request
-     * @return
-     */
-    private static String getIpAddr(HttpServletRequest request) {
-        String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
-        }
-        //Nginx
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        if ("0:0:0:0:0:0:0:1".equals(ip)) {
-            ip = "127.0.0.1";
-        } else if (ip.contains(",")) {
-            log.info("使用了代理的IP:" + ip);
-            String[] ips = ip.split(",");
-            int i = 0;
-            while (i < ips.length) {
-                if (ips[i] != null && ips[i].length() != 0 && !"unknown".equalsIgnoreCase(ips[i])) {
-                    ip = ips[i];
-                    break;
-                }
-                i++;
-            }
-        }
-        return ip;
-    }
 }

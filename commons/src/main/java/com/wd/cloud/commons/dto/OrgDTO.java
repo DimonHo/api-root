@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +14,9 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class OrgDTO implements Serializable {
+
     private Long id;
+
     private String name;
     /**
      * 机构默认标识

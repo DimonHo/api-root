@@ -1,6 +1,10 @@
 package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.http.HttpUtil;
+import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.OrgDTO;
+import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.commons.exception.NotLoginException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.dto.MyTjDTO;
@@ -32,12 +36,32 @@ public class TjController {
     @Autowired
     TjService tjService;
 
-    @ApiOperation(value = "用户统计")
+    @Autowired
+    HttpServletRequest request;
+
+    @ApiOperation(value = "邮箱统计")
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
-    @GetMapping("/tj/user")
-    public ResponseModel getUserHelpCountToDay(@RequestParam String email, HttpServletRequest request) {
+    @GetMapping("/tj")
+    public ResponseModel getEmailHelpCountToDay(@RequestParam String email) {
         try {
-            MyTjDTO myTotalModel = tjService.tjUser(email, HttpUtil.getClientIP(request));
+            MyTjDTO myTotalModel = tjService.tjEmail(email, HttpUtil.getClientIP(request));
+            return ResponseModel.ok().setBody(myTotalModel);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
+
+    @ApiOperation(value = "我的统计")
+    @GetMapping("/tj/my")
+    public ResponseModel getUserHelpCountToDay() {
+        try {
+            UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            OrgDTO ipOrg = (OrgDTO) request.getSession().getAttribute(SessionConstant.IP_ORG);
+            if (userDTO == null) {
+                throw new NotLoginException();
+            }
+            MyTjDTO myTotalModel = tjService.tjUser(userDTO, ipOrg);
             return ResponseModel.ok().setBody(myTotalModel);
         } catch (Exception e) {
             e.printStackTrace();

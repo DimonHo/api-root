@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.entity;
 
 import cn.hutool.crypto.SecureUtil;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "literature", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
 public class Literature extends AbstractEntity {

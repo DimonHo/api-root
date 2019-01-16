@@ -3,9 +3,11 @@ package com.wd.cloud.docdelivery.controller;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
@@ -70,6 +72,9 @@ public class FrontendController {
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
         JSONObject userInfo = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userInfo != null){
+            UserDTO userDTO =  JSONUtil.toBean(userInfo, UserDTO.class);
+        }
         String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
         String helpEmail = helpRequestModel.getHelperEmail();

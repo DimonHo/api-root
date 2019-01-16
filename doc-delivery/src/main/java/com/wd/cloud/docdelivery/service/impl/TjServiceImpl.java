@@ -3,6 +3,8 @@ package com.wd.cloud.docdelivery.service.impl;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.dto.OrgDTO;
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.dto.MyTjDTO;
@@ -72,9 +74,22 @@ public class TjServiceImpl implements TjService {
         return helpRecordRepository.todayTotal();
     }
 
+    @Override
+    public MyTjDTO tjUser(UserDTO userDTO, OrgDTO ipOrg) {
+        Integer level = 0;
+        if (userDTO != null){
+
+        }
+        if (ipOrg != null){
+
+        }
+        
+        return null;
+    }
+
 
     @Override
-    public MyTjDTO tjUser(String email, String ip) {
+    public MyTjDTO tjEmail(String email, String ip) {
         int rule = 0;
         log.info("用户IP: {}", ip);
         ResponseModel<JSONObject> orgResponse = orgServerApi.getByIp(ip);
@@ -84,9 +99,9 @@ public class TjServiceImpl implements TjService {
             orgInfo = orgResponse.getBody();
             rule += 1;
         }
-        Permission permission = orgInfo == null ? permissionRepository.findByOrgIdIsNullAndRule(rule) : permissionRepository.findByOrgIdAndRule(orgInfo.getLong("id"), rule);
+        Permission permission = orgInfo == null ? permissionRepository.findByOrgIdIsNullAndLevel(rule) : permissionRepository.findByOrgIdAndLevel(orgInfo.getLong("id"), rule);
         if (permission == null) {
-            permission = permissionRepository.findByOrgIdIsNullAndRule(rule);
+            permission = permissionRepository.findByOrgIdIsNullAndLevel(rule);
         }
         //今日已求助数量
         long myTodayHelpCount = helpRecordRepository.myTodayTotal(email);

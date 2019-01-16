@@ -3,6 +3,7 @@ package com.wd.cloud.docdelivery.entity;
 import cn.hutool.crypto.SecureUtil;
 import com.wd.cloud.commons.util.DateUtil;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import javax.persistence.*;
  */
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "help_record", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
 public class HelpRecord extends AbstractEntity {

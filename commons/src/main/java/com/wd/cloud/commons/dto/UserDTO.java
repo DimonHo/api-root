@@ -29,7 +29,14 @@ public class UserDTO implements Serializable {
     private String qqOpenid;
     private String wechatOpenid;
     private String weiboOpenid;
-    private boolean verify;
+    /**
+     * 是否是认证用户
+     */
+    private boolean validated;
+    /**
+     * 认证证件照
+     */
+    private String idPhoto;
     private OrgDTO org;
 
 }
