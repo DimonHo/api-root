@@ -23,7 +23,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -72,8 +71,8 @@ public class FrontendController {
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
         JSONObject userInfo = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userInfo != null){
-            UserDTO userDTO =  JSONUtil.toBean(userInfo, UserDTO.class);
+        if (userInfo != null) {
+            UserDTO userDTO = JSONUtil.toBean(userInfo, UserDTO.class);
         }
         String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
@@ -300,13 +299,6 @@ public class FrontendController {
             }
         }
         return ResponseModel.ok().setBody(map);
-    }
-
-    @ApiOperation(value = "获取sso登陆信息")
-    @GetMapping("/help/getSso")
-    public ResponseModel getSso(HttpServletRequest request) {
-        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
-        return ResponseModel.ok().setBody(principal);
     }
 
 
