@@ -69,9 +69,11 @@ public class AuthController {
         session.setAttribute(SessionConstant.LOGIN_USER, userDTO);
         // 登陆成功 level +2
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
-        level += 2;
+        if (level < 2) {
+            level += 2;
+        }
         // 如果是已认证用户，level + 4
-        if (userDTO.isValidated()) {
+        if (level < 4 && userDTO.isValidated()) {
             level += 4;
         }
         session.setAttribute(SessionConstant.LEVEL, level);
