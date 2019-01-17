@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * @date 2018/5/22
  * @Description:
  */
-public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
+public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, JpaSpecificationExecutor<GiveRecord> {
 
     GiveRecord deleteByHelpRecordId(Long helpRecordId);
 
@@ -40,6 +41,7 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
 
     /**
      * 用户应助中
+     *
      * @param giverId
      * @return
      */

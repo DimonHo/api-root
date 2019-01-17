@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public interface LiteratureRepository extends JpaRepository<Literature, Long>, JpaSpecificationExecutor<Literature> {
 
+    boolean existsByUnid(String unid);
+
     /**
      * 根据unid唯一码查询
      *

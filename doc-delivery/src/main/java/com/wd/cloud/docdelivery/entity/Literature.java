@@ -33,16 +33,7 @@ public class Literature extends AbstractEntity {
 
     @Column(name = "unid")
     private String unid;
-    /**
-     * 文献作者
-     */
-    private String authors;
 
-    /**
-     * 发表年份
-     */
-    @Column(name = "year_of_publication")
-    private String yearOfPublication;
     /**
      * doi
      */
@@ -52,10 +43,21 @@ public class Literature extends AbstractEntity {
      */
     private String summary;
 
-//    @OneToMany(mappedBy = "literature")
-//    @OrderBy(value = "gmt_create desc")
-//    private Set<DocFile> docFiles;
+    private String issn;
 
+    private String issue;
+
+    private String volume;
+
+    /**
+     * 发表年份
+     */
+    private String year;
+
+    /**
+     * 文献作者
+     */
+    private String author;
 
     @PrePersist
     public void createUnid() {

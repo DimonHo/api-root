@@ -1,27 +1,29 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
+import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.*;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.exception.ExceptionCode;
-import com.wd.cloud.docdelivery.exception.GiveException;
-import com.wd.cloud.docdelivery.exception.HelpException;
-import com.wd.cloud.docdelivery.exception.NotFoundException;
+import com.wd.cloud.docdelivery.exception.*;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
@@ -32,18 +34,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -73,6 +75,9 @@ public class FrontServiceImpl implements FrontService {
 
     @Autowired
     FsServerApi fsServerApi;
+
+    @Autowired
+    PdfSearchServerApi pdfSearchServerApi;
 
     @Autowired
     FileService fileService;
@@ -105,47 +110,64 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public String help(HelpRecord helpRecord, String docTitle, String docHref) {
-        log.info("用户:[{}]正在求助文献:[{}]", helpRecord.getHelperEmail(), docTitle);
+    public String help(HelpRecord helpRecord, Literature literature) {
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        docTitle = clearHtml(docTitle.trim());
-        docHref = docHref.trim();
+        String docTitle = clearHtml(literature.getDocTitle().trim());
+        String docHref = literature.getDocHref() != null ? literature.getDocHref().trim() : null;
         String unid = SecureUtil.md5(docTitle + docHref);
-        // 先查询元数据是否存在
-        Literature literature = literatureRepository.findByUnid(unid);
-        String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
-        if (null == literature) {
-            // 如果不存在，则新增一条元数据
-            literature = saveLiterature(docTitle, docHref);
+        log.info("用户:[{}]正在求助文献:[{}]", helpRecord.getHelperEmail(), docTitle);
+
+        // 如果元数据已存在，则更新
+        if (literatureRepository.existsByUnid(unid)) {
+            Literature oldLiterature = literatureRepository.findByUnid(unid);
+            literature.setId(oldLiterature.getId());
         }
+        literature = literatureRepository.save(literature);
+        // 15天内不能重复求助相同的文献
         if (checkExists(helpRecord.getHelperEmail(), literature.getId())) {
             throw new HelpException(2008, "error:您最近15天内已求助过这篇文献,请注意查收邮箱");
         }
         helpRecord.setLiteratureId(literature.getId());
-        DocFile docFile = getReusingFile(literature.getId());
-        // 如果文件已存在，自动应助成功
-        if (null != docFile) {
-            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(literature.getId());
+        // 如果有复用文件，自动应助成功
+        if (null != reusingDocFile) {
             GiveRecord giveRecord = new GiveRecord();
-            giveRecord.setFileId(docFile.getFileId());
+            giveRecord.setFileId(reusingDocFile.getFileId());
             giveRecord.setType(GiveTypeEnum.AUTO.getCode());
-            giveRecord.setGiverName("自动应助");
+            giveRecord.setGiverName(GiveTypeEnum.AUTO.getName());
             //先保存求助记录，得到求助ID，再关联应助记录
-            helpRecord = saveHelpRecord(helpRecord);
+            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+            helpRecord = helpRecordRepository.save(helpRecord);
             giveRecord.setHelpRecordId(helpRecord.getId());
-            saveGiveRecord(giveRecord);
+            giveRecordRepository.save(giveRecord);
             Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
             optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
-            msg = "success:文献求助成功,请登陆邮箱" + helpRecord.getHelperEmail() + "查收结果";
+            return "复用自动应助成功！";
         } else {
+            ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
+            if (!pdfResponse.isError()) {
+                String fileId = pdfResponse.getBody();
+                GiveRecord giveRecord = new GiveRecord();
+                giveRecord.setFileId(fileId);
+                giveRecord.setType(GiveTypeEnum.BIG_DB.getCode());
+                giveRecord.setGiverName(GiveTypeEnum.BIG_DB.getName());
+                //先保存求助记录，得到求助ID，再关联应助记录
+                helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+                helpRecord = helpRecordRepository.save(helpRecord);
+                giveRecord.setHelpRecordId(helpRecord.getId());
+                giveRecordRepository.save(giveRecord);
+                Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
+                optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+                return "平台自动应助成功！";
+            }
             try {
                 // 保存求助记录
-                saveHelpRecord(helpRecord);
+                helpRecordRepository.save(helpRecord);
+                return "求助已发送成功，请等待";
             } catch (Exception e) {
-                throw new HelpException(1002, msg);
+                throw new HelpException(1002, "主键冲突");
             }
         }
-        return msg;
     }
 
     @Override
@@ -258,22 +280,6 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Literature saveLiterature(Literature literature) {
-        return literatureRepository.save(literature);
-    }
-
-    public Literature saveLiterature(String docTitle, String docHref) {
-        Literature literature = new Literature();
-        literature.setDocTitle(docTitle).setDocHref(docHref);
-        return literatureRepository.save(literature);
-    }
-
-    @Override
-    public GiveRecord saveGiveRecord(GiveRecord giveRecord) {
-        return giveRecordRepository.save(giveRecord);
-    }
-
-    @Override
     public void createGiveRecord(HelpRecord helpRecord, long giverId, DocFile docFile, String giveIp) {
         //更新求助状态为待审核
         helpRecord.setStatus(HelpStatusEnum.WAIT_AUDIT.getValue());
@@ -291,55 +297,48 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public HelpRecord saveHelpRecord(HelpRecord helpRecord) {
-        return helpRecordRepository.save(helpRecord);
-    }
-
-    @Override
-    public HelpRecord getHelpRecord(long helpRecordId) {
-        return helpRecordRepository.getOne(helpRecordId);
-    }
-
-    @Override
-    public Page<HelpRecordDTO> getHelpRecordsForUser(long helperId, Integer status, Pageable pageable) {
-
-        if (status == null) {
-            Page<VHelpRecord> helpRecordPage = vHelpRecordRepository.findByHelperId(helperId, pageable);
-            Page<HelpRecordDTO> helpRecordDTOS = coversHelpRecordDTO(helpRecordPage);
-            return helpRecordDTOS;
-        } else {
-            Page<VHelpRecord> helpRecordPage = vHelpRecordRepository.findByHelperIdAndStatus(helperId, status, pageable);
-            Page<HelpRecordDTO> helpRecordDTOS = coversHelpRecordDTO(helpRecordPage);
-            return helpRecordDTOS;
+    public Page<HelpRecordDTO> myHelpRecords(List<Integer> status, Pageable pageable) {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpSession session = request.getSession();
+        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
         }
-    }
-
-    private Page<HelpRecordDTO> coversHelpRecordDTO(Page<VHelpRecord> helpRecordPage) {
-        return helpRecordPage.map(helpRecord -> {
-
-            HelpRecordDTO helpRecordDTO = anonymous(helpRecord);
-            Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
-            helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
-            return helpRecordDTO;
-        });
+        Page<VHelpRecord> vHelpRecords = findHelpRecords(null, status, null, userDTO.getId(), null, pageable);
+        return coversHelpRecordDTO(vHelpRecords);
     }
 
     @Override
-    public Page<HelpRecordDTO> getHelpRecordsForEmail(String helperEmail, Pageable pageable) {
-        Page<HelpRecordDTO> helpRecordDTOS = coversHelpRecordDTO(vHelpRecordRepository.findByHelperEmail(helperEmail, pageable));
-        return helpRecordDTOS;
+    public Page<GiveRecordDTO> myGiveRecords(List<Integer> status, Pageable pageable) {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpSession session = request.getSession();
+        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
+        }
+        Page<GiveRecord> giveRecords = findGiveRecords(status, userDTO.getId(), pageable);
+        return coversGiveRecordDTO(giveRecords);
     }
 
-    @Override
-    public Page<HelpRecordDTO> getWaitHelpRecords(int helpChannel, Pageable pageable) {
 
-        int[] status = {HelpStatusEnum.WAIT_HELP.getValue(),
+    @Override
+    public Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Pageable pageable) {
+        Page<VHelpRecord> vHelpRecords = findHelpRecords(channel, status, null, null, null, pageable);
+        return coversHelpRecordDTO(vHelpRecords);
+    }
+
+
+    @Override
+    public Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Pageable pageable) {
+
+        List<Integer> status = CollectionUtil.newArrayList(
+                HelpStatusEnum.WAIT_HELP.getValue(),
                 HelpStatusEnum.HELPING.getValue(),
                 HelpStatusEnum.WAIT_AUDIT.getValue(),
-                HelpStatusEnum.HELP_THIRD.getValue()};
+                HelpStatusEnum.HELP_THIRD.getValue());
 
-        Page<VHelpRecord> waitHelpRecords = filterHelpRecords(helpChannel, pageable, status);
-        Page<HelpRecordDTO> waitHelps = waitHelpRecords.map(helpRecord -> {
+        Page<VHelpRecord> waitHelpRecords = findHelpRecords(channel, status, null, null, null, pageable);
+        return waitHelpRecords.map(helpRecord -> {
             HelpRecordDTO helpRecordDTO = anonymous(helpRecord);
             Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
             optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
@@ -350,66 +349,35 @@ public class FrontServiceImpl implements FrontService {
             }
             return helpRecordDTO;
         });
-        return waitHelps;
     }
-
-    private Page<VHelpRecord> filterHelpRecords(int helpChannel, Pageable pageable, int[] status) {
-        Page<VHelpRecord> waitHelpRecords;
-        if (helpChannel == 0) {
-            waitHelpRecords = vHelpRecordRepository.findByStatusIn(status, pageable);
-        } else {
-            waitHelpRecords = vHelpRecordRepository.findByHelpChannelAndStatusIn(helpChannel, status, pageable);
-        }
-        return waitHelpRecords;
-    }
-
 
     @Override
-    public Page<HelpRecordDTO> getFinishHelpRecords(int helpChannel, Pageable pageable) {
-        int[] status = {HelpStatusEnum.HELP_SUCCESSED.getValue(), HelpStatusEnum.HELP_FAILED.getValue()};
-        Page<VHelpRecord> finishHelpRecords = filterHelpRecords(helpChannel, pageable, status);
+    public Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Pageable pageable) {
+        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.getValue(), HelpStatusEnum.HELP_FAILED.getValue());
+        Page<VHelpRecord> finishHelpRecords = findHelpRecords(channel, status, null, null, null, pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 
+
     @Override
-    public Page<HelpRecordDTO> getSuccessHelpRecords(int helpChannel, Pageable pageable) {
-        int[] status = {HelpStatusEnum.HELP_SUCCESSED.getValue()};
-        Page<VHelpRecord> successHelpRecords = filterHelpRecords(helpChannel, pageable, status);
-        return coversHelpRecordDTO(successHelpRecords);
+    public Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> channel, Pageable pageable) {
+        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        Page<VHelpRecord> finishHelpRecords = findHelpRecords(channel, status, null, null, null, pageable);
+        return coversHelpRecordDTO(finishHelpRecords);
+
     }
 
     @Override
-    public Page<HelpRecordDTO> getFailedHelpRecords(int helpChannel, Pageable pageable) {
-        int[] status = {HelpStatusEnum.HELP_FAILED.getValue()};
-        Page<VHelpRecord> failedHelpRecords = filterHelpRecords(helpChannel, pageable, status);
-        return coversHelpRecordDTO(failedHelpRecords);
+    public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, Pageable pageable) {
+        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_FAILED.getValue());
+        Page<VHelpRecord> finishHelpRecords = findHelpRecords(channel, status, null, null, null, pageable);
+        return coversHelpRecordDTO(finishHelpRecords);
     }
 
-    @Override
-    public Page<HelpRecordDTO> getAllHelpRecord(Pageable pageable) {
-        return coversHelpRecordDTO(vHelpRecordRepository.findAll(pageable));
-    }
 
     @Override
     public DocFile getReusingFile(Long literatureId) {
-        DocFile docFiles = docFileRepository.findByLiteratureIdAndReusingIsTrue(literatureId);
-        return docFiles;
-    }
-
-    @Override
-    public Page<HelpRecordDTO> search(String keyword, Pageable pageable) {
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(new Specification<VHelpRecord>() {
-            @Override
-            public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (!StringUtils.isEmpty(keyword)) {
-                    list.add(criteriaBuilder.or(criteriaBuilder.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"), criteriaBuilder.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
-                }
-                Predicate[] p = new Predicate[list.size()];
-                return criteriaBuilder.and(list.toArray(p));
-            }
-        }, pageable);
-        return coversHelpRecordDTO(vHelpRecords);
+        return docFileRepository.findByLiteratureIdAndReusingIsTrue(literatureId);
     }
 
 
@@ -428,6 +396,95 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public Permission getOrgIdAndRule(Long orgId, int rule) {
         return permissionRepository.getOrgIdAndLevel(orgId, rule);
+    }
+
+    /**
+     * 求助记录条件查询
+     *
+     * @param channel
+     * @param status
+     * @param email
+     * @param keyword
+     * @param pageable
+     * @return
+     */
+    private Page<VHelpRecord> findHelpRecords(List<Integer> channel, List<Integer> status, String email, Long helperId, String keyword, Pageable pageable) {
+        Page<VHelpRecord> vHelpRecordPage = vHelpRecordRepository.findAll(new Specification<VHelpRecord>() {
+            @Override
+            public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (helperId != null) {
+                    list.add(cb.equal(root.get("helperId"), helperId));
+                }
+                if (StrUtil.isNotBlank(email)) {
+                    list.add(cb.equal(root.get("helperEmail"), email));
+                }
+                // 渠道过滤
+                if (channel != null && channel.size() > 0) {
+                    CriteriaBuilder.In<Integer> inChannel = cb.in(root.get("helpChannel"));
+                    channel.forEach(inChannel::value);
+                    list.add(inChannel);
+                }
+                // 状态过滤
+                if (status != null && status.size() > 0) {
+                    CriteriaBuilder.In<Integer> inStatus = cb.in(root.get("status"));
+                    status.forEach(inStatus::value);
+                    list.add(inStatus);
+                }
+                if (StrUtil.isNotBlank(keyword)) {
+                    list.add(cb.or(cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"), cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            }
+        }, pageable);
+
+        return vHelpRecordPage;
+    }
+
+    /**
+     * 应助记录条件查询
+     *
+     * @param status
+     * @param pageable
+     * @return
+     */
+    private Page<GiveRecord> findGiveRecords(List<Integer> status, Long giverId, Pageable pageable) {
+        Page<GiveRecord> giveRecordPage = giveRecordRepository.findAll(new Specification<GiveRecord>() {
+            @Override
+            public Predicate toPredicate(Root<GiveRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (giverId != null) {
+                    list.add(cb.equal(root.get("giverId"), giverId));
+                }
+                // 状态过滤
+                if (status != null && status.size() > 0) {
+                    CriteriaBuilder.In<Integer> inStatus = cb.in(root.get("status"));
+                    status.forEach(inStatus::value);
+                    list.add(inStatus);
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            }
+        }, pageable);
+        return giveRecordPage;
+    }
+
+    private Page<HelpRecordDTO> coversHelpRecordDTO(Page<VHelpRecord> helpRecordPage) {
+        return helpRecordPage.map(helpRecord -> {
+            HelpRecordDTO helpRecordDTO = anonymous(helpRecord);
+            Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
+            helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
+            return helpRecordDTO;
+        });
+    }
+
+    private Page<GiveRecordDTO> coversGiveRecordDTO(Page<GiveRecord> giveRecordPage) {
+        return giveRecordPage.map(giveRecord -> {
+            GiveRecordDTO giveRecordDTO = new GiveRecordDTO();
+            BeanUtil.copyProperties(giveRecord, giveRecordDTO);
+            return giveRecordDTO;
+        });
     }
 
     private HelpRecordDTO anonymous(VHelpRecord vHelpRecord) {
