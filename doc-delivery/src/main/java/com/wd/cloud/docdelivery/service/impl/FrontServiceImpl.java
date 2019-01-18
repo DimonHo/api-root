@@ -112,8 +112,8 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public String help(HelpRecord helpRecord, Literature literature) {
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        String docTitle = clearHtml(literature.getDocTitle().trim());
-        String docHref = literature.getDocHref() != null ? literature.getDocHref().trim() : null;
+        String docTitle = literature.getDocTitle();
+        String docHref = literature.getDocHref();
         String unid = SecureUtil.md5(docTitle + docHref);
         log.info("用户:[{}]正在求助文献:[{}]", helpRecord.getHelperEmail(), docTitle);
 

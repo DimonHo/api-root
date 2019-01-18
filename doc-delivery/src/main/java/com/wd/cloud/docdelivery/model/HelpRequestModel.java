@@ -1,10 +1,12 @@
 package com.wd.cloud.docdelivery.model;
 
+import cn.hutool.http.HtmlUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -55,6 +57,7 @@ public class HelpRequestModel {
      */
     @ApiModelProperty(value = "求助用户邮箱", example = "hezhigang@qq.com")
     @NotBlank
+    @Email
     private String helperEmail;
 
     @ApiModelProperty(value = "补充信息", example = "doi:01923959101,xxx:102030104")
@@ -63,4 +66,14 @@ public class HelpRequestModel {
     @ApiModelProperty(value = "是否匿名,默认false", example = "false")
     private boolean anonymous = false;
 
+    public String getDocTitle() {
+        return HtmlUtil.unescape(HtmlUtil.cleanHtmlTag(this.docTitle.trim()));
+    }
+
+    public String getDocHref() {
+        if (this.docHref != null) {
+            return this.docHref.trim();
+        }
+        return null;
+    }
 }
