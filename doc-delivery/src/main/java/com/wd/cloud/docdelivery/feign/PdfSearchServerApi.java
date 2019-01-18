@@ -5,10 +5,7 @@ import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author He Zhigang
@@ -25,6 +22,7 @@ public interface PdfSearchServerApi {
     public ResponseModel<byte[]> getFileByte(@PathVariable(value = "rowkey") String rowkey);
 
     class Fallback implements PdfSearchServerApi {
+
 
         @Override
         public ResponseModel<String> search(Literature literature) {

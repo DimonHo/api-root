@@ -147,6 +147,9 @@ public class FrontServiceImpl implements FrontService {
             ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
             if (!pdfResponse.isError()) {
                 String fileId = pdfResponse.getBody();
+                DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId,literature.getId()).orElse(new DocFile());
+                docFile.setFileId(fileId).setLiteratureId(literature.getId());
+                docFileRepository.save(docFile);
                 GiveRecord giveRecord = new GiveRecord();
                 giveRecord.setFileId(fileId);
                 giveRecord.setType(GiveTypeEnum.BIG_DB.getCode());
@@ -339,7 +342,8 @@ public class FrontServiceImpl implements FrontService {
 
         Page<VHelpRecord> waitHelpRecords = findHelpRecords(channel, status, null, null, null, pageable);
         return waitHelpRecords.map(helpRecord -> {
-            HelpRecordDTO helpRecordDTO = anonymous(helpRecord);
+            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
+            BeanUtil.copyProperties(anonymous(helpRecord),helpRecordDTO);
             Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
             optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
             //如果有用户正在应助
@@ -472,7 +476,8 @@ public class FrontServiceImpl implements FrontService {
 
     private Page<HelpRecordDTO> coversHelpRecordDTO(Page<VHelpRecord> helpRecordPage) {
         return helpRecordPage.map(helpRecord -> {
-            HelpRecordDTO helpRecordDTO = anonymous(helpRecord);
+            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
+            BeanUtil.copyProperties(anonymous(helpRecord),helpRecordDTO);
             Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
             helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
             return helpRecordDTO;
@@ -487,17 +492,15 @@ public class FrontServiceImpl implements FrontService {
         });
     }
 
-    private HelpRecordDTO anonymous(VHelpRecord vHelpRecord) {
-        HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-        BeanUtil.copyProperties(vHelpRecord, helpRecordDTO);
+    private VHelpRecord anonymous(VHelpRecord vHelpRecord) {
         if (vHelpRecord.isAnonymous()) {
-            helpRecordDTO.setHelperEmail("匿名").setHelperName("匿名");
+            vHelpRecord.setHelperEmail("匿名").setHelperName("匿名");
         } else {
             String helperEmail = vHelpRecord.getHelperEmail();
             String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
-            helpRecordDTO.setHelperEmail(s);
+            vHelpRecord.setHelperEmail(s);
         }
-        return helpRecordDTO;
+        return vHelpRecord;
     }
 
 

@@ -20,6 +20,8 @@ public class HelpRecordDTO {
 
     private Date gmtCreate;
 
+    private Date gmtModified;
+
     private String docTitle;
 
     private String docHref;

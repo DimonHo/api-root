@@ -284,7 +284,8 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setHandlerName(auditorName);
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
 
-        DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(),literature.getId());
+        DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(),literature.getId()).orElse(new DocFile());
+        docFile.setLiteratureId(literature.getId()).setFileId(giveRecord.getFileId());
         docFileRepository.save(docFile);
 
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());

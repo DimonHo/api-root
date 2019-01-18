@@ -10,7 +10,6 @@ import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.TempService;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,7 +108,7 @@ public class TempServiceImpl implements TempService {
             try {
                 docFileRepository.save(docFile);
             } catch (Exception e) {
-                DocFile byFileIdAndLiterature = docFileRepository.findByFileIdAndLiteratureId(docFile.getFileId(), docFile.getLiteratureId());
+                DocFile byFileIdAndLiterature = docFileRepository.findByFileIdAndLiteratureId(docFile.getFileId(), docFile.getLiteratureId()).orElse(new DocFile());
                 List<GiveRecord> byDocFileId = giveRecordRepository.findByFileId(docFile.getFileId());
                 for (GiveRecord giveRecord : byDocFileId) {
                     giveRecord.setFileId(byFileIdAndLiterature.getFileId());

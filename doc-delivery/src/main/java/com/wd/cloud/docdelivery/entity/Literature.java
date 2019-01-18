@@ -4,6 +4,7 @@ import cn.hutool.crypto.SecureUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -34,6 +35,7 @@ public class Literature extends AbstractEntity {
     @Column(name = "unid")
     private String unid;
 
+    private String journal;
     /**
      * doi
      */
