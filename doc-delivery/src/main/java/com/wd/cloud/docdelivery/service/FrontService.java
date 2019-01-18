@@ -165,4 +165,10 @@ public interface FrontService {
 
     Permission getOrgIdAndRule(Long orgId,int rule);
 
+    Permission getByLevelAndOrgId(int level,long orgId);
+
+    int findByHelperEmailCount(String helperEmail);
+
+    int findByHelperEmailDay(String helperEmail);
+
 }

@@ -430,6 +430,21 @@ public class FrontServiceImpl implements FrontService {
         return permissionRepository.getOrgIdAndLevel(orgId, rule);
     }
 
+    @Override
+    public Permission getByLevelAndOrgId(int level,long orgId){
+         return permissionRepository.getByLevelAndOrgId(level,orgId);
+    }
+
+    @Override
+    public int findByHelperEmailCount(String helperEmail){
+        return helpRecordRepository.findByHelperEmailCount(helperEmail);
+    }
+
+    @Override
+    public int findByHelperEmailDay(String helperEmail){
+        return helpRecordRepository.findByHelperEmailDay(helperEmail);
+    }
+
     private HelpRecordDTO anonymous(VHelpRecord vHelpRecord) {
         HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
         BeanUtil.copyProperties(vHelpRecord, helpRecordDTO);

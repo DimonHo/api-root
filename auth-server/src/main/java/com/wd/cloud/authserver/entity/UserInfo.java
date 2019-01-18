@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -21,14 +22,21 @@ import javax.persistence.Table;
 public class UserInfo extends AbstractEntity{
 
 
+    @Column(name = "user_id")
     private Long userId;
     /**
      * 手机号码
      */
     private String phone;
+
+    /**
+     * 头像
+     */
+    public String photo;
     /**
      * 证件照
      */
+    @Column(name = "id_photo")
     private String idPhoto;
 
     /**

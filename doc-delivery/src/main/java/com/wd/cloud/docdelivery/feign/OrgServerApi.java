@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(value = "org-server", fallback = OrgServerApi.Fallback.class)
 public interface OrgServerApi {
 
-    @GetMapping("/orginfo/get")
+    @GetMapping("/org/get")
     ResponseModel<JSONObject> getByIp(@RequestParam(value = "ip") String ip);
 
     @Component
