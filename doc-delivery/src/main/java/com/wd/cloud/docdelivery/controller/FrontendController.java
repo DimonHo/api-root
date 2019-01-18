@@ -70,7 +70,7 @@ public class FrontendController {
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
-        UserDTO userDTO =(UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        UserDTO userDTO1 =(UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         //获取邮箱
         String helperEmail = helpRequestModel.getHelperEmail();
         //获取求助总条数
@@ -80,7 +80,7 @@ public class FrontendController {
         //获取权限
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         String finish = "文献求助记录已用完。";
-        if (userDTO == null){
+        if (userDTO1 == null){
             //获取学校信息
             OrgDTO attribute1 =(OrgDTO) request.getSession().getAttribute(SessionConstant.IP_ORG);
             long orgId = attribute1.getId();
@@ -94,7 +94,7 @@ public class FrontendController {
             }
         }else {
             //获取学校信息
-            OrgDTO org = userDTO.getOrg();
+            OrgDTO org = userDTO1.getOrg();
             long orgId = 0;
             if (org!= null){
                 orgId = org.getId();
