@@ -69,13 +69,59 @@ public class FrontendController {
 
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
-    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
+    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
+        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        //获取邮箱
+        String helperEmail = helpRequestModel.getHelperEmail();
+        //获取求助总条数
+        int helperEmailCount = frontService.findByHelperEmailCount(helperEmail);
+        //获取今日总条数
+        int helperEmialDay = frontService.findByHelperEmailDay(helperEmail);
+        //获取权限
+        Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
+        String finish = "文献求助记录已用完。";
+        if (userDTO == null){
+            //获取学校信息
+            OrgDTO attribute1 =(OrgDTO) request.getSession().getAttribute(SessionConstant.IP_ORG);
+            long orgId = attribute1.getId();
+            Permission permission = frontService.getByLevelAndOrgId(level,orgId);
+            //获取未登录每日能求助的条数
+            Long todayTotal = permission.getTodayTotal();
+            //获取未登录能求助的总条数
+            Long total = permission.getTotal();
+            if (todayTotal<=helperEmialDay || total<=helperEmailCount){
+                return ResponseModel.ok().setMessage(finish);
+            }
+        }else {
+            //获取学校信息
+            OrgDTO org = userDTO.getOrg();
+            long orgId = 0;
+            if (org!= null){
+                orgId = org.getId();
+            }
+            Permission permission = frontService.getByLevelAndOrgId(level,orgId);
+            //获取每日能求助的条数
+            Long todayTotal = permission.getTodayTotal();
+            //获取能求助的总条数
+            Long total = permission.getTotal();
+            //校外登录
+            if (level == 2 && org!=null && todayTotal<=helperEmialDay || total<=helperEmailCount){
+                return ResponseModel.ok().setMessage(finish);
+            }else if (level == 3 && todayTotal<=helperEmialDay || total<=helperEmailCount){//校内登录未验证
+                return ResponseModel.ok().setMessage(finish);
+            }else if (level == 6 || level == 7 && todayTotal<=helperEmialDay){//校外登录已验证,校内登录已验证
+                return ResponseModel.ok().setMessage(finish);
+            }else if (todayTotal<=helperEmialDay || total<=helperEmailCount){//校外第三方第一次登录
+                return ResponseModel.ok().setMessage(finish);
+
+            }
+        }
         String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
         Literature literature = new Literature();
         BeanUtil.copyProperties(helpRequestModel, helpRecord);
         BeanUtil.copyProperties(helpRequestModel, literature);
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+
         OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.IP_ORG);
         if (userDTO != null) {
             helpRecord.setHelperId(userDTO.getId());

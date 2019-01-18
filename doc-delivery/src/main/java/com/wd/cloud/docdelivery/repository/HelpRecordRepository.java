@@ -165,4 +165,11 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     HelpRecord findByHelperId(Long helperId);
 
+    @Query(value = "select count(helper_email) from help_record where helper_email =?1",nativeQuery = true)
+    int findByHelperEmailCount(String helperEmail);
+
+    @Query(value = "select count(helper_email) from help_record where helper_email = ?1 and to_days(gmt_create) = to_days(now())",nativeQuery = true)
+    int findByHelperEmailDay(String helperEmail);
+
+
 }
