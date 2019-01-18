@@ -30,9 +30,9 @@ public class VHelpRecord {
 
     private String docHref;
 
-    private String authors;
+    private String author;
 
-    private String yearOfPublication;
+    private String year;
 
     private String doi;
 

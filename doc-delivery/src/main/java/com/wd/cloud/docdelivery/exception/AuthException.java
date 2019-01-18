@@ -1,8 +1,11 @@
 package com.wd.cloud.docdelivery.exception;
 
-public class AuthException extends RuntimeException{
+import com.wd.cloud.commons.enums.StatusEnum;
+import com.wd.cloud.commons.exception.ApiException;
+
+public class AuthException extends ApiException {
     public AuthException(){
-        super("未登录");
+        super(StatusEnum.UNAUTHORIZED.value(),"未登录");
     }
 
 }

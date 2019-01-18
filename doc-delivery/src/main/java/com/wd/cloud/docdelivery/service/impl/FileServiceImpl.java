@@ -6,12 +6,13 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
-import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
+import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
 import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
@@ -52,6 +53,9 @@ public class FileServiceImpl implements FileService {
     @Autowired
     FsServerApi fsServerApi;
 
+    @Autowired
+    PdfSearchServerApi pdfSearchServerApi;
+
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
         HelpRecord helpRecord = null;
@@ -87,7 +91,8 @@ public class FileServiceImpl implements FileService {
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<byte[]> responseModel = fsServerApi.getFileByte(fileId);
+        ResponseModel<byte[]> responseModel = giveRecord.getType() == GiveTypeEnum.BIG_DB.getCode() ?
+                pdfSearchServerApi.getFileByte(fileId) : fsServerApi.getFileByte(fileId);
         if (responseModel.isError()) {
             log.error("文件服务调用失败：{}", responseModel.getMessage());
             return null;
@@ -100,10 +105,7 @@ public class FileServiceImpl implements FileService {
 
 
     private boolean checkTimeOut(Date startDate) {
-        if (15 < DateUtil.betweenDay(startDate, new Date(), true)) {
-            return true;
-        }
-        return false;
+        return 15 < DateUtil.betweenDay(startDate, new Date(), true);
     }
 
     @Override

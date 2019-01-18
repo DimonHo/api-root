@@ -24,10 +24,9 @@ public class VLiterature {
 
     private String unid;
 
-    private String authors;
+    private String author;
 
-    @Column(name = "year_of_publication")
-    private String yearOfPublication;
+    private String year;
 
     private String doi;
 

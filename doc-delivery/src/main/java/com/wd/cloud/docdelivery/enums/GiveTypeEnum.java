@@ -10,7 +10,7 @@ public enum GiveTypeEnum {
     /**
      * 应助者类型
      */
-    AUTO("系统自动应助", 0),
+    AUTO("自动应助", 0),
     MANAGER("管理员应助", 1),
     USER("用户应助", 2),
     BIG_DB("数据库全文", 3);
