@@ -2,7 +2,7 @@ package com.wd.cloud.apigateway.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
-import com.wd.cloud.apigateway.feign.AuthServerApi;
+import com.wd.cloud.apigateway.feign.UserServerApi;
 import com.wd.cloud.apigateway.feign.OrgServerApi;
 import com.wd.cloud.apigateway.feign.SsoServerApi;
 import com.wd.cloud.apigateway.service.AuthService;
@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     OrgServerApi orgServerApi;
 
     @Autowired
-    AuthServerApi authServerApi;
+    UserServerApi userServerApi;
 
     @Override
     public UserDTO loing(String username, String pwd) {
@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
                 userDTO.setOrg(orgDTO);
             }
         }
-        ResponseModel<JSONObject> userInfoResponse = authServerApi.getUserInfo(userDTO.getId());
+        ResponseModel<JSONObject> userInfoResponse = userServerApi.getUserInfo(userDTO.getId());
         if (!userInfoResponse.isError()) {
             BeanUtil.copyProperties(userInfoResponse.getBody(), userDTO);
         }
