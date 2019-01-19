@@ -1,6 +1,7 @@
 package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.Literature;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

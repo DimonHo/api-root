@@ -76,14 +76,14 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public long todayTotalForHelp() {
-        return helpRecordRepository.todayTotal();
+        return helpRecordRepository.countToday();
     }
 
     @Override
     public MyTjDTO tjUser(UserDTO userDTO) {
         Permission permission = getPermission();
         //今日已求助数量
-        long myTodayHelpCount = helpRecordRepository.myTodayTotal(userDTO.getId());
+        long myTodayHelpCount = helpRecordRepository.countByHelperIdToday(userDTO.getId());
         //我的总求助数量
         long myHelpCount = helpRecordRepository.countByHelperId(userDTO.getId());
         //我的求助成功数量
@@ -141,7 +141,7 @@ public class TjServiceImpl implements TjService {
     public MyTjDTO tjEmail(String email, String ip) {
         Permission permission = getPermission();
         //今日已求助数量
-        long myTodayHelpCount = helpRecordRepository.myTodayTotal(email);
+        long myTodayHelpCount = helpRecordRepository.countByHelperEmailToday(email);
         //我的总求助数量
         long myHelpCount = helpRecordRepository.countByHelperEmail(email);
         long successHelpCount = helpRecordRepository.countByHelperEmailAndStatus(email, HelpStatusEnum.HELP_SUCCESSED.getValue());

@@ -1,7 +1,6 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -22,20 +21,18 @@ import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -43,10 +40,9 @@ import java.util.*;
  * @date 2018/5/8
  * @Description:
  */
+@Slf4j
 @Service("backendService")
 public class BackendServiceImpl implements BackendService {
-
-    private static final Log log = LogFactory.get();
 
     @Autowired
     Global global;
@@ -84,46 +80,18 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public Page<HelpRecordDTO> getHelpList(Pageable pageable, Map<String, Object> param) {
-        Short helpUserScid = (Short) param.get("helperScid");
-        Short status = (Short) param.get("status");
+        Long helpUserScid = (Long) param.get("helperScid");
+        Integer status = (Integer) param.get("status");
         //  https://www.tapd.cn/33969136/bugtrace/bugs/view?bug_id=1133969136001000485
         String keywords = ((String) param.get("keyword"));
         String keyword = keywords != null ? keywords.replaceAll("\\\\", "\\\\\\\\") : null;
         String beginTime = (String) param.get("beginTime");
         String endTime = param.get("endTime") + " 23:59:59";
-        Page<VHelpRecord> result = vHelpRecordRepository.findAll(new Specification<VHelpRecord>() {
-            @Override
-            public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (helpUserScid != null && helpUserScid != 0) {
-                    list.add(cb.equal(root.get("helperScid").as(Integer.class), helpUserScid));
-                }
-                if (status != null && status != 0) {
-                    //列表查询未处理
-                    if (status == 1) {
-                        list.add(cb.or(cb.equal(root.get("status").as(Integer.class), 0), cb.equal(root.get("status").as(Integer.class), 1), cb.equal(root.get("status").as(Integer.class), 2)));
-                    } else {
-                        list.add(cb.equal(root.get("status").as(Integer.class), status));
-                    }
-                }
-                if (!StringUtils.isEmpty(keyword)) {
-                    list.add(cb.or(
-                            cb.like(root.get("literature").get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
-                            cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")
-                            )
-                    );
-                }
-                if (!StringUtils.isEmpty(beginTime)) {
-                    list.add(cb.between(root.get("gmtCreate").as(Date.class), DateUtil.parse(beginTime), DateUtil.parse(endTime)));
-                }
-                Predicate[] p = new Predicate[list.size()];
-                return cb.and(list.toArray(p));
-            }
-        }, pageable);
+        Page<VHelpRecord> result = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildBackendList(helpUserScid, status, keyword, beginTime, endTime), pageable);
 
         Page<HelpRecordDTO> helpRecordDTOS = result.map(vHelpRecord -> {
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(vHelpRecord,helpRecordDTO);
+            BeanUtil.copyProperties(vHelpRecord, helpRecordDTO);
             helpRecordDTO.setGiveRecords(giveRecordRepository.findByHelpRecordId(vHelpRecord.getId()));
             return helpRecordDTO;
         });
@@ -135,21 +103,7 @@ public class BackendServiceImpl implements BackendService {
         Boolean reusing = (Boolean) param.get("reusing");
         String keywords = ((String) param.get("keyword"));
         String keyword = keywords != null ? keywords.replaceAll("\\\\", "\\\\\\\\") : null;
-        Page<VLiterature> literaturePage = vLiteratureRepository.findAll(new Specification<VLiterature>() {
-            @Override
-            public Predicate toPredicate(Root<VLiterature> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (reusing != null) {
-                    list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
-                }
-                if (!StringUtils.isEmpty(keyword)) {
-                    list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));
-                }
-                //list.add(cb.isNotEmpty(root.get("docFiles")));
-                Predicate[] p = new Predicate[list.size()];
-                return cb.and(list.toArray(p));
-            }
-        }, pageable);
+        Page<VLiterature> literaturePage = vLiteratureRepository.findAll(VLiteratureRepository.SpecificationBuilder.buildBackLiteraList(reusing, keyword), pageable);
 
         Page<LiteratureDTO> literatureDTOPage = literaturePage.map(vLiterature -> {
             LiteratureDTO literatureDTO = new LiteratureDTO();
@@ -176,7 +130,7 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public DocFile saveDocFile(Long literatureId, String fileId) {
         Optional<DocFile> optionalDocFile = docFileRepository.findByLiteratureIdAndFileId(literatureId, fileId);
-        if (!optionalDocFile.isPresent()){
+        if (!optionalDocFile.isPresent()) {
             DocFile docFile = new DocFile();
             docFile.setFileId(fileId);
             docFile.setLiteratureId(literatureId);
@@ -284,7 +238,7 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setHandlerName(auditorName);
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
 
-        DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(),literature.getId()).orElse(new DocFile());
+        DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(), literature.getId()).orElse(new DocFile());
         docFile.setLiteratureId(literature.getId()).setFileId(giveRecord.getFileId());
         docFileRepository.save(docFile);
 
@@ -321,8 +275,7 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public GiveRecord getWaitAudit(Long id) {
-        GiveRecord giveRecord = giveRecordRepository.findByIdAndStatus(id, GiveStatusEnum.WAIT_AUDIT.getValue());
-        return giveRecord;
+        return giveRecordRepository.findByIdAndStatus(id, GiveStatusEnum.WAIT_AUDIT.getValue());
     }
 
 
@@ -340,7 +293,6 @@ public class BackendServiceImpl implements BackendService {
         boolean reusing = (boolean) param.get("reusing");
         List<DocFile> list = docFileRepository.getResuingDoc(literatureId);
         DocFile doc = null;
-        ReusingLog reusingLog = null;
         for (DocFile docFile : list) {
             //如果是复用操作，并且已经有文档被复用，则返回false，如果是取消复用，则不会进入
             if (docFile.isReusing() && reusing) {
@@ -357,6 +309,7 @@ public class BackendServiceImpl implements BackendService {
             return false;
         }
         doc.setReusing(reusing);
+        ReusingLog reusingLog = new ReusingLog();
         reusingLog.setReusing(reusing);
         reusingLog.setHandlerId((String) param.get("handlerId"));
         reusingLog.setHandlerName((String) param.get("handlerName"));

@@ -5,6 +5,7 @@ import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,6 +22,7 @@ public interface PdfSearchServerApi {
     @GetMapping("/pdfsearch-server/search/{rowkey}")
     public ResponseModel<byte[]> getFileByte(@PathVariable(value = "rowkey") String rowkey);
 
+    @Component
     class Fallback implements PdfSearchServerApi {
 
 

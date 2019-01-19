@@ -1,12 +1,20 @@
 package com.wd.cloud.docdelivery.repository;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +36,9 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      */
     HelpRecord findByIdAndStatus(long id, int status);
 
-    HelpRecord findByHelperIdAndStatus(long helperId, int status);
-
     HelpRecord findByIdAndStatusNot(long id, int status);
 
     HelpRecord findByIdAndStatusIn(long id, int[] status);
-
-    HelpRecord findByIdAndStatusNotIn(long id, int[] status);
 
     List<HelpRecord> findByHelperEmailAndGmtCreateAfter(String email, Date date);
 
@@ -52,43 +56,15 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     @Query(value = "select helper_scname as orgName, count(*) as ddcCount from help_record where date_format(gmt_create,?2) = date_format(?1,?2) group by helper_scname", nativeQuery = true)
     List<Map<String, Object>> findAllDdcCount(String createDate, String format);
 
-    /**
-     * 根据求助用户ID查询
-     *
-     * @param helperId
-     * @param pageable
-     * @return
-     */
-    Page<HelpRecord> findByHelperIdAndStatus(long helperId, Integer status, Pageable pageable);
 
     /**
-     * 根据求助邮箱查询
-     *
+     * 查询邮箱15天内求助某篇文献的记录
      * @param helperEmail
-     * @param pageable
+     * @param literatureId
      * @return
      */
-    Page<HelpRecord> findByHelperEmail(String helperEmail, Pageable pageable);
-
     @Query(value = "select * FROM Help_record where helper_email = ?1 AND literature_id = ?2 AND 15 > TIMESTAMPDIFF(DAY, gmt_create, now())", nativeQuery = true)
     HelpRecord findByHelperEmailAndLiteratureId(String helperEmail, Long literatureId);
-
-    /**
-     * 根据互助状态查询
-     *
-     * @param status
-     * @param pageable
-     * @return
-     */
-    Page<HelpRecord> findByStatus(int status, Pageable pageable);
-
-    Page<HelpRecord> findByHelpChannelAndStatus(int helpChannel, int status, Pageable pageable);
-
-    Page<HelpRecord> findByHelpChannelAndStatusIn(int helpChannel, int[] status, Pageable pageable);
-
-    Page<HelpRecord> findByStatusIn(int[] status, Pageable pageable);
-
-    List<HelpRecord> findBySend(boolean send);
 
 
     /**
@@ -105,7 +81,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      * @return
      */
     @Query(value = "select count(*) from help_record where TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
-    long todayTotal();
+    long countToday();
 
     /**
      * 今日用户求助量
@@ -114,7 +90,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      * @return
      */
     @Query(value = "select count(*) from help_record where helper_id = ?1 and TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
-    long myTodayTotal(Long helperId);
+    long countByHelperIdToday(Long helperId);
 
     /**
      * 今日邮箱求助量
@@ -123,7 +99,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      * @return
      */
     @Query(value = "select count(*) from help_record where helper_email = ?1 and TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
-    long myTodayTotal(String email);
+    long countByHelperEmailToday(String email);
 
     /**
      * 用户求助总量
@@ -165,11 +141,41 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     HelpRecord findByHelperId(Long helperId);
 
-    @Query(value = "select count(helper_email) from help_record where helper_email =?1",nativeQuery = true)
-    int findByHelperEmailCount(String helperEmail);
-
-    @Query(value = "select count(helper_email) from help_record where helper_email = ?1 and to_days(gmt_create) = to_days(now())",nativeQuery = true)
-    int findByHelperEmailDay(String helperEmail);
-
-
+    class SpecificationBuilder {
+        public static Specification<HelpRecord> buildHelpRecord(Long helperId,String email,
+                                                                List<Integer> channel,
+                                                                List<Integer> status,
+                                                                String keyword,
+                                                                String beginTime,String endTime){
+            return (Specification<HelpRecord>) (root, query, cb) -> {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (helperId != null) {
+                    list.add(cb.equal(root.get("helperId"), helperId));
+                }
+                if (StrUtil.isNotBlank(email)) {
+                    list.add(cb.equal(root.get("helperEmail"), email));
+                }
+                // 渠道过滤
+                if (channel != null && channel.size() > 0) {
+                    CriteriaBuilder.In<Integer> inChannel = cb.in(root.get("helpChannel"));
+                    channel.forEach(inChannel::value);
+                    list.add(inChannel);
+                }
+                // 状态过滤
+                if (status != null && status.size() > 0) {
+                    CriteriaBuilder.In<Integer> inStatus = cb.in(root.get("status"));
+                    status.forEach(inStatus::value);
+                    list.add(inStatus);
+                }
+                if (StrUtil.isNotBlank(keyword)) {
+                    list.add(cb.or(cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"), cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
+                }
+                if (StrUtil.isNotBlank(beginTime) && StrUtil.isNotBlank(endTime)) {
+                    list.add(cb.between(root.get("gmtCreate").as(Date.class), DateUtil.parse(beginTime), DateUtil.parse(endTime)));
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            };
+        }
+    }
 }

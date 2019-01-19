@@ -1,12 +1,18 @@
 package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.GiveRecord;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,4 +126,22 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
 
     List<GiveRecord> findByFileId(String fileId);
 
+    class SpecificationBuilder{
+        public static Specification<GiveRecord> buildGiveRecord(List<Integer> status, Long giverId){
+            return (Specification<GiveRecord>) (root, query, cb) -> {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (giverId != null) {
+                    list.add(cb.equal(root.get("giverId"), giverId));
+                }
+                // 状态过滤
+                if (status != null && status.size() > 0) {
+                    CriteriaBuilder.In<Integer> inStatus = cb.in(root.get("status"));
+                    status.forEach(inStatus::value);
+                    list.add(inStatus);
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            };
+        }
+    }
 }
