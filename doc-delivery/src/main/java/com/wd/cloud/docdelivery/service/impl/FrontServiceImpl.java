@@ -394,7 +394,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Permission nextLevel(Long orgId, Integer level) {
+    public Permission nextPermission(Long orgId, Integer level) {
         int nextLevel = nexLevel(level);
         return getPermission(orgId, nextLevel);
     }
@@ -413,13 +413,13 @@ public class FrontServiceImpl implements FrontService {
 
     private int nexLevel(int level) {
         switch (level) {
-            case '0':
+            case 0:
                 return 2;
-            case '1':
+            case 1:
                 return 3;
-            case '2':
+            case 2:
                 return 6;
-            case '3':
+            case 3:
                 return 7;
             default:
                 return 0;

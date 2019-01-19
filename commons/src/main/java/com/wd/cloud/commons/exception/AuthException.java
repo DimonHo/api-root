@@ -1,6 +1,4 @@
-package com.wd.cloud.authserver.exception;
-
-import com.wd.cloud.commons.exception.ApiException;
+package com.wd.cloud.commons.exception;
 
 /**
  * @author He Zhigang

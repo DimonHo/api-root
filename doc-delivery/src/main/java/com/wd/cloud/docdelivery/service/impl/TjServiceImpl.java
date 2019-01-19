@@ -14,6 +14,7 @@ import com.wd.cloud.docdelivery.feign.OrgServerApi;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.PermissionRepository;
+import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.TjService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,8 @@ public class TjServiceImpl implements TjService {
 
     @Autowired
     OrgServerApi orgServerApi;
+
+    FrontService frontService;
 
     @Override
     public Map<String, BigInteger> ddcCount(String orgName, String date, int type) {
@@ -121,15 +124,11 @@ public class TjServiceImpl implements TjService {
     private Permission getPermission() {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         HttpSession session = request.getSession();
-        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
-        OrgDTO ipOrg = (OrgDTO) session.getAttribute(SessionConstant.IP_ORG);
+        OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
         //如果用户信息中没有机构信息则去IP_ORG中取，都没有则为0（公共配置）
-        long orgId = userDTO.getOrg() != null ? userDTO.getOrg().getId() : ipOrg != null ? ipOrg.getId() : 0;
-        Permission permission = permissionRepository.findByOrgIdAndLevel(orgId, level);
-        if (permission == null && orgId != 0) {
-            permission = permissionRepository.findByOrgIdAndLevel(0L, level);
-        }
+        Long orgId = orgDTO != null ? orgDTO.getId() : null;
+        Permission permission = frontService.getPermission(orgId,level);
         if (permission == null) {
             throw new NotFoundException("未找到匹配orgId=" + orgId + ",level=" + level + "的配置");
         }

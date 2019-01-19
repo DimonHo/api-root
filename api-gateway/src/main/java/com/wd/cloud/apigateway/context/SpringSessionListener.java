@@ -1,11 +1,8 @@
-package com.wd.cloud.authserver.context;
+package com.wd.cloud.apigateway.context;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -13,19 +10,13 @@ import org.springframework.session.events.SessionExpiredEvent;
 
 /**
  * @author He Zhigang
- * @date 2019/1/11
+ * @date 2019/1/19
  * @Description:
  */
 @Slf4j
 @Configuration
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 120)
-public class SpringSessionConfiguration {
-
-    @Autowired
-    RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
-    RedisOperationsSessionRepository redisOperationsSessionRepository;
+public class SpringSessionListener {
 
     /**
      *      * Redis内session过期事件监听

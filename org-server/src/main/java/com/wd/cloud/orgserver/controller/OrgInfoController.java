@@ -74,7 +74,7 @@ public class OrgInfoController {
      */
     @ApiOperation(value = "查询机构信息", tags = {"机构管理"})
     @GetMapping("/org/{id}")
-    public ResponseModel getOrg(@PathVariable Long id) {
+    public ResponseModel<OrgDTO> getOrg(@PathVariable Long id) {
         OrgDTO org = orgInfoService.get(id);
         if (org != null) {
             return ResponseModel.ok().setBody(org);

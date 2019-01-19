@@ -1,8 +1,8 @@
-package com.wd.cloud.authserver.controller;
+package com.wd.cloud.apigateway.controller;
 
 import cn.hutool.http.Header;
 import cn.hutool.http.useragent.UserAgentUtil;
-import com.wd.cloud.authserver.service.AuthService;
+import com.wd.cloud.apigateway.service.AuthService;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.ClientType;
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * @author He Zhigang
- * @date 2018/6/4
+ * @date 2019/1/19
  * @Description:
  */
 @Slf4j

@@ -1,10 +1,10 @@
-package com.wd.cloud.authserver.service;
+package com.wd.cloud.apigateway.service;
 
 import com.wd.cloud.commons.dto.UserDTO;
 
 /**
  * @author He Zhigang
- * @date 2018/6/5
+ * @date 2019/1/19
  * @Description:
  */
 public interface AuthService {
