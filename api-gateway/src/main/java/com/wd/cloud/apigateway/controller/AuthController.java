@@ -25,7 +25,6 @@ import javax.servlet.http.HttpSession;
 @Slf4j
 @Api(value = "用户认证controller", tags = {"用户认证接口"})
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
