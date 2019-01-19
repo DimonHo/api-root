@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
- * AuthServerApplication class
+ * UserServerApplication class
  *
  * @author hezhigang
  * @date 2018/04/08

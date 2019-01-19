@@ -4,9 +4,9 @@ import com.wd.cloud.userserver.entity.UserInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserInfoServer {
-    UserInfo sava( MultipartFile file);
+    void uploadIdPhoto( MultipartFile file);
 
-    void getValidated(Long userId);
+    void validate(String username);
 
-    UserInfo getUserId(Long userId);
+    UserInfo getUserInfo(String username);
 }

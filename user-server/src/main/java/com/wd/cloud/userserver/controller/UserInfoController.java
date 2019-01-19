@@ -34,26 +34,26 @@ public class UserInfoController {
     HttpServletRequest request;
 
     @ApiOperation(value = "上次证件照")
-    @PostMapping("/idPhoto/{file}")
+    @PostMapping("/id-photo")
     public ResponseModel getIdPhoto(@NotNull MultipartFile file) {
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
         }
-        userInfoServer.sava(file);
+        userInfoServer.uploadIdPhoto(file);
         return ResponseModel.ok().setMessage("上传证件照成功!");
     }
 
     @ApiOperation(value = "审核证件照")
-    @PatchMapping("/validated/{userId}")
-    public ResponseModel getValidated(@PathVariable Long userId) {
-        userInfoServer.getValidated(userId);
+    @PatchMapping("/validated")
+    public ResponseModel validateIdPhoto(@RequestParam String username) {
+        userInfoServer.validate(username);
         return ResponseModel.ok().setMessage("审核通过。");
     }
 
     @ApiOperation(value = "获取用户信息")
-    @GetMapping("/info/{userId}")
-    public ResponseModel getUserInfo(@PathVariable Long userId) {
-        UserInfo userInfo = userInfoServer.getUserId(userId);
+    @GetMapping("/info")
+    public ResponseModel getUserInfo(@RequestParam String username) {
+        UserInfo userInfo = userInfoServer.getUserInfo(username);
         return ResponseModel.ok().setBody(userInfo);
     }
 
@@ -64,7 +64,7 @@ public class UserInfoController {
         if (userDTO == null) {
             throw new AuthException(401, "未登录");
         }
-        UserInfo userInfo = userInfoServer.getUserId(userDTO.getId());
+        UserInfo userInfo = userInfoServer.getUserInfo(userDTO.getUsername());
         return ResponseModel.ok().setBody(userInfo);
     }
 

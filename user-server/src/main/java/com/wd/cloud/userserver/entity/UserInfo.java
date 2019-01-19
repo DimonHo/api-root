@@ -21,9 +21,7 @@ import javax.persistence.Table;
 @Table(name = "user_info")
 public class UserInfo extends AbstractEntity{
 
-
-    @Column(name = "user_id")
-    private Long userId;
+    private String username;
     /**
      * 手机号码
      */

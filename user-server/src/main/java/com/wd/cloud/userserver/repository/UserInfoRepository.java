@@ -13,10 +13,8 @@ import java.util.Optional;
  */
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
-    Optional<UserInfo> findByUserId(Long userId);
+    Optional<UserInfo> findByUsername(String username);
 
-    UserInfo findByUserIdAndValidated(Long userId, boolean validated);
+    UserInfo findByUsernameAndValidated(String username, boolean validated);
 
-    @Query(value = "select * from user_info where user_id =?1",nativeQuery = true)
-    UserInfo findUserId(Long userId);
 }
