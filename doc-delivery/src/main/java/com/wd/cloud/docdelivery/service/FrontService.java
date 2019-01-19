@@ -51,7 +51,7 @@ public interface FrontService {
      * @param email
      * @return
      */
-    int getCountHelpRecordToDay(String email);
+    Long getCountHelpRecordToDay(String email);
 
     /**
      * 获取单条可应助的记录
@@ -133,6 +133,8 @@ public interface FrontService {
 
     String checkExistsGiveing(long giverId);
 
-    Permission getOrgIdAndRule(Long orgId, int rule);
+    Permission getPermission(Long orgId, Integer level);
+
+    Permission nextLevel(Long orgId, Integer level);
 
 }

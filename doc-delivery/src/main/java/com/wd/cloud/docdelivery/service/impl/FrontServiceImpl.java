@@ -12,7 +12,6 @@ import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
@@ -40,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -260,8 +258,8 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public int getCountHelpRecordToDay(String email) {
-        return helpRecordRepository.findByHelperEmailAndGmtCreateAfter(email, DateUtil.beginOfDay(new Date()).toSqlDate()).size();
+    public Long getCountHelpRecordToDay(String email) {
+        return helpRecordRepository.countByHelperEmailToday(email);
     }
 
     @Override
@@ -396,8 +394,36 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Permission getOrgIdAndRule(Long orgId, int rule) {
-        return permissionRepository.getOrgIdAndLevel(orgId, rule);
+    public Permission nextLevel(Long orgId, Integer level) {
+        int nextLevel = nexLevel(level);
+        return getPermission(orgId, nextLevel);
+    }
+
+    @Override
+    public Permission getPermission(Long orgId, Integer level) {
+        Permission permission = null;
+        if (orgId != null) {
+            permission = permissionRepository.getOrgIdAndLevel(orgId, level);
+        }
+        if (permission == null) {
+            permission = permissionRepository.findByOrgIdIsNullAndLevel(level);
+        }
+        return permission;
+    }
+
+    private int nexLevel(int level) {
+        switch (level) {
+            case '0':
+                return 2;
+            case '1':
+                return 3;
+            case '2':
+                return 6;
+            case '3':
+                return 7;
+            default:
+                return 0;
+        }
     }
 
 

@@ -10,7 +10,6 @@ import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.PermissionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -50,33 +49,32 @@ public class HelpRequestAspect {
         HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
         HttpSession session = request.getSession();
         UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
-        OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.IP_ORG);
+        OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
-
+        log.info("当前等级：[{}]", level);
         long helpTotal = 0;
         long helpTotalToday = 0;
         if (userDTO != null) {
-            if (userDTO.getOrg() != null) {
-                orgDTO = userDTO.getOrg();
-            }
             //用户总求助量
             helpTotal = helpRecordRepository.countByHelperId(userDTO.getId());
             helpTotalToday = helpRecordRepository.countByHelperIdToday(userDTO.getId());
+            log.info("登陆用户【{}】正在求助", userDTO.getUsername());
         } else {
-            helpTotal = helpRecordRepository.countByHelperEmail(request.getParameter("helperEmail"));
-            helpTotalToday = helpRecordRepository.countByHelperEmailToday(request.getParameter("helperEmail"));
+            String email = request.getParameter("helperEmail");
+            helpTotal = helpRecordRepository.countByHelperEmail(email);
+            helpTotalToday = helpRecordRepository.countByHelperEmailToday(email);
+            log.info("邮箱【{}】正在求助", email);
         }
         Permission permission = null;
-        if (orgDTO!=null){
-            permission = permissionRepository.findByOrgIdAndLevel(orgDTO.getId(),level);
+        if (orgDTO != null) {
+            permission = permissionRepository.findByOrgIdAndLevel(orgDTO.getId(), level);
         }
-        if (permission == null){
+        if (permission == null) {
             permission = permissionRepository.findByOrgIdIsNullAndLevel(level);
         }
-        if (permission.getTotal() != null && permission.getTotal() <= helpTotal){
+        if (permission.getTotal() != null && permission.getTotal() <= helpTotal) {
             throw new HelpTotalCeilingException(ExceptionEnum.HELP_TOTAL_CEILING);
-        }
-        else if (permission.getTodayTotal()<=helpTotalToday){
+        } else if (permission.getTodayTotal() <= helpTotalToday) {
             throw new HelpTotalCeilingException(ExceptionEnum.HELP_TOTAL_TODAY_CEILING);
         }
     }

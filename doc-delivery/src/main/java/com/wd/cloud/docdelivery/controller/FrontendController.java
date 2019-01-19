@@ -3,7 +3,6 @@ package com.wd.cloud.docdelivery.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
@@ -247,50 +246,21 @@ public class FrontendController {
     }
 
     @ApiOperation(value = "下一个级别的求助上限")
-    @GetMapping("/help/nextTotal")
+    @GetMapping("/help/nextLevel")
     public ResponseModel getHelpFromCount(HttpServletRequest request) {
-        String ip = HttpUtil.getClientIP(request);
-        //String ip = "5431.152.1.230";
-        ResponseModel<JSONObject> ipRang = orgServerApi.getByIp(ip);
-        JSONObject body = ipRang.getBody();
-        Map<String, Object> map = new HashMap<>();
-        if (body == null) {
+        Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
+        OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
 
-        } else {//校内访问
-            Long id = body.getLong("id");
-            int rule = 1;
-            int nexRule = nexLevel(rule);
-            //登录状态
-            Permission permission = frontService.getOrgIdAndRule(id, nexRule);
-            if (permission == null) {
-                map.put("todayTotal", 20);
-            } else {
-                Long todayTotal = permission.getTodayTotal();
-                map.put("todayTotal", todayTotal);
-            }
+        Permission permission = frontService.nextLevel(orgDTO.getId(), level);
+        Map<String, Long> resp = new HashMap<>();
+        //登录状态
+        if (permission == null) {
+            resp.put("todayTotal", 10L);
+        } else {
+            Long todayTotal = permission.getTodayTotal();
+            resp.put("todayTotal", todayTotal);
         }
-        return ResponseModel.ok().setBody(map);
-    }
-
-
-    private int nexLevel(int rule) {
-        switch (rule) {
-            default:
-            case '0':
-                rule = 2;
-                break;
-            case '1':
-                rule = 3;
-                break;
-            case '2':
-                rule = 6;
-                break;
-            case '3':
-                rule = 7;
-                break;
-
-        }
-        return rule;
+        return ResponseModel.ok().setBody(resp);
     }
 
 

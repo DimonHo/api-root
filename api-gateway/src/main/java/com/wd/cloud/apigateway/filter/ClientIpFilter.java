@@ -37,6 +37,7 @@ public class ClientIpFilter extends ZuulFilter {
                 request.getSession().setAttribute(SessionConstant.IS_OUT, false);
                 request.getSession().setAttribute(SessionConstant.LEVEL, 1);
                 request.getSession().setAttribute(SessionConstant.IP_ORG, orgResponse.getBody());
+                request.getSession().setAttribute(SessionConstant.ORG, orgResponse.getBody());
             } else {
                 //校外访问
                 request.getSession().setAttribute(SessionConstant.IS_OUT, true);

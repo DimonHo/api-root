@@ -66,6 +66,10 @@ public class AuthController {
         redisTemplate.opsForValue().set(sessionKey, session.getId());
 
         log.info("用户[{}]登陆成功", username);
+        // 如果用户有所属机构，则把有效机构设置为用户所属机构
+        if (userDTO.getOrg() != null) {
+            request.getSession().setAttribute(SessionConstant.ORG, userDTO.getOrg());
+        }
         session.setAttribute(SessionConstant.LOGIN_USER, userDTO);
         // 登陆成功 level +2
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);

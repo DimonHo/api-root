@@ -18,6 +18,11 @@ public class SessionConstant {
     public static final String IP_ORG = "ipOrg";
 
     /**
+     * session有效ORG（当登陆用户信息中有所属机构，优先取用户信息中的机构，否则取IP所属机构）
+     */
+    public static final String ORG = "org";
+
+    /**
      * 是否是校外访问
      */
     public static final String IS_OUT = "isOut";
