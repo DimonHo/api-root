@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface UserServerApi {
 
     @GetMapping("/user/info")
-    public ResponseModel<JSONObject> getUserInfo(@RequestParam(value = "userId") Long userId);
+    public ResponseModel<JSONObject> getUserInfo(@RequestParam(value = "username") String username);
 
     @Component
     class Fallback implements UserServerApi {
         @Override
-        public ResponseModel<JSONObject> getUserInfo(Long userId) {
+        public ResponseModel<JSONObject> getUserInfo(String username) {
             return ResponseModel.fail(StatusEnum.FALL_BACK);
         }
     }
