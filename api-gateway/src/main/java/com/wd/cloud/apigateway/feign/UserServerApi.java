@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
  * @date 2019/1/19
  * @Description:
  */
-@FeignClient(value = "user-server", url = "${cas.server-url-prefix}", fallback = UserServerApi.Fallback.class)
+@FeignClient(value = "user-server", fallback = UserServerApi.Fallback.class)
 public interface UserServerApi {
 
     @GetMapping("/user/info/{userId}")
