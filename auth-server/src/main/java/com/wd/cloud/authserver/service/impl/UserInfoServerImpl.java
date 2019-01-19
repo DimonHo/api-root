@@ -4,7 +4,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.authserver.entity.UserInfo;
-import com.wd.cloud.authserver.exception.AuthException;
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.authserver.feign.FsServerApi;
 import com.wd.cloud.authserver.repository.UserInfoRepository;
 import com.wd.cloud.authserver.service.UserInfoServer;
@@ -40,7 +40,7 @@ public class UserInfoServerImpl implements UserInfoServer {
         UserInfo userInfo = new UserInfo();
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
-            throw new AuthException(401, "未登录，请些登录！");
+            throw new AuthException(401, "请登陆后操作！");
         }
         Long useId = userDTO.getId();
         //保存文件
