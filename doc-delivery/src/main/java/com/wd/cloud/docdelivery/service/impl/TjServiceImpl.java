@@ -50,6 +50,7 @@ public class TjServiceImpl implements TjService {
     @Autowired
     OrgServerApi orgServerApi;
 
+    @Autowired
     FrontService frontService;
 
     @Override

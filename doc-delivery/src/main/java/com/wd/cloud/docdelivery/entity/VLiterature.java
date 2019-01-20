@@ -10,6 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
+/**
+ * v_literature视图
+ */
 @Data
 @Accessors(chain = true)
 @Immutable
