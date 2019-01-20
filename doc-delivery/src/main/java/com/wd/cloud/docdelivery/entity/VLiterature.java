@@ -2,14 +2,17 @@ package com.wd.cloud.docdelivery.entity;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
+
 @Data
 @Accessors(chain = true)
+@Immutable
 @Entity
 @Table(name = "v_literature")
 public class VLiterature {

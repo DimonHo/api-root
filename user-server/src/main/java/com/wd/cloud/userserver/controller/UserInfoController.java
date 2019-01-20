@@ -33,7 +33,7 @@ public class UserInfoController {
     @Autowired
     HttpServletRequest request;
 
-    @ApiOperation(value = "上次证件照")
+    @ApiOperation(value = "上传证件照")
     @PostMapping("/id-photo")
     public ResponseModel getIdPhoto(@NotNull MultipartFile file) {
         if (file == null) {
@@ -58,7 +58,7 @@ public class UserInfoController {
     }
 
     @ApiOperation(value = "获取当前登录用户信息")
-    @GetMapping("/info/login")
+    @GetMapping("/info/logon")
     public ResponseModel getLoginUser() {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
