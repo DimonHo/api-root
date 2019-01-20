@@ -68,7 +68,7 @@ public class FrontendController {
 
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
-    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
+    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
 
         String ip = HttpUtil.getClientIP(request);
@@ -219,8 +219,7 @@ public class FrontendController {
     @PostMapping("/give/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
                                 @RequestParam Long giverId,
-                                @NotNull MultipartFile file,
-                                HttpServletRequest request) {
+                                @NotNull MultipartFile file) {
         String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
@@ -247,7 +246,7 @@ public class FrontendController {
 
     @ApiOperation(value = "下一个级别的求助上限")
     @GetMapping("/level/next")
-    public ResponseModel nextLevel(HttpServletRequest request) {
+    public ResponseModel nextLevel() {
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
         Long orgId = orgDTO != null ? orgDTO.getId() : null;
