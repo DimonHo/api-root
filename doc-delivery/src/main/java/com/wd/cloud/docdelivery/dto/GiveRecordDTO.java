@@ -3,6 +3,8 @@ package com.wd.cloud.docdelivery.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * @author He Zhigang
  * @date 2018/12/26
@@ -66,4 +68,8 @@ public class GiveRecordDTO {
      * 文献标题
      */
     private String docTitle;
+
+    Date gmtModified;
+
+    Date gmtCreate;
 }
