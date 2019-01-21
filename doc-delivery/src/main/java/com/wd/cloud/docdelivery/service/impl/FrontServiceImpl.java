@@ -316,6 +316,7 @@ public class FrontServiceImpl implements FrontService {
             throw new AuthException();
         }
         Page<GiveRecord> giveRecords = giveRecordRepository.findAll(GiveRecordRepository.SpecificationBuilder.buildGiveRecord(status, userDTO.getId()), pageable);
+
         return coversGiveRecordDTO(giveRecords);
     }
 
@@ -441,6 +442,14 @@ public class FrontServiceImpl implements FrontService {
         return giveRecordPage.map(giveRecord -> {
             GiveRecordDTO giveRecordDTO = new GiveRecordDTO();
             BeanUtil.copyProperties(giveRecord, giveRecordDTO);
+            Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
+            optionalHelpRecord.ifPresent(helpRecord -> {
+                giveRecordDTO.setHelperEmail(helpRecord.getHelperEmail());
+                Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
+                optionalLiterature.ifPresent(literature -> {
+                    giveRecordDTO.setDocTitle(literature.getDocTitle());
+                });
+            });
             return giveRecordDTO;
         });
     }
