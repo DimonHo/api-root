@@ -29,4 +29,6 @@ public interface OrgInfoService {
     Org getOrgInfoByFlag(String flag);
 
     Map<IpRangeDTO, Set<IpRange>> cd();
+
+    void findByBeginAndEnd();
 }

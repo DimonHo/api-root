@@ -149,4 +149,11 @@ public class OrgInfoController {
     public ResponseModel cd() {
         return ResponseModel.ok().setBody(orgInfoService.cd());
     }
+
+    @ApiOperation(value = "修改开始IP大于结束IP的数据", tags = {"替换IP"})
+    @PatchMapping("/updateBeginAndEnd")
+    public ResponseModel updateBeginAndEnd(){
+        orgInfoService.findByBeginAndEnd();
+        return ResponseModel.ok().setMessage("修改成功");
+    }
 }
