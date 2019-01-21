@@ -135,6 +135,6 @@ public interface FrontService {
 
     Permission getPermission(Long orgId, Integer level);
 
-    Permission nextLevel(Long orgId, Integer level);
+    Permission nextPermission(Long orgId, Integer level);
 
 }

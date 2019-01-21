@@ -4,7 +4,9 @@ import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -18,7 +20,16 @@ public interface OrgServerApi {
     @GetMapping("/org/get")
     public ResponseModel<OrgDTO> getByIp(@RequestParam(value = "ip") String ip);
 
+    @GetMapping("/org/{id}")
+    public ResponseModel<OrgDTO> getOrg(@PathVariable(value = "id") Long id);
+
+    @Component
     class Fallback implements OrgServerApi {
+
+        @Override
+        public ResponseModel<OrgDTO> getOrg(Long id) {
+            return null;
+        }
 
         @Override
         public ResponseModel<OrgDTO> getByIp(String ip) {

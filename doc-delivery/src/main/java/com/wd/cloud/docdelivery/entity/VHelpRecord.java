@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.entity;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
+@Immutable
 @Entity
 @Table(name = "v_help_record")
 public class VHelpRecord {

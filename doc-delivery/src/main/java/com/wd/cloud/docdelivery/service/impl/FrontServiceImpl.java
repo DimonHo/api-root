@@ -337,14 +337,14 @@ public class FrontServiceImpl implements FrontService {
                 HelpStatusEnum.HELP_THIRD.getValue());
 
         Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
-        return waitHelpRecords.map(helpRecord -> {
+        return waitHelpRecords.map(vHelpRecord -> {
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(anonymous(helpRecord), helpRecordDTO);
-            Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
+            BeanUtil.copyProperties(anonymous(vHelpRecord), helpRecordDTO);
+            Optional<Literature> optionalLiterature = literatureRepository.findById(vHelpRecord.getLiteratureId());
             optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
             //如果有用户正在应助
-            if (helpRecord.getStatus() == HelpStatusEnum.HELPING.getValue()) {
-                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.getValue());
+            if (vHelpRecord.getStatus() == HelpStatusEnum.HELPING.getValue()) {
+                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(vHelpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.getValue());
                 optionalGiveRecord.ifPresent(helpRecordDTO::setGiving);
             }
             return helpRecordDTO;
@@ -394,7 +394,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Permission nextLevel(Long orgId, Integer level) {
+    public Permission nextPermission(Long orgId, Integer level) {
         int nextLevel = nexLevel(level);
         return getPermission(orgId, nextLevel);
     }
@@ -413,13 +413,13 @@ public class FrontServiceImpl implements FrontService {
 
     private int nexLevel(int level) {
         switch (level) {
-            case '0':
+            case 0:
                 return 2;
-            case '1':
+            case 1:
                 return 3;
-            case '2':
+            case 2:
                 return 6;
-            case '3':
+            case 3:
                 return 7;
             default:
                 return 0;

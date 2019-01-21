@@ -68,7 +68,7 @@ public class FrontendController {
 
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
-    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
+    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
 
         String ip = HttpUtil.getClientIP(request);
@@ -219,8 +219,7 @@ public class FrontendController {
     @PostMapping("/give/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
                                 @RequestParam Long giverId,
-                                @NotNull MultipartFile file,
-                                HttpServletRequest request) {
+                                @NotNull MultipartFile file) {
         String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
@@ -237,7 +236,7 @@ public class FrontendController {
     }
 
 
-    @ApiOperation(value = "获取用户当天已求助记录的数量")
+    @ApiOperation(value = "查询邮箱当天已求助记录的数量")
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
     @GetMapping("/help/count")
     public ResponseModel getUserHelpCountToDay(@RequestParam String email) {
@@ -246,19 +245,19 @@ public class FrontendController {
     }
 
     @ApiOperation(value = "下一个级别的求助上限")
-    @GetMapping("/help/nextLevel")
-    public ResponseModel getHelpFromCount(HttpServletRequest request) {
+    @GetMapping("/level/next")
+    public ResponseModel nextLevel() {
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-
-        Permission permission = frontService.nextLevel(orgDTO.getId(), level);
+        Long orgId = orgDTO != null ? orgDTO.getId() : null;
+        Permission permission = frontService.nextPermission(orgId, level);
         Map<String, Long> resp = new HashMap<>();
-        //登录状态
         if (permission == null) {
             resp.put("todayTotal", 10L);
+            resp.put("total", 20L);
         } else {
-            Long todayTotal = permission.getTodayTotal();
-            resp.put("todayTotal", todayTotal);
+            resp.put("todayTotal", permission.getTodayTotal());
+            resp.put("total", permission.getTotal());
         }
         return ResponseModel.ok().setBody(resp);
     }
