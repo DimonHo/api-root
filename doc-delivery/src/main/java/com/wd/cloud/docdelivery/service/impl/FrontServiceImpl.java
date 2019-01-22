@@ -346,20 +346,8 @@ public class FrontServiceImpl implements FrontService {
                 HelpStatusEnum.WAIT_HELP.getValue(),
                 HelpStatusEnum.HELPING.getValue(),
                 HelpStatusEnum.HELP_THIRD.getValue());
-
         Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
-        return waitHelpRecords.map(vHelpRecord -> {
-            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(anonymous(vHelpRecord), helpRecordDTO);
-            Optional<Literature> optionalLiterature = literatureRepository.findById(vHelpRecord.getLiteratureId());
-            optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
-            //如果有用户正在应助
-            if (vHelpRecord.getStatus() == HelpStatusEnum.HELPING.getValue()) {
-                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(vHelpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.getValue());
-                optionalGiveRecord.ifPresent(helpRecordDTO::setGiving);
-            }
-            return helpRecordDTO;
-        });
+        return coversHelpRecordDTO(waitHelpRecords);
     }
 
     @Override
@@ -402,7 +390,7 @@ public class FrontServiceImpl implements FrontService {
         GiveRecord giveRecord = giveRecordRepository.findByGiverIdGiving(giverId);
         if (giveRecord != null) {
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
-            if (optionalHelpRecord.isPresent()){
+            if (optionalHelpRecord.isPresent()) {
                 Optional<Literature> optionalLiterature = literatureRepository.findById(optionalHelpRecord.get().getLiteratureId());
                 return optionalLiterature.map(Literature::getDocTitle).orElse(null);
             }
@@ -445,11 +433,16 @@ public class FrontServiceImpl implements FrontService {
 
 
     private Page<HelpRecordDTO> coversHelpRecordDTO(Page<VHelpRecord> helpRecordPage) {
-        return helpRecordPage.map(helpRecord -> {
+        return helpRecordPage.map(vHelpRecord -> {
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(anonymous(helpRecord), helpRecordDTO);
-            Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
-            helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
+            BeanUtil.copyProperties(anonymous(vHelpRecord), helpRecordDTO);
+            Optional<Literature> optionalLiterature = literatureRepository.findById(vHelpRecord.getLiteratureId());
+            optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
+            //如果有用户正在应助
+            if (vHelpRecord.getStatus() == HelpStatusEnum.HELPING.getValue()) {
+                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(vHelpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.getValue());
+                optionalGiveRecord.ifPresent(helpRecordDTO::setGiving);
+            }
             return helpRecordDTO;
         });
     }
