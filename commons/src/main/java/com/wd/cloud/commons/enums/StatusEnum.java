@@ -3,26 +3,27 @@ package com.wd.cloud.commons.enums;
 /**
  * @author He Zhigang
  * @date 2018/10/10
- * @Description:
+ * @Description: 返回状态码
  */
 public enum StatusEnum {
-
+    /**
+     * fallback exception
+     */
+    FALL_BACK(-2, "feign 调用失败"),
     /**
      * 未知异常
      */
     UNKNOWN(-1, "Unknow Exception"),
     /**
-     * 成功
-     */
-    SUCCESS(1, "Successed"),
-    /**
      * 失败
      */
     FAIL(0, "Failed"),
     /**
-     * fallback exception
+     * 成功
      */
-    FALL_BACK(2, "Fallback Exception"),
+    SUCCESS(1, "Successed"),
+
+    // =======================HTTP通用状态码=======================
     /**
      * 状态码
      */
@@ -121,6 +122,9 @@ public enum StatusEnum {
     BANDWIDTH_LIMIT_EXCEEDED(509, "Bandwidth Limit Exceeded"),
     NOT_EXTENDED(510, "Not Extended"),
     NETWORK_AUTHENTICATION_REQUIRED(511, "Network Authentication Required"),
+    // =======================HTTP通用状态码=======================
+
+
     /**
      * 数据库异常信息
      */
@@ -167,7 +171,7 @@ public enum StatusEnum {
         return value;
     }
 
-    public String getMessage() {
+    public String message() {
         return message;
     }
 

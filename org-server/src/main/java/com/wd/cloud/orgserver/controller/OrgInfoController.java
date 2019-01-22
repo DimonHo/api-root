@@ -127,7 +127,7 @@ public class OrgInfoController {
             throw new NotFoundOrgException();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new UndefinedException();
+            throw new UndefinedException(e);
         }
     }
 

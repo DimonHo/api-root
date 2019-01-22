@@ -4,8 +4,8 @@ import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.docdelivery.entity.Permission;
+import com.wd.cloud.docdelivery.exception.AppException;
 import com.wd.cloud.docdelivery.exception.ExceptionEnum;
-import com.wd.cloud.docdelivery.exception.HelpTotalCeilingException;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.PermissionRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -73,9 +73,9 @@ public class HelpRequestAspect {
             permission = permissionRepository.findByOrgIdIsNullAndLevel(level);
         }
         if (permission.getTotal() != null && permission.getTotal() <= helpTotal) {
-            throw new HelpTotalCeilingException(ExceptionEnum.HELP_TOTAL_CEILING);
+            throw new AppException(ExceptionEnum.HELP_TOTAL_CEILING);
         } else if (permission.getTodayTotal() <= helpTotalToday) {
-            throw new HelpTotalCeilingException(ExceptionEnum.HELP_TOTAL_TODAY_CEILING);
+            throw new AppException(ExceptionEnum.HELP_TOTAL_TODAY_CEILING);
         }
     }
 

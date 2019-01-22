@@ -5,6 +5,7 @@ import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.exception.FeignException;
+import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.userserver.constants.GlobalConstants;
 import com.wd.cloud.userserver.entity.UserInfo;
@@ -40,7 +41,7 @@ public class UserInfoServerImpl implements UserInfoServer {
         UserInfo userInfo = new UserInfo();
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
-            throw new AuthException(401, "请登陆后操作！");
+            throw new AuthException();
         }
         ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(GlobalConstants.UPLOAD_IMAGE_PATH, file);
         if (responseModel.isError()) {
@@ -58,7 +59,7 @@ public class UserInfoServerImpl implements UserInfoServer {
     public void validate(String username) {
         UserInfo userInfo = userInfoRepository.findByUsernameAndValidated(username, false);
         if (userInfo == null) {
-            throw new AuthException(401, "没有找到待审核的数据");
+            throw new AuthException();
         }
         userInfo.setValidated(true);
         userInfoRepository.save(userInfo);
@@ -67,7 +68,7 @@ public class UserInfoServerImpl implements UserInfoServer {
     @Override
     public UserInfo getUserInfo(String username) {
         Optional<UserInfo> optionalUserInfo = userInfoRepository.findByUsername(username);
-        optionalUserInfo.orElseThrow(() -> new AuthException(401, "没有找到用户:[" + username + "]"));
+        optionalUserInfo.orElseThrow(NotFoundException::new);
         return optionalUserInfo.get();
     }
 }

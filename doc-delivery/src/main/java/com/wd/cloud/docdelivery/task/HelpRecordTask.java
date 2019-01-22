@@ -19,16 +19,10 @@ import java.util.List;
  */
 @Component
 public class HelpRecordTask {
-    @Autowired
-    HelpRecordRepository helpRecordRepository;
 
     @Autowired
     VHelpRecordRepository vHelpRecordRepository;
 
-    @Autowired
-    LiteratureRepository literatureRepository;
-    @Autowired
-    FileService fileService;
     @Autowired
     MailService mailService;
 

@@ -1,5 +1,7 @@
 package com.wd.cloud.commons.exception;
 
+import com.wd.cloud.commons.enums.StatusEnum;
+
 /**
  * @author He Zhigang
  * @date 2018/12/25
@@ -7,7 +9,7 @@ package com.wd.cloud.commons.exception;
  */
 public class UndefinedException extends ApiException {
 
-    public UndefinedException() {
-        super(ExceptionCode.UNDEFINED, "服务器未知异常");
+    public UndefinedException(Throwable e) {
+        super(StatusEnum.UNKNOWN, e);
     }
 }

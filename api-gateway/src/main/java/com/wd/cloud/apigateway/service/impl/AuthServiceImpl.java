@@ -35,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     public UserDTO loing(String username, String pwd) {
         ResponseModel<JSONObject> ssoResponse = ssoServerApi.login(username, pwd);
         if (ssoResponse.isError()) {
-            throw new AuthException(401, "用户名或密码错误");
+            throw new AuthException("用户名或密码错误");
         }
         JSONObject userJson = ssoResponse.getBody();
         UserDTO userDTO = new UserDTO();

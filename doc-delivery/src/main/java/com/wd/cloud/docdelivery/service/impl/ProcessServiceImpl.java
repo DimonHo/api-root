@@ -7,6 +7,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.exception.FeignException;
+import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
@@ -19,8 +20,8 @@ import com.wd.cloud.docdelivery.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.exception.NotFoundException;
-import com.wd.cloud.docdelivery.exception.ProcessException;
+import com.wd.cloud.docdelivery.exception.AppException;
+import com.wd.cloud.docdelivery.exception.ExceptionEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -81,7 +82,7 @@ public class ProcessServiceImpl implements ProcessService {
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
             if (helpRecord.getStatus() != HelpStatusEnum.WAIT_HELP.getValue()) {
-                throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
+                throw new AppException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
             }
             helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getValue());
             GiveRecord giveRecord = new GiveRecord();
@@ -104,7 +105,7 @@ public class ProcessServiceImpl implements ProcessService {
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
             if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.getValue()) {
-                throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
+                throw new AppException(ExceptionEnum.FLOW_STATUS);
             }
             // 获取fileId
             String fileId = getFileId(file);
@@ -139,7 +140,7 @@ public class ProcessServiceImpl implements ProcessService {
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
             if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.getValue()) {
-                throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
+                throw new AppException(ExceptionEnum.FLOW_STATUS);
             }
             helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getValue());
             //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
@@ -274,7 +275,7 @@ public class ProcessServiceImpl implements ProcessService {
                 return checkResult.getBody().getStr("fileId");
             }
         } catch (IOException e) {
-            throw new ProcessException(HttpStatus.HTTP_INTERNAL_ERROR, e.getMessage());
+            throw new AppException(HttpStatus.HTTP_INTERNAL_ERROR, e.getMessage());
         }
         return null;
     }

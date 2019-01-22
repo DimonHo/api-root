@@ -62,7 +62,7 @@ public class UserInfoController {
     public ResponseModel getLoginUser() {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
-            throw new AuthException(401, "未登录");
+            throw new AuthException();
         }
         UserInfo userInfo = userInfoServer.getUserInfo(userDTO.getUsername());
         return ResponseModel.ok().setBody(userInfo);

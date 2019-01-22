@@ -1,15 +1,35 @@
 package com.wd.cloud.commons.exception;
 
+import com.wd.cloud.commons.enums.StatusEnum;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
 /**
  * @author He Zhigang
  * @date 2018/12/25
  * @Description:
  */
+
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 public class ApiException extends RuntimeException {
 
     protected Integer status;
 
     protected Object body;
+
+    public ApiException() {
+    }
+
+    public ApiException(StatusEnum statusEnum) {
+        this(statusEnum.value(), statusEnum.message(), null);
+    }
+
+    public ApiException(StatusEnum statusEnum, Throwable e) {
+        this(statusEnum.value(), statusEnum.message(), null, e);
+    }
 
     public ApiException(Integer status, String message, Object body, Throwable e) {
         super(message, e);
@@ -29,29 +49,8 @@ public class ApiException extends RuntimeException {
         this(null, message, null, e);
     }
 
-    public ApiException() {
-
-    }
-
     public ApiException(Throwable e) {
         super(e);
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public ApiException setStatus(Integer status) {
-        this.status = status;
-        return this;
-    }
-
-    public Object getBody() {
-        return body;
-    }
-
-    public ApiException setBody(Object body) {
-        this.body = body;
-        return this;
-    }
 }

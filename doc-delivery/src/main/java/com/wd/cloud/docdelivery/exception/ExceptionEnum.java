@@ -10,22 +10,25 @@ public enum ExceptionEnum {
     /**
      * 总求助上限
      */
-    HELP_TOTAL_CEILING(599,"求助已达上限"),
-    HELP_TOTAL_TODAY_CEILING(598,"今日求助已达上限");
-
+    HELP_TOTAL_CEILING(1001201, "求助已达上限"),
+    HELP_TOTAL_TODAY_CEILING(1001202, "今日求助已达上限"),
+    GIVE_ING(1001203, "该求助正在被其它人应助"),
+    GIVE_CLAIM(1001204, "请完成已认领的求助"),
+    FLOW_STATUS(1001205, "流程状态违法"),
+    HELP_CHONGFU(1001206,"您最近15天内已求助过这篇文献,请注意查收邮箱");
     private String message;
     private Integer status;
 
-    private ExceptionEnum(Integer status,String message){
+    private ExceptionEnum(Integer status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public String getMessage() {
+    public String message() {
         return message;
     }
 
-    public Integer getStatus() {
+    public Integer status() {
         return status;
     }
 }

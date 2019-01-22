@@ -2,9 +2,8 @@ package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.http.HttpUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
-import com.wd.cloud.commons.exception.NotLoginException;
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.dto.MyTjDTO;
@@ -58,7 +57,7 @@ public class TjController {
         try {
             UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
             if (userDTO == null) {
-                throw new NotLoginException();
+                throw new AuthException();
             }
             MyTjDTO myTotalModel = tjService.tjUser(userDTO);
             return ResponseModel.ok().setBody(myTotalModel);

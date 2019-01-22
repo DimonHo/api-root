@@ -10,7 +10,10 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.exception.FeignException;
+import com.wd.cloud.commons.exception.NotFoundException;
+import com.wd.cloud.commons.exception.UndefinedException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
@@ -20,7 +23,8 @@ import com.wd.cloud.docdelivery.entity.*;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.exception.*;
+import com.wd.cloud.docdelivery.exception.AppException;
+import com.wd.cloud.docdelivery.exception.ExceptionEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
 import com.wd.cloud.docdelivery.repository.*;
@@ -121,7 +125,7 @@ public class FrontServiceImpl implements FrontService {
         literature = literatureRepository.save(literature);
         // 15天内不能重复求助相同的文献
         if (checkExists(helpRecord.getHelperEmail(), literature.getId())) {
-            throw new HelpException(2008, "error:您最近15天内已求助过这篇文献,请注意查收邮箱");
+            throw new AppException(ExceptionEnum.HELP_CHONGFU);
         }
         helpRecord.setLiteratureId(literature.getId());
         DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(literature.getId());
@@ -164,30 +168,30 @@ public class FrontServiceImpl implements FrontService {
                 helpRecordRepository.save(helpRecord);
                 return "求助已发送成功，请等待";
             } catch (Exception e) {
-                throw new HelpException(1002, "主键冲突");
+                throw new UndefinedException(e);
             }
         }
     }
 
     @Override
-    public HelpRecord give(Long helpRecordId, Long giverId, String giverName, String ip) {
-        HelpRecord helpRecord = helpRecordRepository.findById(helpRecordId).get();
+    public void give(Long helpRecordId, Long giverId, String giverName, String ip) {
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
-        if (HelpStatusEnum.HELPING.getValue() == helpRecord.getStatus()) {
-            throw new GiveException(ExceptionCode.GIVING, "该求助正在被应助");
-        }
-        if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.getValue() || helpRecord.getStatus() == HelpStatusEnum.WAIT_HELP.getValue()) {
-            //检查用户是否已经认领了应助
-            String docTitle = checkExistsGiveing(giverId);
-            if (docTitle != null) {
-                throw new GiveException(ExceptionCode.DOC_FINISH_GIVING, "请先完成您正在应助的文献:" + docTitle);
+        optionalHelpRecord.ifPresent(helpRecord -> {
+            if (HelpStatusEnum.HELPING.getValue() == helpRecord.getStatus()) {
+                throw new AppException(ExceptionEnum.GIVE_ING);
             }
-            helpRecord = givingHelp(helpRecordId, giverId, giverName, ip);
-            return helpRecord;
-        } else {
-            throw new NotFoundException("该求助无须应助");
-        }
-
+            if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.getValue() || helpRecord.getStatus() == HelpStatusEnum.WAIT_HELP.getValue()) {
+                //检查用户是否已经认领了应助
+                String docTitle = findGivingDocTitle(giverId);
+                if (docTitle != null) {
+                    throw new AppException(ExceptionEnum.GIVE_CLAIM.status(), "请先完成您正在应助的文献:" + docTitle);
+                }
+                givingHelp(helpRecordId, giverId, giverName, ip);
+            } else {
+                throw new NotFoundException();
+            }
+        });
     }
 
     @Override
@@ -201,7 +205,7 @@ public class FrontServiceImpl implements FrontService {
                 fileId = checkResult.getBody().getStr("fileId");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new UndefinedException(e);
         }
         if (StrUtil.isBlank(fileId)) {
             //保存文件
@@ -213,10 +217,13 @@ public class FrontServiceImpl implements FrontService {
             fileId = responseModel.getBody().getStr("fileId");
         }
         String fileName = file.getOriginalFilename();
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
-        DocFile docFile = saveDocFile(literature.getId(), fileId, fileName);
-        //更新记录
-        createGiveRecord(helpRecord, giverId, docFile, ip);
+        Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
+        if (optionalLiterature.isPresent()) {
+            DocFile docFile = saveDocFile(optionalLiterature.get().getId(), fileId, fileName);
+            //更新记录
+            createGiveRecord(helpRecord, giverId, docFile, ip);
+        }
+
     }
 
     @Override
@@ -240,14 +247,18 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public boolean cancelGivingHelp(long helpRecordId, long giverId) {
-        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.getValue());
+        //检查用户是否已经认领了应助
+        String docTitle = findGivingDocTitle(giverId);
         boolean flag = false;
-        if (helpRecord != null) {
-            giveRecordRepository.deleteByHelpRecordIdAndStatusAndGiverId(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.getValue(), giverId);
-            //更新求助记录状态
-            helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getValue());
-            helpRecordRepository.save(helpRecord);
-            flag = true;
+        if (docTitle != null) {
+            HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.getValue());
+            if (helpRecord != null) {
+                giveRecordRepository.deleteByHelpRecordIdAndStatusAndGiverId(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.getValue(), giverId);
+                //更新求助记录状态
+                helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getValue());
+                helpRecordRepository.save(helpRecord);
+                flag = true;
+            }
         }
         return flag;
     }
@@ -333,7 +344,6 @@ public class FrontServiceImpl implements FrontService {
         List<Integer> status = CollectionUtil.newArrayList(
                 HelpStatusEnum.WAIT_HELP.getValue(),
                 HelpStatusEnum.HELPING.getValue(),
-                HelpStatusEnum.WAIT_AUDIT.getValue(),
                 HelpStatusEnum.HELP_THIRD.getValue());
 
         Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
@@ -381,16 +391,22 @@ public class FrontServiceImpl implements FrontService {
     }
 
 
-    @Override
-    public String checkExistsGiveing(long giverId) {
+    /**
+     * 查询用户正在应助的文献标题
+     *
+     * @param giverId
+     * @return
+     */
+    private String findGivingDocTitle(long giverId) {
         GiveRecord giveRecord = giveRecordRepository.findByGiverIdGiving(giverId);
         if (giveRecord != null) {
-            HelpRecord helpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId()).orElse(null);
-            Literature literature = helpRecord != null ? literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null) : null;
-            return literature != null ? literature.getDocTitle() : null;
-        } else {
-            return null;
+            Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
+            if (optionalHelpRecord.isPresent()){
+                Optional<Literature> optionalLiterature = literatureRepository.findById(optionalHelpRecord.get().getLiteratureId());
+                return optionalLiterature.map(Literature::getDocTitle).orElse(null);
+            }
         }
+        return null;
     }
 
     @Override

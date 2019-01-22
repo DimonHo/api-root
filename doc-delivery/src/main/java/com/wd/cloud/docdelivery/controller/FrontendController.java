@@ -7,6 +7,7 @@ import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.StatusEnum;
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
@@ -14,7 +15,6 @@ import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.entity.Permission;
-import com.wd.cloud.docdelivery.exception.AuthException;
 import com.wd.cloud.docdelivery.feign.OrgServerApi;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
 import com.wd.cloud.docdelivery.service.FileService;
@@ -70,6 +70,7 @@ public class FrontendController {
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
 
         String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
@@ -77,13 +78,9 @@ public class FrontendController {
         BeanUtil.copyProperties(helpRequestModel, helpRecord);
         BeanUtil.copyProperties(helpRequestModel, literature);
 
-        OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.IP_ORG);
         if (userDTO != null) {
             helpRecord.setHelperId(userDTO.getId());
             helpRecord.setHelperName(userDTO.getUsername());
-            if (userDTO.getOrg() != null) {
-                orgDTO = userDTO.getOrg();
-            }
         }
         if (orgDTO != null) {
             helpRecord.setHelperScid(orgDTO.getId());
@@ -184,8 +181,8 @@ public class FrontendController {
         if (userDTO == null) {
             throw new AuthException();
         }
-        HelpRecord helpRecord = frontService.give(helpRecordId, userDTO.getId(), userDTO.getUsername(), ip);
-        return ResponseModel.ok().setBody(helpRecord);
+        frontService.give(helpRecordId, userDTO.getId(), userDTO.getUsername(), ip);
+        return ResponseModel.ok().setMessage("应助认领成功");
     }
 
 
@@ -200,14 +197,12 @@ public class FrontendController {
         if (userDTO == null) {
             throw new AuthException();
         }
-        //检查用户是否已经认领了应助
-        String docTtitle = frontService.checkExistsGiveing(userDTO.getId());
-        if (docTtitle != null) {
-            //有认领记录，可以取消
-            frontService.cancelGivingHelp(helpRecordId, userDTO.getId());
+        if (frontService.cancelGivingHelp(helpRecordId, userDTO.getId())) {
             return ResponseModel.ok();
+        } else {
+            return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }
-        return ResponseModel.fail(StatusEnum.NOT_FOUND);
+
     }
 
 
@@ -218,8 +213,11 @@ public class FrontendController {
     })
     @PostMapping("/give/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
-                                @RequestParam Long giverId,
                                 @NotNull MultipartFile file) {
+        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
+        }
         String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
@@ -231,7 +229,7 @@ public class FrontendController {
         if (helpRecord == null) {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
-        frontService.uploadFile(helpRecord, giverId, file, ip);
+        frontService.uploadFile(helpRecord, userDTO.getId(), file, ip);
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");
     }
 

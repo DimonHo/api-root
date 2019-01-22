@@ -22,7 +22,7 @@ public interface FrontService {
 
     String help(HelpRecord helpRecord,Literature literature);
 
-    HelpRecord give(Long helpRecordId, Long giverId, String giverName, String ip);
+    void give(Long helpRecordId, Long giverId, String giverName, String ip);
 
     void uploadFile(HelpRecord helpRecord, Long giverId, MultipartFile file, String ip);
 
@@ -130,8 +130,6 @@ public interface FrontService {
     Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel, Pageable pageable);
 
     DocFile getReusingFile(Long literatureId);
-
-    String checkExistsGiveing(long giverId);
 
     Permission getPermission(Long orgId, Integer level);
 
