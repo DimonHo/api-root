@@ -166,4 +166,24 @@ public class OrgInfoServiceImpl implements OrgInfoService {
         }
         return orgIpMap;
     }
+
+    @Override
+    public void findByBeginAndEnd() {
+        //查询所有数据
+        List<IpRange> ipRanges = ipRangeRepository.findAll();
+        //根据Id查询开始IP跟结束IP
+        for (IpRange ipRange:ipRanges){
+            String begin = ipRange.getBegin();
+            String end = ipRange.getEnd();
+            long beginIp = IpUtil.ipToLong(begin);
+            long endIp = IpUtil.ipToLong(end);
+            if (beginIp>endIp){//如果开始IP比结束IP大则替换他们的IP
+                ipRange.setBegin(end);
+                ipRange.setEnd(begin);
+                ipRangeRepository.save(ipRange);
+            }
+        }
+    }
+
+
 }
