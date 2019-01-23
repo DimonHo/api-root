@@ -32,7 +32,7 @@ public class ResponseModel<T> implements Serializable {
     private ResponseModel(StatusEnum statusEnum, boolean error) {
         this.error = error;
         this.status = statusEnum.value();
-        this.message = statusEnum.getMessage();
+        this.message = statusEnum.message();
     }
 
     public static ResponseModel ok() {

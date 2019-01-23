@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 public class SimpleUtil {
 
 	private static final Set<String> orgFeaturesSet = new HashSet<String>();
+	private static final Pattern p1 = Pattern.compile("<font [^>]+>");
+	private static final Pattern p2 = Pattern.compile("<font>");
 	static {
 		orgFeaturesSet.add("公司");
 		orgFeaturesSet.add("集团");
@@ -76,8 +78,7 @@ public class SimpleUtil {
 		} else {
 			tmp = tmp.substring(0, maxLen);
 		}
-		Pattern p = Pattern.compile("<font [^>]+>");
-		Matcher m = p.matcher(text);
+		Matcher m = p1.matcher(text);
 		List<Integer> startPosList = new ArrayList<Integer>();
 		// 记录每个高亮标签开始的位置
 		while (m.find()) {
@@ -85,8 +86,7 @@ public class SimpleUtil {
 		}
 		List<Integer> endPosList = new ArrayList<Integer>();
 		// 记录每个高亮标签结束的位置
-		p = Pattern.compile("</font>");
-		m = p.matcher(text);
+		m = p2.matcher(text);
 		while (m.find()) {
 			endPosList.add(m.start());
 		}
@@ -164,8 +164,9 @@ public class SimpleUtil {
 
 	public static boolean mapIsNull(Map<?, ?> testMap) {
 
-		if (null == testMap || testMap.isEmpty())
-			return true;
+		if (null == testMap || testMap.isEmpty()) {
+            return true;
+        }
 		return false;
 	}
 

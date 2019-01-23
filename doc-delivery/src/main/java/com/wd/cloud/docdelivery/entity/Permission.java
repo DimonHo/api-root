@@ -1,5 +1,9 @@
 package com.wd.cloud.docdelivery.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -10,8 +14,11 @@ import javax.persistence.UniqueConstraint;
  * @date 2018/12/21
  * @Description:
  */
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_id", "rule"})})
+@Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_id", "level"})})
 public class Permission extends AbstractEntity {
 
     @Column(name = "org_id")
@@ -20,63 +27,18 @@ public class Permission extends AbstractEntity {
     private String orgName;
 
     /**
-     * 校外：1，登陆：2，验证：4，最后相加得到权限
+     * 校内：1，登陆：2，验证：4，最后相加得到权限
      */
-    @Column(name = "rule")
-    private Integer rule;
+    @Column(name = "level")
+    private Integer level;
 
     /**
-     * 每天求助上限
+     * 每天求助上限 ，-1则表示无上限
      */
-    private Integer count;
+    private Long todayTotal;
 
     /**
-     * 总求助上限
+     * 总求助上限，-1则表示无上限
      */
-    private Integer sumCount;
-
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public Permission setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
-
-    public String getOrgName() {
-        return orgName;
-    }
-
-    public Permission setOrgName(String orgName) {
-        this.orgName = orgName;
-        return this;
-    }
-
-    public Integer getRule() {
-        return rule;
-    }
-
-    public Permission setRule(Integer rule) {
-        this.rule = rule;
-        return this;
-    }
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public Permission setCount(Integer count) {
-        this.count = count;
-        return this;
-    }
-
-    public Integer getSumCount() {
-        return sumCount;
-    }
-
-    public Permission setSumCount(Integer sumCount) {
-        this.sumCount = sumCount;
-        return this;
-    }
+    private Long total;
 }

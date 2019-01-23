@@ -1,6 +1,7 @@
 package com.wd.cloud.searchserver.util;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.searchserver.comm.LogicEnum;
 import com.wd.cloud.searchserver.entity.ConditionInfo;
 import com.wd.cloud.searchserver.entity.QueryStringInfo;
@@ -94,7 +95,7 @@ public class QueryBuilderUtil {
         }
         field = queryCondition.substring(0, pos);
 //		if (SimpleUtil.strIsNull(field)) {
-        if (StringUtils.isEmpty(field.trim())) {
+        if (StrUtil.isEmpty(field.trim())) {
             return null;
         }
         queryCondition = queryCondition.substring(pos + 1);

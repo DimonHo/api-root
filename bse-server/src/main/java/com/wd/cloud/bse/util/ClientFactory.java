@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import cn.hutool.core.util.StrUtil;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.elasticsearch.client.transport.TransportClient;
@@ -42,7 +43,7 @@ public class ClientFactory implements InitializingBean{
 	 */
 	@PostConstruct 
 	public void init(){
-		if(StringUtils.isEmpty(address)){
+		if(StrUtil.isEmpty(address)){
 			
 		}
 		Settings defaultSettings = Settings.builder()

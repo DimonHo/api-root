@@ -58,7 +58,7 @@ public class IndexController {
         String type = resource.getType();
         resource.getScids().forEach(scid -> {
             School school = schoolService.findByScid(Integer.parseInt(scid));
-            if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
+            if (school == null || school.getIndexName() == null || !"resourcelabel".equals(type)) {
                 List<QueryCondition> list = resource.getQueryList();
                 list.add(new QueryCondition("scid", scid));
                 if (resource.getSignature() != null) {

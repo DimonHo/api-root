@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.searchserver.entity.SearchCondition;
 import com.wd.cloud.searchserver.entity.SearchResult;
@@ -51,7 +52,7 @@ public class SearchController {
         condition.addQueryCdt("scSName_3_1_" + subjectName);
         condition.addQueryCdt("scDB_3_1_" + db);
         condition.addQueryCdt("scYear_3_1_" + year);
-        if (!StringUtils.isEmpty(subject)) {
+        if (!StrUtil.isEmpty(subject)) {
             condition.addQueryCdt("scDis_3_1_" + subject);
         }
         SearchResult searchResult = searchInterfaceService.searchSubjectSystem(condition);

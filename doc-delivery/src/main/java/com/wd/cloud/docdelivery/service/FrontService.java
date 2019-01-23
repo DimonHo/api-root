@@ -7,8 +7,6 @@ import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Date;
-
 /**
  * @author He Zhigang
  * @date 2018/5/7
@@ -16,9 +14,11 @@ import java.util.Date;
  */
 public interface FrontService {
 
-    boolean checkExists(String email, Literature literature);
+    String help(HelpRecord helpRecord, Literature literature);
 
-    DocFile saveDocFile(Literature literature, String fileId,String filaName);
+    boolean checkExists(String email, Long literatureId);
+
+    DocFile saveDocFile(Literature literature, String fileId, String filaName);
 
     /**
      * 我要应助
@@ -144,6 +144,7 @@ public interface FrontService {
 
     /**
      * 求助成功列表
+     *
      * @param helpChannel
      * @param pageable
      * @return
@@ -152,6 +153,7 @@ public interface FrontService {
 
     /**
      * 疑难文献（无结果，求助失败）列表
+     *
      * @param helpChannel
      * @param pageable
      * @return

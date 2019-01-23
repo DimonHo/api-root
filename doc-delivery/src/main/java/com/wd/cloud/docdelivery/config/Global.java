@@ -1,13 +1,8 @@
 package com.wd.cloud.docdelivery.config;
 
-import freemarker.template.Configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -16,13 +11,9 @@ import java.util.List;
  */
 @Component
 @ConfigurationProperties(value = "help.global")
-public class GlobalConfig {
+public class Global {
 
     private String cloudDomain;
-    /**
-     * 求助的来源渠道
-     */
-    private List<String> channels;
 
     /**
      * 文件在hbase的位置
@@ -37,14 +28,6 @@ public class GlobalConfig {
     private String[] notifyMail;
 
     private String templatesBase;
-
-    public List<String> getChannels() {
-        return channels;
-    }
-
-    public void setChannels(List<String> channels) {
-        this.channels = channels;
-    }
 
     public String getHbaseTableName() {
         return hbaseTableName;
@@ -82,7 +65,7 @@ public class GlobalConfig {
         return templatesBase;
     }
 
-    public GlobalConfig setTemplatesBase(String templatesBase) {
+    public Global setTemplatesBase(String templatesBase) {
         this.templatesBase = templatesBase;
         return this;
     }

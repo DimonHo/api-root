@@ -27,11 +27,7 @@ public enum RuleEnum {
         this.value = value;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getValue() {
+    public int value() {
         return value;
     }
 }

@@ -65,27 +65,27 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                 String table = entry.getValue();
                 String sql = "SELECT * FROM " + table + " WHERE issue = '" + issue + "'";
 
-                if (!classify.equals("competitive")) {
+                if (!"competitive".equals(classify)) {
                     sql = sql + " AND scid = '" + scid + "'";
                 } else {
-                    if (column.equals("selected")) {
+                    if ("selected".equals(column)) {
                         sql = "SELECT * FROM st_analysis_category WHERE issue = '" + issue + "' and institution_cn = '" + scname + "'";
                     } else {
                         sql = "SELECT * FROM st_analysis_categoryins WHERE issue = '" + issue + "' and institution_cn = '" + scname + "'";
                     }
                 }
                 if (ConfigUtil.getStr(classify + ".type") != null) {
-                    if (!column.equals("distribution") && !column.equals("percentile")) {
+                    if (!"distribution".equals(column) && !"percentile".equals(column)) {
                         sql = sql + " AND type = '" + ConfigUtil.getStr(classify + ".type") + "'";
                     }
 
                 }
-                if (classify.equals("level")) {
+                if ("level".equals(classify)) {
 
                     sql = "SELECT * FROM st_analysis_year WHERE issue = '" + issue + "' and category = '全部领域' AND scid = '" + scid + "' and type = 2";
                 }
-                if (classify.equals("paper")) {
-                    if (!column.equals("percentile")) {
+                if ("paper".equals(classify)) {
+                    if (!"percentile".equals(column)) {
                         sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
                     }
                 }
@@ -109,7 +109,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
 
     public boolean handleResult(List<Map<String, Object>> result, String classify) {
         if (result != null && result.size() > 0) {
-            if (classify.equals("level")) {
+            if ("level".equals(classify)) {
                 String content = result.get(0).get("content").toString();
                 Map<String, Object> contentObj = JSONObject.fromObject(content);
                 List<Map<String, Object>> contents = (List<Map<String, Object>>) contentObj.get("content");

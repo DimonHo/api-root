@@ -7,9 +7,10 @@ import java.util.regex.Pattern;
 
 public class ChineseUtil {
 
+	private static final Pattern p1 = Pattern.compile("[\u4e00-\u9fa5]");
+
 	public static boolean isChinese(String str) {
-		Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
-		Matcher m = p.matcher(str);
+		Matcher m = p1.matcher(str);
 		return m.find();
 	}
 	

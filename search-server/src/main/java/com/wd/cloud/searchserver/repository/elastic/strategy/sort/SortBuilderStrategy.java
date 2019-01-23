@@ -58,6 +58,10 @@ public class SortBuilderStrategy {
                         sortBuilder = SortBuilders.fieldSort("sort." + sortField).order(SortOrder.DESC);
                     }
                 }
+                break;
+            }
+            default: {
+                break;
             }
         }
         return sortBuilder;

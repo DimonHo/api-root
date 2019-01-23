@@ -1,7 +1,8 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import cn.hutool.core.util.StrUtil;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -36,7 +36,7 @@ import java.util.*;
 public class BackendServiceImpl implements BackendService {
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     @Autowired
     HelpRecordRepository helpRecordRepository;
@@ -73,14 +73,14 @@ public class BackendServiceImpl implements BackendService {
                         list.add(cb.equal(root.get("status").as(Integer.class), status));
                     }
                 }
-                if (!StringUtils.isEmpty(keyword)) {
+                if (!StrUtil.isEmpty(keyword)) {
                     list.add(cb.or(
                             cb.like(root.get("literature").get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
                             cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")
                             )
                     );
                 }
-                if (!StringUtils.isEmpty(beginTime)) {
+                if (!StrUtil.isEmpty(beginTime)) {
                     list.add(cb.between(root.get("gmtCreate").as(Date.class), DateUtil.parse(beginTime), DateUtil.parse(endTime)));
                 }
 
@@ -103,7 +103,7 @@ public class BackendServiceImpl implements BackendService {
                 if (reusing != null) {
                     list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
                 }
-                if (!StringUtils.isEmpty(keyword)) {
+                if (!StrUtil.isEmpty(keyword)) {
                     list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));
                 }
                 list.add(cb.isNotEmpty(root.get("docFiles")));
@@ -165,17 +165,17 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public HelpRecord getWaitOrThirdHelpRecord(Long id) {
         return helpRecordRepository.findByIdAndStatusIn(id,
-                new int[]{HelpStatusEnum.WAIT_HELP.getCode(), HelpStatusEnum.HELP_THIRD.getCode()});
+                new int[]{HelpStatusEnum.WAIT_HELP.value(), HelpStatusEnum.HELP_THIRD.value()});
     }
 
     @Override
     public HelpRecord getWaitAuditHelpRecord(Long id) {
-        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.getCode());
+        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.value());
     }
 
     @Override
     public GiveRecord getWaitAudit(Long id) {
-        GiveRecord giveRecord = giveRecordRepository.findByIdAndAuditStatus(id, AuditEnum.WAIT.getCode());
+        GiveRecord giveRecord = giveRecordRepository.findByIdAndAuditStatus(id, AuditEnum.WAIT.value());
         return giveRecord;
     }
 

@@ -11,6 +11,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  */
 public interface LiteratureRepository extends JpaRepository<Literature, Long>, JpaSpecificationExecutor<Literature> {
 
+    boolean existsByUnid(String unid);
+
+    Literature findByUnid(String unid);
     /**
      * 根据文献标题查询文献元数据
      *

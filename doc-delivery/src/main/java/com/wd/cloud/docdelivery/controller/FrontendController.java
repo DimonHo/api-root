@@ -1,15 +1,18 @@
 package com.wd.cloud.docdelivery.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.OrgDTO;
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
@@ -49,7 +52,7 @@ public class FrontendController {
 
     private static final Log log = LogFactory.get();
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     @Autowired
     FileService fileService;
@@ -71,70 +74,18 @@ public class FrontendController {
     @ApiOperation(value = "文献求助")
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
-
+        String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
-        String helpEmail = helpRequestModel.getHelperEmail();
-        helpRecord.setHelpChannel(helpRequestModel.getHelpChannel());
-        helpRecord.setHelperScid(helpRequestModel.getHelperScid());
-        helpRecord.setHelperScname(helpRequestModel.getHelperScname());
+        Literature literature = new Literature();
+        BeanUtil.copyProperties(helpRequestModel, helpRecord);
+        BeanUtil.copyProperties(helpRequestModel, literature);
         helpRecord.setHelperId(helpRequestModel.getHelperId());
         helpRecord.setHelperName(helpRequestModel.getHelperName());
-        helpRecord.setHelperIp(request.getHeader("CLIENT_IP"));
-        helpRecord.setHelperEmail(helpEmail);
+            helpRecord.setHelperScid(helpRequestModel.getHelperScid());
+            helpRecord.setHelperScname(helpRequestModel.getHelperScname());
+        helpRecord.setHelperIp(ip);
         helpRecord.setSend(true);
-        helpRecord.setAnonymous(helpRequestModel.isAnonymous());
-        helpRecord.setRemark(helpRequestModel.getRemark());
-        log.info("用户:[{}]正在求助文献:[{}],IP={}", helpEmail, helpRequestModel.getDocTitle(), request.getHeader("CLIENT_IP"));
-        Literature literature = new Literature();
-        // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));
-        literature.setDocHref(helpRequestModel.getDocHref().trim());
-        // 先查询元数据是否存在
-        Literature literatureData = frontService.queryLiterature(literature);
-        String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
-        if (null == literatureData) {
-            // 如果不存在，则新增一条元数据
-            literatureData = frontService.saveLiterature(literature);
-        }
-        if (frontService.checkExists(helpEmail, literatureData)) {
-            return ResponseModel
-                    .fail(StatusEnum.DOC_HELP_REPEATED)
-                    .setMessage("error:您最近15天内已求助过这篇文献,请注意查收邮箱");
-        }
-        helpRecord.setLiterature(literatureData);
-        DocFile docFile = frontService.getReusingFile(literatureData);
-        // 如果文件已存在，自动应助成功
-        if (null != docFile) {
-            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
-            GiveRecord giveRecord = new GiveRecord();
-            giveRecord.setDocFile(docFile);
-            giveRecord.setGiverType(GiveTypeEnum.AUTO.getCode());
-            giveRecord.setGiverName("自动应助");
-            //先保存求助记录，得到求助ID，再关联应助记录
-            helpRecord = frontService.saveHelpRecord(helpRecord);
-            giveRecord.setHelpRecord(helpRecord);
-            frontService.saveGiveRecord(giveRecord);
-            String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
-            mailService.sendMail(helpRecord.getHelpChannel(),
-                    helpRequestModel.getHelperScname(),
-                    helpEmail,
-                    helpRecord.getLiterature().getDocTitle(),
-                    downloadUrl,
-                    HelpStatusEnum.HELP_SUCCESSED,
-                    helpRecord.getId());
-            msg = "success:文献求助成功,请登陆邮箱" + helpEmail + "查收结果";
-        } else {
-            try {
-                // 保存求助记录
-                frontService.saveHelpRecord(helpRecord);
-                // 发送通知邮件
-                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpRequestModel.getHelperScname(), helpRequestModel.getHelperEmail(), helpRecord.getId());
-            } catch (Exception e) {
-                return ResponseModel
-                        .fail(StatusEnum.DB_PRIMARY_EXCEPTION)
-                        .setMessage(msg);
-            }
-        }
+        String msg = frontService.help(helpRecord, literature);
         return ResponseModel.ok().setMessage(msg);
     }
 
@@ -271,7 +222,7 @@ public class FrontendController {
                                 HttpServletRequest request) {
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
-        } else if (!globalConfig.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
+        } else if (!global.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_TYPE_ERROR);
         }
         // 检查求助记录状态是否为HelpStatusEnum.HELPING
@@ -282,7 +233,7 @@ public class FrontendController {
         String fileId = null;
         try {
             String fileMd5 = FileUtil.fileMd5(file.getInputStream());
-            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(), fileMd5);
+            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(global.getHbaseTableName(), fileMd5);
             if (!checkResult.isError() && checkResult.getBody() != null) {
                 log.info("文件已存在，秒传成功！");
                 fileId = checkResult.getBody().getStr("fileId");
@@ -292,7 +243,7 @@ public class FrontendController {
         }
         if (StrUtil.isBlank(fileId)) {
             //保存文件
-            ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
+            ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(global.getHbaseTableName(), file);
             if (responseModel.isError()) {
                 log.error("文件服务调用失败：{}", responseModel.getMessage());
                 return ResponseModel.fail().setMessage("文件上传失败，请重试");

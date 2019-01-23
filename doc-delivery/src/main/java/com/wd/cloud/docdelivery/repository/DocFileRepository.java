@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -19,6 +20,8 @@ public interface DocFileRepository extends JpaRepository<DocFile, Long> {
     DocFile findByFileId(String fileId);
 
     List<DocFile> findByFileIdIsNull();
+
+    Optional<DocFile> findByFileIdAndLiterature(String fileId, Literature literature);
 
     DocFile findByLiteratureAndReusingIsTrue(Literature literature);
 

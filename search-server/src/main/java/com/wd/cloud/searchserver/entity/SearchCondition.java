@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.entity;
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -124,16 +125,16 @@ public class SearchCondition {
     @Override
     public String toString() {
         String queryStr = "";
-        if (!StringUtils.isEmpty(field)) {
+        if (!StrUtil.isEmpty(field)) {
             queryStr += "&field=" + field;
         }
-        if (!StringUtils.isEmpty(value)) {
+        if (!StrUtil.isEmpty(value)) {
             queryStr += "&value=" + value;
         }
         if (sort > 0) {
             queryStr += "&sort=" + sort;
         }
-        if (!StringUtils.isEmpty(sortField)) {
+        if (!StrUtil.isEmpty(sortField)) {
             queryStr += "&sortField=" + sortField;
         }
         for (String str : queryCdt) {
@@ -271,7 +272,7 @@ public class SearchCondition {
             return null;
         }
         field = queryCondition.substring(0, pos);
-        if (StringUtils.isEmpty(field.trim())) {
+        if (StrUtil.isEmpty(field.trim())) {
             return null;
         }
         queryCondition = queryCondition.substring(pos + 1);

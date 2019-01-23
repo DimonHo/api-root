@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+
+import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang.StringUtils;
 
 import com.wd.cloud.bse.entity.school.Scholar;
@@ -105,7 +107,7 @@ public class IndexController {
     public ResponseModel search(HttpServletRequest request) {
     	try {
     		String reqParams = request.getParameter("params");
-    		if(StringUtils.isEmpty(reqParams)) {
+    		if(StrUtil.isEmpty(reqParams)) {
     			reqParams = "<params><types>[1,2,3]</types><is_facets>1</is_facets><page>0</page><size>10</size></params>";
     		}
     		indexLogService.save(new IndexLog("search",reqParams));
@@ -132,7 +134,7 @@ public class IndexController {
     public ResponseModel searchNew(HttpServletRequest request) {
     	try {
     		String reqParams = request.getParameter("params");
-    		if(StringUtils.isEmpty(reqParams)) {
+    		if(StrUtil.isEmpty(reqParams)) {
     			return ResponseModel.fail();
     		}
     		indexLogService.save(new IndexLog("searchNew",reqParams));
@@ -155,7 +157,7 @@ public class IndexController {
     public ResponseModel searchEsiHot(HttpServletRequest request) {
     	try {
     		String reqParams = request.getParameter("params");
-    		if(StringUtils.isEmpty(reqParams)) {
+    		if(StrUtil.isEmpty(reqParams)) {
     			return ResponseModel.fail();
     		}
     		indexLogService.save(new IndexLog("searchEsiHot",reqParams));
@@ -178,7 +180,7 @@ public class IndexController {
     public ResponseModel searchEsiTop(HttpServletRequest request) {
     	try {
     		String reqParams = request.getParameter("params");
-    		if(StringUtils.isEmpty(reqParams)) {
+    		if(StrUtil.isEmpty(reqParams)) {
     			return ResponseModel.fail();
     		}
     		indexLogService.save(new IndexLog("searchEsiTop",reqParams));
@@ -201,7 +203,7 @@ public class IndexController {
     public ResponseModel getDoc(HttpServletRequest request) {
     	try {
     		String reqParams = request.getParameter("params");
-    		if(StringUtils.isEmpty(reqParams)) {
+    		if(StrUtil.isEmpty(reqParams)) {
     			reqParams = "<params><types>[1]</types><page>1</page><size>0</size></params>";
     		}
     		indexLogService.save(new IndexLog("getDoc",reqParams));

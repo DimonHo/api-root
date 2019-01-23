@@ -1,5 +1,6 @@
 package com.wd.cloud.pdfsearchserver.service.imp;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.alibaba.fastjson.JSON;
@@ -63,8 +64,8 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
         Table table = null;
         Connection connection=null;
         byte[] res= null;
-        if (StringUtils.isEmpty(tableName) || StringUtils.isEmpty(family)
-                || StringUtils.isEmpty(rowkey) || StringUtils.isEmpty(column)) {
+        if (StrUtil.isEmpty(tableName) || StrUtil.isEmpty(family)
+                || StrUtil.isEmpty(rowkey) || StrUtil.isEmpty(column)) {
             return null;
         }
         try {
@@ -140,7 +141,7 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
             String doi2 =jsonObject.getString("doi2");
             String issne =jsonObject.getString("issne");
             String issnp =jsonObject.getString("issnp");
-            if(!StringUtils.isEmpty(journal) && map.containsKey("journal")){
+            if(!StrUtil.isEmpty(journal) && map.containsKey("journal")){
                 journal= StringUtil.repalceSymbol(journal);
                 String journal_map = StringUtil.repalceSymbol(map.get("journal").toString());
                 if(journal.equals(journal_map)){
@@ -182,7 +183,7 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
     }
 
     private boolean matchField(String field,String key,Map<String,Object> map){
-        if(!StringUtils.isEmpty(field) && map.containsKey(key)){
+        if(!StrUtil.isEmpty(field) && map.containsKey(key)){
             String value = map.get(key).toString();
             if(field.equals(value)){
                 return true;

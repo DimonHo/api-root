@@ -3,6 +3,7 @@ package com.wd.cloud.bse.es.query;
 
 import java.util.List;
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -47,7 +48,9 @@ public class CreatorQueryBuildStrategy implements QueryBuilderStrategyI {
 			}
 		}
 		for(String author : authors){
-			if(StringUtils.isEmpty(author)) continue;
+			if(StrUtil.isEmpty(author)) {
+				continue;
+			}
 			boolean english = false;
 			if(isEnglish(author)){ 
 				english = true;

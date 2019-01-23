@@ -4,6 +4,7 @@ package com.wd.cloud.bse.util;
 import java.io.StringReader;
 import java.util.Iterator;
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang.StringUtils;
 import com.wd.cloud.bse.vo.QueryParam;
 import org.dom4j.Document;
@@ -54,7 +55,7 @@ public class ParamsAnalyze {
 			name  = ele.getName();
 			if(ele.isTextOnly()){
 				valueStr = ele.getText();
-				if(StringUtils.isEmpty(valueStr)){//忽略空置
+				if(StrUtil.isEmpty(valueStr)){//忽略空置
 					continue;
 				}
 				value = valueStr;

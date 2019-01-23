@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.searchserver.service.BrowseSearchI;
@@ -108,7 +109,7 @@ public class BrowseController {
             }
 
             BoolQueryBuilder q = QueryBuilders.boolQuery().must(filterBuilder);
-            if (!StringUtils.isEmpty(school) && !"null".equals(school) && !"all".equals(school)) {
+            if (!StrUtil.isEmpty(school) && !"null".equals(school) && !"all".equals(school)) {
                 QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolFlag", school);
                 q.must(queryBuilder);
             }
@@ -243,7 +244,7 @@ public class BrowseController {
         SearchResponse searchResponse = null;
         BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
         //构建查询范围
-        if (!StringUtils.isEmpty(school) && !"all".equals(school)) {
+        if (!StrUtil.isEmpty(school) && !"all".equals(school)) {
             QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolFlag", school);
             queryBuilders.must(queryBuilder);
         }
@@ -578,7 +579,7 @@ public class BrowseController {
             SearchResponse searchResponse = null;
             BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
             //构建查询范围
-            if (!StringUtils.isEmpty(school) && !"null".equals(school) && !"all".equals(school) /*&& !filed.equals("schoolFlag")*/ && !"schoolFlagRegion".equals(filed)) {
+            if (!StrUtil.isEmpty(school) && !"null".equals(school) && !"all".equals(school) /*&& !filed.equals("schoolFlag")*/ && !"schoolFlagRegion".equals(filed)) {
                 QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolFlag", school);
                 queryBuilders.must(queryBuilder);
             } else if ("schoolFlagRegion".equals(filed)) {
@@ -761,7 +762,7 @@ public class BrowseController {
         SearchResponse searchResponse = null;
         BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
         //构建查询范围
-        if (!StringUtils.isEmpty(school) && !"null".equals(school) && !"all".equals(school)) {
+        if (!StrUtil.isEmpty(school) && !"null".equals(school) && !"all".equals(school)) {
             QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolFlag", school);
             queryBuilders.must(queryBuilder);
         }
@@ -855,7 +856,7 @@ public class BrowseController {
             for (int i = 0; i < CommKey.VISIT_PAGE.size(); i++) {
                 BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
                 //构建查询范围
-                if (!StringUtils.isEmpty(school) && !"null".equals(school) && !"all".equals(school)) {
+                if (!StrUtil.isEmpty(school) && !"null".equals(school) && !"all".equals(school)) {
                     QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolFlag", school);
                     queryBuilders.must(queryBuilder);
                 }

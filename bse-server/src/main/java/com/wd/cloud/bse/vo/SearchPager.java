@@ -32,8 +32,9 @@ public class SearchPager extends Pager{
 			List<FacetResult.Entry> entries = facetEntry.getValue().getEntries();
 			JSONObject subJson = new JSONObject();
 			for(FacetResult.Entry entry : entries){
-				if(entry.getTerm() != null)
-				subJson.put(entry.getTerm(), entry.getCount());
+				if(entry.getTerm() != null) {
+                    subJson.put(entry.getTerm(), entry.getCount());
+                }
 			}
 			facetsObj.put(facetEntry.getKey(), subJson);
 		}

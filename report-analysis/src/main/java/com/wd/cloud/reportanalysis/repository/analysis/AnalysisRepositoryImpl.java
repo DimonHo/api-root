@@ -40,9 +40,9 @@ public class AnalysisRepositoryImpl<T, ID extends Serializable> implements Analy
     public Map<String, Object> getanalysisCategory(String column, String issue, String scname, int scid) {
         String sql = "";
         Object[] object = new Object[]{issue, scname};
-        if (column.equals("category")) {
+        if ("category".equals(column)) {
             sql = "SELECT * FROM st_analysis_category WHERE issue = ? and institution_cn = ?";
-        } else if (column.equals("categoryins")) {
+        } else if ("categoryins".equals(column)) {
             sql = "SELECT * FROM st_analysis_categoryins WHERE issue = ? and institution_cn = ?";
         } else {
             object = new Object[]{issue, scid};
@@ -70,9 +70,9 @@ public class AnalysisRepositoryImpl<T, ID extends Serializable> implements Analy
         switch (classify) {
             case "subject":            //ESI学科分析
                 object = new Object[]{issue, scid};
-                if (column.equals("selected")) {
+                if ("selected".equals(column)) {
                     sql = "SELECT * FROM st_analysis_subjecta WHERE issue = ? AND scid = ?";
-                } else if (column.equals("potential")) {
+                } else if ("potential".equals(column)) {
                     sql = "SELECT * FROM st_analysis_subjectp WHERE issue = ? AND scid = ?";
                 } else {
                     sql = "SELECT * FROM st_analysis_subjectall WHERE issue = ? AND scid = ?";
@@ -80,7 +80,7 @@ public class AnalysisRepositoryImpl<T, ID extends Serializable> implements Analy
                 break;
             case "competitive":        //ESI学科竞争力分析
                 object = new Object[]{issue, category};
-                if (column.equals("selected")) {
+                if ("selected".equals(column)) {
                     sql = "SELECT * FROM st_analysis_esi WHERE issue = ? and category = ?";//?
                 } else {
                     sql = "SELECT * FROM st_analysis_incites WHERE issue = ? and category = ?";//'物理学'
@@ -89,32 +89,32 @@ public class AnalysisRepositoryImpl<T, ID extends Serializable> implements Analy
             case "level":        //ESI高水平论文分析
                 category = "全部领域";
                 object = new Object[]{issue, category, scid};
-                if (column.equals("distribution")) {            //
+                if ("distribution".equals(column)) {            //
                     object = new Object[]{issue, scid};
                     sql = "SELECT * FROM st_analysis_distribution WHERE issue = ? AND scid = ?";
 
-                } else if (column.equals("scale")) {
+                } else if ("scale".equals(column)) {
                     sql = "SELECT * FROM st_analysis_year WHERE issue = ? and category = ? and scid = ? and type = 2";
 
-                } else if (column.equals("country")) {
+                } else if ("country".equals(column)) {
                     sql = "SELECT * FROM st_analysis_country WHERE issue = ? and category = ? and scid = ? and type = 2";
 
-                } else if (column.equals("domestic")) {
+                } else if ("domestic".equals(column)) {
                     sql = "SELECT * FROM st_analysis_province WHERE issue = ? and category = ? and scid = ? and type = 2";
 
-                } else if (column.equals("organ")) {
+                } else if ("organ".equals(column)) {
                     sql = "SELECT * FROM st_analysis_org WHERE issue = ? and category = ? and scid = ? and type = 2";
 
-                } else if (column.equals("college")) {
+                } else if ("college".equals(column)) {
                     sql = "SELECT * FROM st_analysis_college WHERE issue = ? and category = ? and scid = ? and type = 2";
 
-                } else if (column.equals("author")) {
+                } else if ("author".equals(column)) {
                     sql = "SELECT * FROM st_analysis_author WHERE issue = ? and category = ? and scid = ? and type = 2";
 
-                } else if (column.equals("journal")) {
+                } else if ("journal".equals(column)) {
                     sql = "SELECT * FROM st_analysis_journal WHERE issue = ? and category = ? and scid = ? and type = 2";
 
-                } else if (column.equals("fund")) {
+                } else if ("fund".equals(column)) {
                     sql = "SELECT * FROM st_analysis_fund WHERE issue = ? and category = ? and scid = ? and type = 2";
                 }
                 break;
@@ -122,35 +122,35 @@ public class AnalysisRepositoryImpl<T, ID extends Serializable> implements Analy
                 category = "全部领域";
             case "paper":        //ESI优势及潜力学科论文分析
                 object = new Object[]{issue, category, scid};
-                if (column.equals("percentile")) {            //
+                if ("percentile".equals(column)) {            //
                     object = new Object[]{issue, scid};
                     sql = "SELECT * FROM st_analysis_percent WHERE issue = ? and scid = ?";
 
-                } else if (column.equals("scale")) {
+                } else if ("scale".equals(column)) {
                     sql = "SELECT * FROM st_analysis_year WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("country")) {
+                } else if ("country".equals(column)) {
                     sql = "SELECT * FROM st_analysis_country WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("domestic")) {
+                } else if ("domestic".equals(column)) {
                     sql = "SELECT * FROM st_analysis_province WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("organ")) {
+                } else if ("organ".equals(column)) {
                     sql = "SELECT * FROM st_analysis_org WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("college")) {
+                } else if ("college".equals(column)) {
                     sql = "SELECT * FROM st_analysis_college WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("author")) {
+                } else if ("author".equals(column)) {
                     sql = "SELECT * FROM st_analysis_author WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("journal")) {
+                } else if ("journal".equals(column)) {
                     sql = "SELECT * FROM st_analysis_journal WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("fund")) {
+                } else if ("fund".equals(column)) {
                     sql = "SELECT * FROM st_analysis_fund WHERE issue = ? and category = ? and scid = ? and type = 1";
 
-                } else if (column.equals("classic")) {
+                } else if ("classic".equals(column)) {
                     sql = "SELECT * FROM st_analysis_classic WHERE issue = ? and category = ? and scid = ? and type = 1 and type_c = ?";
                     object = new Object[]{issue, category, scid, type_c};
                 }

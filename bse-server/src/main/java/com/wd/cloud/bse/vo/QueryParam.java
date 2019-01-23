@@ -97,7 +97,9 @@ public class QueryParam {
 	 */
 	public String[] getIds(List<String> ids){
 //		List<String> ids = new ArrayList<String>();
-		if(ids == null ) ids = new ArrayList<String>();
+		if(ids == null ) {
+            ids = new ArrayList<String>();
+        }
 		if(params.has("ids")){
 			JSONArray jArr = JSONArray.fromObject(params.getString("ids"));
 			for(int i=0;i<jArr.size();i++){
@@ -135,7 +137,9 @@ public class QueryParam {
 	}
 	
 	private List<QueryCondition> toFields(JSON json){
-		if(json == null) return null;
+		if(json == null) {
+            return null;
+        }
 		List<QueryCondition> list  = new ArrayList<QueryCondition>();;
 		if(json instanceof JSONArray){
 			JSONArray jArr = (JSONArray)json;
@@ -178,7 +182,7 @@ public class QueryParam {
 			JSON json = (JSON)filters.get("field");
 			List<QueryCondition> list = toFields(json);
 			for (QueryCondition queryCondition : list) {
-				if (queryCondition.getFieldFlag().equals("esiIssue")) {
+				if ("esiIssue".equals(queryCondition.getFieldFlag())) {
 					esiIssues = new HashSet<>();
 					if(queryCondition.getValue()!=null) {
 						esiIssues.add(queryCondition.getValue());

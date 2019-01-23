@@ -21,7 +21,9 @@ public class QueryBuilderUtil {
     public BoolQueryBuilder convertQueryBuilder(List<QueryCondition> list) {
     	Map<String,QueryBuilderStrategyI> map = queryBuilderStrategyContext.getQueryBuilders();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        if(list == null) return boolQueryBuilder;
+        if(list == null) {
+            return boolQueryBuilder;
+        }
         for (QueryCondition condition : list) {
         	if("org".equals(condition.getFieldFlag().trim()) || "relationSubject".equals(condition.getFieldFlag().trim())) {
         		continue;

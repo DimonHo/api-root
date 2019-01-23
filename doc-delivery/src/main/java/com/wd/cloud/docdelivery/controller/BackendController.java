@@ -1,20 +1,21 @@
 package com.wd.cloud.docdelivery.controller;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.DocFile;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.enums.AuditEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.repository.VHelpRecordRepository;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -22,6 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -56,10 +58,13 @@ public class BackendController {
     MailService mailService;
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     @Autowired
     FsServerApi fsServerApi;
+
+    @Autowired
+    VHelpRecordRepository vHelpRecordRepository;
 
 
     /**
@@ -154,13 +159,13 @@ public class BackendController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(),fileMd5);
+        ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(global.getHbaseTableName(),fileMd5);
         if (!checkResult.isError() && checkResult.getBody() != null){
             log.info("文件已存在，秒传成功！");
             fileId = checkResult.getBody().getStr("fileId");
         }
         if (fileId == null){
-            ResponseModel<JSONObject> uploadResult = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
+            ResponseModel<JSONObject> uploadResult = fsServerApi.uploadFile(global.getHbaseTableName(), file);
             if (uploadResult.isError()) {
                 log.error("文件服务调用失败：{}",uploadResult.getMessage());
                 log.info("文件[file = {},size = {}] 上传失败 。。。", file.getOriginalFilename(), file.getSize());
@@ -173,7 +178,7 @@ public class BackendController {
         docFile = backendService.saveDocFile(helpRecord.getLiterature(), fileId,fileName);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         Optional<GiveRecord> giveRecordOptional = helpRecord.getGiveRecords().stream()
-                .filter(g -> g.getGiverType() == GiveTypeEnum.THIRD.getCode())
+                .filter(g -> g.getGiverType() == 3)
                 .findFirst();
 
         //如果没有第三方状态的记录，则新建一条应助记录
@@ -182,15 +187,15 @@ public class BackendController {
         giveRecord.setHelpRecord(helpRecord);
         giveRecord.setDocFile(docFile);
         //设置应助类型为管理员应助
-        giveRecord.setGiverType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setGiverType(GiveTypeEnum.MANAGER.value());
         giveRecord.setGiverId(giverId);
         giveRecord.setGiverName(giverName);
         //修改求助状态为应助成功
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
-        String url = fileService.getDownloadUrl(helpRecord.getId());
-        mailService.sendMail(helpRecord.getHelpChannel(), helpRecord.getHelperScname(), helpRecord.getHelperEmail(), helpRecord.getLiterature().getDocTitle(), url, HelpStatusEnum.HELP_SUCCESSED,helpRecord.getId());
+        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+        optionalVHelpRecord.ifPresent(vhelpRecord -> mailService.sendMail(vhelpRecord));
         return ResponseModel.ok().setMessage("文件上传成功");
     }
 
@@ -212,20 +217,17 @@ public class BackendController {
         if (helpRecord == null){
             helpRecord = new HelpRecord();
         }
-        helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getCode());
+        helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.value());
         GiveRecord giveRecord = new GiveRecord();
         giveRecord.setGiverId(giverId);
-        giveRecord.setGiverType(GiveTypeEnum.THIRD.getCode());
+        giveRecord.setGiverType(3);
         giveRecord.setGiverName(giverName);
-        mailService.sendMail(helpRecord.getHelpChannel(),
-                helpRecord.getHelperScname(),
-                helpRecord.getHelperEmail(),
-                helpRecord.getLiterature().getDocTitle(),
-                null,
-                HelpStatusEnum.HELP_THIRD,
-                helpRecord.getId());
+
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
+        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(id);
+        optionalVHelpRecord.ifPresent(vhelpRecord -> mailService.sendMail(vhelpRecord));
+
         return ResponseModel.ok().setMessage("已提交第三方处理，请耐心等待第三方应助结果");
     }
 
@@ -245,25 +247,20 @@ public class BackendController {
     @PostMapping("/fiaied/{id}")
     public ResponseModel helpFail(@PathVariable Long id, @RequestParam Long giverId, @RequestParam String giverName) {
         HelpRecord helpRecord = backendService.getWaitOrThirdHelpRecord(id);
-        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getCode());
+        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value());
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         Optional<GiveRecord> giveRecordOptional = helpRecord.getGiveRecords().stream()
-                .filter(g1 -> GiveTypeEnum.THIRD.getCode() == g1.getGiverType())
+                .filter(g1 -> 3 == g1.getGiverType())
                 .findFirst();
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = giveRecordOptional.orElse(new GiveRecord());
         giveRecord.setGiverId(giverId);
-        giveRecord.setGiverType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setGiverType(GiveTypeEnum.MANAGER.value());
         giveRecord.setGiverName(giverName);
-        mailService.sendMail(helpRecord.getHelpChannel(),
-                helpRecord.getHelperScname(),
-                helpRecord.getHelperEmail(),
-                helpRecord.getLiterature().getDocTitle(),
-                null,
-                HelpStatusEnum.HELP_FAILED,
-                helpRecord.getId());
         giveRecord.setHelpRecord(helpRecord);
         backendService.saveGiveRecord(giveRecord);
+        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(id);
+        optionalVHelpRecord.ifPresent(vhelpRecord -> mailService.sendMail(vhelpRecord));
         return ResponseModel.ok().setMessage("处理成功");
     }
 
@@ -286,21 +283,15 @@ public class BackendController {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }
 
-        giveRecord.setAuditStatus(AuditEnum.PASS.getCode());
+        giveRecord.setAuditStatus(AuditEnum.PASS.value());
         giveRecord.setAuditorId(auditorId);
         giveRecord.setAuditorName(auditorName);
         DocFile docFile = giveRecord.getDocFile();
         docFile.setAuditStatus(1);
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
-        String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
-        mailService.sendMail(helpRecord.getHelpChannel(),
-                helpRecord.getHelperScname(),
-                helpRecord.getHelperEmail(),
-                helpRecord.getLiterature().getDocTitle(),
-                downloadUrl,
-                HelpStatusEnum.HELP_SUCCESSED,
-                helpRecord.getId());
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
         backendService.updateHelRecord(helpRecord);
+        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(id);
+        optionalVHelpRecord.ifPresent(vhelpRecord -> mailService.sendMail(vhelpRecord));
         return ResponseModel.ok();
     }
 
@@ -323,12 +314,12 @@ public class BackendController {
         if (giveRecord == null) {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }
-        giveRecord.setAuditStatus(AuditEnum.NO_PASS.getCode());
+        giveRecord.setAuditStatus(AuditEnum.NO_PASS.value());
         giveRecord.setAuditorId(auditorId);
         giveRecord.setAuditorName(auditorName);
         DocFile docFile = giveRecord.getDocFile();
         docFile.setAuditStatus(2);
-        helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getCode());
+        helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
         backendService.updateHelRecord(helpRecord);
         return ResponseModel.ok();
     }

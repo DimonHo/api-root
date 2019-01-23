@@ -1,6 +1,7 @@
 package com.wd.cloud.searchserver.entity;
 
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class AuthorityDatabase {
      * @return
      */
     public String getDisplay() {
-        if (StringUtils.isEmpty(alias)) {
+        if (StrUtil.isEmpty(alias)) {
             return flag;
         } else {
             return alias;

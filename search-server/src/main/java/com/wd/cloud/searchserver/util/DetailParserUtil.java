@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.searchserver.entity.AuthorityDatabase;
 import com.wd.cloud.searchserver.entity.ShouluDetail;
 import com.wd.cloud.searchserver.entity.ShouluMap;
@@ -11,7 +12,7 @@ import java.util.*;
 public class DetailParserUtil {
 
     public static ShouluDetail parse(String detailStr) {
-        if (StringUtils.isEmpty(detailStr)) {
+        if (StrUtil.isEmpty(detailStr)) {
             return null;
         }
         String[] items = detailStr.split("\\^");
@@ -33,7 +34,7 @@ public class DetailParserUtil {
 
     public static List<ShouluDetail> parseAll(String str) {
         List<ShouluDetail> list = new ArrayList<ShouluDetail>();
-        if (StringUtils.isEmpty(str)) {
+        if (StrUtil.isEmpty(str)) {
             return list;
         }
         String[] items = str.split(";");

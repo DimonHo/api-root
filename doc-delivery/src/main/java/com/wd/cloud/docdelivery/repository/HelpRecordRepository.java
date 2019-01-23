@@ -74,6 +74,14 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     HelpRecord findByHelperEmailAndLiterature(@Param("helperEmail") String helperEmail, @Param("literature") Literature literature);
 
     /**
+     * 查询邮箱15天内求助某篇文献的记录
+     * @param helperEmail
+     * @param literatureId
+     * @return
+     */
+    @Query(value = "select * FROM Help_record where helper_email = ?1 AND literature_id = ?2 AND 15 > TIMESTAMPDIFF(DAY, gmt_create, now())", nativeQuery = true)
+    HelpRecord findByHelperEmailAndLiteratureId(String helperEmail, Long literatureId);
+    /**
      * 根据互助状态查询
      *
      * @param status

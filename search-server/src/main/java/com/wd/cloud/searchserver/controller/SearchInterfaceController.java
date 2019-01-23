@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.searchserver.entity.Categorydata;
 import com.wd.cloud.searchserver.entity.SearchCondition;
@@ -41,7 +42,7 @@ public class SearchInterfaceController {
     private static Integer getInt(final Node node, int defaultValue) {
         if (node != null) {
             String value = node.getText();
-            if (!StringUtils.isEmpty(value) && value.trim().matches("\\d+")) {
+            if (!StrUtil.isEmpty(value) && value.trim().matches("\\d+")) {
                 return Integer.parseInt(value.trim());
             }
         }
@@ -214,7 +215,7 @@ public class SearchInterfaceController {
         for (int i = 0; i < subjectNodes.size(); i++) {
             Node subjectNode = (Node) subjectNodes.get(i);
             String subjectCdt = buildSubjectCdt(subjectNode);
-            if (!StringUtils.isEmpty(subjectCdt)) {
+            if (!StrUtil.isEmpty(subjectCdt)) {
                 queryCdt.add(subjectCdt);
             }
         }
@@ -236,7 +237,7 @@ public class SearchInterfaceController {
         //shoulu 收录
         Node shouluNode = root.selectSingleNode("/params/shoulu");
         String shoulu = getString(shouluNode);
-        if (!StringUtils.isEmpty(shoulu)) {
+        if (!StrUtil.isEmpty(shoulu)) {
             String[] items = shoulu.split(";");
             for (String str : items) {
                 filterCdt.add("auDB_3_1_" + str);
@@ -268,7 +269,7 @@ public class SearchInterfaceController {
         //letter
         Node letterNode = root.selectSingleNode("/params/firstLetter");
         String letter = getString(letterNode);
-        if (!StringUtils.isEmpty(letter)) {
+        if (!StrUtil.isEmpty(letter)) {
             queryCdt.add("firstLetter_3_1_" + letter.toLowerCase());
         }
 
@@ -310,26 +311,26 @@ public class SearchInterfaceController {
         String name = getStringByPath(node, "name"), value = getStringByPath(node, "value"),
                 year = getStringByPath(node, "year"), partition = getStringByPath(node, "partition");
         String queryCdt = "";
-        if (StringUtils.isEmpty(name)) {
+        if (StrUtil.isEmpty(name)) {
             return queryCdt;
         }
-        if (StringUtils.isEmpty(partition)) {
+        if (StrUtil.isEmpty(partition)) {
             queryCdt = "shouLuSubjects_4_1_" + name;
-            if (!StringUtils.isEmpty(year)) {
+            if (!StrUtil.isEmpty(year)) {
                 queryCdt += "^" + year;
             }
-            if (!StringUtils.isEmpty(value)) {
+            if (!StrUtil.isEmpty(value)) {
                 queryCdt += "^" + value;
             }
         } else {
             queryCdt = "partition_4_1_" + name;
-            if (!StringUtils.isEmpty(year)) {
+            if (!StrUtil.isEmpty(year)) {
                 queryCdt += "^" + year;
             }
-            if (!StringUtils.isEmpty(value)) {
+            if (!StrUtil.isEmpty(value)) {
                 queryCdt += "^" + value;
             }
-            if (!StringUtils.isEmpty(partition)) {
+            if (!StrUtil.isEmpty(partition)) {
                 queryCdt += "^" + partition;
             }
         }

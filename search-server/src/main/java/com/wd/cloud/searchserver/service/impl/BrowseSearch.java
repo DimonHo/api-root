@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -50,7 +51,7 @@ public class BrowseSearch implements BrowseSearchI {
         RangeQueryBuilder filterBuilder = QueryBuilders.rangeQuery("lastTime");
         filterBuilder.from(beginTime).to(endTime);
         BoolQueryBuilder q = QueryBuilders.boolQuery().must(filterBuilder);
-        if (!StringUtils.isEmpty(school) && !"all".equals(school)) {
+        if (!StrUtil.isEmpty(school) && !"all".equals(school)) {
             QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolFlag", school);
             q.must(queryBuilder);
         }
@@ -158,7 +159,7 @@ public class BrowseSearch implements BrowseSearchI {
     public Map<String, Map<String,Integer>> tjData(String orgName, String beginDate, String endDate) {
         RangeQueryBuilder filterBuilder = QueryBuilders.rangeQuery("lastTime").from(beginDate).to(endDate);
         BoolQueryBuilder q = QueryBuilders.boolQuery().filter(filterBuilder);
-        if (!StringUtils.isEmpty(orgName) && !"all".equals(orgName)) {
+        if (!StrUtil.isEmpty(orgName) && !"all".equals(orgName)) {
             QueryBuilder queryBuilder = QueryBuilders.termQuery("schoolName", orgName);
             q.must(queryBuilder);
         }

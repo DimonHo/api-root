@@ -12,7 +12,8 @@ import com.wd.cloud.bse.vo.FacetResult;
 
 public abstract class AbstractFacetConverter implements FacetConverter{
 
-	public FacetResult convert(Aggregation facet){
+	@Override
+    public FacetResult convert(Aggregation facet){
 		FacetResult result = new FacetResult();
 		FacetResult.Entry entry;
 		Terms terms = (Terms) facet;

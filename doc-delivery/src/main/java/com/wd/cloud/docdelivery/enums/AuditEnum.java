@@ -13,19 +13,15 @@ public enum AuditEnum {
     WAIT_UPLOAD("待上传", 4);
 
     private String name;
-    private int code;
+    private int value;
 
-    private AuditEnum(String name, int code) {
+    private AuditEnum(String name, int value) {
         this.name = name;
-        this.code = code;
+        this.value = value;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getCode() {
-        return code;
+    public int value() {
+        return value;
     }
 
 }
