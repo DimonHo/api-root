@@ -1,10 +1,12 @@
 package com.wd.cloud.pdfsearchserver.service.imp;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.pdfsearchserver.model.LiteratureModel;
 import com.wd.cloud.pdfsearchserver.repository.ElasticRepository;
 import com.wd.cloud.pdfsearchserver.service.pdfSearchServiceI;
 import com.wd.cloud.pdfsearchserver.util.StringUtil;
@@ -47,13 +49,23 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
     private String column;
 
     @Override
-    public ResponseModel<byte[]> getpdf(Map<String, Object> map) {
-        ResponseModel<byte[]> responseModel = ResponseModel.fail();
-        String rowKey =getRokey(map);
+    public ResponseModel<String> getRowKey(LiteratureModel literatureModel) {
+        ResponseModel<String> responseModel = ResponseModel.fail();
+        String rowKey =getRokey(literatureModel);
         log.info("rowKey = "+rowKey);
         if(rowKey!=null){
+            responseModel = ResponseModel.ok();
+            responseModel.setBody(rowKey);
+        }
+        return responseModel;
+    }
+
+    @Override
+    public ResponseModel<byte[]> getpdf(String rowKey) {
+        ResponseModel<byte[]> responseModel = ResponseModel.fail();
+        byte[] file = getValue(tableName,rowKey,family,column);
+        if(file!=null){
             //查询hbase;
-            byte[] file = getValue(tableName,rowKey,family,column);
             responseModel = ResponseModel.ok();
             responseModel.setBody(file);
         }
@@ -91,18 +103,18 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
         return res;
     }
 
-    private String getRokey(Map<String,Object> map){
+    private String getRokey(LiteratureModel literatureModel){
         String rowKey=null;
-        String title = map.get("title").toString().trim();
+        String title = literatureModel.getDocTitle();
         QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("title",title);
         log.info("精确查询："+queryBuilder.toString());
         System.out.println();
         SearchResponse searchResponse =elasticRepository.queryByName(indexName,type,queryBuilder);
         SearchHits hits =searchResponse.getHits();
         if(hits.getTotalHits()==1){//标题精确匹配只有一条
-            rowKey =hits.getHits()[0].getId();
+            rowKey =hits.getHits()[0].getSource().get("md5").toString();
         }else if(hits.getTotalHits()>1){//标题精确匹配多条
-            rowKey =getOneRowKey(Arrays.asList(hits.getHits()),map);
+            rowKey =getOneRowKey(Arrays.asList(hits.getHits()),literatureModel);
         }else{
             //标题模糊匹配
             queryBuilder = QueryBuilders.matchQuery("title",title);
@@ -112,27 +124,28 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
             List<SearchHit> list = new ArrayList<>();
             for(SearchHit hit:searchHits){
                 String title_es = StringUtil.repalceSymbol(JSON.parseObject(hit.getSourceAsString()).getString("title"));
-                String title_map = StringUtil.repalceSymbol(map.get("title").toString());
+                String title_map = StringUtil.repalceSymbol(literatureModel.getDocTitle());
                 if(title_es.equals(title_map)){
                     list.add(hit);
                 }
             }
             if(list.size()==1){
-                rowKey =list.get(0).getId();
+                rowKey =list.get(0).getSource().get("md5").toString();
             }else if(list.size()>1){
-                rowKey =getOneRowKey(list,map);
+                rowKey =getOneRowKey(list,literatureModel);
             }
         }
         return rowKey;
     }
 
-    private String getOneRowKey(List<SearchHit> searchHits, Map<String,Object> map){
+    private String getOneRowKey(List<SearchHit> searchHits, LiteratureModel literatureModel){
         String result = null;
         int matchNum = 0;
         for(SearchHit hit:searchHits){
             int num = 0;
             String json = hit.getSourceAsString();
             JSONObject jsonObject = JSON.parseObject(json);
+            String author = jsonObject.getString("author");
             String journal =jsonObject.getString("journal");
             String year =jsonObject.getString("year");
             String volume =jsonObject.getString("volume");
@@ -141,40 +154,76 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
             String doi2 =jsonObject.getString("doi2");
             String issne =jsonObject.getString("issne");
             String issnp =jsonObject.getString("issnp");
-            if(!StringUtils.isEmpty(journal) && map.containsKey("journal")){
+            if(!StringUtils.isEmpty(author) && literatureModel.getAuthor()!=null){
+                String author_map = literatureModel.getAuthor();
+                //做个作者匹配
+                if(author.contains(";")){
+                    String[] authors = author.split(";");
+                    if(author_map.contains(";")){
+                        String[] authors_map = author_map.split(";");
+                        for(String au:authors){
+                            for(String au_map:authors_map){
+                                if(StringUtil.repalceSymbol(au).equals(StringUtil.repalceSymbol(au_map))){
+                                    num++;
+                                }
+                            }
+                        }
+                    }else{
+                        for(String au:authors){
+                            if(StringUtil.repalceSymbol(au).equals(StringUtil.repalceSymbol(author_map))){
+                                num++;
+                            }
+                        }
+                    }
+                }else{
+                    if(author_map.contains(";")){
+                        String[] authors_map = author_map.split(";");
+                        for(String au_map:authors_map){
+                            if(StringUtil.repalceSymbol(author).equals(StringUtil.repalceSymbol(au_map))){
+                                num++;
+                            }
+                        }
+                    }else{
+                        if(StringUtil.repalceSymbol(author).equals(StringUtil.repalceSymbol(author_map))){
+                            num++;
+                        }
+                    }
+                }
+            }
+            if(!StringUtils.isEmpty(journal) && literatureModel.getJournal()!=null){
                 journal= StringUtil.repalceSymbol(journal);
-                String journal_map = StringUtil.repalceSymbol(map.get("journal").toString());
+                String journal_map = StringUtil.repalceSymbol(literatureModel.getJournal());
                 if(journal.equals(journal_map)){
                     num++;
                 }
             }
-            if(matchField(journal,"journal",map)){
+            if(matchField(journal,"journal",literatureModel)){
                 num++;
             }
-            if(matchField(year,"year",map)){
+            if(matchField(year,"year",literatureModel)){
                 num++;
             }
-            if(matchField(volume,"volume",map)){
+            if(matchField(volume,"volume",literatureModel)){
                 num++;
             }
-            if(matchField(issue,"issue",map)){
+            if(matchField(issue,"issue",literatureModel)){
                 num++;
             }
-            if(matchField(doi,"doi",map)){
+            if(matchField(doi,"doi",literatureModel)){
                 num++;
             }
-            if(matchField(doi2,"doi",map)){
+            if(matchField(doi2,"doi",literatureModel)){
                 num++;
             }
-            if(matchField(issne,"issn",map)){
+            if(matchField(issne,"issn",literatureModel)){
                 num++;
             }
-            if(matchField(issnp,"issn",map)){
+            if(matchField(issnp,"issn",literatureModel)){
                 num++;
             }
             if(num > matchNum){
                 matchNum=num;
-                result=hit.getId();
+                result=jsonObject.getString("md5");
             }else if(num>0 && num==matchNum){
                 result=null;
             }
@@ -182,7 +231,8 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
         return result;
     }
 
-    private boolean matchField(String field,String key,Map<String,Object> map){
+    private boolean matchField(String field,String key,LiteratureModel literatureModel){
+        Map<String,Object> map =BeanUtil.beanToMap(literatureModel);
         if(!StringUtils.isEmpty(field) && map.containsKey(key)){
             String value = map.get(key).toString();
             if(field.equals(value)){
