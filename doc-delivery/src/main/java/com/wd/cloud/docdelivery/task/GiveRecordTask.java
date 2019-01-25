@@ -1,13 +1,18 @@
 package com.wd.cloud.docdelivery.task;
 
+import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
+import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,26 +20,25 @@ import java.util.List;
  * @date 2018/7/17
  * @Description: 定时删除用户过期的应助记录
  */
+@Slf4j
 @Component
 public class GiveRecordTask {
-
+    @Autowired
+    ThreadPoolTaskScheduler threadPoolTaskScheduler;
     @Autowired
     GiveRecordRepository giveRecordRepository;
     @Autowired
     HelpRecordRepository helpRecordRepository;
 
-    @Scheduled(fixedRate = 1000 * 30)
+    @Scheduled(fixedRate = 1000 * 60 * 15)
     public void deleteGiveRecord() {
-        List<GiveRecord> giveRecords = giveRecordRepository.findTimeOutRecord();
+        List<GiveRecord> giveRecords = giveRecordRepository.findByTypeAndStatus(GiveTypeEnum.USER.value(), GiveStatusEnum.WAIT_UPLOAD.value());
         giveRecords.forEach(this::updateHelpStatus);
     }
 
     private void updateHelpStatus(GiveRecord giveRecord) {
-        giveRecordRepository.delete(giveRecord);
-        HelpRecord helpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId()).orElse(null);
-        if (helpRecord != null) {
-            helpRecord.setStatus(0);
-            helpRecordRepository.save(helpRecord);
-        }
+        Date startTime = DateUtil.offsetMinute(giveRecord.getGmtCreate(), 15);
+        log.info("执行时间:{}", startTime);
+        threadPoolTaskScheduler.schedule(new GiveTimeOutTask(giveRecordRepository, helpRecordRepository), startTime);
     }
 }

@@ -4,14 +4,10 @@ import com.wd.cloud.docdelivery.entity.GiveRecord;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -108,13 +104,10 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
      */
     Optional<GiveRecord> findByHelpRecordIdAndStatus(Long helpRecordId, Integer status);
 
-    @Query(value = "select * FROM give_record WHERE type = 2 AND file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
-    List<GiveRecord> findTimeOutRecord();
+    List<GiveRecord> findByTypeAndStatus(Integer type, Integer status);
 
-    @Transactional
-    @Modifying
-    @Query(value = "DELETE FROM give_record WHERE type = 2 AND file_id IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
-    List<GiveRecord> deleteTimeOutRecord();
+    @Query(value = "select * FROM give_record WHERE type = 2 AND file_id IS NULL or file_id = \"\" AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
+    List<GiveRecord> findTimeOutRecord();
 
     /**
      * 我的应助
@@ -126,8 +119,8 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
 
     List<GiveRecord> findByFileId(String fileId);
 
-    class SpecificationBuilder{
-        public static Specification<GiveRecord> buildGiveRecord(List<Integer> status, Long giverId){
+    class SpecificationBuilder {
+        public static Specification<GiveRecord> buildGiveRecord(List<Integer> status, Long giverId) {
             return (Specification<GiveRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (giverId != null) {

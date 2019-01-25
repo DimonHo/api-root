@@ -23,11 +23,7 @@ public enum GiveTypeEnum {
         this.code = code;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getCode() {
+    public int value() {
         return code;
     }
 

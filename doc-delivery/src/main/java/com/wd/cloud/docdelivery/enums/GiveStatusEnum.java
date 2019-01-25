@@ -27,10 +27,10 @@ public enum GiveStatusEnum {
         this.value = value;
     }
 
-    public static String getName(int value) {
+    public static String name(int value) {
         for (GiveStatusEnum giveStatusEnum : GiveStatusEnum.values()) {
-            if (giveStatusEnum.getValue() == value) {
-                return giveStatusEnum.getName();
+            if (giveStatusEnum.value() == value) {
+                return giveStatusEnum.name();
             }
         }
         return null;
@@ -38,18 +38,15 @@ public enum GiveStatusEnum {
 
     public static GiveStatusEnum match(int value){
         for (GiveStatusEnum giveStatusEnum : GiveStatusEnum.values()) {
-            if (giveStatusEnum.getValue() == value) {
+            if (giveStatusEnum.value() == value) {
                 return giveStatusEnum;
             }
         }
         return null;
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public Integer getValue() {
+    public Integer value() {
         return value;
     }
 

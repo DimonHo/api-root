@@ -15,15 +15,16 @@ import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
 import com.wd.cloud.docdelivery.entity.Permission;
-import com.wd.cloud.docdelivery.feign.OrgServerApi;
+import com.wd.cloud.docdelivery.exception.AppException;
+import com.wd.cloud.docdelivery.exception.ExceptionEnum;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
-import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.MailService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,16 +53,10 @@ public class FrontendController {
     Global global;
 
     @Autowired
-    FileService fileService;
-
-    @Autowired
     MailService mailService;
 
     @Autowired
     FrontService frontService;
-
-    @Autowired
-    OrgServerApi orgServerApi;
 
     @Autowired
     HttpServletRequest request;
@@ -88,8 +83,12 @@ public class FrontendController {
         }
         helpRecord.setHelperIp(ip);
         helpRecord.setSend(true);
-        String msg = frontService.help(helpRecord, literature);
-        return ResponseModel.ok().setMessage(msg);
+        try {
+            String msg = frontService.help(helpRecord, literature);
+            return ResponseModel.ok().setMessage(msg);
+        } catch (ConstraintViolationException e) {
+            throw new AppException(ExceptionEnum.HELP_CHONGFU);
+        }
     }
 
     @ApiOperation(value = "查询求助记录")

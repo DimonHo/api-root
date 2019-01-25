@@ -52,15 +52,15 @@ public class BackendController {
      */
     @ApiOperation(value = "文献互助列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "status", value = "状态", dataType = "Short", paramType = "query"),
-            @ApiImplicitParam(name = "helperScid", value = "学校id", dataType = "Short", paramType = "query"),
+            @ApiImplicitParam(name = "status", value = "状态", dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "helperScid", value = "学校id", dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "keyword", value = "搜索关键词", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "beginTime", value = "开始时间", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", paramType = "query")
     })
     @GetMapping("/helpRecords/view")
-    public ResponseModel helpList(@RequestParam(required = false) Short status,
-                                  @RequestParam(required = false) Short helperScid,
+    public ResponseModel helpList(@RequestParam(required = false) Integer status,
+                                  @RequestParam(required = false) Long helperScid,
                                   @RequestParam(required = false) String keyword,
                                   @RequestParam(required = false) String beginTime,
                                   @RequestParam(required = false) String endTime,

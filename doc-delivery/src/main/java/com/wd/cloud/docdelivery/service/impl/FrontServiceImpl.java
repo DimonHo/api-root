@@ -2,12 +2,11 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.AuthException;
@@ -31,9 +30,14 @@ import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.MailService;
+import com.wd.cloud.docdelivery.task.GiveTimeOutTask;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -43,9 +47,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ScheduledFuture;
 
 
 /**
@@ -53,11 +59,10 @@ import java.util.Optional;
  * @date 2018/5/7
  * @Description:
  */
+@Slf4j
 @Service("frontService")
 @Transactional(rollbackFor = Exception.class)
 public class FrontServiceImpl implements FrontService {
-
-    private static final Log log = LogFactory.get();
 
     @Autowired
     Global global;
@@ -95,10 +100,7 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public boolean checkExists(String email, Long literatureId) {
         HelpRecord helpRecord = helpRecordRepository.findByHelperEmailAndLiteratureId(email, literatureId);
-        if (helpRecord != null) {
-            return true;
-        }
-        return false;
+        return helpRecord != null;
     }
 
     @Override
@@ -110,7 +112,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public String help(HelpRecord helpRecord, Literature literature) {
+    public String help(HelpRecord helpRecord, Literature literature) throws ConstraintViolationException {
         // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
         String docTitle = literature.getDocTitle();
         String docHref = literature.getDocHref();
@@ -123,20 +125,20 @@ public class FrontServiceImpl implements FrontService {
             literature.setId(oldLiterature.getId());
         }
         literature = literatureRepository.save(literature);
+        helpRecord.setLiteratureId(literature.getId());
         // 15天内不能重复求助相同的文献
         if (checkExists(helpRecord.getHelperEmail(), literature.getId())) {
             throw new AppException(ExceptionEnum.HELP_CHONGFU);
         }
-        helpRecord.setLiteratureId(literature.getId());
         DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(literature.getId());
         // 如果有复用文件，自动应助成功
         if (null != reusingDocFile) {
             GiveRecord giveRecord = new GiveRecord();
             giveRecord.setFileId(reusingDocFile.getFileId());
-            giveRecord.setType(GiveTypeEnum.AUTO.getCode());
-            giveRecord.setGiverName(GiveTypeEnum.AUTO.getName());
+            giveRecord.setType(GiveTypeEnum.AUTO.value());
+            giveRecord.setGiverName(GiveTypeEnum.AUTO.name());
             //先保存求助记录，得到求助ID，再关联应助记录
-            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
             helpRecord = helpRecordRepository.save(helpRecord);
             giveRecord.setHelpRecordId(helpRecord.getId());
             giveRecordRepository.save(giveRecord);
@@ -152,10 +154,10 @@ public class FrontServiceImpl implements FrontService {
                 docFileRepository.save(docFile);
                 GiveRecord giveRecord = new GiveRecord();
                 giveRecord.setFileId(fileId);
-                giveRecord.setType(GiveTypeEnum.BIG_DB.getCode());
-                giveRecord.setGiverName(GiveTypeEnum.BIG_DB.getName());
+                giveRecord.setType(GiveTypeEnum.BIG_DB.value());
+                giveRecord.setGiverName(GiveTypeEnum.BIG_DB.name());
                 //先保存求助记录，得到求助ID，再关联应助记录
-                helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+                helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
                 helpRecord = helpRecordRepository.save(helpRecord);
                 giveRecord.setHelpRecordId(helpRecord.getId());
                 giveRecordRepository.save(giveRecord);
@@ -163,13 +165,9 @@ public class FrontServiceImpl implements FrontService {
                 optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
                 return "平台自动应助成功！";
             }
-            try {
-                // 保存求助记录
-                helpRecordRepository.save(helpRecord);
-                return "求助已发送成功，请等待";
-            } catch (Exception e) {
-                throw new UndefinedException(e);
-            }
+            // 保存求助记录
+            helpRecordRepository.save(helpRecord);
+            return "求助已发送成功，请等待";
         }
     }
 
@@ -178,10 +176,10 @@ public class FrontServiceImpl implements FrontService {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
         optionalHelpRecord.ifPresent(helpRecord -> {
-            if (HelpStatusEnum.HELPING.getValue() == helpRecord.getStatus()) {
+            if (HelpStatusEnum.HELPING.value() == helpRecord.getStatus()) {
                 throw new AppException(ExceptionEnum.GIVE_ING);
             }
-            if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.getValue() || helpRecord.getStatus() == HelpStatusEnum.WAIT_HELP.getValue()) {
+            if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.value() || helpRecord.getStatus() == HelpStatusEnum.WAIT_HELP.value()) {
                 //检查用户是否已经认领了应助
                 String docTitle = findGivingDocTitle(giverId);
                 if (docTitle != null) {
@@ -228,16 +226,16 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public HelpRecord givingHelp(long helpRecordId, long giverId, String giverName, String giverIp) {
-        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.getValue());
+        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.value());
         if (helpRecord != null) {
-            helpRecord.setStatus(HelpStatusEnum.HELPING.getValue());
+            helpRecord.setStatus(HelpStatusEnum.HELPING.value());
             GiveRecord giveRecord = new GiveRecord();
             giveRecord.setHelpRecordId(helpRecordId);
             giveRecord.setGiverId(giverId);
             giveRecord.setGiverIp(giverIp);
             giveRecord.setGiverName(giverName);
-            giveRecord.setType(GiveTypeEnum.USER.getCode());
-            giveRecord.setStatus(GiveStatusEnum.WAIT_UPLOAD.getValue());
+            giveRecord.setType(GiveTypeEnum.USER.value());
+            giveRecord.setStatus(GiveStatusEnum.WAIT_UPLOAD.value());
             //保存的同时，关联更新求助记录状态
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
@@ -251,11 +249,13 @@ public class FrontServiceImpl implements FrontService {
         String docTitle = findGivingDocTitle(giverId);
         boolean flag = false;
         if (docTitle != null) {
-            HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.getValue());
+            HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.value());
             if (helpRecord != null) {
-                giveRecordRepository.deleteByHelpRecordIdAndStatusAndGiverId(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.getValue(), giverId);
+                GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverId(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.value(), giverId);
+                giveRecord.setStatus(GiveStatusEnum.CANCEL.value());
                 //更新求助记录状态
-                helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getValue());
+                helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
+                giveRecordRepository.save(giveRecord);
                 helpRecordRepository.save(helpRecord);
                 flag = true;
             }
@@ -265,7 +265,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public HelpRecord getHelpingRecord(long helpRecordId) {
-        return helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.getValue());
+        return helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.value());
     }
 
     @Override
@@ -276,12 +276,12 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public HelpRecord getWaitOrThirdHelpRecord(Long id) {
         return helpRecordRepository.findByIdAndStatusIn(id,
-                new int[]{HelpStatusEnum.WAIT_HELP.getValue(), HelpStatusEnum.HELP_THIRD.getValue()});
+                new int[]{HelpStatusEnum.WAIT_HELP.value(), HelpStatusEnum.HELP_THIRD.value()});
     }
 
     @Override
     public HelpRecord getNotWaitRecord(long helpRecordId) {
-        return helpRecordRepository.findByIdAndStatusNot(helpRecordId, HelpStatusEnum.WAIT_HELP.getValue());
+        return helpRecordRepository.findByIdAndStatusNot(helpRecordId, HelpStatusEnum.WAIT_HELP.value());
     }
 
     @Override
@@ -292,15 +292,15 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public void createGiveRecord(HelpRecord helpRecord, long giverId, DocFile docFile, String giveIp) {
         //更新求助状态为待审核
-        helpRecord.setStatus(HelpStatusEnum.WAIT_AUDIT.getValue());
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverId(helpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.getValue(), giverId);
+        helpRecord.setStatus(HelpStatusEnum.WAIT_AUDIT.value());
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverId(helpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.value(), giverId);
         //关联应助记录
         giveRecord.setFileId(docFile.getFileId());
         giveRecord.setGiverId(giverId);
         giveRecord.setGiverIp(giveIp);
         giveRecord.setHelpRecordId(helpRecord.getId());
         //前台上传的，需要后台人员再审核
-        giveRecord.setStatus(GiveStatusEnum.WAIT_AUDIT.getValue());
+        giveRecord.setStatus(GiveStatusEnum.WAIT_AUDIT.value());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
 
@@ -343,16 +343,16 @@ public class FrontServiceImpl implements FrontService {
     public Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Pageable pageable) {
 
         List<Integer> status = CollectionUtil.newArrayList(
-                HelpStatusEnum.WAIT_HELP.getValue(),
-                HelpStatusEnum.HELPING.getValue(),
-                HelpStatusEnum.HELP_THIRD.getValue());
+                HelpStatusEnum.WAIT_HELP.value(),
+                HelpStatusEnum.HELPING.value(),
+                HelpStatusEnum.HELP_THIRD.value());
         Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
         return coversHelpRecordDTO(waitHelpRecords);
     }
 
     @Override
     public Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Pageable pageable) {
-        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.getValue(), HelpStatusEnum.HELP_FAILED.getValue());
+        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value(), HelpStatusEnum.HELP_FAILED.value());
         Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
@@ -360,7 +360,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> channel, Pageable pageable) {
-        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value());
         Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
 
@@ -368,7 +368,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, Pageable pageable) {
-        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_FAILED.getValue());
+        List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_FAILED.value());
         Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
@@ -439,8 +439,8 @@ public class FrontServiceImpl implements FrontService {
             Optional<Literature> optionalLiterature = literatureRepository.findById(vHelpRecord.getLiteratureId());
             optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
             //如果有用户正在应助
-            if (vHelpRecord.getStatus() == HelpStatusEnum.HELPING.getValue()) {
-                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(vHelpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.getValue());
+            if (vHelpRecord.getStatus() == HelpStatusEnum.HELPING.value()) {
+                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(vHelpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.value());
                 optionalGiveRecord.ifPresent(helpRecordDTO::setGiving);
             }
             return helpRecordDTO;

@@ -2,8 +2,6 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -169,7 +167,7 @@ public class BackendServiceImpl implements BackendService {
         }
         docFile = saveDocFile(helpRecord.getLiteratureId(), fileId);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        Optional<GiveRecord> giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveTypeEnum.MANAGER.getCode());
+        Optional<GiveRecord> giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveTypeEnum.MANAGER.value());
 
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = giveRecordOptional.orElseGet(GiveRecord::new);
@@ -177,11 +175,11 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setHelpRecordId(helpRecord.getId());
         giveRecord.setFileId(docFile.getFileId());
         //设置应助类型为管理员应助
-        giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setType(GiveTypeEnum.MANAGER.value());
         giveRecord.setGiverId(giverId);
         giveRecord.setGiverName(giverName);
         //修改求助状态为应助成功
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
         Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
@@ -190,14 +188,14 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public void third(Long helpRecordId, Long giverId, String giverName) {
-        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.getValue());
+        HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.value());
         if (helpRecord == null) {
             throw new NotFoundException("没有找到待求助记录");
         }
-        helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getValue());
+        helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.value());
         GiveRecord giveRecord = new GiveRecord();
         giveRecord.setGiverId(giverId);
-        giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setType(GiveTypeEnum.MANAGER.value());
         giveRecord.setGiverName(giverName);
 
         giveRecord.setHelpRecordId(helpRecord.getId());
@@ -210,14 +208,14 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public void failed(Long helpRecordId, Long giverId, String giverName) {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
-        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getValue());
+        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value());
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveTypeEnum.MANAGER.getCode());
+        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveTypeEnum.MANAGER.value());
 
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = optionalGiveRecord.orElseGet(GiveRecord::new);
         giveRecord.setGiverId(giverId);
-        giveRecord.setType(GiveTypeEnum.MANAGER.getCode());
+        giveRecord.setType(GiveTypeEnum.MANAGER.value());
         giveRecord.setGiverName(giverName);
         giveRecord.setHelpRecordId(helpRecordId);
         giveRecordRepository.save(giveRecord);
@@ -233,7 +231,7 @@ public class BackendServiceImpl implements BackendService {
             throw new NotFoundException("未找到待审核的应助记录");
         }
 
-        giveRecord.setStatus(GiveStatusEnum.SUCCESS.getValue());
+        giveRecord.setStatus(GiveStatusEnum.SUCCESS.value());
         giveRecord.setHandlerId(auditorId);
         giveRecord.setHandlerName(auditorName);
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
@@ -242,7 +240,7 @@ public class BackendServiceImpl implements BackendService {
         docFile.setLiteratureId(literature.getId()).setFileId(giveRecord.getFileId());
         docFileRepository.save(docFile);
 
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
         helpRecordRepository.save(helpRecord);
         Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
         optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
@@ -255,27 +253,27 @@ public class BackendServiceImpl implements BackendService {
         if (giveRecord == null) {
             throw new NotFoundException("未找到待审核的应助记录");
         }
-        giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.getValue());
+        giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.value());
         giveRecord.setHandlerId(auditorId);
         giveRecord.setHandlerName(auditorName);
-        helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.getValue());
+        helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
         helpRecordRepository.save(helpRecord);
     }
 
     @Override
     public HelpRecord getWaitOrThirdHelpRecord(Long id) {
         return helpRecordRepository.findByIdAndStatusIn(id,
-                new int[]{HelpStatusEnum.WAIT_HELP.getValue(), HelpStatusEnum.HELP_THIRD.getValue()});
+                new int[]{HelpStatusEnum.WAIT_HELP.value(), HelpStatusEnum.HELP_THIRD.value()});
     }
 
     @Override
     public HelpRecord getWaitAuditHelpRecord(Long id) {
-        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.getValue());
+        return helpRecordRepository.findByIdAndStatus(id, HelpStatusEnum.WAIT_AUDIT.value());
     }
 
     @Override
     public GiveRecord getWaitAudit(Long id) {
-        return giveRecordRepository.findByIdAndStatus(id, GiveStatusEnum.WAIT_AUDIT.getValue());
+        return giveRecordRepository.findByIdAndStatus(id, GiveStatusEnum.WAIT_AUDIT.value());
     }
 
 

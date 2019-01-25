@@ -45,18 +45,15 @@ public enum HelpStatusEnum {
 
     public static Optional<HelpStatusEnum> match(int value) {
         for (HelpStatusEnum helpStatusEnum : HelpStatusEnum.values()) {
-            if (helpStatusEnum.getValue() == value) {
+            if (helpStatusEnum.value() == value) {
                 return Optional.of(helpStatusEnum);
             }
         }
         return Optional.empty();
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public int getValue() {
+    public int value() {
         return value;
     }
 

@@ -75,7 +75,7 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public long successTotal() {
-        return helpRecordRepository.countByStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        return helpRecordRepository.countByStatus(HelpStatusEnum.HELP_SUCCESSED.value());
     }
 
     @Override
@@ -91,7 +91,7 @@ public class TjServiceImpl implements TjService {
         //我的总求助数量
         long myHelpCount = helpRecordRepository.countByHelperId(userDTO.getId());
         //我的求助成功数量
-        long successHelpCount = helpRecordRepository.countByHelperIdAndStatus(userDTO.getId(), HelpStatusEnum.HELP_SUCCESSED.getValue());
+        long successHelpCount = helpRecordRepository.countByHelperIdAndStatus(userDTO.getId(), HelpStatusEnum.HELP_SUCCESSED.value());
 
         long giveCount = giveRecordRepository.countByGiverId(userDTO.getId());
         //总上限
@@ -144,7 +144,7 @@ public class TjServiceImpl implements TjService {
         long myTodayHelpCount = helpRecordRepository.countByHelperEmailToday(email);
         //我的总求助数量
         long myHelpCount = helpRecordRepository.countByHelperEmail(email);
-        long successHelpCount = helpRecordRepository.countByHelperEmailAndStatus(email, HelpStatusEnum.HELP_SUCCESSED.getValue());
+        long successHelpCount = helpRecordRepository.countByHelperEmailAndStatus(email, HelpStatusEnum.HELP_SUCCESSED.value());
         //总上限
         Long total = permission.getTotal();
         //每日上限

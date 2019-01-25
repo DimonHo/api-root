@@ -18,7 +18,7 @@ import java.util.List;
  * @Description: 定时发送未发送的邮件
  */
 @Component
-public class HelpRecordTask {
+public class SendMailTask {
 
     @Autowired
     VHelpRecordRepository vHelpRecordRepository;

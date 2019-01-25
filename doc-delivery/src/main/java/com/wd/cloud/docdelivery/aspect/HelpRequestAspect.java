@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author He Zhigang
  * @date 2019/1/18
- * @Description:
+ * @Description: 求助拦截，求助前检查用户是否还有求助次数
  */
 @Slf4j
 @Aspect
@@ -72,10 +72,12 @@ public class HelpRequestAspect {
         if (permission == null) {
             permission = permissionRepository.findByOrgIdIsNullAndLevel(level);
         }
-        if (permission.getTotal() != null && permission.getTotal() <= helpTotal) {
-            throw new AppException(ExceptionEnum.HELP_TOTAL_CEILING);
-        } else if (permission.getTodayTotal() <= helpTotalToday) {
-            throw new AppException(ExceptionEnum.HELP_TOTAL_TODAY_CEILING);
+        if (permission != null) {
+            if (permission.getTotal() != null && permission.getTotal() <= helpTotal) {
+                throw new AppException(ExceptionEnum.HELP_TOTAL_CEILING);
+            } else if (permission.getTodayTotal() <= helpTotalToday) {
+                throw new AppException(ExceptionEnum.HELP_TOTAL_TODAY_CEILING);
+            }
         }
     }
 

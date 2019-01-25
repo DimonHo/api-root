@@ -76,7 +76,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public DownloadFileModel getWaitAuditFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.WAIT_AUDIT.getValue());
+        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value());
         if (optionalGiveRecord.isPresent()) {
             DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, optionalGiveRecord.get());
             return downloadFileModel;
@@ -91,7 +91,7 @@ public class FileServiceImpl implements FileService {
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<byte[]> responseModel = giveRecord.getType() == GiveTypeEnum.BIG_DB.getCode() ?
+        ResponseModel<byte[]> responseModel = giveRecord.getType() == GiveTypeEnum.BIG_DB.value() ?
                 pdfSearchServerApi.getFileByte(fileId) : fsServerApi.getFileByte(fileId);
         if (responseModel.isError()) {
             log.error("文件服务调用失败：{}", responseModel.getMessage());

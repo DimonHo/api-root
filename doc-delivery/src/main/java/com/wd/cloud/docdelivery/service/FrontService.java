@@ -3,6 +3,7 @@ package com.wd.cloud.docdelivery.service;
 import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.*;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,7 @@ public interface FrontService {
 
     DocFile saveDocFile(Long literatureId, String fileId, String filaName);
 
-    String help(HelpRecord helpRecord,Literature literature);
+    String help(HelpRecord helpRecord,Literature literature) throws ConstraintViolationException;
 
     void give(Long helpRecordId, Long giverId, String giverName, String ip);
 

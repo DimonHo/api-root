@@ -81,15 +81,15 @@ public class ProcessServiceImpl implements ProcessService {
         // 如果不是待应助状态，中断操作
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
-            if (helpRecord.getStatus() != HelpStatusEnum.WAIT_HELP.getValue()) {
+            if (helpRecord.getStatus() != HelpStatusEnum.WAIT_HELP.value()) {
                 throw new AppException(HttpStatus.HTTP_INTERNAL_ERROR, "非法操作");
             }
-            helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.getValue());
+            helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.value());
             GiveRecord giveRecord = new GiveRecord();
             giveRecord.setHelpRecordId(helpRecord.getId())
                     .setHandlerId(handlerId)
                     .setHandlerName(handlerName)
-                    .setType(GiveTypeEnum.MANAGER.getCode());
+                    .setType(GiveTypeEnum.MANAGER.value());
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
             Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
@@ -104,7 +104,7 @@ public class ProcessServiceImpl implements ProcessService {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
-            if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.getValue()) {
+            if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.value()) {
                 throw new AppException(ExceptionEnum.FLOW_STATUS);
             }
             // 获取fileId
@@ -115,15 +115,15 @@ public class ProcessServiceImpl implements ProcessService {
             docFile.setLiteratureId(helpRecord.getLiteratureId()).setFileId(fileId);
 
             //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.THIRD.getValue()).orElse(new GiveRecord());
+            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.THIRD.value()).orElse(new GiveRecord());
             giveRecord.setHelpRecordId(helpRecord.getId())
                     .setFileId(fileId)
-                    .setType(GiveTypeEnum.MANAGER.getCode())
-                    .setStatus(GiveStatusEnum.SUCCESS.getValue())
+                    .setType(GiveTypeEnum.MANAGER.value())
+                    .setStatus(GiveStatusEnum.SUCCESS.value())
                     .setHandlerId(handlerId)
                     .setHandlerName(handlerName);
             //修改求助状态为应助成功
-            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getValue());
+            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
             docFileRepository.save(docFile);
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
@@ -139,17 +139,17 @@ public class ProcessServiceImpl implements ProcessService {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
-            if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.getValue()) {
+            if (helpRecord.getStatus() >= HelpStatusEnum.HELP_SUCCESSED.value()) {
                 throw new AppException(ExceptionEnum.FLOW_STATUS);
             }
-            helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.getValue());
+            helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value());
             //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.getValue()).orElse(new GiveRecord());
+            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.value()).orElse(new GiveRecord());
 
             giveRecord.setHandlerId(handlerId)
                     .setHandlerName(handlerName)
-                    .setType(GiveTypeEnum.MANAGER.getCode())
-                    .setStatus(GiveStatusEnum.NO_RESULT.getValue())
+                    .setType(GiveTypeEnum.MANAGER.value())
+                    .setStatus(GiveStatusEnum.NO_RESULT.value())
                     .setHelpRecordId(helpRecordId);
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
@@ -163,35 +163,35 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public Page<HelpRecordDTO> waitHelpRecordList(Pageable pageable) {
-        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.WAIT_HELP.getValue(), HelpStatusEnum.HELP_THIRD.getValue());
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.WAIT_HELP.value(), HelpStatusEnum.HELP_THIRD.value());
         Map<String, Object> param = MapUtil.of("status", waitStatusList);
         return helpRecordList(param, pageable);
     }
 
     @Override
     public Page<HelpRecordDTO> successHelpRecordList(Pageable pageable) {
-        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.getValue());
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value());
         Map<String, Object> param = MapUtil.of("status", waitStatusList);
         return helpRecordList(param, pageable);
     }
 
     @Override
     public Page<HelpRecordDTO> failedHelpRecordList(Pageable pageable) {
-        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELP_FAILED.getValue());
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELP_FAILED.value());
         Map<String, Object> param = MapUtil.of("status", waitStatusList);
         return helpRecordList(param, pageable);
     }
 
     @Override
     public Page<HelpRecordDTO> waitAuditHelpRecordList(Pageable pageable) {
-        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.WAIT_AUDIT.getValue());
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.WAIT_AUDIT.value());
         Map<String, Object> param = MapUtil.of("status", waitStatusList);
         return helpRecordList(param, pageable);
     }
 
     @Override
     public Page<HelpRecordDTO> helpingHelpRecordList(Pageable pageable) {
-        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELPING.getValue());
+        List<Integer> waitStatusList = CollectionUtil.newArrayList(HelpStatusEnum.HELPING.value());
         Map<String, Object> param = MapUtil.of("status", waitStatusList);
         return helpRecordList(param, pageable);
     }

@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author He Zhigang
  * @date 2019/1/18
- * @Description:
+ * @Description: 请求日志记录
  */
 @Slf4j
 @Aspect
@@ -27,7 +27,8 @@ public class RequestLogAspect {
 
 
     @Pointcut("execution(public * com.wd.cloud.docdelivery.controller.*.*(..))")
-    public void webLog(){}
+    public void webLog() {
+    }
 
     @Before("webLog()")
     public void doBefore(JoinPoint joinPoint) throws Throwable {

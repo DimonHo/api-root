@@ -38,7 +38,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                 }
                 if (StrUtil.isNotBlank(keyword)) {
                     list.add(cb.or(
-                            cb.like(root.get("literature").get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
+                            cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"),
                             cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")
                             )
                     );
