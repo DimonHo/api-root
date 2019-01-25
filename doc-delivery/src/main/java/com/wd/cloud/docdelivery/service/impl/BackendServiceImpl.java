@@ -105,7 +105,7 @@ public class BackendServiceImpl implements BackendService {
 
         Page<LiteratureDTO> literatureDTOPage = literaturePage.map(vLiterature -> {
             LiteratureDTO literatureDTO = new LiteratureDTO();
-            //BeanUtil.copyProperties(literature, literatureDTO, "docFiles");
+            BeanUtil.copyProperties(vLiterature, literatureDTO);
 
             List<DocFile> docFiles = docFileRepository.findByLiteratureId(vLiterature.getId());
             List<DocFileDTO> docFileDTOS = new ArrayList<>();

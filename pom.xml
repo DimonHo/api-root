@@ -60,22 +60,28 @@
         <spring.data.elasticsearch.version>3.0.9.RELEASE</spring.data.elasticsearch.version>
         <lombok.version>1.16.20</lombok.version>
         <cas.client.version>3.4.1</cas.client.version>
+        <cas.wdclient.version>3.5.2-SNAPSHOT</cas.wdclient.version>
         <cas.starter.version>2.0.0-GA</cas.starter.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.jasig.cas.client</groupId>
+                <groupId>com.wdkj</groupId>
                 <artifactId>cas-client-core</artifactId>
-                <version>${cas.client.version}</version>
+                <version>${cas.wdclient.version}</version>
             </dependency>
+            <!--<dependency>-->
+            <!--<groupId>org.jasig.cas.client</groupId>-->
+            <!--<artifactId>cas-client-core</artifactId>-->
+            <!--<version>${cas.client.version}</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>net.unicon.cas</groupId>
-                <artifactId>cas-client-autoconfig-support</artifactId>
-                <version>${cas.starter.version}</version>
-            </dependency>
+            <!--<dependency>-->
+            <!--<groupId>net.unicon.cas</groupId>-->
+            <!--<artifactId>cas-client-autoconfig-support</artifactId>-->
+            <!--<version>${cas.starter.version}</version>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>

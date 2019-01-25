@@ -27,6 +27,10 @@
             <artifactId>commons</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.wdkj</groupId>
+            <artifactId>cas-client-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -89,10 +93,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-zipkin</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jasig.cas.client</groupId>
-            <artifactId>cas-client-core</artifactId>
-        </dependency>
+
         <!-- 集成swagger -->
         <dependency>
             <groupId>com.spring4all</groupId>

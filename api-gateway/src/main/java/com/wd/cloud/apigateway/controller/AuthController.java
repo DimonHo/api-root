@@ -1,5 +1,6 @@
 package com.wd.cloud.apigateway.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.Header;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.wd.cloud.apigateway.service.AuthService;
@@ -9,6 +10,7 @@ import com.wd.cloud.commons.enums.ClientType;
 import com.wd.cloud.commons.model.ResponseModel;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -39,21 +43,22 @@ public class AuthController {
     @Autowired
     RedisOperationsSessionRepository redisOperationsSessionRepository;
 
-    @PostMapping("/login")
-    public ResponseModel<UserDTO> login(@RequestParam String username, @RequestParam String pwd) {
+    @GetMapping("/loger/info")
+    public ResponseModel<UserDTO> login(@RequestParam String redirectUrl){
         HttpSession session = request.getSession();
         log.info("sessionId={}", session.getId());
-        //验证用户名密码
-        UserDTO userDTO = authService.loing(username, pwd);
+        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
+        Map<String,Object> authInfo = principal.getAttributes();
+        UserDTO userDTO = BeanUtil.mapToBean(authInfo,UserDTO.class,true);
         // sessionKey
         String sessionKey = null;
         //如果是移动端
         if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
             session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);
-            sessionKey = username + "-" + ClientType.MOBILE;
+            sessionKey = userDTO.getUsername() + "-" + ClientType.MOBILE;
         } else {
             session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.PC);
-            sessionKey = username + "-" + ClientType.PC;
+            sessionKey = userDTO.getUsername() + "-" + ClientType.PC;
         }
 
         //踢出同类型客户端的session
@@ -64,7 +69,7 @@ public class AuthController {
         }
         redisTemplate.opsForValue().set(sessionKey, session.getId());
 
-        log.info("用户[{}]登陆成功", username);
+        log.info("用户[{}]登陆成功", userDTO.getUsername());
         // 如果用户有所属机构，则把有效机构设置为用户所属机构
         if (userDTO.getOrg() != null) {
             request.getSession().setAttribute(SessionConstant.ORG, userDTO.getOrg());
@@ -82,6 +87,9 @@ public class AuthController {
         session.setAttribute(SessionConstant.LEVEL, level);
         return ResponseModel.ok().setBody(userDTO);
     }
+
+
+
 
     @GetMapping("/logout")
     public ResponseModel logout() {
