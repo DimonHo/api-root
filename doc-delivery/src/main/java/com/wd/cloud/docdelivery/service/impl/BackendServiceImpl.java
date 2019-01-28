@@ -171,7 +171,7 @@ public class BackendServiceImpl implements BackendService {
 
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = giveRecordOptional.orElseGet(GiveRecord::new);
-
+        giveRecord.setStatus(GiveStatusEnum.SUCCESS.value());
         giveRecord.setHelpRecordId(helpRecord.getId());
         giveRecord.setFileId(docFile.getFileId());
         //设置应助类型为管理员应助
