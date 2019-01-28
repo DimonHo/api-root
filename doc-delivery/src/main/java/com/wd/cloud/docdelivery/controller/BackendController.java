@@ -126,10 +126,9 @@ public class BackendController {
     })
     @PostMapping("/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
-                                @RequestParam Long giverId,
-                                @RequestParam String giverName,
+                                @RequestParam String username,
                                 @NotNull MultipartFile file) {
-        backendService.give(helpRecordId, giverName, file);
+        backendService.give(helpRecordId, username, file);
         return ResponseModel.ok().setMessage("文件上传成功");
     }
 

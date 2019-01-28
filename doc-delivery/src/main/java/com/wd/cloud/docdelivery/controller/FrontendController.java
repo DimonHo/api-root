@@ -222,7 +222,6 @@ public class FrontendController {
         } else {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
         }
-
     }
 
 
