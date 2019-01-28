@@ -28,14 +28,6 @@ public interface FrontService {
 
     void uploadFile(HelpRecord helpRecord, String giverName, MultipartFile file, String ip);
 
-    /**
-     * 我要应助
-     *
-     * @param helpRecordId
-     * @param giverName
-     */
-    HelpRecord givingHelp(long helpRecordId, String giverName, String giverIp);
-
     boolean cancelGivingHelp(long helpRecordId, String giverName);
 
     /**

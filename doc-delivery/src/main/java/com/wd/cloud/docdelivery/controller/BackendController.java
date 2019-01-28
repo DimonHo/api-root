@@ -4,6 +4,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -12,6 +13,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -71,8 +73,8 @@ public class BackendController {
         param.put("keyword", keyword);
         param.put("beginTime", beginTime);
         param.put("endTime", endTime);
-
-        return ResponseModel.ok().setBody(backendService.getHelpList(pageable, param));
+        Page<HelpRecordDTO> helpRecordDTOPage = backendService.getHelpList(pageable, param);
+        return ResponseModel.ok().setBody(helpRecordDTOPage);
     }
 
 

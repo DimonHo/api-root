@@ -81,8 +81,8 @@ public class BackendServiceImpl implements BackendService {
         Long helpUserScid = (Long) param.get("helperScid");
         Integer status = (Integer) param.get("status");
         //  https://www.tapd.cn/33969136/bugtrace/bugs/view?bug_id=1133969136001000485
-        String keywords = ((String) param.get("keyword"));
-        String keyword = keywords != null ? keywords.replaceAll("\\\\", "\\\\\\\\") : null;
+        String keyword = ((String) param.get("keyword"));
+        keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
         String beginTime = (String) param.get("beginTime");
         String endTime = param.get("endTime") + " 23:59:59";
         Page<VHelpRecord> result = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildBackendList(helpUserScid, status, keyword, beginTime, endTime), pageable);
