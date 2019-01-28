@@ -20,29 +20,26 @@ public interface ProcessService {
      * 等待第三方应助
      *
      * @param helpRecordId
-     * @param giverId
      * @param giverName
      */
-    void third(Long helpRecordId, Long giverId, String giverName);
+    void third(Long helpRecordId, String giverName);
 
     /**
      * 直接应助成功
      *
      * @param helpRecordId
-     * @param giverId
      * @param giverName
      * @param file
      */
-    void give(Long helpRecordId, Long giverId, String giverName, MultipartFile file);
+    void give(Long helpRecordId, String giverName, MultipartFile file);
 
     /**
      * 标记疑难文献
      *
      * @param helpRecordId
-     * @param giverId
      * @param giverName
      */
-    void failed(Long helpRecordId, Long giverId, String giverName);
+    void failed(Long helpRecordId, String giverName);
 
     Page<HelpRecordDTO> waitHelpRecordList(Pageable pageable);
     Page<HelpRecordDTO> successHelpRecordList(Pageable pageable);

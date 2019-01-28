@@ -31,12 +31,7 @@ public class GiveRecord extends AbstractEntity {
     private String fileId;
 
     /**
-     * 应助者ID
-     */
-    private Long giverId;
-
-    /**
-     * 应助者名称
+     * 应助者用户名
      */
     private String giverName;
 
@@ -62,12 +57,7 @@ public class GiveRecord extends AbstractEntity {
     private Integer status;
 
     /**
-     * 处理人
-     */
-    private Long handlerId;
-
-    /**
-     * 处理人名称
+     * 处理人用户名
      */
     private String handlerName;
 

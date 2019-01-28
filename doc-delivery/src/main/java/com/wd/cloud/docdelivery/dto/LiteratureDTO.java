@@ -18,8 +18,8 @@ public class LiteratureDTO {
     private Long id;
     private String docHref;
     private String docTitle;
-    private String authors;
-    private String yearOfPublication;
+    private String author;
+    private String year;
     private String doi;
     private String summary;
     private boolean reusing;

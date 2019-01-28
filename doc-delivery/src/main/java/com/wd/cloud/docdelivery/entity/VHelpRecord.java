@@ -42,8 +42,6 @@ public class VHelpRecord {
 
     private String helperEmail;
 
-    private Long helperId;
-
     private String helperName;
 
     private Long helperScid;

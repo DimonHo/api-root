@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HtmlUtil;
@@ -30,14 +29,11 @@ import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.MailService;
-import com.wd.cloud.docdelivery.task.GiveTimeOutTask;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -47,11 +43,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ScheduledFuture;
 
 
 /**
@@ -172,7 +166,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public void give(Long helpRecordId, Long giverId, String giverName, String ip) {
+    public void give(Long helpRecordId, String giverName, String ip) {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
         optionalHelpRecord.ifPresent(helpRecord -> {
@@ -181,11 +175,11 @@ public class FrontServiceImpl implements FrontService {
             }
             if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.value() || helpRecord.getStatus() == HelpStatusEnum.WAIT_HELP.value()) {
                 //检查用户是否已经认领了应助
-                String docTitle = findGivingDocTitle(giverId);
+                String docTitle = findGivingDocTitle(giverName);
                 if (docTitle != null) {
                     throw new AppException(ExceptionEnum.GIVE_CLAIM.status(), "请先完成您正在应助的文献:" + docTitle);
                 }
-                givingHelp(helpRecordId, giverId, giverName, ip);
+                givingHelp(helpRecordId, giverName, ip);
             } else {
                 throw new NotFoundException();
             }
@@ -193,7 +187,7 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public void uploadFile(HelpRecord helpRecord, Long giverId, MultipartFile file, String ip) {
+    public void uploadFile(HelpRecord helpRecord,String giverName, MultipartFile file, String ip) {
         String fileId = null;
         try {
             String fileMd5 = FileUtil.fileMd5(file.getInputStream());
@@ -219,23 +213,22 @@ public class FrontServiceImpl implements FrontService {
         if (optionalLiterature.isPresent()) {
             DocFile docFile = saveDocFile(optionalLiterature.get().getId(), fileId, fileName);
             //更新记录
-            createGiveRecord(helpRecord, giverId, docFile, ip);
+            createGiveRecord(helpRecord, giverName, docFile, ip);
         }
 
     }
 
     @Override
-    public HelpRecord givingHelp(long helpRecordId, long giverId, String giverName, String giverIp) {
+    public HelpRecord givingHelp(long helpRecordId, String giverName, String giverIp) {
         HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.value());
         if (helpRecord != null) {
             helpRecord.setStatus(HelpStatusEnum.HELPING.value());
             GiveRecord giveRecord = new GiveRecord();
-            giveRecord.setHelpRecordId(helpRecordId);
-            giveRecord.setGiverId(giverId);
-            giveRecord.setGiverIp(giverIp);
-            giveRecord.setGiverName(giverName);
-            giveRecord.setType(GiveTypeEnum.USER.value());
-            giveRecord.setStatus(GiveStatusEnum.WAIT_UPLOAD.value());
+            giveRecord.setHelpRecordId(helpRecordId)
+                    .setGiverIp(giverIp)
+                    .setGiverName(giverName)
+                    .setType(GiveTypeEnum.USER.value())
+                    .setStatus(GiveStatusEnum.WAIT_UPLOAD.value());
             //保存的同时，关联更新求助记录状态
             giveRecordRepository.save(giveRecord);
             helpRecordRepository.save(helpRecord);
@@ -244,14 +237,14 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public boolean cancelGivingHelp(long helpRecordId, long giverId) {
+    public boolean cancelGivingHelp(long helpRecordId, String giverName) {
         //检查用户是否已经认领了应助
-        String docTitle = findGivingDocTitle(giverId);
+        String docTitle = findGivingDocTitle(giverName);
         boolean flag = false;
         if (docTitle != null) {
             HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.value());
             if (helpRecord != null) {
-                GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverId(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.value(), giverId);
+                GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverName(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.value(), giverName);
                 giveRecord.setStatus(GiveStatusEnum.CANCEL.value());
                 //更新求助记录状态
                 helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
@@ -290,15 +283,15 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public void createGiveRecord(HelpRecord helpRecord, long giverId, DocFile docFile, String giveIp) {
+    public void createGiveRecord(HelpRecord helpRecord, String giverName, DocFile docFile, String giveIp) {
         //更新求助状态为待审核
         helpRecord.setStatus(HelpStatusEnum.WAIT_AUDIT.value());
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverId(helpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.value(), giverId);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverName(helpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.value(), giverName);
         //关联应助记录
-        giveRecord.setFileId(docFile.getFileId());
-        giveRecord.setGiverId(giverId);
-        giveRecord.setGiverIp(giveIp);
-        giveRecord.setHelpRecordId(helpRecord.getId());
+        giveRecord.setFileId(docFile.getFileId())
+                .setGiverName(giverName)
+                .setGiverIp(giveIp)
+                .setHelpRecordId(helpRecord.getId());
         //前台上传的，需要后台人员再审核
         giveRecord.setStatus(GiveStatusEnum.WAIT_AUDIT.value());
         giveRecordRepository.save(giveRecord);
@@ -307,26 +300,16 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Page<HelpRecordDTO> myHelpRecords(List<Integer> status, Pageable pageable) {
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        HttpSession session = request.getSession();
-        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(null, status, null, userDTO.getId(), null), pageable);
+    public Page<HelpRecordDTO> myHelpRecords(String username,List<Integer> status, Pageable pageable) {
+
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(null, status, null, username, null), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
     @Override
-    public Page<GiveRecordDTO> myGiveRecords(List<Integer> status, Pageable pageable) {
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        HttpSession session = request.getSession();
-        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
-        Page<GiveRecord> giveRecords = giveRecordRepository.findAll(GiveRecordRepository.SpecificationBuilder.buildGiveRecord(status, userDTO.getId()), pageable);
+    public Page<GiveRecordDTO> myGiveRecords(String giverName,List<Integer> status, Pageable pageable) {
+
+        Page<GiveRecord> giveRecords = giveRecordRepository.findAll(GiveRecordRepository.SpecificationBuilder.buildGiveRecord(status, giverName), pageable);
 
         return coversGiveRecordDTO(giveRecords);
     }
@@ -383,11 +366,11 @@ public class FrontServiceImpl implements FrontService {
     /**
      * 查询用户正在应助的文献标题
      *
-     * @param giverId
+     * @param giverName
      * @return
      */
-    private String findGivingDocTitle(long giverId) {
-        GiveRecord giveRecord = giveRecordRepository.findByGiverIdGiving(giverId);
+    private String findGivingDocTitle(String giverName) {
+        GiveRecord giveRecord = giveRecordRepository.findByGiverNameGiving(giverName);
         if (giveRecord != null) {
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
             if (optionalHelpRecord.isPresent()) {

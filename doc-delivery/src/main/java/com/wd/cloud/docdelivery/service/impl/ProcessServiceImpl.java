@@ -76,7 +76,7 @@ public class ProcessServiceImpl implements ProcessService {
     Global global;
 
     @Override
-    public void third(Long helpRecordId, Long handlerId, String handlerName) {
+    public void third(Long helpRecordId, String handlerName) {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         // 如果不是待应助状态，中断操作
         if (optionalHelpRecord.isPresent()) {
@@ -87,7 +87,6 @@ public class ProcessServiceImpl implements ProcessService {
             helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.value());
             GiveRecord giveRecord = new GiveRecord();
             giveRecord.setHelpRecordId(helpRecord.getId())
-                    .setHandlerId(handlerId)
                     .setHandlerName(handlerName)
                     .setType(GiveTypeEnum.MANAGER.value());
             giveRecordRepository.save(giveRecord);
@@ -100,7 +99,7 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public void give(Long helpRecordId, Long handlerId, String handlerName, MultipartFile file) {
+    public void give(Long helpRecordId, String handlerName, MultipartFile file) {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
@@ -120,7 +119,6 @@ public class ProcessServiceImpl implements ProcessService {
                     .setFileId(fileId)
                     .setType(GiveTypeEnum.MANAGER.value())
                     .setStatus(GiveStatusEnum.SUCCESS.value())
-                    .setHandlerId(handlerId)
                     .setHandlerName(handlerName);
             //修改求助状态为应助成功
             helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
@@ -135,7 +133,7 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public void failed(Long helpRecordId, Long handlerId, String handlerName) {
+    public void failed(Long helpRecordId, String handlerName) {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
         if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
@@ -146,8 +144,7 @@ public class ProcessServiceImpl implements ProcessService {
             //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
             GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.value()).orElse(new GiveRecord());
 
-            giveRecord.setHandlerId(handlerId)
-                    .setHandlerName(handlerName)
+            giveRecord.setHandlerName(handlerName)
                     .setType(GiveTypeEnum.MANAGER.value())
                     .setStatus(GiveStatusEnum.NO_RESULT.value())
                     .setHelpRecordId(helpRecordId);
@@ -280,20 +277,4 @@ public class ProcessServiceImpl implements ProcessService {
         return null;
     }
 
-    /**
-     * 匿名
-     *
-     * @param vHelpRecord
-     * @return
-     */
-    private VHelpRecord anonymous(VHelpRecord vHelpRecord) {
-        if (vHelpRecord.isAnonymous()) {
-            vHelpRecord.setHelperEmail("匿名").setHelperName("匿名");
-        } else {
-            String helperEmail = vHelpRecord.getHelperEmail();
-            String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
-            vHelpRecord.setHelperEmail(s);
-        }
-        return vHelpRecord;
-    }
 }

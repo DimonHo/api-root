@@ -30,8 +30,6 @@ public class HelpRecordDTO {
 
     private String helperEmail;
 
-    private Long helperId;
-
     private String helperName;
 
     private String helperScname;

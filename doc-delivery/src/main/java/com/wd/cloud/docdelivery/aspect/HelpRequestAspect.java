@@ -56,8 +56,8 @@ public class HelpRequestAspect {
         long helpTotalToday = 0;
         if (userDTO != null) {
             //用户总求助量
-            helpTotal = helpRecordRepository.countByHelperId(userDTO.getId());
-            helpTotalToday = helpRecordRepository.countByHelperIdToday(userDTO.getId());
+            helpTotal = helpRecordRepository.countByHelperName(userDTO.getUsername());
+            helpTotalToday = helpRecordRepository.countByHelperNameToday(userDTO.getUsername());
             log.info("登陆用户【{}】正在求助", userDTO.getUsername());
         } else {
             String email = request.getParameter("helperEmail");

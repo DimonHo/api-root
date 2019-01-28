@@ -43,7 +43,7 @@ public class AuthController {
     @Autowired
     RedisOperationsSessionRepository redisOperationsSessionRepository;
 
-    @GetMapping("/loger/info")
+    @GetMapping("/login")
     public ResponseModel<UserDTO> login(@RequestParam String redirectUrl){
         HttpSession session = request.getSession();
         log.info("sessionId={}", session.getId());

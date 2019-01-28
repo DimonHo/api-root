@@ -32,13 +32,7 @@ public class HelpRecord extends AbstractEntity {
     private String helperEmail;
 
     /**
-     * 求助用户ID
-     */
-    @Column(name = "helper_id")
-    private Long helperId;
-
-    /**
-     * 求助者名称
+     * 求助者用户名
      */
     private String helperName;
 

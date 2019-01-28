@@ -1,5 +1,6 @@
 package com.wd.cloud.userserver.service;
 
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.userserver.entity.UserInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,5 +9,5 @@ public interface UserInfoServer {
 
     void validate(String username);
 
-    UserInfo getUserInfo(String username);
+    UserDTO getUserInfo(String username);
 }

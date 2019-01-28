@@ -34,15 +34,15 @@ public interface BackendService {
 
     DocFile saveDocFile(Long literatureId, String fileId);
 
-    void give(Long id, Long giverId, String giverName, MultipartFile file);
+    void give(Long id, String giverName, MultipartFile file);
 
-    void third(Long id, Long giverId, String giverName);
+    void third(Long id, String giverName);
 
-    void failed(Long id, Long giverId, String giverName);
+    void failed(Long id, String giverName);
 
-    void auditPass(Long id, Long auditorId, String auditorName);
+    void auditPass(Long id, String handlerName);
 
-    void auditNoPass(Long id, Long auditorId, String auditorName);
+    void auditNoPass(Long id, String handlerName);
 
     /**
      * 获取单条可处理的记录

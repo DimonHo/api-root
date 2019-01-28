@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.service;
 
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.*;
@@ -23,20 +24,19 @@ public interface FrontService {
 
     String help(HelpRecord helpRecord,Literature literature) throws ConstraintViolationException;
 
-    void give(Long helpRecordId, Long giverId, String giverName, String ip);
+    void give(Long helpRecordId, String giverName, String ip);
 
-    void uploadFile(HelpRecord helpRecord, Long giverId, MultipartFile file, String ip);
+    void uploadFile(HelpRecord helpRecord, String giverName, MultipartFile file, String ip);
 
     /**
      * 我要应助
      *
      * @param helpRecordId
-     * @param giverId
      * @param giverName
      */
-    HelpRecord givingHelp(long helpRecordId, long giverId, String giverName, String giverIp);
+    HelpRecord givingHelp(long helpRecordId, String giverName, String giverIp);
 
-    boolean cancelGivingHelp(long helpRecordId, long giverId);
+    boolean cancelGivingHelp(long helpRecordId, String giverName);
 
     /**
      * 得到应种中状态的应助记录
@@ -81,7 +81,7 @@ public interface FrontService {
     /**
      * 创建应助记录
      */
-    void createGiveRecord(HelpRecord helpRecord, long giveUserId, DocFile docFile, String giviIp);
+    void createGiveRecord(HelpRecord helpRecord, String giverName, DocFile docFile, String giviIp);
 
     /**
      * 获取用户的求助记录
@@ -89,9 +89,9 @@ public interface FrontService {
      * @param status
      * @return
      */
-    Page<HelpRecordDTO> myHelpRecords(List<Integer> status, Pageable pageable);
+    Page<HelpRecordDTO> myHelpRecords(String helperName, List<Integer> status, Pageable pageable);
 
-    Page<GiveRecordDTO> myGiveRecords(List<Integer> status, Pageable pageable);
+    Page<GiveRecordDTO> myGiveRecords(String giverName, List<Integer> status, Pageable pageable);
 
 
     Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Pageable pageable);

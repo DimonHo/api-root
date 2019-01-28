@@ -52,13 +52,13 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
         }
 
 
-        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, Long helperId, String keyword) {
+        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword) {
             return new Specification<VHelpRecord>() {
                 @Override
                 public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                     List<Predicate> list = new ArrayList<Predicate>();
-                    if (helperId != null) {
-                        list.add(cb.equal(root.get("helperId"), helperId));
+                    if (StrUtil.isNotBlank(helperName)) {
+                        list.add(cb.equal(root.get("helperName"), helperName));
                     }
                     if (StrUtil.isNotBlank(email)) {
                         list.add(cb.equal(root.get("helperEmail"), email));

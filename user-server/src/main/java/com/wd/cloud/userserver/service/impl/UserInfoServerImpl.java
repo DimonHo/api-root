@@ -1,7 +1,9 @@
 package com.wd.cloud.userserver.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.exception.FeignException;
@@ -10,6 +12,7 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.userserver.constants.GlobalConstants;
 import com.wd.cloud.userserver.entity.UserInfo;
 import com.wd.cloud.userserver.feign.FsServerApi;
+import com.wd.cloud.userserver.feign.OrgServerApi;
 import com.wd.cloud.userserver.repository.UserInfoRepository;
 import com.wd.cloud.userserver.service.UserInfoServer;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,9 @@ public class UserInfoServerImpl implements UserInfoServer {
 
     @Autowired
     FsServerApi fsServerApi;
+
+    @Autowired
+    OrgServerApi orgServerApi;
 
     @Autowired
     UserInfoRepository userInfoRepository;
@@ -66,9 +72,15 @@ public class UserInfoServerImpl implements UserInfoServer {
     }
 
     @Override
-    public UserInfo getUserInfo(String username) {
+    public UserDTO getUserInfo(String username) {
         Optional<UserInfo> optionalUserInfo = userInfoRepository.findByUsername(username);
         optionalUserInfo.orElseThrow(NotFoundException::new);
-        return optionalUserInfo.get();
+        ResponseModel<OrgDTO> orgResponse = orgServerApi.getOrg(optionalUserInfo.get().getOrgId());
+        UserDTO userDTO = new UserDTO();
+        BeanUtil.copyProperties(optionalUserInfo.get(), userDTO);
+        if (!orgResponse.isError()) {
+            userDTO.setOrg(orgResponse.getBody());
+        }
+        return userDTO;
     }
 }

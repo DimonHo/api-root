@@ -15,11 +15,6 @@ import java.util.Date;
 public class GiveRecordDTO {
 
     /**
-     * 应助者ID
-     */
-    private Long giverId;
-
-    /**
      * 应助者名称
      */
     private String giverName;
@@ -47,20 +42,15 @@ public class GiveRecordDTO {
     /**
      * 审核人
      */
-    private Long auditorId;
-
-    /**
-     * 审核人名称
-     */
-    private String auditorName;
+    private String handlerName;
 
     /**
      * 审核失败原因
      */
-    private Long auditMsgId;
+    private String auditMsg;
 
     /**
-     * 求助邮箱
+     * 求助者邮箱
      */
     private String helperEmail;
 

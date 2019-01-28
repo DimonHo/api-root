@@ -86,11 +86,11 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     /**
      * 今日用户求助量
      *
-     * @param helperId
+     * @param helperName
      * @return
      */
-    @Query(value = "select count(*) from help_record where helper_id = ?1 and TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
-    long countByHelperIdToday(Long helperId);
+    @Query(value = "select count(*) from help_record where helper_name = ?1 and TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
+    long countByHelperNameToday(String helperName);
 
     /**
      * 今日邮箱求助量
@@ -104,10 +104,10 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     /**
      * 用户求助总量
      *
-     * @param helperId
+     * @param helperName
      * @return
      */
-    long countByHelperId(Long helperId);
+    long countByHelperName(String helperName);
 
     /**
      * 邮箱求助总量
@@ -129,28 +129,29 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     /**
      * 统计某用户求助状态的数量
      *
-     * @param userId
+     * @param helperName
      * @param status
      * @return
      */
-    long countByHelperIdAndStatus(Long userId, Integer status);
+    long countByHelperNameAndStatus(String helperName, Integer status);
 
     List<HelpRecord> findByLiteratureId(Long literatureId);
 
     List<HelpRecord> findByLiteratureIdIn(List ids);
 
-    HelpRecord findByHelperId(Long helperId);
+    HelpRecord findByHelperName(String helperName);
 
     class SpecificationBuilder {
-        public static Specification<HelpRecord> buildHelpRecord(Long helperId,String email,
+        public static Specification<HelpRecord> buildHelpRecord(String helperName,
+                                                                String email,
                                                                 List<Integer> channel,
                                                                 List<Integer> status,
                                                                 String keyword,
                                                                 String beginTime,String endTime){
             return (Specification<HelpRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (helperId != null) {
-                    list.add(cb.equal(root.get("helperId"), helperId));
+                if (StrUtil.isNotBlank(helperName)) {
+                    list.add(cb.equal(root.get("helperName"), helperName));
                 }
                 if (StrUtil.isNotBlank(email)) {
                     list.add(cb.equal(root.get("helperEmail"), email));

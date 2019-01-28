@@ -139,7 +139,7 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public void give(Long helpRecordId, Long giverId, String giverName, MultipartFile file) {
+    public void give(Long helpRecordId, String giverName, MultipartFile file) {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
@@ -176,7 +176,6 @@ public class BackendServiceImpl implements BackendService {
         giveRecord.setFileId(docFile.getFileId());
         //设置应助类型为管理员应助
         giveRecord.setType(GiveTypeEnum.MANAGER.value());
-        giveRecord.setGiverId(giverId);
         giveRecord.setGiverName(giverName);
         //修改求助状态为应助成功
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
@@ -187,18 +186,17 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public void third(Long helpRecordId, Long giverId, String giverName) {
+    public void third(Long helpRecordId, String giverName) {
         HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.WAIT_HELP.value());
         if (helpRecord == null) {
             throw new NotFoundException("没有找到待求助记录");
         }
         helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.value());
         GiveRecord giveRecord = new GiveRecord();
-        giveRecord.setGiverId(giverId);
-        giveRecord.setType(GiveTypeEnum.MANAGER.value());
-        giveRecord.setGiverName(giverName);
-
-        giveRecord.setHelpRecordId(helpRecord.getId());
+        giveRecord.setType(GiveTypeEnum.MANAGER.value())
+                .setGiverName(giverName)
+                .setHandlerName(giverName)
+                .setHelpRecordId(helpRecord.getId());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
         Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
@@ -206,7 +204,7 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public void failed(Long helpRecordId, Long giverId, String giverName) {
+    public void failed(Long helpRecordId, String giverName) {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
         helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value());
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
@@ -214,17 +212,16 @@ public class BackendServiceImpl implements BackendService {
 
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = optionalGiveRecord.orElseGet(GiveRecord::new);
-        giveRecord.setGiverId(giverId);
-        giveRecord.setType(GiveTypeEnum.MANAGER.value());
-        giveRecord.setGiverName(giverName);
-        giveRecord.setHelpRecordId(helpRecordId);
+        giveRecord.setType(GiveTypeEnum.MANAGER.value())
+                .setGiverName(giverName).setHandlerName(giverName)
+                .setHelpRecordId(helpRecordId);
         giveRecordRepository.save(giveRecord);
         Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
         optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
-    public void auditPass(Long helpRecordId, Long auditorId, String auditorName) {
+    public void auditPass(Long helpRecordId, String handlerName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
         GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, 0, 2);
         if (giveRecord == null) {
@@ -232,8 +229,7 @@ public class BackendServiceImpl implements BackendService {
         }
 
         giveRecord.setStatus(GiveStatusEnum.SUCCESS.value());
-        giveRecord.setHandlerId(auditorId);
-        giveRecord.setHandlerName(auditorName);
+        giveRecord.setHandlerName(handlerName);
         Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
 
         DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(), literature.getId()).orElse(new DocFile());
@@ -247,15 +243,13 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public void auditNoPass(Long helpRecordId, Long auditorId, String auditorName) {
+    public void auditNoPass(Long helpRecordId, String handlerName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
         GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, 0, 2);
         if (giveRecord == null) {
             throw new NotFoundException("未找到待审核的应助记录");
         }
-        giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.value());
-        giveRecord.setHandlerId(auditorId);
-        giveRecord.setHandlerName(auditorName);
+        giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.value()).setHandlerName(handlerName);
         helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
         helpRecordRepository.save(helpRecord);
     }
@@ -309,7 +303,6 @@ public class BackendServiceImpl implements BackendService {
         doc.setReusing(reusing);
         ReusingLog reusingLog = new ReusingLog();
         reusingLog.setReusing(reusing);
-        reusingLog.setHandlerId((String) param.get("handlerId"));
         reusingLog.setHandlerName((String) param.get("handlerName"));
         reusingLogRepository.save(reusingLog);
         docFileRepository.save(doc);

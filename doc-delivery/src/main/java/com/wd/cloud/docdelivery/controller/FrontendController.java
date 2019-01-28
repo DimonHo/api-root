@@ -3,6 +3,7 @@ package com.wd.cloud.docdelivery.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import com.wd.cloud.commons.annotation.ValidateUser;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
@@ -31,14 +32,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author He Zhigang
@@ -62,6 +67,7 @@ public class FrontendController {
     HttpServletRequest request;
 
     @ApiOperation(value = "文献求助")
+    @ValidateUser
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
@@ -74,12 +80,10 @@ public class FrontendController {
         BeanUtil.copyProperties(helpRequestModel, literature);
 
         if (userDTO != null) {
-            helpRecord.setHelperId(userDTO.getId());
             helpRecord.setHelperName(userDTO.getUsername());
         }
         if (orgDTO != null) {
-            helpRecord.setHelperScid(orgDTO.getId());
-            helpRecord.setHelperScname(orgDTO.getName());
+            helpRecord.setHelperScid(orgDTO.getId()).setHelperScname(orgDTO.getName());
         }
         helpRecord.setHelperIp(ip);
         helpRecord.setSend(true);
@@ -153,34 +157,49 @@ public class FrontendController {
 
     @ApiOperation(value = "我的求助记录")
     @ApiImplicitParam(name = "status", value = "状态", dataType = "List", paramType = "query")
+    @ValidateUser
     @GetMapping("/help/records/my")
-    public ResponseModel myHelpRecords(@RequestParam(required = false) List<Integer> status,
+    public ResponseModel myHelpRecords(@RequestParam(required = false) String username,
+                                       @RequestParam(required = false) List<Integer> status,
                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(status, pageable);
+        HttpSession session = request.getSession();
+        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
+        }
+        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(userDTO.getUsername(),status, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
     @ApiOperation(value = "我的应助记录")
     @ApiImplicitParam(name = "status", value = "状态", dataType = "List", paramType = "query")
+    @ValidateUser
     @GetMapping("/give/records/my")
-    public ResponseModel myGiveRecords(@RequestParam(required = false) List<Integer> status,
+    public ResponseModel myGiveRecords(@RequestParam(required = false) String username,
+                                       @RequestParam(required = false) List<Integer> status,
                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(status, pageable);
+        HttpSession session = request.getSession();
+        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
+        }
+        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(userDTO.getUsername(),status, pageable);
         return ResponseModel.ok().setBody(myGiveRecords);
     }
 
 
     @ApiOperation(value = "应助认领")
     @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path")
+    @ValidateUser
     @PatchMapping("/help/records/{helpRecordId}/giving")
-    public ResponseModel giving(@PathVariable Long helpRecordId) {
+    public ResponseModel giving(@PathVariable Long helpRecordId,
+                                @RequestParam(required = false) String username) {
         String ip = HttpUtil.getClientIP(request);
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
             throw new AuthException();
         }
-        frontService.give(helpRecordId, userDTO.getId(), userDTO.getUsername(), ip);
+        frontService.give(helpRecordId, userDTO.getUsername(), ip);
         return ResponseModel.ok().setMessage("应助认领成功");
     }
 
@@ -190,13 +209,15 @@ public class FrontendController {
             @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query")
     })
+    @ValidateUser
     @PatchMapping("/help/records/{helpRecordId}/givin/cancel")
-    public ResponseModel cancelGiving(@PathVariable Long helpRecordId) {
+    public ResponseModel cancelGiving(@PathVariable Long helpRecordId,
+                                      @RequestParam(required = false) String username) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
             throw new AuthException();
         }
-        if (frontService.cancelGivingHelp(helpRecordId, userDTO.getId())) {
+        if (frontService.cancelGivingHelp(helpRecordId, userDTO.getUsername())) {
             return ResponseModel.ok();
         } else {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
@@ -210,8 +231,10 @@ public class FrontendController {
             @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query")
     })
+    @ValidateUser
     @PostMapping("/give/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
+                                @RequestParam(required = false) String username,
                                 @NotNull MultipartFile file) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
@@ -228,7 +251,7 @@ public class FrontendController {
         if (helpRecord == null) {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
-        frontService.uploadFile(helpRecord, userDTO.getId(), file, ip);
+        frontService.uploadFile(helpRecord, userDTO.getUsername(), file, ip);
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");
     }
 
@@ -242,8 +265,9 @@ public class FrontendController {
     }
 
     @ApiOperation(value = "下一个级别的求助上限")
+    @ValidateUser
     @GetMapping("/level/next")
-    public ResponseModel nextLevel() {
+    public ResponseModel nextLevel(@RequestParam(required = false) String username) {
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
         Long orgId = orgDTO != null ? orgDTO.getId() : null;

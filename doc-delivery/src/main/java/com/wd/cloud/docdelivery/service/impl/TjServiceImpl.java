@@ -87,13 +87,13 @@ public class TjServiceImpl implements TjService {
     public MyTjDTO tjUser(UserDTO userDTO) {
         Permission permission = getPermission();
         //今日已求助数量
-        long myTodayHelpCount = helpRecordRepository.countByHelperIdToday(userDTO.getId());
+        long myTodayHelpCount = helpRecordRepository.countByHelperNameToday(userDTO.getUsername());
         //我的总求助数量
-        long myHelpCount = helpRecordRepository.countByHelperId(userDTO.getId());
+        long myHelpCount = helpRecordRepository.countByHelperName(userDTO.getUsername());
         //我的求助成功数量
-        long successHelpCount = helpRecordRepository.countByHelperIdAndStatus(userDTO.getId(), HelpStatusEnum.HELP_SUCCESSED.value());
+        long successHelpCount = helpRecordRepository.countByHelperNameAndStatus(userDTO.getUsername(), HelpStatusEnum.HELP_SUCCESSED.value());
 
-        long giveCount = giveRecordRepository.countByGiverId(userDTO.getId());
+        long giveCount = giveRecordRepository.countByGiverName(userDTO.getUsername());
         //总上限
         Long total = permission.getTotal();
         //每日上限

@@ -20,9 +20,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel(value = "文献求助post对象")
 public class HelpRequestModel {
 
-    private Long helperId;
-
-    private String helperName;
+    private String username;
     /**
      * 求助渠道
      */

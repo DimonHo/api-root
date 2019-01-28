@@ -52,20 +52,20 @@ public class UserInfoController {
 
     @ApiOperation(value = "获取用户信息")
     @GetMapping("/info")
-    public ResponseModel getUserInfo(@RequestParam String username) {
-        UserInfo userInfo = userInfoServer.getUserInfo(username);
-        return ResponseModel.ok().setBody(userInfo);
+    public ResponseModel<UserDTO> getUserInfo(@RequestParam String username) {
+        UserDTO userDTO = userInfoServer.getUserInfo(username);
+        return ResponseModel.ok().setBody(userDTO);
     }
 
     @ApiOperation(value = "获取当前登录用户信息")
     @GetMapping("/info/logon")
-    public ResponseModel getLoginUser() {
+    public ResponseModel<UserDTO> getLoginUser() {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
             throw new AuthException();
         }
-        UserInfo userInfo = userInfoServer.getUserInfo(userDTO.getUsername());
-        return ResponseModel.ok().setBody(userInfo);
+        userDTO = userInfoServer.getUserInfo(userDTO.getUsername());
+        return ResponseModel.ok().setBody(userDTO);
     }
 
 }

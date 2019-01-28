@@ -127,7 +127,7 @@ public class BackendController {
                                 @RequestParam Long giverId,
                                 @RequestParam String giverName,
                                 @NotNull MultipartFile file) {
-        backendService.give(helpRecordId, giverId, giverName, file);
+        backendService.give(helpRecordId, giverName, file);
         return ResponseModel.ok().setMessage("文件上传成功");
     }
 
@@ -146,7 +146,7 @@ public class BackendController {
     @PostMapping("/third/{id}")
     public ResponseModel helpThird(@PathVariable Long id, @RequestParam Long giverId, @RequestParam String giverName) {
 
-        backendService.third(id, giverId, giverName);
+        backendService.third(id, giverName);
 
         return ResponseModel.ok().setMessage("已提交第三方处理，请耐心等待第三方应助结果");
     }
@@ -166,7 +166,7 @@ public class BackendController {
     })
     @PostMapping("/fiaied/{id}")
     public ResponseModel helpFail(@PathVariable Long id, @RequestParam Long giverId, @RequestParam String giverName) {
-        backendService.failed(id, giverId, giverName);
+        backendService.failed(id, giverName);
         return ResponseModel.ok().setMessage("处理成功");
     }
 
@@ -178,12 +178,11 @@ public class BackendController {
     @ApiOperation(value = "审核通过")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "求助数据id", dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "auditorId", value = "审核者(处理人)id", dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "auditorName", value = "审核者(处理人)username", dataType = "String", paramType = "query")
     })
     @PatchMapping("/audit/pass/{id}")
-    public ResponseModel auditPass(@PathVariable Long id, @RequestParam Long auditorId, @RequestParam String auditorName) {
-        backendService.auditPass(id, auditorId, auditorName);
+    public ResponseModel auditPass(@PathVariable Long id, @RequestParam String auditorName) {
+        backendService.auditPass(id, auditorName);
         return ResponseModel.ok();
     }
 
@@ -195,12 +194,11 @@ public class BackendController {
     @ApiOperation(value = "审核不通过")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "求助数据id", dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "auditorId", value = "审核者(处理人)id", dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "auditorName", value = "审核者(处理人)username", dataType = "String", paramType = "query")
     })
     @PatchMapping("/audit/nopass/{id}")
-    public ResponseModel auditNoPass(@PathVariable Long id, @RequestParam Long auditorId, @RequestParam String auditorName) {
-        backendService.auditNoPass(id, auditorId, auditorName);
+    public ResponseModel auditNoPass(@PathVariable Long id, @RequestParam String auditorName) {
+        backendService.auditNoPass(id, auditorName);
         return ResponseModel.ok();
     }
 

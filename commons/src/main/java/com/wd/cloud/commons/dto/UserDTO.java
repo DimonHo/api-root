@@ -37,6 +37,12 @@ public class UserDTO implements Serializable {
      * 认证证件照
      */
     private String idPhoto;
+
+    /**
+     * 头像
+     */
+    private String photo;
+
     private OrgDTO org;
 
 }

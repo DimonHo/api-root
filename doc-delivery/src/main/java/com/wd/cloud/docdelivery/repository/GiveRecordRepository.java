@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.repository;
 
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.docdelivery.entity.GiveRecord;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,22 +36,22 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
     /**
      * 应助者的应助记录
      *
-     * @param giverId
+     * @param giverName
      * @param status
      * @return
      */
-    List<GiveRecord> findByGiverIdAndStatus(Long giverId, int status);
+    List<GiveRecord> findByGiverNameAndStatus(String giverName, int status);
 
     /**
      * 用户应助中
      *
-     * @param giverId
+     * @param giverName
      * @return
      */
-    @Query(value = "select * from give_record where giver_id = ?1 and status = 0", nativeQuery = true)
-    GiveRecord findByGiverIdGiving(Long giverId);
+    @Query(value = "select * from give_record where giver_name = ?1 and status = 0", nativeQuery = true)
+    GiveRecord findByGiverNameGiving(String giverName);
 
-    List<GiveRecord> findByGiverId(Long giverId);
+    List<GiveRecord> findByGiverName(String giverName);
 
 
     /**
@@ -58,20 +59,20 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
      *
      * @param helpRecordId
      * @param status
-     * @param giverId
+     * @param giverName
      * @return
      */
-    GiveRecord findByHelpRecordIdAndStatusAndGiverId(Long helpRecordId, int status, long giverId);
+    GiveRecord findByHelpRecordIdAndStatusAndGiverName(Long helpRecordId, int status, String giverName);
 
     /**
      * 取消应助，删除应助记录
      *
      * @param helpRecordId
      * @param status
-     * @param giverId
+     * @param giverName
      * @return
      */
-    void deleteByHelpRecordIdAndStatusAndGiverId(Long helpRecordId, int status, long giverId);
+    void deleteByHelpRecordIdAndStatusAndGiverName(Long helpRecordId, int status, String giverName);
 
     /**
      * 特定应助类型的应助记录
@@ -112,19 +113,19 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
     /**
      * 我的应助
      *
-     * @param giverId
+     * @param giverName
      * @return
      */
-    long countByGiverId(Long giverId);
+    long countByGiverName(String giverName);
 
     List<GiveRecord> findByFileId(String fileId);
 
     class SpecificationBuilder {
-        public static Specification<GiveRecord> buildGiveRecord(List<Integer> status, Long giverId) {
+        public static Specification<GiveRecord> buildGiveRecord(List<Integer> status, String giverName) {
             return (Specification<GiveRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (giverId != null) {
-                    list.add(cb.equal(root.get("giverId"), giverId));
+                if (StrUtil.isNotBlank(giverName)) {
+                    list.add(cb.equal(root.get("giverName"), giverName));
                 }
                 // 状态过滤
                 if (status != null && status.size() > 0) {

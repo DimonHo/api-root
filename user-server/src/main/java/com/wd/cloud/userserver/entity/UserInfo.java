@@ -22,6 +22,14 @@ import javax.persistence.Table;
 public class UserInfo extends AbstractEntity{
 
     private String username;
+
+    private String nickname;
+
+    private String email;
+
+    private Long orgId;
+
+    private String orgName;
     /**
      * 手机号码
      */
@@ -40,5 +48,6 @@ public class UserInfo extends AbstractEntity{
     /**
      * 是否已认证
      */
-    private Boolean validated;
+    @Column(name = "is_validated", columnDefinition = "tinyint(1) default 0 COMMENT '0:未认证，1：已认证'")
+    private boolean validated;
 }
