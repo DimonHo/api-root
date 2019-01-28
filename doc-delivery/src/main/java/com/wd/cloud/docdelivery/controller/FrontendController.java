@@ -84,6 +84,8 @@ public class FrontendController {
         }
         if (orgDTO != null) {
             helpRecord.setHelperScid(orgDTO.getId()).setHelperScname(orgDTO.getName());
+        }else{
+            helpRecord.setHelperScid(helpRequestModel.getHelperScid()).setHelperScname(helpRequestModel.getHelperScname());
         }
         helpRecord.setHelperIp(ip);
         helpRecord.setSend(true);

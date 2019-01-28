@@ -41,6 +41,7 @@ public class MailServiceImpl implements MailService {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
+    @Async
     @Override
     public void sendMail(VHelpRecord vHelpRecord) {
 

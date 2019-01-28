@@ -21,6 +21,10 @@ import javax.validation.constraints.NotNull;
 public class HelpRequestModel {
 
     private String username;
+
+    private Long helperScid;
+
+    private String helperScname;
     /**
      * 求助渠道
      */

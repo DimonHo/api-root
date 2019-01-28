@@ -5,6 +5,7 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.wd.cloud.apigateway.feign.OrgServerApi;
 import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.model.ResponseModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class ClientIpFilter extends ZuulFilter {
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         if (isOut == null || level == null) {
             String clientIp = HttpUtil.getClientIP(request);
-            ResponseModel orgResponse = orgServerApi.getByIp(clientIp);
+            ResponseModel<OrgDTO> orgResponse = orgServerApi.getByIp(clientIp);
             if (!orgResponse.isError()) {
                 //非校外访问
                 request.getSession().setAttribute(SessionConstant.IS_OUT, false);
