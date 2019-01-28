@@ -194,6 +194,7 @@ public class BackendServiceImpl implements BackendService {
         helpRecord.setStatus(HelpStatusEnum.HELP_THIRD.value());
         GiveRecord giveRecord = new GiveRecord();
         giveRecord.setType(GiveTypeEnum.MANAGER.value())
+                .setStatus(GiveStatusEnum.THIRD.value())
                 .setGiverName(giverName)
                 .setHandlerName(giverName)
                 .setHelpRecordId(helpRecord.getId());
@@ -213,6 +214,7 @@ public class BackendServiceImpl implements BackendService {
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = optionalGiveRecord.orElseGet(GiveRecord::new);
         giveRecord.setType(GiveTypeEnum.MANAGER.value())
+                .setStatus(GiveStatusEnum.NO_RESULT.value())
                 .setGiverName(giverName).setHandlerName(giverName)
                 .setHelpRecordId(helpRecordId);
         giveRecordRepository.save(giveRecord);
