@@ -167,7 +167,7 @@ public class BackendServiceImpl implements BackendService {
         }
         docFile = saveDocFile(helpRecord.getLiteratureId(), fileId);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        Optional<GiveRecord> giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveTypeEnum.MANAGER.value());
+        Optional<GiveRecord> giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.THIRD.value());
 
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = giveRecordOptional.orElseGet(GiveRecord::new);
@@ -208,7 +208,7 @@ public class BackendServiceImpl implements BackendService {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
         helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value());
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveTypeEnum.MANAGER.value());
+        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.value());
 
         //如果没有第三方状态的记录，则新建一条应助记录
         GiveRecord giveRecord = optionalGiveRecord.orElseGet(GiveRecord::new);
@@ -223,7 +223,7 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public void auditPass(Long helpRecordId, String handlerName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, 0, 2);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value(), GiveTypeEnum.USER.value());
         if (giveRecord == null) {
             throw new NotFoundException("未找到待审核的应助记录");
         }
@@ -234,9 +234,10 @@ public class BackendServiceImpl implements BackendService {
 
         DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(), literature.getId()).orElse(new DocFile());
         docFile.setLiteratureId(literature.getId()).setFileId(giveRecord.getFileId());
-        docFileRepository.save(docFile);
 
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
+        docFileRepository.save(docFile);
+        giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
         Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
         optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
@@ -245,12 +246,13 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public void auditNoPass(Long helpRecordId, String handlerName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, 0, 2);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value(), GiveTypeEnum.USER.value());
         if (giveRecord == null) {
             throw new NotFoundException("未找到待审核的应助记录");
         }
         giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.value()).setHandlerName(handlerName);
         helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
+        giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
     }
 
