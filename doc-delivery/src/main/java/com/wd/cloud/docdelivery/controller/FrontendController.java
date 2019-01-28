@@ -210,7 +210,7 @@ public class FrontendController {
             @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query")
     })
     @ValidateUser
-    @PatchMapping("/help/records/{helpRecordId}/givin/cancel")
+    @PatchMapping("/help/records/{helpRecordId}/giving/cancel")
     public ResponseModel cancelGiving(@PathVariable Long helpRecordId,
                                       @RequestParam(required = false) String username) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
@@ -228,8 +228,7 @@ public class FrontendController {
 
     @ApiOperation(value = "应助上传文件")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query")
+            @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path")
     })
     @ValidateUser
     @PostMapping("/give/upload/{helpRecordId}")
