@@ -307,7 +307,7 @@ public class BackendServiceImpl implements BackendService {
         doc.setReusing(reusing);
         ReusingLog reusingLog = new ReusingLog();
         reusingLog.setReusing(reusing);
-        reusingLog.setHandlerName((String) param.get("handlerName"));
+        reusingLog.setHandlerName((String) param.get("username"));
         reusingLogRepository.save(reusingLog);
         docFileRepository.save(doc);
         literatureRepository.save(literature);
