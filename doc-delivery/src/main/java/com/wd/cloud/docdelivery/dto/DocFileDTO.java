@@ -12,7 +12,11 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class DocFileDTO {
 
+    private String id;
+
     private String fileId;
 
     private boolean reusing;
+
+    private String handlerName;
 }

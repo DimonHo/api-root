@@ -72,9 +72,6 @@ public class BackendServiceImpl implements BackendService {
     @Autowired
     ReusingLogRepository reusingLogRepository;
 
-    @Autowired
-    VLiteratureRepository vLiteratureRepository;
-
 
     @Override
     public Page<HelpRecordDTO> getHelpList(Pageable pageable, Map<String, Object> param) {
@@ -99,15 +96,15 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public Page<LiteratureDTO> getLiteratureList(Pageable pageable, Map<String, Object> param) {
         Boolean reusing = (Boolean) param.get("reusing");
-        String keywords = ((String) param.get("keyword"));
-        String keyword = keywords != null ? keywords.replaceAll("\\\\", "\\\\\\\\") : null;
-        Page<VLiterature> literaturePage = vLiteratureRepository.findAll(VLiteratureRepository.SpecificationBuilder.buildBackLiteraList(reusing, keyword), pageable);
+        String keyword = ((String) param.get("keyword"));
+        keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
+        Page<Literature> literaturePage = literatureRepository.findAll(LiteratureRepository.SpecificationBuilder.buildBackLiteraList(reusing, keyword), pageable);
 
-        Page<LiteratureDTO> literatureDTOPage = literaturePage.map(vLiterature -> {
+        Page<LiteratureDTO> literatureDTOPage = literaturePage.map(literature -> {
             LiteratureDTO literatureDTO = new LiteratureDTO();
-            BeanUtil.copyProperties(vLiterature, literatureDTO);
+            BeanUtil.copyProperties(literature, literatureDTO);
 
-            List<DocFile> docFiles = docFileRepository.findByLiteratureId(vLiterature.getId());
+            List<DocFile> docFiles = docFileRepository.findByLiteratureId(literature.getId());
             List<DocFileDTO> docFileDTOS = new ArrayList<>();
             docFiles.forEach(docFile -> {
                 DocFileDTO docFileDTO = new DocFileDTO();
@@ -287,6 +284,7 @@ public class BackendServiceImpl implements BackendService {
         Literature literature = literatureRepository.findById(literatureId).orElse(null);
         long docFileId = (long) param.get("docFileId");
         boolean reusing = (boolean) param.get("reusing");
+        String handlerName = (String) param.get("username");
         List<DocFile> list = docFileRepository.getResuingDoc(literatureId);
         DocFile doc = null;
         for (DocFile docFile : list) {
@@ -304,12 +302,13 @@ public class BackendServiceImpl implements BackendService {
         if (doc == null || literature == null) {
             return false;
         }
-        doc.setReusing(reusing);
-        ReusingLog reusingLog = new ReusingLog();
-        reusingLog.setReusing(reusing);
-        reusingLog.setHandlerName((String) param.get("username"));
-        reusingLogRepository.save(reusingLog);
+        doc.setReusing(reusing).setHandlerName(handlerName);
+//        ReusingLog reusingLog = new ReusingLog();
+//        reusingLog.setReusing(reusing);
+//        reusingLog.setHandlerName((String) param.get("username"));
+//        reusingLogRepository.save(reusingLog);
         docFileRepository.save(doc);
+        literature.setReusing(reusing).setLastHandlerName(handlerName);
         literatureRepository.save(literature);
         return true;
     }

@@ -5,7 +5,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,8 +31,8 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
 
     List<Literature> findByUnidIsNull();
 
-    @Query(value = "select doc_href,doc_title from literature where unid is null group by doc_href,doc_title",nativeQuery = true)
-    List<Map<String,String>> findByUnidIsNullGroupBy();
+    @Query(value = "select doc_href,doc_title from literature where unid is null group by doc_href,doc_title", nativeQuery = true)
+    List<Map<String, String>> findByUnidIsNullGroupBy();
 
     /**
      * 根据文献标题查询文献元数据
@@ -57,4 +60,20 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
 
     List<Literature> deleteByIdIn(List ids);
 
+
+    class SpecificationBuilder {
+        public static Specification<Literature> buildBackLiteraList(Boolean reusing, String keyword) {
+            return (Specification<Literature>) (root, query, cb) -> {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (reusing != null) {
+                    list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
+                }
+                if (!StringUtils.isEmpty(keyword)) {
+                    list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            };
+        }
+    }
 }

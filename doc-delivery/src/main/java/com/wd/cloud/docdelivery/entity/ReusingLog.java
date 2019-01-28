@@ -19,14 +19,14 @@ import javax.persistence.Table;
 @Table(name = "reusing_log")
 public class ReusingLog extends AbstractEntity{
 
-    private String handlerName;
-
-    /**
-     * 0：取消复用，1：复用
-     */
-    private boolean reusing;
-
-    private Long literatureId;
-
-    private Long docFileId;
+//    private String handlerName;
+//
+//    /**
+//     * 0：取消复用，1：复用
+//     */
+//    private boolean reusing;
+//
+//    private Long literatureId;
+//
+//    private Long docFileId;
 }

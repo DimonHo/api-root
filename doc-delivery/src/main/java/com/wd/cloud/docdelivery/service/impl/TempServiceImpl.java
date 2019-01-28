@@ -67,6 +67,16 @@ public class TempServiceImpl implements TempService {
         return 0;
     }
 
+    @Override
+    public void updateHandlerName() {
+        literatureRepository.findAll().forEach(literature -> {
+            docFileRepository.findByLiteratureId(literature.getId()).stream().findFirst().ifPresent(docFile -> {
+                literature.setLastHandlerName(docFile.getHandlerName());
+                literatureRepository.save(literature);
+            });
+        });
+    }
+
     @Transactional
     void update(Map literature) {
         //根据doc_href与doc_title查询数据。

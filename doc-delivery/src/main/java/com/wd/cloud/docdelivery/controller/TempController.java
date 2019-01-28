@@ -29,4 +29,10 @@ public class TempController {
         tempService.deleteLiteratureUnid();
         return ResponseModel.ok();
     }
+
+    @GetMapping("/updateHandlerName")
+    public ResponseModel updateHandlerName(){
+        tempService.updateHandlerName();
+        return ResponseModel.ok();
+    }
 }

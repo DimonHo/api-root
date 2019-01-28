@@ -13,8 +13,6 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class LiteratureDTO {
-
-    List<DocFileDTO> docFiles;
     private Long id;
     private String docHref;
     private String docTitle;
@@ -23,4 +21,6 @@ public class LiteratureDTO {
     private String doi;
     private String summary;
     private boolean reusing;
+    private String lastHandlerName;
+    List<DocFileDTO> docFiles;
 }

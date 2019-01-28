@@ -61,6 +61,16 @@ public class Literature extends AbstractEntity {
      */
     private String author;
 
+    /**
+     * 复用
+     */
+    @Column(name = "is_reusing", columnDefinition = "tinyint(1) default 0 COMMENT '0:未复用，1：已复用'")
+    private boolean reusing;
+    /**
+     * 最后处理人
+     */
+    private String lastHandlerName;
+
     @PrePersist
     public void createUnid() {
         this.unid = SecureUtil.md5(this.docTitle + this.docHref);

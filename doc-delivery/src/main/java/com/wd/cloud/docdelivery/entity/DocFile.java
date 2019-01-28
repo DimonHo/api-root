@@ -34,4 +34,6 @@ public class DocFile extends AbstractEntity {
     @Column(name = "is_reusing", columnDefinition = "tinyint(1) default 0 COMMENT '0:未复用，1：已复用'")
     private boolean reusing;
 
+    private String handlerName;
+
 }

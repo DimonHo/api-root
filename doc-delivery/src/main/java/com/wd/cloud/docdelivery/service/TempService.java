@@ -10,4 +10,6 @@ public interface TempService {
     int updateLiteratureUnid();
 
     int deleteLiteratureUnid();
+
+    void updateHandlerName();
 }
