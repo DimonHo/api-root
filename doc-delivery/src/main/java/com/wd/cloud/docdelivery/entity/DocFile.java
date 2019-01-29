@@ -31,6 +31,7 @@ public class DocFile extends AbstractEntity {
     /**
      * 仓库类型，1：fs-server,2：大数据平台全文仓库
      */
+    @Column(name = "is_big_db", columnDefinition = "bit(1) default 0 COMMENT '0:文件上传，1：数据平台'")
     private boolean bigDb;
     /**
      * 复用
