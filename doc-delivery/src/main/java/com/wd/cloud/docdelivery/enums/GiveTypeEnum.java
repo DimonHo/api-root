@@ -16,15 +16,15 @@ public enum GiveTypeEnum {
     BIG_DB("数据库全文", 3);
 
     private String name;
-    private int code;
+    private int value;
 
-    private GiveTypeEnum(String name, int code) {
+    private GiveTypeEnum(String name, int value) {
         this.name = name;
-        this.code = code;
+        this.value = value;
     }
 
     public int value() {
-        return code;
+        return value;
     }
 
 }

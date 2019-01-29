@@ -29,6 +29,10 @@ public class DocFile extends AbstractEntity {
     private Long literatureId;
 
     /**
+     * 仓库类型，1：fs-server,2：大数据平台全文仓库
+     */
+    private boolean bigDb;
+    /**
      * 复用
      */
     @Column(name = "is_reusing", columnDefinition = "tinyint(1) default 0 COMMENT '0:未复用，1：已复用'")

@@ -165,7 +165,7 @@ public class FrontServiceImpl implements FrontService {
             helpRecord = helpRecordRepository.save(helpRecord);
             String fileId = pdfResponse.getBody();
             DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
-            docFile.setFileId(fileId).setLiteratureId(literature.getId());
+            docFile.setFileId(fileId).setLiteratureId(literature.getId()).setBigDb(true);
             docFileRepository.save(docFile);
             GiveRecord giveRecord = new GiveRecord();
             giveRecord.setFileId(fileId)

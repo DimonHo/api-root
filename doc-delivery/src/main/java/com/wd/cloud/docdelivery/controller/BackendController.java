@@ -213,7 +213,7 @@ public class BackendController {
             @ApiImplicitParam(name = "username", value = "复用人(处理人)username", dataType = "String", paramType = "query")
     })
     @GetMapping("/reusing/pass/{docFileId}")
-    public ResponseModel reusing(@PathVariable Long docFileId, @RequestParam Long literatureId, @RequestParam String username) {
+    public ResponseModel reusing(@PathVariable Long docFileId,@RequestParam Long literatureId, @RequestParam String username) {
         Map<String, Object> param = new HashMap<>();
         param.put("docFileId", docFileId);
         param.put("reusing", true);

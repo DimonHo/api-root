@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.aspect;
 
+import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
@@ -47,6 +48,9 @@ public class HelpRequestAspect {
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
+        if (validateParam(request)){
+            throw new AppException(ExceptionEnum.HELP_PARAM);
+        }
         HttpSession session = request.getSession();
         UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
         OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
@@ -79,6 +83,17 @@ public class HelpRequestAspect {
                 throw new AppException(ExceptionEnum.HELP_TOTAL_TODAY_CEILING);
             }
         }
+    }
+
+    /**
+     * 参数校验
+     * @param request
+     * @return
+     */
+    private boolean validateParam(HttpServletRequest request){
+        String email = request.getParameter("helperEmail");
+        String docTitle = request.getParameter("docTitle");
+        return StrUtil.isNotBlank(email) && StrUtil.isNotBlank(docTitle);
     }
 
 }

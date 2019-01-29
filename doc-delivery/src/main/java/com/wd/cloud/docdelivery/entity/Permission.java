@@ -33,12 +33,12 @@ public class Permission extends AbstractEntity {
     private Integer level;
 
     /**
-     * 每天求助上限 ，-1则表示无上限
+     * 每天求助上限 ，null则表示无上限
      */
     private Long todayTotal;
 
     /**
-     * 总求助上限，-1则表示无上限
+     * 总求助上限，null则表示无上限
      */
     private Long total;
 }

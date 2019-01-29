@@ -215,6 +215,7 @@ public class BackendServiceImpl implements BackendService {
                 .setGiverName(giverName).setHandlerName(giverName)
                 .setHelpRecordId(helpRecordId);
         giveRecordRepository.save(giveRecord);
+        helpRecordRepository.save(helpRecord);
         Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
         optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
