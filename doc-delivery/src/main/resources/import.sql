@@ -37,37 +37,37 @@
 -- insert into permission(level,org_id,org_name,today_total,total) values (1,null,null,5,10),(2,null,null,6,11),(3,null,null,7,12),(6,null,null,8,14),(7,null,null,10,null);
 -- insert into channel (id,name,url,template) values (1,"QQ","http://paper.hnlat.com","qq/%s.ftl"),(2,"Spischolar学术资源在线","http://www.spischolar.com","spis/%s.ftl"),(3,"智汇云","http://www.yunscholar.com","zhy/%s.ftl"),(4,"crscholar核心论文库","http://www.crscholar.com","crs/%s.ftl"),(0,"paper","http://paper.hnlat.com","paper/%s.ftl");
 
--- drop view v_help_record;
--- CREATE VIEW v_help_record AS SELECT
---                                     t1.id AS id,
---                                     t1.gmt_create,
---                                     t1.gmt_modified,
---                                     t1.helper_email,
---                                     t1.helper_ip,
---                                     t1.helper_name,
---                                     t1.helper_scid,
---                                     t1.helper_scname,
---                                     t1.help_channel,
---                                     t3.name as channel_name,
---                                     t3.url as channel_url,
---                                     t3.template as channel_template,
---                                     t3.bccs as bccs,
---                                     t3.exp as exp,
---                                     t1.is_anonymous,
---                                     t1.is_send,
---                                     t1.literature_id,
---                                     t1.status,
---                                     t1.remark,
---                                     t2.doc_title,
---                                     t2.doc_href,
---                                     t2.author,
---                                     t2.doi,
---                                     t2.summary,
---                                     t2.unid,
---                                     t2.year
---                              FROM
---                                   help_record t1,
---                                   literature t2,
---                                   channel t3
---                              WHERE
---                                  t1.literature_id = t2.id and t1.help_channel = t3.id;
+# drop view v_help_record;
+# CREATE VIEW v_help_record AS SELECT
+#                                     t1.id AS id,
+#                                     t1.gmt_create,
+#                                     t1.gmt_modified,
+#                                     t1.helper_email,
+#                                     t1.helper_ip,
+#                                     t1.helper_name,
+#                                     t1.helper_scid,
+#                                     t1.helper_scname,
+#                                     t1.help_channel,
+#                                     t3.name as channel_name,
+#                                     t3.url as channel_url,
+#                                     t3.template as channel_template,
+#                                     t3.bccs as bccs,
+#                                     t3.exp as exp,
+#                                     t1.is_anonymous,
+#                                     t1.is_send,
+#                                     t1.literature_id,
+#                                     t1.status,
+#                                     t1.remark,
+#                                     t2.doc_title,
+#                                     t2.doc_href,
+#                                     t2.author,
+#                                     t2.doi,
+#                                     t2.summary,
+#                                     t2.unid,
+#                                     t2.year
+#                              FROM
+#                                   help_record t1,
+#                                   literature t2,
+#                                   channel t3
+#                              WHERE
+#                                  t1.literature_id = t2.id and t1.help_channel = t3.id;

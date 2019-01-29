@@ -31,6 +31,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -119,41 +120,62 @@ public class FrontServiceImpl implements FrontService {
         DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(literature.getId());
         // 如果有复用文件，自动应助成功
         if (null != reusingDocFile) {
-            GiveRecord giveRecord = new GiveRecord();
-            giveRecord.setFileId(reusingDocFile.getFileId());
-            giveRecord.setType(GiveTypeEnum.AUTO.value());
-            giveRecord.setGiverName(GiveTypeEnum.AUTO.name());
+            autoGive(reusingDocFile, helpRecord);
+            return "复用自动应助成功！";
+        }
+        bigDbGive(literature, helpRecord);
+        helpRecordRepository.save(helpRecord);
+        return "求助已发送成功，请等待";
+
+    }
+
+    /**
+     * 自动应助
+     *
+     * @param reusingDocFile
+     * @param helpRecord
+     */
+    public void autoGive(DocFile reusingDocFile, HelpRecord helpRecord) {
+        //先保存求助记录，得到求助ID，再关联应助记录
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
+        helpRecord = helpRecordRepository.save(helpRecord);
+        GiveRecord giveRecord = new GiveRecord();
+        giveRecord.setFileId(reusingDocFile.getFileId())
+                .setType(GiveTypeEnum.AUTO.value())
+                .setGiverName(GiveTypeEnum.AUTO.name())
+                .setStatus(GiveStatusEnum.SUCCESS.value())
+                .setHelpRecordId(helpRecord.getId());
+        giveRecordRepository.save(giveRecord);
+        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
+        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+    }
+
+    /**
+     * 数据平台应助
+     *
+     * @param literature
+     * @param helpRecord
+     */
+    @Async
+    public void bigDbGive(Literature literature, HelpRecord helpRecord) {
+        ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
+        if (!pdfResponse.isError()) {
             //先保存求助记录，得到求助ID，再关联应助记录
             helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
             helpRecord = helpRecordRepository.save(helpRecord);
+            String fileId = pdfResponse.getBody();
+            DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
+            docFile.setFileId(fileId).setLiteratureId(literature.getId());
+            docFileRepository.save(docFile);
+            GiveRecord giveRecord = new GiveRecord();
+            giveRecord.setFileId(fileId)
+                    .setType(GiveTypeEnum.BIG_DB.value())
+                    .setGiverName(GiveTypeEnum.BIG_DB.name())
+                    .setStatus(GiveStatusEnum.SUCCESS.value());
             giveRecord.setHelpRecordId(helpRecord.getId());
             giveRecordRepository.save(giveRecord);
             Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
             optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
-            return "复用自动应助成功！";
-        } else {
-            ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
-            if (!pdfResponse.isError()) {
-                String fileId = pdfResponse.getBody();
-                DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
-                docFile.setFileId(fileId).setLiteratureId(literature.getId());
-                docFileRepository.save(docFile);
-                GiveRecord giveRecord = new GiveRecord();
-                giveRecord.setFileId(fileId);
-                giveRecord.setType(GiveTypeEnum.BIG_DB.value());
-                giveRecord.setGiverName(GiveTypeEnum.BIG_DB.name());
-                //先保存求助记录，得到求助ID，再关联应助记录
-                helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
-                helpRecord = helpRecordRepository.save(helpRecord);
-                giveRecord.setHelpRecordId(helpRecord.getId());
-                giveRecordRepository.save(giveRecord);
-                Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
-                optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
-                return "平台自动应助成功！";
-            }
-            // 保存求助记录
-            helpRecordRepository.save(helpRecord);
-            return "求助已发送成功，请等待";
         }
     }
 
