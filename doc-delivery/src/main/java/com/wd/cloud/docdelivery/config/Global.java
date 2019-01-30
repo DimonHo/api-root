@@ -1,5 +1,7 @@
 package com.wd.cloud.docdelivery.config;
 
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +11,8 @@ import java.util.List;
  * @author He Zhigang
  * @date 2018/5/3
  */
+@Data
+@Accessors(chain = true)
 @Component
 @ConfigurationProperties(value = "help.global")
 public class Global {
@@ -25,48 +29,8 @@ public class Global {
      */
     private List<String> fileTypes;
 
-    private String[] notifyMail;
+    private List<String> notifyMail;
 
     private String templatesBase;
 
-    public String getHbaseTableName() {
-        return hbaseTableName;
-    }
-
-    public void setHbaseTableName(String hbaseTableName) {
-        this.hbaseTableName = hbaseTableName;
-    }
-
-    public List<String> getFileTypes() {
-        return fileTypes;
-    }
-
-    public void setFileTypes(List<String> fileTypes) {
-        this.fileTypes = fileTypes;
-    }
-
-    public String getCloudDomain() {
-        return cloudDomain;
-    }
-
-    public void setCloudDomain(String cloudDomain) {
-        this.cloudDomain = cloudDomain;
-    }
-
-    public String[] getNotifyMail() {
-        return notifyMail;
-    }
-
-    public void setNotifyMail(String[] notifyMail) {
-        this.notifyMail = notifyMail;
-    }
-
-    public String getTemplatesBase() {
-        return templatesBase;
-    }
-
-    public Global setTemplatesBase(String templatesBase) {
-        this.templatesBase = templatesBase;
-        return this;
-    }
 }

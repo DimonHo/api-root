@@ -51,9 +51,8 @@ public class MailServiceImpl implements MailService {
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getId());
         optionalHelpRecord.ifPresent(helpRecord -> {
             try {
-                if (HelpStatusEnum.match(helpRecord.getStatus()).isPresent()
-                        && HelpStatusEnum.WAIT_HELP.equals(HelpStatusEnum.match(helpRecord.getStatus()).get())) {
-                    MailUtil.send(CollectionUtil.newArrayList(global.getNotifyMail()), null, CollectionUtil.newArrayList(vHelpRecord.getBccs()), mailTitle, mailContent, true);
+                if (HelpStatusEnum.WAIT_HELP.value() == helpRecord.getStatus()) {
+                    MailUtil.send(global.getNotifyMail(), null, CollectionUtil.newArrayList(vHelpRecord.getBccs()), mailTitle, mailContent, true);
                 } else {
                     MailUtil.send(CollectionUtil.newArrayList(helpRecord.getHelperEmail()), null, CollectionUtil.newArrayList(vHelpRecord.getBccs()), mailTitle, mailContent, true);
                 }

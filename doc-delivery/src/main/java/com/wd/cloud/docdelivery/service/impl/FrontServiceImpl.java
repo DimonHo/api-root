@@ -125,6 +125,8 @@ public class FrontServiceImpl implements FrontService {
         }
         bigDbGive(literature, helpRecord);
         helpRecordRepository.save(helpRecord);
+        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
+        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
         return "求助已发送成功，请等待";
 
     }
@@ -174,8 +176,6 @@ public class FrontServiceImpl implements FrontService {
                     .setStatus(GiveStatusEnum.SUCCESS.value());
             giveRecord.setHelpRecordId(helpRecord.getId());
             giveRecordRepository.save(giveRecord);
-            Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
-            optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
         }
     }
 
