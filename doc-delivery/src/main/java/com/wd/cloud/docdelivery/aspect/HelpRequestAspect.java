@@ -93,7 +93,7 @@ public class HelpRequestAspect {
     private boolean validateParam(HttpServletRequest request){
         String email = request.getParameter("helperEmail");
         String docTitle = request.getParameter("docTitle");
-        return StrUtil.isNotBlank(email) && StrUtil.isNotBlank(docTitle);
+        return StrUtil.isBlank(email) || StrUtil.isBlank(docTitle);
     }
 
 }
