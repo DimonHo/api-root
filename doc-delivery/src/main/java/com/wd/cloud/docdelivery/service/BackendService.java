@@ -28,7 +28,7 @@ public interface BackendService {
      */
     Page<HelpRecordDTO> getHelpList(Pageable pageable, Map<String, Object> param);
 
-    Page<LiteratureDTO> getLiteratureList(Pageable pageable, Map<String, Object> param);
+    Page<Literature> getLiteratureList(Pageable pageable, Map<String, Object> param);
 
     List<DocFile> getDocFileList(Pageable pageable, Long literatureId);
 

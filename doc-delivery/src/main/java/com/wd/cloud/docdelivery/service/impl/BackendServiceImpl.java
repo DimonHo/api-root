@@ -94,32 +94,16 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public Page<LiteratureDTO> getLiteratureList(Pageable pageable, Map<String, Object> param) {
+    public Page<Literature> getLiteratureList(Pageable pageable, Map<String, Object> param) {
         Boolean reusing = (Boolean) param.get("reusing");
         String keyword = ((String) param.get("keyword"));
         keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
-        Page<Literature> literaturePage = literatureRepository.findAll(LiteratureRepository.SpecificationBuilder.buildBackLiteraList(reusing, keyword), pageable);
-
-        Page<LiteratureDTO> literatureDTOPage = literaturePage.map(literature -> {
-            LiteratureDTO literatureDTO = new LiteratureDTO();
-            BeanUtil.copyProperties(literature, literatureDTO);
-
-            List<DocFile> docFiles = docFileRepository.findByLiteratureId(literature.getId());
-            List<DocFileDTO> docFileDTOS = new ArrayList<>();
-            docFiles.forEach(docFile -> {
-                DocFileDTO docFileDTO = new DocFileDTO();
-                BeanUtil.copyProperties(docFile, docFileDTO);
-                docFileDTOS.add(docFileDTO);
-            });
-            literatureDTO.setDocFiles(docFileDTOS);
-            return literatureDTO;
-        });
-        return literatureDTOPage;
+        return literatureRepository.findAll(LiteratureRepository.SpecificationBuilder.buildWaitResuing(reusing, keyword), pageable);
     }
 
     @Override
     public List<DocFile> getDocFileList(Pageable pageable, Long literatureId) {
-        return docFileRepository.getResuingDoc(literatureId);
+        return docFileRepository.findByLiteratureIdAndBigDbFalse(literatureId);
     }
 
     @Override
@@ -286,7 +270,7 @@ public class BackendServiceImpl implements BackendService {
         long docFileId = (long) param.get("docFileId");
         boolean reusing = (boolean) param.get("reusing");
         String handlerName = (String) param.get("username");
-        List<DocFile> list = docFileRepository.getResuingDoc(literatureId);
+        List<DocFile> list = docFileRepository.findByLiteratureIdAndBigDbFalse(literatureId);
         DocFile doc = null;
         for (DocFile docFile : list) {
             //如果是复用操作，并且已经有文档被复用，则返回false，如果是取消复用，则不会进入

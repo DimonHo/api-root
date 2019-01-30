@@ -70,7 +70,7 @@ public class TempServiceImpl implements TempService {
     @Override
     public void updateHandlerName() {
         literatureRepository.findAll().forEach(literature -> {
-            docFileRepository.findByLiteratureId(literature.getId()).stream().findFirst().ifPresent(docFile -> {
+            docFileRepository.findByLiteratureIdOrderByReusingDescGmtModifiedDesc(literature.getId()).stream().findFirst().ifPresent(docFile -> {
                 literature.setLastHandlerName(docFile.getHandlerName());
                 literatureRepository.save(literature);
             });

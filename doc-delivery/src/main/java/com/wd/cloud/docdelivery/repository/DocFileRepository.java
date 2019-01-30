@@ -15,16 +15,13 @@ import java.util.Optional;
  */
 public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
-    @Query(value = "select * from doc_file where literature_id =?1 order by is_reusing desc,gmt_modified desc", nativeQuery = true)
-    List<DocFile> findByLiteratureId(Long literatureId);
+    List<DocFile> findByLiteratureIdOrderByReusingDescGmtModifiedDesc(Long literatureId);
 
     DocFile findByLiteratureIdAndReusingIsTrue(long literature);
 
     Optional<DocFile> findByLiteratureIdAndFileId(long literatureId, String fileId);
 
-
-    @Query(value = "select * from doc_file where literature_id = ?1", nativeQuery = true)
-    List<DocFile> getResuingDoc(Long literatureId);
+    List<DocFile> findByLiteratureIdAndBigDbFalse(Long literatureId);
 
     List<DocFile> findByLiteratureIdIn(List ids);
 
