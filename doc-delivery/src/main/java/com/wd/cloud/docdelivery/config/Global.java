@@ -31,6 +31,4 @@ public class Global {
 
     private List<String> notifyMail;
 
-    private String templatesBase;
-
 }

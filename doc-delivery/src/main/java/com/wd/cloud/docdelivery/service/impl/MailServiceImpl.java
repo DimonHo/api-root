@@ -1,7 +1,6 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailException;
 import cn.hutool.extra.mail.MailUtil;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -115,39 +113,24 @@ public class MailServiceImpl implements MailService {
      */
     private String buildContent(MailTemplateModel mailTemplateModel) {
         String templateFile = mailTemplateModel.getTemplate();
-        if (templateNotExists(templateFile)) {
-            log.info("模板文件[{}]不存在，使用默认模板", templateFile);
-            templateFile = templateFile.replace(StrUtil.subBefore(templateFile, "-", false), "default");
-        }
         String content = null;
-        boolean isDefault = templateFile.contains("default");
+        Template template;
         try {
-            // 如果templateFile不包含“default”字符串，就去外部目录去加载
-            if (!isDefault) {
-                freeMarkerConfigurer.getConfiguration().setDirectoryForTemplateLoading(new File(global.getTemplatesBase()));
-            }
-            Template template = freeMarkerConfigurer.getConfiguration().getTemplate(templateFile);
+            template = freeMarkerConfigurer.getConfiguration().getTemplate(templateFile);
             content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailTemplateModel);
         } catch (TemplateException | IOException e) {
-            e.printStackTrace();
+            log.info("模板文件[{}]不存在，使用默认模板", templateFile);
+            templateFile = templateFile.replace(StrUtil.subBefore(templateFile, "-", false), "default");
+            try {
+                template = freeMarkerConfigurer.getConfiguration().getTemplate(templateFile);
+                content = FreeMarkerTemplateUtils.processTemplateIntoString(template, mailTemplateModel);
+            } catch (TemplateException | IOException e1) {
+                log.error("模板文件[" + templateFile + "]不存在!", e1);
+            }
         }
         return content;
     }
 
-    /**
-     * 检查模板文件是否存在
-     *
-     * @param templateFile
-     * @return
-     */
-    private boolean templateNotExists(String templateFile) {
-        String suffix = "/";
-        String path = global.getTemplatesBase() + suffix + templateFile;
-        if (StrUtil.endWith(global.getTemplatesBase(), suffix)) {
-            path = global.getTemplatesBase() + templateFile;
-        }
-        return !FileUtil.exist(path);
-    }
 
     /**
      * 构建全文下载链接
