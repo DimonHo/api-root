@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
  * @date 2019/1/17
  * @Description:
  */
-@FeignClient(value = "pdfSearch-server", fallback = PdfSearchServerApi.Fallback.class)
+@FeignClient(value = "pdfsearch-server", fallback = PdfSearchServerApi.Fallback.class)
 public interface PdfSearchServerApi {
 
-    @PostMapping("/pdfsearch-server/searchpdf")
+    @PostMapping("/searchpdf")
     public ResponseModel<String> search(@RequestBody Literature literature);
 
-    @GetMapping("/pdfsearch-server/search/{rowkey}")
+    @GetMapping("/search/{rowkey}")
     public ResponseModel<byte[]> getFileByte(@PathVariable(value = "rowkey") String rowkey);
 
     @Component
