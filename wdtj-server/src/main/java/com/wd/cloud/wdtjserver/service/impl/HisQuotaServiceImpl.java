@@ -11,6 +11,8 @@ import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjHisBuild;
 import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
+import com.wd.cloud.wdtjserver.exception.AppException;
+import com.wd.cloud.wdtjserver.exception.ExceptionEnum;
 import com.wd.cloud.wdtjserver.feign.OrgServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
@@ -18,7 +20,6 @@ import com.wd.cloud.wdtjserver.model.TotalModel;
 import com.wd.cloud.wdtjserver.repository.TjHisBuildRepository;
 import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjViewDataRepository;
-import com.wd.cloud.wdtjserver.repository.TjWeightRepository;
 import com.wd.cloud.wdtjserver.service.HisQuotaService;
 import com.wd.cloud.wdtjserver.service.WeightService;
 import com.wd.cloud.wdtjserver.utils.DateUtil;
@@ -77,14 +78,19 @@ public class HisQuotaServiceImpl implements HisQuotaService {
 
     @Override
     public List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas) {
-        // 调用org-server服务获取机构信息
-        ResponseModel responseModel = orgServerApi.getOrg(tjHisQuotas.get(0).getOrgId());
-        if (!responseModel.isError()) {
+        try {
+            // 调用org-server服务获取机构信息
+            ResponseModel responseModel = orgServerApi.getOrg(tjHisQuotas.get(0).getOrgId());
+            if (responseModel.isError()) {
+                log.error(responseModel.getMessage());
+                throw new AppException(ExceptionEnum.ORG_SERVER);
+            }
             String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
             tjHisQuotas.forEach(tjHisQuota -> tjHisQuota.setOrgName(orgName));
             return tjHisQuotaRepository.saveAll(tjHisQuotas);
+        } catch (Exception e) {
+            throw new AppException(ExceptionEnum.ORG_SERVER);
         }
-        return null;
     }
 
 
@@ -141,7 +147,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     @Override
     public void buildExecute(TjHisQuota tjHisQuota) {
 
-        Map<String,Double> weightMap = weightService.buildWeightMap();
+        Map<String, Double> weightMap = weightService.buildWeightMap();
         // 将开始时间和结束时间转换为天
         DateTime beginDay = DateUtil.beginOfDay(tjHisQuota.getBeginTime());
         DateTime endDay = DateUtil.beginOfDay(tjHisQuota.getEndTime());
@@ -162,8 +168,8 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         //生成每天的指标总量
         Map<DateTime, TotalModel> dayTotalModelList = RandomUtil.dayTotalFromWeight(tjHisQuota, dayWeightList);
         dayTotalModelList.entrySet().forEach(dayTotalModel -> {
-            List<AbstractTjDataEntity> tjViewDataList = RandomUtil.buildMinuteTjData(DateTime.of(tjHisQuota.getBeginTime()), DateTime.of(tjHisQuota.getEndTime()), dayTotalModel,true);
-            tjViewDataRepository.saveAll(tjViewDataList.stream().map(a -> (TjViewData)a).collect(Collectors.toList()));
+            List<AbstractTjDataEntity> tjViewDataList = RandomUtil.buildMinuteTjData(DateTime.of(tjHisQuota.getBeginTime()), DateTime.of(tjHisQuota.getEndTime()), dayTotalModel, true);
+            tjViewDataRepository.saveAll(tjViewDataList.stream().map(a -> (TjViewData) a).collect(Collectors.toList()));
         });
 
         // 修改状态

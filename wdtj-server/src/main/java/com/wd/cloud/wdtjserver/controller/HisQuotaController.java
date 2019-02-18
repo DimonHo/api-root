@@ -62,9 +62,6 @@ public class HisQuotaController {
             }
         });
         List<TjHisQuota> body = hisQuotaService.save(tjHisQuotas);
-        if (body == null) {
-            return ResponseModel.fail().setMessage("数据保存失败");
-        }
         log.info("开始生成历史数据");
         // 数据保存成功，自动生成历史数据
         body.forEach(tjHisQuota -> {
