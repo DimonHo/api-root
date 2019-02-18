@@ -18,10 +18,10 @@ import java.util.List;
 @FeignClient(value = "org-server", fallback = OrgServerApi.Fallback.class)
 public interface OrgServerApi {
 
-    @GetMapping("/orginfo/all")
+    @GetMapping("/org/all")
     ResponseModel<List<JSONObject>> getAll();
 
-    @GetMapping("/orginfo/{id}")
+    @GetMapping("/org/{id}")
     ResponseModel getOrg(@PathVariable(value = "id") Long id);
 
     @Component
