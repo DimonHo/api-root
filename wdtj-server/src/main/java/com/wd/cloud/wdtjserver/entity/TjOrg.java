@@ -1,5 +1,9 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -10,6 +14,9 @@ import javax.persistence.UniqueConstraint;
  * @date 2018/11/6
  * @Description: 机构设置表
  */
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tj_org", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"org_id", "pid"})
@@ -75,120 +82,4 @@ public class TjOrg extends AbstractEntity {
     @Column(name = "is_forbade", columnDefinition = "bit default 0 COMMENT '是否被禁用 0：否，1：是'")
     private boolean forbade;
 
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public TjOrg setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
-
-    public String getOrgName() {
-        return orgName;
-    }
-
-    public TjOrg setOrgName(String orgName) {
-        this.orgName = orgName;
-        return this;
-    }
-
-    public boolean isShowPv() {
-        return showPv;
-    }
-
-    public TjOrg setShowPv(boolean showPv) {
-        this.showPv = showPv;
-        return this;
-    }
-
-    public boolean isShowUv() {
-        return showUv;
-    }
-
-    public TjOrg setShowUv(boolean showUv) {
-        this.showUv = showUv;
-        return this;
-    }
-
-    public boolean isShowVv() {
-        return showVv;
-    }
-
-    public TjOrg setShowVv(boolean showVv) {
-        this.showVv = showVv;
-        return this;
-    }
-
-    public boolean isShowDc() {
-        return showDc;
-    }
-
-    public TjOrg setShowDc(boolean showDc) {
-        this.showDc = showDc;
-        return this;
-    }
-
-    public boolean isShowSc() {
-        return showSc;
-    }
-
-    public TjOrg setShowSc(boolean showSc) {
-        this.showSc = showSc;
-        return this;
-    }
-
-    public boolean isShowDdc() {
-        return showDdc;
-    }
-
-    public TjOrg setShowDdc(boolean showDdc) {
-        this.showDdc = showDdc;
-        return this;
-    }
-
-    public boolean isShowAvgTime() {
-        return showAvgTime;
-    }
-
-    public TjOrg setShowAvgTime(boolean showAvgTime) {
-        this.showAvgTime = showAvgTime;
-        return this;
-    }
-
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public TjOrg setCreateUser(String createUser) {
-        this.createUser = createUser;
-        return this;
-    }
-
-    public Long getPid() {
-        return pid;
-    }
-
-    public TjOrg setPid(Long pid) {
-        this.pid = pid;
-        return this;
-    }
-
-    public boolean isHistory() {
-        return history;
-    }
-
-    public TjOrg setHistory(boolean history) {
-        this.history = history;
-        return this;
-    }
-
-    public boolean isForbade() {
-        return forbade;
-    }
-
-    public TjOrg setForbade(boolean forbade) {
-        this.forbade = forbade;
-        return this;
-    }
 }

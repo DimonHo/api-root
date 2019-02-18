@@ -182,7 +182,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     public void buildingState(TjHisQuota tjHisQuota, String buildUser) {
         tjHisQuota.setBuildState(2);
         TjHisBuild tjHisBuild = new TjHisBuild();
-        tjHisBuild.setTjHisQuota(tjHisQuota).setName(buildUser);
+        tjHisBuild.setTjHisQuotaId(tjHisQuota.getId()).setName(buildUser);
         tjHisBuildRepository.save(tjHisBuild);
     }
 }

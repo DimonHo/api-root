@@ -1,6 +1,9 @@
 package com.wd.cloud.wdtjserver.entity;
 
 import com.wd.cloud.wdtjserver.utils.DateUtil;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -13,6 +16,9 @@ import java.util.List;
  * @date 2018/11/6
  * @Description:
  */
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tj_his_quota")
 public class TjHisQuota extends AbstractEntity {
@@ -62,151 +68,4 @@ public class TjHisQuota extends AbstractEntity {
      */
     @Column(name = "build_state", columnDefinition = "tinyint default 0 COMMENT '是否已经生成过数据，0：否，1：是, 2:生成中。。。'")
     private int buildState;
-
-    @OneToMany(mappedBy = "tjHisQuota")
-    private List<TjHisBuild> tjHisBuilds;
-
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public TjHisQuota setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
-
-    public String getOrgName() {
-        return orgName;
-    }
-
-    public TjHisQuota setOrgName(String orgName) {
-        this.orgName = orgName;
-        return this;
-    }
-
-    public int getPvCount() {
-        return pvCount;
-    }
-
-    public TjHisQuota setPvCount(int pvCount) {
-        this.pvCount = pvCount;
-        return this;
-    }
-
-    public int getScCount() {
-        return scCount;
-    }
-
-    public TjHisQuota setScCount(int scCount) {
-        this.scCount = scCount;
-        return this;
-    }
-
-    public int getDcCount() {
-        return dcCount;
-    }
-
-    public TjHisQuota setDcCount(int dcCount) {
-        this.dcCount = dcCount;
-        return this;
-    }
-
-    public int getDdcCount() {
-        return ddcCount;
-    }
-
-    public TjHisQuota setDdcCount(int ddcCount) {
-        this.ddcCount = ddcCount;
-        return this;
-    }
-
-    public int getUvCount() {
-        return uvCount;
-    }
-
-    public TjHisQuota setUvCount(int uvCount) {
-        this.uvCount = uvCount;
-        return this;
-    }
-
-    public int getVvCount() {
-        return vvCount;
-    }
-
-    public TjHisQuota setVvCount(int vvCount) {
-        this.vvCount = vvCount;
-        return this;
-    }
-
-    public Time getAvgTime() {
-        return avgTime;
-    }
-
-    public TjHisQuota setAvgTime(Time avgTime) {
-        this.avgTime = avgTime;
-        return this;
-    }
-
-    public Date getBeginTime() {
-        return beginTime;
-    }
-
-    public TjHisQuota setBeginTime(Date beginTime) {
-        this.beginTime = beginTime;
-        return this;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public TjHisQuota setEndTime(Date endTime) {
-        this.endTime = endTime;
-        return this;
-    }
-
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public TjHisQuota setCreateUser(String createUser) {
-        this.createUser = createUser;
-        return this;
-    }
-
-    public boolean isLocked() {
-        return locked;
-    }
-
-    public TjHisQuota setLocked(boolean locked) {
-        this.locked = locked;
-        return this;
-    }
-
-    public boolean isHistory() {
-        return history;
-    }
-
-    public TjHisQuota setHistory(boolean history) {
-        this.history = history;
-        return this;
-    }
-
-    public int getBuildState() {
-        return buildState;
-    }
-
-    public TjHisQuota setBuildState(int buildState) {
-        this.buildState = buildState;
-        return this;
-    }
-
-    public List<TjHisBuild> getTjHisBuilds() {
-        return tjHisBuilds;
-    }
-
-    public TjHisQuota setTjHisBuilds(List<TjHisBuild> tjHisBuilds) {
-        this.tjHisBuilds = tjHisBuilds;
-        return this;
-    }
 }
