@@ -6,8 +6,6 @@ import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.feign.UserServerApi;
-import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
-import com.wd.cloud.docdelivery.repository.PermissionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,12 +28,6 @@ import java.util.Objects;
 @Aspect
 @Component
 public class UserInfoAspect {
-
-    @Autowired
-    HelpRecordRepository helpRecordRepository;
-
-    @Autowired
-    PermissionRepository permissionRepository;
 
     @Autowired
     UserServerApi userServerApi;

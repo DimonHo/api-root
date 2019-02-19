@@ -81,7 +81,7 @@ public class MailServiceImpl implements MailService {
             switch (optionalHelpStatusEnum.get()) {
                 case WAIT_HELP:
                     mailTemplateModel.setMailTitle("用户文献互助")
-                            .setHelperName(vHelpRecord.getHelperName())
+                            .setHelperEmail(vHelpRecord.getHelperEmail())
                             .setHelperScname(vHelpRecord.getHelperScname())
                             .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-notify"));
                     break;

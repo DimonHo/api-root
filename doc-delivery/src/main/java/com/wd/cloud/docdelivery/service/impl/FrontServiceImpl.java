@@ -75,9 +75,6 @@ public class FrontServiceImpl implements FrontService {
     FileService fileService;
 
     @Autowired
-    MailService mailService;
-
-    @Autowired
     PermissionRepository permissionRepository;
 
     @Autowired
@@ -125,8 +122,6 @@ public class FrontServiceImpl implements FrontService {
         }
         bigDbGive(literature, helpRecord);
         helpRecordRepository.save(helpRecord);
-        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
-        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
         return "求助已发送成功，请等待";
 
     }
@@ -148,8 +143,6 @@ public class FrontServiceImpl implements FrontService {
                 .setStatus(GiveStatusEnum.SUCCESS.value())
                 .setHelpRecordId(helpRecord.getId());
         giveRecordRepository.save(giveRecord);
-        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
-        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     /**
@@ -160,23 +153,28 @@ public class FrontServiceImpl implements FrontService {
      */
     @Async
     public void bigDbGive(Literature literature, HelpRecord helpRecord) {
-        ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
-        if (!pdfResponse.isError()) {
-            //先保存求助记录，得到求助ID，再关联应助记录
-            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
-            helpRecord = helpRecordRepository.save(helpRecord);
-            String fileId = pdfResponse.getBody();
-            DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
-            docFile.setFileId(fileId).setLiteratureId(literature.getId()).setBigDb(true);
-            docFileRepository.save(docFile);
-            GiveRecord giveRecord = new GiveRecord();
-            giveRecord.setFileId(fileId)
-                    .setType(GiveTypeEnum.BIG_DB.value())
-                    .setGiverName(GiveTypeEnum.BIG_DB.name())
-                    .setStatus(GiveStatusEnum.SUCCESS.value());
-            giveRecord.setHelpRecordId(helpRecord.getId());
-            giveRecordRepository.save(giveRecord);
+        try {
+            ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
+            if (!pdfResponse.isError()) {
+                //先保存求助记录，得到求助ID，再关联应助记录
+                helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
+                helpRecord = helpRecordRepository.save(helpRecord);
+                String fileId = pdfResponse.getBody();
+                DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
+                docFile.setFileId(fileId).setLiteratureId(literature.getId()).setBigDb(true);
+                docFileRepository.save(docFile);
+                GiveRecord giveRecord = new GiveRecord();
+                giveRecord.setFileId(fileId)
+                        .setType(GiveTypeEnum.BIG_DB.value())
+                        .setGiverName(GiveTypeEnum.BIG_DB.name())
+                        .setStatus(GiveStatusEnum.SUCCESS.value());
+                giveRecord.setHelpRecordId(helpRecord.getId());
+                giveRecordRepository.save(giveRecord);
+            }
+        } catch (Exception e) {
+            log.warn("pdfsearch-server调用失败");
         }
+
     }
 
     @Override

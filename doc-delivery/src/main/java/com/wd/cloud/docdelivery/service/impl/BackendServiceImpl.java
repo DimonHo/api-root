@@ -7,9 +7,7 @@ import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
-import com.wd.cloud.docdelivery.dto.DocFileDTO;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.dto.LiteratureDTO;
 import com.wd.cloud.docdelivery.entity.*;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
@@ -18,7 +16,6 @@ import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
-import com.wd.cloud.docdelivery.service.MailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,9 +55,6 @@ public class BackendServiceImpl implements BackendService {
 
     @Autowired
     DocFileRepository docFileRepository;
-
-    @Autowired
-    MailService mailService;
 
     @Autowired
     FsServerApi fsServerApi;
@@ -162,8 +155,8 @@ public class BackendServiceImpl implements BackendService {
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
@@ -181,8 +174,8 @@ public class BackendServiceImpl implements BackendService {
                 .setHelpRecordId(helpRecord.getId());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
@@ -200,8 +193,8 @@ public class BackendServiceImpl implements BackendService {
                 .setHelpRecordId(helpRecordId);
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
@@ -223,8 +216,8 @@ public class BackendServiceImpl implements BackendService {
         docFileRepository.save(docFile);
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
+//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override

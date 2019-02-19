@@ -50,9 +50,8 @@ public class MailTemplateModel {
      */
     private String helperScname;
     /**
-     * 求助用户
+     * 求助邮箱
      */
-    private String helperName;
-
+    private String helperEmail;
 
 }
