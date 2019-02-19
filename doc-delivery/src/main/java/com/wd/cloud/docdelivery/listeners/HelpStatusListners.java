@@ -37,11 +37,6 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
     private EntityManagerFactory entityManagerFactory;
 
     /**
-     * entity HelpRecord名称
-     */
-    private static final String HELP_RECORD = "HelpRecord";
-
-    /**
      * HelpRecord.status字段名称
      */
     private static final String HELP_RECORD_STATUS = "status";
@@ -71,7 +66,7 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
         log.info("insert start***********");
         log.debug(postInsertEvent.getEntity() + " inserted");
 
-        if (HELP_RECORD.equals(postInsertEvent.getEntity().getClass().getSimpleName())) {
+        if (postInsertEvent.getEntity() instanceof HelpRecord) {
             HelpRecord helpRecord = (HelpRecord) postInsertEvent.getEntity();
             Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
             optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
@@ -87,7 +82,7 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
     @Override
     public void onPostUpdate(PostUpdateEvent postUpdateEvent) {
         log.info("update start***********");
-        if (HELP_RECORD.equals(postUpdateEvent.getEntity().getClass().getSimpleName())) {
+        if (postUpdateEvent.getEntity() instanceof HelpRecord) {
             HelpRecord helpRecord = (HelpRecord) postUpdateEvent.getEntity();
             for (int i = 0; i < postUpdateEvent.getPersister().getPropertyNames().length; i++) {
                 if (HELP_RECORD_STATUS.equals(postUpdateEvent.getPersister().getPropertyNames()[i])

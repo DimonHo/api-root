@@ -44,13 +44,13 @@ public class AuthController {
     RedisOperationsSessionRepository redisOperationsSessionRepository;
 
     @GetMapping("/login")
-    public ResponseModel<UserDTO> login(@RequestParam String redirectUrl){
+    public ResponseModel<UserDTO> login(@RequestParam("redirect_url") String redirectUrl){
         HttpSession session = request.getSession();
         log.info("sessionId={}", session.getId());
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
         Map<String,Object> authInfo = principal.getAttributes();
         UserDTO userDTO = BeanUtil.mapToBean(authInfo,UserDTO.class,true);
-        // sessionKey
+        // session Key
         String sessionKey = null;
         //如果是移动端
         if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
