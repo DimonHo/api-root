@@ -32,9 +32,6 @@ import java.util.Map;
 public class AuthController {
 
     @Autowired
-    AuthService authService;
-
-    @Autowired
     HttpServletRequest request;
 
     @Autowired

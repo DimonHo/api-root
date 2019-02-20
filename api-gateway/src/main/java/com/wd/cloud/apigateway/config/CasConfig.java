@@ -63,7 +63,7 @@ public class CasConfig implements WebMvcConfigurer {
         FilterRegistrationBean<AuthenticationFilter> registrationBean = new FilterRegistrationBean<>(new AuthenticationFilter());
         registrationBean.addInitParameter("casServerLoginUrl", serverUrlPrefix + "/login");
         registrationBean.addInitParameter("serverName", clientHostUrl);
-        registrationBean.addUrlPatterns(authenticationUrlPatterns);
+        registrationBean.addUrlPatterns(authenticationUrlPatterns.split(","));
         registrationBean.setName("CAS Authentication Filter");
         registrationBean.setOrder(2);
         log.info("CAS Authentication Filter过滤器注册成功！");
