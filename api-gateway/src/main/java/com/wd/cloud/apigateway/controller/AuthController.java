@@ -7,6 +7,7 @@ import com.wd.cloud.apigateway.service.AuthService;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.ClientType;
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,9 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
 
@@ -40,11 +43,15 @@ public class AuthController {
     @Autowired
     RedisOperationsSessionRepository redisOperationsSessionRepository;
 
+
     @GetMapping("/login")
-    public ResponseModel<UserDTO> login(@RequestParam("redirect_url") String redirectUrl){
+    public ResponseModel<UserDTO> login(){
         HttpSession session = request.getSession();
         log.info("sessionId={}", session.getId());
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
+        if (principal == null){
+            throw new AuthException();
+        }
         Map<String,Object> authInfo = principal.getAttributes();
         UserDTO userDTO = BeanUtil.mapToBean(authInfo,UserDTO.class,true);
         // session Key
@@ -84,8 +91,6 @@ public class AuthController {
         session.setAttribute(SessionConstant.LEVEL, level);
         return ResponseModel.ok().setBody(userDTO);
     }
-
-
 
 
     @GetMapping("/logout")
