@@ -61,6 +61,7 @@ public class CasConfig implements WebMvcConfigurer {
     @Bean
     public FilterRegistrationBean<AuthenticationFilter> authenticationFilterRegistration() {
         FilterRegistrationBean<AuthenticationFilter> registrationBean = new FilterRegistrationBean<>(new AuthenticationFilter());
+        registrationBean.addInitParameter("authenticationRedirectStrategyClass","com.wd.cloud.apigateway.config.ApiAuthenticationRedirectStrategy");
         registrationBean.addInitParameter("casServerLoginUrl", serverUrlPrefix + "/login");
         registrationBean.addInitParameter("serverName", clientHostUrl);
         registrationBean.addUrlPatterns(authenticationUrlPatterns.split(","));

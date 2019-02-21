@@ -26,8 +26,12 @@
             <groupId>com.wd.cloud</groupId>
             <artifactId>commons</artifactId>
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>com.wdkj</groupId>-->
+        <!--<artifactId>cas-client-core</artifactId>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>com.wdkj</groupId>
+            <groupId>org.jasig.cas.client</groupId>
             <artifactId>cas-client-core</artifactId>
         </dependency>
         <dependency>

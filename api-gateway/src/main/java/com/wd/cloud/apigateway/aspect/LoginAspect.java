@@ -36,7 +36,7 @@ public class LoginAspect {
 
     @Before("loginPoint()")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
-        // 接收到请求，记录请求内容
+
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
         Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);

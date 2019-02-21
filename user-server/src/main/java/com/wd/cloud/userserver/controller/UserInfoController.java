@@ -1,7 +1,11 @@
 package com.wd.cloud.userserver.controller;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.http.Header;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.commons.enums.ClientType;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -10,12 +14,17 @@ import com.wd.cloud.userserver.service.UserInfoServer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -27,6 +36,7 @@ import javax.validation.constraints.NotNull;
 @RestController
 @RequestMapping("/user")
 public class UserInfoController {
+
     @Autowired
     UserInfoServer userInfoServer;
 
