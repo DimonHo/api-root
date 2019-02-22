@@ -1,9 +1,12 @@
 package com.wd.cloud.apigateway.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.Header;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.useragent.UserAgentUtil;
-import com.wd.cloud.apigateway.service.AuthService;
+import com.wd.cloud.apigateway.config.CasProperties;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.ClientType;
@@ -12,16 +15,21 @@ import com.wd.cloud.commons.model.ResponseModel;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,17 +51,87 @@ public class AuthController {
     @Autowired
     RedisOperationsSessionRepository redisOperationsSessionRepository;
 
+    @Autowired
+    HttpServletResponse response;
+
+    @Autowired
+    CasProperties casProperties;
 
     @GetMapping("/login")
-    public ResponseModel<UserDTO> login(){
+    public ResponseModel<UserDTO> login(@RequestParam String username,
+                                        @RequestParam String password,
+                                        @RequestParam(required = false) boolean rememberMe) {
+        //Hutool使用jdk的cookie自动管理，你第二次请求附带了第一次的cookie，所以服务端不再写cookie.(作者原话)
+        //需要调用closeCookie()方法关闭cookie,否则HttpResponse.header("Set-Cookie")无法获取值
+        HttpRequest.closeCookie();
+        //获取登陆页面
+        HttpResponse loginViewResponse = HttpRequest.get(casProperties.getServerLoginUrl()).setFollowRedirects(false).execute();
+        Document loginViewDoc = Jsoup.parse(loginViewResponse.body());
+        String setCookie = loginViewResponse.header("Set-Cookie");
+        String execution = loginViewDoc.getElementsByAttributeValue("name", "execution").attr("value");
+        Map<String, Object> params = new HashMap<>();
+        params.put("username", username);
+        params.put("password", password);
+        params.put("execution", execution);
+        params.put("_eventId", "submit");
+        params.put("submit", "LOGIN");
+        params.put("service", request.getRequestURL().toString().replace("/login", "/userinfo"));
+        if (rememberMe) {
+            params.put("rememberMe", true);
+        }
+        // 执行登陆请求
+        HttpResponse loginResultResponse = HttpRequest.post(casProperties.getServerLoginUrl())
+                .header("User-Agent", request.getHeader("User-Agent"))
+                .header("Cookie", setCookie)
+                .setFollowRedirects(false)
+                .form(params)
+                .execute();
+        // 获取tgc
+        String tgcCookie = loginResultResponse.header("Set-Cookie");
+
+        List<String> tgcCookieParams = StrUtil.splitTrim(tgcCookie, ";");
+        Cookie cookie = new Cookie("TGC", tgcCookieParams.get(0).split("=")[1]);
+        for (String param : tgcCookieParams) {
+            List<String> tgcCookieParam = StrUtil.splitTrim(param, "=");
+            if ("Path".equals(tgcCookieParam.get(0))) {
+                cookie.setPath(tgcCookieParam.get(1));
+            }
+            if ("Domain".equals(tgcCookieParam.get(0))) {
+                cookie.setDomain(tgcCookieParam.get(1));
+            }
+            if ("Max-Age".equals(tgcCookieParam.get(0))) {
+                cookie.setMaxAge(Integer.parseInt(tgcCookieParam.get(1)));
+            }
+            if ("HttpOnly".equals(tgcCookieParam.get(0))) {
+                cookie.setHttpOnly(true);
+            }
+        }
+        response.addCookie(cookie);
+        Document loginResultDoc = Jsoup.parse(loginResultResponse.body());
+        if (loginResultResponse.getStatus() == 302) {
+            Map<String, Object> params3 = new HashMap<>();
+            params3.put("method", "POST");
+            params3.put("service", request.getRequestURL().toString().replace("/login", "/userinfo"));
+            String html = HttpRequest.get(casProperties.getServerLoginUrl()).header("User-Agent", request.getHeader("User-Agent"))
+                    .cookie(tgcCookie).form(params3).execute().body();
+            Document stDoc = Jsoup.parse(html);
+            String st = stDoc.getElementsByAttributeValue("name", "ticket").attr("value");
+            return ResponseModel.ok().setBody(request.getRequestURL().toString().replace("/login", "/userinfo?ticket=" + st));
+        } else {
+            throw new AuthException();
+        }
+    }
+
+    @GetMapping("/userinfo")
+    public ResponseModel<UserDTO> userInfo(@RequestParam(required = false) String ticket) {
         HttpSession session = request.getSession();
         log.info("sessionId={}", session.getId());
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
-        if (principal == null){
+        if (principal == null) {
             throw new AuthException();
         }
-        Map<String,Object> authInfo = principal.getAttributes();
-        UserDTO userDTO = BeanUtil.mapToBean(authInfo,UserDTO.class,true);
+        Map<String, Object> authInfo = principal.getAttributes();
+        UserDTO userDTO = BeanUtil.mapToBean(authInfo, UserDTO.class, true);
         // session Key
         String sessionKey = null;
         //如果是移动端
@@ -80,7 +158,8 @@ public class AuthController {
         }
         session.setAttribute(SessionConstant.LOGIN_USER, userDTO);
         // 登陆成功 level +2
-        Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
+        Integer level = session.getAttribute(SessionConstant.LEVEL) == null ? 0 : (Integer) session.getAttribute(SessionConstant.LEVEL);
+
         if (level < 2) {
             level += 2;
         }
@@ -95,12 +174,27 @@ public class AuthController {
 
     @GetMapping("/logout")
     public ResponseModel logout() {
-        log.info("sessionId={}", request.getSession().getId());
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO != null) {
-            request.getSession().invalidate();
-            log.info("用户[{}]注销成功", userDTO.getUsername());
+        if (userDTO == null) {
+            return ResponseModel.fail().setMessage("未登录");
         }
-        return ResponseModel.ok();
+        StringBuilder cookieStr = new StringBuilder();
+        for (Cookie cookie : request.getCookies()) {
+            if (cookieStr.length() > 0) {
+                cookieStr.append(";");
+            }
+            cookieStr.append(cookie.getName()).append("=").append(cookie.getValue());
+        }
+        // sso认证中心登出
+        HttpResponse logoutResp = HttpRequest.get(casProperties.getServerUrlPrefix() + "/logout")
+                .header("User-Agent", request.getHeader("User-Agent"))
+                .cookie(cookieStr.toString())
+                .execute();
+        if (logoutResp.getStatus() == 200) {
+            request.getSession().invalidate();
+            return ResponseModel.ok().setMessage("用户：[" + userDTO.getUsername() + "]注销成功");
+        } else {
+            return ResponseModel.fail().setMessage("用户：[" + userDTO.getUsername() + "]注销失败");
+        }
     }
 }
