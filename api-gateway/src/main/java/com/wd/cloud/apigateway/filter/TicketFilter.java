@@ -51,7 +51,7 @@ public class TicketFilter extends AbstractCasFilter {
         ParameterRequestWrapper requestWrapper = new ParameterRequestWrapper(request);
         String cookieStr = HttpUtil.getCookieStr(requestWrapper);
         response.setContentType("application/json");
-        if (cookieStr != null && cookieStr.contains("TGC=")) {
+        if (cookieStr.contains("TGC=")) {
             String clientUrl = this.constructServiceUrl(request, response);
             // 获取一个ST
             String st = CasUtil.getSt(requestWrapper, casServerLoginUrl, clientUrl, cookieStr);
