@@ -19,14 +19,13 @@ public class HttpUtil extends cn.hutool.http.HttpUtil {
      */
     public static String getCookieStr(HttpServletRequest request){
         StringBuilder cookieStr = new StringBuilder();
-        if (request.getCookies() == null){
-            return null;
-        }
-        for(Cookie cookie:request.getCookies()){
-            if (cookieStr.length()>0){
-                cookieStr.append(";");
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookieStr.length() > 0) {
+                    cookieStr.append(";");
+                }
+                cookieStr.append(cookie.getName()).append("=").append(cookie.getValue());
             }
-            cookieStr.append(cookie.getName()).append("=").append(cookie.getValue());
         }
         return cookieStr.toString();
     }

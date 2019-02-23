@@ -8,6 +8,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.wd.cloud.apigateway.config.CasProperties;
 import com.wd.cloud.apigateway.utils.CasUtil;
+import com.wd.cloud.apigateway.utils.HttpUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.ClientType;
@@ -173,20 +174,11 @@ public class AuthController {
     @GetMapping("/logout")
     public ResponseModel logout() {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            return ResponseModel.fail().setMessage("未登录");
-        }
-        StringBuilder cookieStr = new StringBuilder();
-        for (Cookie cookie : request.getCookies()) {
-            if (cookieStr.length() > 0) {
-                cookieStr.append(";");
-            }
-            cookieStr.append(cookie.getName()).append("=").append(cookie.getValue());
-        }
+        String cookieStr = HttpUtil.getCookieStr(request);
         // sso认证中心登出
         HttpResponse logoutResp = HttpRequest.get(casProperties.getServerUrlPrefix() + "/logout")
                 .header("User-Agent", request.getHeader("User-Agent"))
-                .cookie(cookieStr.toString())
+                .cookie(cookieStr)
                 .execute();
         if (logoutResp.getStatus() == 200) {
             request.getSession().invalidate();

@@ -55,7 +55,9 @@ public class ParameterRequestWrapper extends HttpServletRequestWrapper {
         }else{
             this.queryString = this.getQueryString() +"&"+ queryString;
         }
-        addParameter(queryString.split("=")[0],queryString.split("=")[1]);
+        if (queryString.contains("=") && queryString.split("=").length>1){
+            addParameter(queryString.split("=")[0],queryString.split("=")[1]);
+        }
     }
     /**
      * 复写获取key的方法
