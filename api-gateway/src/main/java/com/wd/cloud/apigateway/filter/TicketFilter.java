@@ -7,6 +7,7 @@ import com.wd.cloud.apigateway.utils.CasUtil;
 import com.wd.cloud.apigateway.utils.HttpUtil;
 import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
+import lombok.extern.slf4j.Slf4j;
 import org.jasig.cas.client.Protocol;
 import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.util.AbstractCasFilter;
@@ -26,6 +27,7 @@ import java.io.PrintWriter;
  * @date 2019/2/23
  * @Description:
  */
+@Slf4j
 public class TicketFilter extends AbstractCasFilter {
 
     private String casServerLoginUrl;
@@ -55,6 +57,7 @@ public class TicketFilter extends AbstractCasFilter {
             String clientUrl = this.constructServiceUrl(request, response);
             // 获取一个ST
             String st = CasUtil.getSt(requestWrapper, casServerLoginUrl, clientUrl, cookieStr);
+            log.info("获取ST=====================[{}]",st);
             if (st != null) {
                 //将ST加入到请求地址后面
                 requestWrapper.addQueryString("ticket="+st);
