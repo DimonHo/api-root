@@ -1,5 +1,7 @@
 package com.wd.cloud.apigateway.config;
 
+import com.wd.cloud.apigateway.filter.CorsFilter;
+import com.wd.cloud.apigateway.filter.TicketFilter;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jasig.cas.client.authentication.AuthenticationFilter;
@@ -40,6 +42,17 @@ public class CasConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistration() {
+        FilterRegistrationBean<CorsFilter> registrationBean = new FilterRegistrationBean<>(new CorsFilter());
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setName("Response Cors Filter");
+        registrationBean.setOrder(0);
+        log.info("Response Cors Filter过滤器注册成功！");
+        return registrationBean;
+
+    }
+
+    @Bean
     public FilterRegistrationBean<SingleSignOutFilter> singleSignOutFilterRegistration() {
         FilterRegistrationBean<SingleSignOutFilter> registrationBean = new FilterRegistrationBean<>(new SingleSignOutFilter());
         registrationBean.addUrlPatterns("/*");
@@ -51,6 +64,17 @@ public class CasConfig implements WebMvcConfigurer {
 
     }
 
+    @Bean
+    public FilterRegistrationBean<TicketFilter> ticketFilterRegistration() {
+        FilterRegistrationBean<TicketFilter> registrationBean = new FilterRegistrationBean<>(new TicketFilter());
+        registrationBean.addInitParameter("casServerLoginUrl", casProperties.getServerUrlPrefix() + "/login");
+        registrationBean.addInitParameter("serverName", casProperties.getClientHostUrl());
+        registrationBean.addUrlPatterns("/userinfo");
+        registrationBean.setName("CAS check login Filter");
+        registrationBean.setOrder(2);
+        log.info("CAS check login Filter过滤器注册成功！");
+        return registrationBean;
+    }
 
     @Bean
     public FilterRegistrationBean<AuthenticationFilter> authenticationFilterRegistration() {
@@ -60,7 +84,7 @@ public class CasConfig implements WebMvcConfigurer {
         registrationBean.addInitParameter("serverName", casProperties.getClientHostUrl());
         registrationBean.addUrlPatterns("/userinfo");
         registrationBean.setName("CAS Authentication Filter");
-        registrationBean.setOrder(2);
+        registrationBean.setOrder(3);
         log.info("CAS Authentication Filter过滤器注册成功！");
         return registrationBean;
     }
@@ -74,7 +98,7 @@ public class CasConfig implements WebMvcConfigurer {
         registrationBean.addInitParameter("redirectAfterValidation", "false");
         registrationBean.addUrlPatterns(casProperties.getValidationUrlPatterns());
         registrationBean.setName("CAS Validation Filter");
-        registrationBean.setOrder(3);
+        registrationBean.setOrder(4);
         log.info("CAS Validation Filter过滤器注册成功！");
         return registrationBean;
     }
@@ -84,7 +108,7 @@ public class CasConfig implements WebMvcConfigurer {
         FilterRegistrationBean<HttpServletRequestWrapperFilter> registrationBean = new FilterRegistrationBean<>(new HttpServletRequestWrapperFilter());
         registrationBean.addUrlPatterns(casProperties.getRequestWrapperUrlPatterns());
         registrationBean.setName("CAS HttpServletRequest Wrapper Filter");
-        registrationBean.setOrder(4);
+        registrationBean.setOrder(5);
         log.info("CAS HttpServletRequest Wrapper Filter过滤器注册成功！");
         return registrationBean;
     }

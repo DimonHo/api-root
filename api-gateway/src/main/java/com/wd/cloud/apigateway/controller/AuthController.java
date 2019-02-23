@@ -7,6 +7,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.wd.cloud.apigateway.config.CasProperties;
+import com.wd.cloud.apigateway.utils.CasUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.ClientType;
@@ -109,13 +110,10 @@ public class AuthController {
         response.addCookie(cookie);
         Document loginResultDoc = Jsoup.parse(loginResultResponse.body());
         if (loginResultResponse.getStatus() == 302) {
-            Map<String, Object> params3 = new HashMap<>();
-            params3.put("method", "POST");
-            params3.put("service", request.getRequestURL().toString().replace("/login", "/userinfo"));
-            String html = HttpRequest.get(casProperties.getServerLoginUrl()).header("User-Agent", request.getHeader("User-Agent"))
-                    .cookie(tgcCookie).form(params3).execute().body();
-            Document stDoc = Jsoup.parse(html);
-            String st = stDoc.getElementsByAttributeValue("name", "ticket").attr("value");
+            String st = CasUtil.getSt(request,
+                    casProperties.getServerLoginUrl(),
+                    request.getRequestURL().toString().replace("/login", "/userinfo"),
+                    tgcCookie);
             return ResponseModel.ok().setBody(request.getRequestURL().toString().replace("/login", "/userinfo?ticket=" + st));
         } else {
             throw new AuthException();
