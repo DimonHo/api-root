@@ -57,7 +57,7 @@ public class UserInfoServerImpl implements UserInfoServer {
         String idPhoto = responseModel.getBody().getStr("fileId");
         UserInfo userInfo = userInfoRepository.findByUsername(userDTO.getUsername()).orElse(new UserInfo());
         userInfo.setUsername(userDTO.getUsername());
-        userInfo.setIdPhoto(GlobalConstants.UPLOAD_IMAGE_PATH + "/" + idPhoto);
+        userInfo.setIdPhoto(idPhoto);
         userInfo.setValidated(false);
         userInfoRepository.save(userInfo);
     }
