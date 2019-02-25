@@ -44,7 +44,7 @@ public class UserInfoServerImpl implements UserInfoServer {
 
     @Override
     public void uploadIdPhoto(MultipartFile file) {
-        UserInfo userInfo = new UserInfo();
+
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
             throw new AuthException();
@@ -55,6 +55,7 @@ public class UserInfoServerImpl implements UserInfoServer {
             throw new FeignException("fsServer.uploadFile");
         }
         String idPhoto = responseModel.getBody().getStr("fileId");
+        UserInfo userInfo = userInfoRepository.findByUsername(userDTO.getUsername()).orElse(new UserInfo());
         userInfo.setUsername(userDTO.getUsername());
         userInfo.setIdPhoto(GlobalConstants.UPLOAD_IMAGE_PATH + "/" + idPhoto);
         userInfo.setValidated(false);

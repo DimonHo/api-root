@@ -19,8 +19,9 @@ import javax.persistence.Table;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "user_info")
-public class UserInfo extends AbstractEntity{
+public class UserInfo extends AbstractEntity {
 
+    @Column(unique = true)
     private String username;
 
     private String nickname;
