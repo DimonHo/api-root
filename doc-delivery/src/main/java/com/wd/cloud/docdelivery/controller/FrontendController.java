@@ -209,7 +209,7 @@ public class FrontendController {
     @ApiOperation(value = "应助取消")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query")
+            @ApiImplicitParam(name = "username", value = "应助者用户名称", dataType = "String", paramType = "query")
     })
     @ValidateUser
     @PatchMapping("/help/records/{helpRecordId}/giving/cancel")

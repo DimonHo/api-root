@@ -14,6 +14,7 @@ import java.util.Date;
 @Accessors(chain = true)
 public class GiveRecordDTO {
 
+    private Long helpRecordId;
     /**
      * 应助者名称
      */
