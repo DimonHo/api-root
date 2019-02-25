@@ -30,7 +30,7 @@ public class LoginAspect {
     @Autowired
     OrgServerApi orgServerApi;
 
-    @Pointcut("execution(public * com.wd.cloud.apigateway.controller.AuthController.login(..))")
+    @Pointcut("execution(public * com.wd.cloud.apigateway.controller.AuthController.userInfo(..))")
     public void loginPoint() {
     }
 

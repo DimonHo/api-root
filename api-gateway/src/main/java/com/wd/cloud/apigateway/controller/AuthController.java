@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,7 +60,7 @@ public class AuthController {
     @Autowired
     CasProperties casProperties;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseModel<UserDTO> login(@RequestParam String username,
                                         @RequestParam String password,
                                         @RequestParam(required = false) boolean rememberMe) {
@@ -187,4 +188,6 @@ public class AuthController {
             return ResponseModel.fail().setMessage("用户：[" + userDTO.getUsername() + "]注销失败");
         }
     }
+
+
 }
