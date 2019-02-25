@@ -92,6 +92,7 @@ public class AuthController {
         // 获取tgc
         String tgcCookie = loginResultResponse.header("Set-Cookie");
 
+        // 种植cookie
         List<String> tgcCookieParams = StrUtil.splitTrim(tgcCookie, ";");
         Cookie cookie = new Cookie("TGC", tgcCookieParams.get(0).split("=")[1]);
         for (String param : tgcCookieParams) {
