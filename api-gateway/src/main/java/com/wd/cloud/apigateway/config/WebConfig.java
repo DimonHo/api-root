@@ -28,7 +28,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Component
 @Configuration
 @EnableConfigurationProperties(CasProperties.class)
-public class CasConfig implements WebMvcConfigurer {
+public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
     private CasProperties casProperties;

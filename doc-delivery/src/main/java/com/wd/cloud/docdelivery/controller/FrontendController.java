@@ -112,7 +112,7 @@ public class FrontendController {
         Long orgId = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO.getId();
+            orgId = orgDTO != null ? orgDTO.getId() : null;
         }
         Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, pageable, orgId);
         return ResponseModel.ok().setBody(helpRecordDTOS);
@@ -127,7 +127,7 @@ public class FrontendController {
         Long orgId = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO.getId();
+            orgId = orgDTO != null ? orgDTO.getId() : null;
         }
         Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, orgId, pageable);
 
@@ -144,7 +144,7 @@ public class FrontendController {
         Long orgId = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO.getId();
+            orgId = orgDTO != null ? orgDTO.getId() : null;
         }
         Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, orgId, pageable);
 
@@ -161,7 +161,7 @@ public class FrontendController {
         Long orgId = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO.getId();
+            orgId = orgDTO != null ? orgDTO.getId() : null;
         }
         Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgId, pageable);
         return ResponseModel.ok().setBody(successHelpRecords);
@@ -176,7 +176,7 @@ public class FrontendController {
         Long orgId = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO.getId();
+            orgId = orgDTO != null ? orgDTO.getId() : null;
         }
         Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, orgId, pageable);
 

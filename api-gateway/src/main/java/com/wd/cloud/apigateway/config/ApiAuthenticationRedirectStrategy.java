@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 /**
  * @author He Zhigang
  * @date 2019/2/21
- * @Description:
+ * @Description: 自定义CAS重定向策略
  */
 @Component
 public class ApiAuthenticationRedirectStrategy implements AuthenticationRedirectStrategy {

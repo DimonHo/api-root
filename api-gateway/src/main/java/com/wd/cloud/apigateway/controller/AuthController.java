@@ -6,7 +6,9 @@ import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.useragent.UserAgentUtil;
+import cn.hutool.system.UserInfo;
 import com.wd.cloud.apigateway.config.CasProperties;
+import com.wd.cloud.apigateway.service.UserInfoService;
 import com.wd.cloud.apigateway.utils.CasUtil;
 import com.wd.cloud.apigateway.utils.HttpUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
@@ -59,6 +61,9 @@ public class AuthController {
 
     @Autowired
     CasProperties casProperties;
+
+    @Autowired
+    UserInfoService userInfoService;
 
     @PostMapping("/login")
     public ResponseModel<UserDTO> login(@RequestParam String username,
@@ -125,41 +130,38 @@ public class AuthController {
 
     @GetMapping("/userinfo")
     public ResponseModel<UserDTO> userInfo(@RequestParam(required = false) String ticket) {
-        HttpSession session = request.getSession();
-        log.info("sessionId={}", session.getId());
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
         if (principal == null) {
             throw new AuthException();
         }
         Map<String, Object> authInfo = principal.getAttributes();
-        UserDTO userDTO = BeanUtil.mapToBean(authInfo, UserDTO.class, true);
+        UserDTO userDTO = userInfoService.buildUserInfo(authInfo);
         // session Key
         String sessionKey = null;
         //如果是移动端
         if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
-            session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);
+            request.getSession().setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);
             sessionKey = userDTO.getUsername() + "-" + ClientType.MOBILE;
         } else {
-            session.setAttribute(SessionConstant.CLIENT_TYPE, ClientType.PC);
+            request.getSession().setAttribute(SessionConstant.CLIENT_TYPE, ClientType.PC);
             sessionKey = userDTO.getUsername() + "-" + ClientType.PC;
         }
 
         //踢出同类型客户端的session
         String oldSessionId = redisTemplate.opsForValue().get(sessionKey);
-        if (oldSessionId != null && !oldSessionId.equals(session.getId())) {
+        if (oldSessionId != null && !oldSessionId.equals(request.getSession().getId())) {
             redisOperationsSessionRepository.deleteById(oldSessionId);
             log.info("踢出session：{}", oldSessionId);
         }
-        redisTemplate.opsForValue().set(sessionKey, session.getId());
-
-        log.info("用户[{}]登陆成功", userDTO.getUsername());
+        redisTemplate.opsForValue().set(sessionKey, request.getSession().getId());
         // 如果用户有所属机构，则把有效机构设置为用户所属机构
         if (userDTO.getOrg() != null) {
             request.getSession().setAttribute(SessionConstant.ORG, userDTO.getOrg());
         }
-        session.setAttribute(SessionConstant.LOGIN_USER, userDTO);
+        request.getSession().setAttribute(SessionConstant.LOGIN_USER, userDTO);
+
         // 登陆成功 level +2
-        Integer level = session.getAttribute(SessionConstant.LEVEL) == null ? 0 : (Integer) session.getAttribute(SessionConstant.LEVEL);
+        Integer level = request.getSession().getAttribute(SessionConstant.LEVEL) == null ? 0 : (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
 
         if (level < 2) {
             level += 2;
@@ -168,7 +170,7 @@ public class AuthController {
         if (level < 4 && userDTO.isValidated()) {
             level += 4;
         }
-        session.setAttribute(SessionConstant.LEVEL, level);
+        request.getSession().setAttribute(SessionConstant.LEVEL, level);
         return ResponseModel.ok().setBody(userDTO);
     }
 
