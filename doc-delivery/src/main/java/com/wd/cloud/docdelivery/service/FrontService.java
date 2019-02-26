@@ -1,9 +1,11 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.entity.*;
+import com.wd.cloud.docdelivery.entity.DocFile;
+import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.entity.Permission;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +24,7 @@ public interface FrontService {
 
     DocFile saveDocFile(Long literatureId, String fileId, String filaName);
 
-    String help(HelpRecord helpRecord,Literature literature) throws ConstraintViolationException;
+    String help(HelpRecord helpRecord, Literature literature) throws ConstraintViolationException;
 
     void give(Long helpRecordId, String giverName, String ip);
 
@@ -86,14 +88,14 @@ public interface FrontService {
     Page<GiveRecordDTO> myGiveRecords(String giverName, List<Integer> status, Pageable pageable);
 
 
-    Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Pageable pageable);
+    Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Pageable pageable, Long orgId);
 
     /**
      * 获取待应助的求助记录
      *
      * @return
      */
-    Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Pageable pageable);
+    Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Long orgId, Pageable pageable);
 
     /**
      * 求助完成列表
@@ -102,7 +104,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Pageable pageable);
+    Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Long orgId, Pageable pageable);
 
     /**
      * 求助成功列表
@@ -111,7 +113,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> helpChannel, Long orgId, Pageable pageable);
 
     /**
      * 疑难文献（无结果，求助失败）列表
@@ -120,7 +122,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel, Long orgId, Pageable pageable);
 
     DocFile getReusingFile(Long literatureId);
 

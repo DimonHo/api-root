@@ -6,7 +6,6 @@ import com.wd.cloud.docdelivery.entity.VHelpRecord;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,7 +21,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
 
     class SpecificationBuilder {
 
-        public static Specification<VHelpRecord> buildBackendList(Long helpUserScid,Integer status,String keyword,String beginTime,String endTime){
+        public static Specification<VHelpRecord> buildBackendList(Long helpUserScid, Integer status, String keyword, String beginTime, String endTime) {
             return (Specification<VHelpRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (helpUserScid != null && helpUserScid != 0) {
@@ -52,7 +51,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
         }
 
 
-        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword) {
+        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Long orgId) {
             return new Specification<VHelpRecord>() {
                 @Override
                 public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -77,6 +76,9 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                     }
                     if (StrUtil.isNotBlank(keyword)) {
                         list.add(cb.or(cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"), cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
+                    }
+                    if (orgId != null) {
+                        list.add(cb.equal(root.get("helperScid"), orgId));
                     }
                     Predicate[] p = new Predicate[list.size()];
                     return cb.and(list.toArray(p));

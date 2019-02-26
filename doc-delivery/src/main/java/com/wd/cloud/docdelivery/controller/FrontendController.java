@@ -32,8 +32,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +41,6 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author He Zhigang
@@ -84,7 +81,7 @@ public class FrontendController {
         }
         if (orgDTO != null) {
             helpRecord.setHelperScid(orgDTO.getId()).setHelperScname(orgDTO.getName());
-        }else{
+        } else {
             helpRecord.setHelperScid(helpRequestModel.getHelperScid()).setHelperScname(helpRequestModel.getHelperScname());
         }
         helpRecord.setHelperIp(ip);
@@ -102,15 +99,22 @@ public class FrontendController {
             @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "List", paramType = "query"),
             @ApiImplicitParam(name = "status", value = "过滤状态，0：待应助， 1：应助中（用户已认领，15分钟内上传文件）， 2: 待审核（用户已应助）， 3：求助第三方（第三方应助）， 4：应助成功（审核通过或管理员应助）， 5：应助失败（超过15天无结果）", dataType = "List", paramType = "query"),
             @ApiImplicitParam(name = "keyword", value = "模糊查询", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "email", value = "邮箱过滤", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "email", value = "邮箱过滤", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query"),
     })
     @GetMapping("/help/records")
     public ResponseModel helpRecords(@RequestParam(required = false) List<Integer> channel,
                                      @RequestParam(required = false) List<Integer> status,
                                      @RequestParam(required = false) String keyword,
                                      @RequestParam(required = false) String email,
+                                     @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                      @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, pageable);
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO.getId();
+        }
+        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, pageable, orgId);
         return ResponseModel.ok().setBody(helpRecordDTOS);
     }
 
@@ -118,9 +122,14 @@ public class FrontendController {
     @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query")
     @GetMapping("/help/records/wait")
     public ResponseModel helpWaitList(@RequestParam(required = false) List<Integer> channel,
+                                      @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, pageable);
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO.getId();
+        }
+        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, orgId, pageable);
 
         return ResponseModel.ok().setBody(waitHelpRecords);
     }
@@ -130,8 +139,14 @@ public class FrontendController {
     @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query")
     @GetMapping("/help/records/finish")
     public ResponseModel helpFinishList(@RequestParam(required = false) List<Integer> channel,
+                                        @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, pageable);
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO.getId();
+        }
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, orgId, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
@@ -141,8 +156,14 @@ public class FrontendController {
     @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query")
     @GetMapping("/help/records/success")
     public ResponseModel helpSuccessList(@RequestParam(required = false) List<Integer> channel,
+                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, pageable);
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO.getId();
+        }
+        Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgId, pageable);
         return ResponseModel.ok().setBody(successHelpRecords);
     }
 
@@ -150,8 +171,14 @@ public class FrontendController {
     @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query")
     @GetMapping("/help/records/failed")
     public ResponseModel helpFailedList(@RequestParam(required = false) List<Integer> channel,
+                                        @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, pageable);
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO.getId();
+        }
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, orgId, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
@@ -169,7 +196,7 @@ public class FrontendController {
         if (userDTO == null) {
             throw new AuthException();
         }
-        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(userDTO.getUsername(),status, pageable);
+        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(userDTO.getUsername(), status, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
@@ -185,7 +212,7 @@ public class FrontendController {
         if (userDTO == null) {
             throw new AuthException();
         }
-        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(userDTO.getUsername(),status, pageable);
+        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(userDTO.getUsername(), status, pageable);
         return ResponseModel.ok().setBody(myGiveRecords);
     }
 

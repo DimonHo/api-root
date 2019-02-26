@@ -25,7 +25,6 @@ import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
-import com.wd.cloud.docdelivery.service.MailService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,7 +185,10 @@ public class FrontServiceImpl implements FrontService {
             if (HelpStatusEnum.HELPING.value() == helpRecord.getStatus()) {
                 throw new AppException(ExceptionEnum.GIVE_ING);
             }
-            if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.value() || helpRecord.getStatus() == HelpStatusEnum.WAIT_HELP.value()) {
+            // 可认领待应助，求助第三方或疑难状态的求助
+            if (helpRecord.getStatus() == HelpStatusEnum.HELP_THIRD.value()
+                    || helpRecord.getStatus() == HelpStatusEnum.WAIT_HELP.value()
+                    || helpRecord.getStatus() == HelpStatusEnum.HELP_FAILED.value()) {
                 //检查用户是否已经认领了应助
                 String docTitle = findGivingDocTitle(giverName);
                 if (docTitle != null) {
@@ -307,7 +309,7 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public Page<HelpRecordDTO> myHelpRecords(String username, List<Integer> status, Pageable pageable) {
 
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(null, status, null, username, null), pageable);
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(null, status, null, username, null, null), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
@@ -321,43 +323,43 @@ public class FrontServiceImpl implements FrontService {
 
 
     @Override
-    public Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Pageable pageable) {
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, email, null, keyword), pageable);
+    public Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Pageable pageable, Long orgId) {
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, email, null, keyword, orgId), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
 
     @Override
-    public Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Pageable pageable) {
+    public Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
 
         List<Integer> status = CollectionUtil.newArrayList(
                 HelpStatusEnum.WAIT_HELP.value(),
                 HelpStatusEnum.HELPING.value(),
                 HelpStatusEnum.HELP_THIRD.value());
-        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
+        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, orgId), pageable);
         return coversHelpRecordDTO(waitHelpRecords);
     }
 
     @Override
-    public Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Pageable pageable) {
+    public Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value(), HelpStatusEnum.HELP_FAILED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, orgId), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 
 
     @Override
-    public Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> channel, Pageable pageable) {
+    public Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, orgId), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
 
     }
 
     @Override
-    public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, Pageable pageable) {
+    public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_FAILED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, orgId), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 
