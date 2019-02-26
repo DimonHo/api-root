@@ -6,6 +6,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 
+import com.wd.cloud.reportanalysis.entity.FacetField;
 import com.wd.cloud.reportanalysis.es.build.FacetBuilderStrategyI;
 
 import static org.elasticsearch.search.aggregations.AggregationBuilders.terms;
@@ -50,6 +51,27 @@ public class AggregationBuilderUtil {
             
             aggregationList.add(abstractAggregationBuilder);
         }
+        return aggregationList;
+    }
+    
+    public static List<AbstractAggregationBuilder> buildFacetCondition2(FacetField facetField) {
+        List<AbstractAggregationBuilder> aggregationList = new ArrayList<AbstractAggregationBuilder>();
+        
+        	String name = facetField.getName(), filed = facetField.getField();
+        	AbstractAggregationBuilder abstractAggregationBuilder = terms(name).field(filed).order(Terms.Order.term(true)).size(Integer.MAX_VALUE).shardSize(20);
+            if("wosCitesAll".equals(name) || "wosCites".equals(name)) {
+            	AggregationBuilder termsBuilder = AggregationBuilders.sum("wosCites").field("wosCites");
+            	abstractAggregationBuilder.subAggregation(termsBuilder);
+            }
+            
+            if("jcr_year".equals(name)) {
+            	abstractAggregationBuilder = terms(name).field("year").order(Terms.Order.term(true)).size(Integer.MAX_VALUE).shardSize(20);
+            	AggregationBuilder termsBuilder = terms("jcr").field(filed).order(Terms.Order.term(true)).size(Integer.MAX_VALUE).shardSize(20);
+            	abstractAggregationBuilder.subAggregation(termsBuilder);
+            }
+            
+            aggregationList.add(abstractAggregationBuilder);
+        
         return aggregationList;
     }
     

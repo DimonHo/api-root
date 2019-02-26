@@ -30,9 +30,9 @@ public class BseServiceImpl implements BseService {
 	CacheService cacheService;
 	
 	@Override
-	public List<String> searchScholar(SearchCondition condition) {
+	public List<String> searchScholar(SearchCondition condition,String schoolSmail) {
 		SearchResponse searchResponse = transportRepository.query(condition);
-		return resultTransform.transformScholar(searchResponse);
+		return resultTransform.transformScholar(searchResponse,schoolSmail);
 	}
 	
 	public SearchPager query(SearchCondition condition) {
@@ -60,7 +60,12 @@ public class BseServiceImpl implements BseService {
 		List<QueryCondition> queryConditions = condition.getQueryConditions();
 		List<QueryCondition> filterConditions = condition.getFilterConditions();
 		condition.setQueryConditions(null);
-		condition.setFilterConditions(null);
+		condition.setFilterConditions(new ArrayList<QueryCondition>());
+		for (QueryCondition queryCondition : filterConditions) {
+			if(queryCondition.getFieldFlag().equals("docType")) {
+				condition.addFilterCondition(queryCondition);
+			}
+		}
 		condition.setFrom(0);
 		condition.setSize(100);
 		condition.setIsFacets(1);
@@ -90,7 +95,12 @@ public class BseServiceImpl implements BseService {
 		List<QueryCondition> queryConditions = condition.getQueryConditions();
 		List<QueryCondition> filterConditions = condition.getFilterConditions();
 		condition.setQueryConditions(null);
-		condition.setFilterConditions(new ArrayList<>());
+		condition.setFilterConditions(new ArrayList<QueryCondition>());
+		for (QueryCondition queryCondition : filterConditions) {
+			if(queryCondition.getFieldFlag().equals("docType")) {
+				condition.addFilterCondition(queryCondition);
+			}
+		}
 		condition.addFilterCondition(new QueryCondition("esiIssue",lastEsiIssue + "^ESI热点"));
 		condition.setFrom(0);
 		condition.setSize(100);
@@ -120,7 +130,12 @@ public class BseServiceImpl implements BseService {
 		List<QueryCondition> queryConditions = condition.getQueryConditions();
 		List<QueryCondition> filterConditions = condition.getFilterConditions();
 		condition.setQueryConditions(null);
-		condition.setFilterConditions(new ArrayList<>());
+		condition.setFilterConditions(new ArrayList<QueryCondition>());
+		for (QueryCondition queryCondition : filterConditions) {
+			if(queryCondition.getFieldFlag().equals("docType")) {
+				condition.addFilterCondition(queryCondition);
+			}
+		}
 		condition.addFilterCondition(new QueryCondition("esiIssue",lastEsiIssue + "^ESI高被引"));
 		condition.setFrom(0);
 		condition.setSize(100);

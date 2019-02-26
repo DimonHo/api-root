@@ -14,7 +14,7 @@ public interface BseService {
 	 * @param condition
 	 * @return
 	 */
-	public List<String> searchScholar(SearchCondition condition);
+	public List<String> searchScholar(SearchCondition condition,String schoolSmail);
 	
 	/**
 	 * 学科列表查询
@@ -36,9 +36,17 @@ public interface BseService {
 	 * @return
 	 */
 	public <T> SearchPager searchNew(SearchCondition condition);
-	
+	/**
+	 * esi热点前100条查询
+	 * @param condition
+	 * @return
+	 */
 	public <T> SearchPager searchEsiHot(SearchCondition condition);
-	
+	/**
+	 * esi高被引前100条查询
+	 * @param condition
+	 * @return
+	 */
 	public <T> SearchPager searchEsiTop(SearchCondition condition);
 	
 	

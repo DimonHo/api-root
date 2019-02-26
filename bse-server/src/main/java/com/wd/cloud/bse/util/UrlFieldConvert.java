@@ -87,9 +87,12 @@ public class UrlFieldConvert {
 //		}
 //		return null;
 //	}
-	
+	/**
+	 * 解析来源地址与链接
+	 * @param url
+	 * @return
+	 */
 	public ArticleSource convert(Url url) {
-
 		Map<Integer, List<RuleInfo>> ruleMap = cache.getRuleMap();
 		// 如果参数和规则都不为空，则尝试使用规则组装url
 		if (null != ruleMap && !ruleMap.isEmpty()) {

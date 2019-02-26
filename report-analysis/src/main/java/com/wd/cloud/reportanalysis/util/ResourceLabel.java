@@ -1,5 +1,6 @@
 package com.wd.cloud.reportanalysis.util;
 
+import com.wd.cloud.reportanalysis.entity.FacetField;
 import com.wd.cloud.reportanalysis.entity.QueryCondition;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +20,10 @@ import java.util.Map;
 public class ResourceLabel {
 
     private String id;
+    
+    private String block;
+    
+    private String plate;
 
     private String act;
 
@@ -36,18 +41,25 @@ public class ResourceLabel {
 
     private String signature;
     
-    private String type;			//0为按最新年，1为按文章年
+    /**
+     * 0为按最新年，1为按文章年
+     */
+    private String type;			
 
     public ResourceLabel(HttpServletRequest request) {
+    	block = request.getParameter("block");
+    	plate = request.getParameter("plate");
         act = request.getParameter("act");
         table = request.getParameter("table");
         scid = request.getParameter("scid");
         category = request.getParameter("category_type");
         type = request.getParameter("type");
-
+        if(org.apache.commons.lang3.StringUtils.isEmpty(type)) {
+        	type = "0";
+        }
 //		compareScids = request.getParameterValues("compare_scids");
 //		time = request.getParameterValues("time");
-        String compare = request.getParameter("compare_scids");
+        String compare = request.getParameter("compareScids");
         String t = request.getParameter("time");
         if (StringUtils.isNotEmpty(compare)) {
             compareScids = compare.replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -58,7 +70,6 @@ public class ResourceLabel {
             String end = json.getString("end");
             time = new String[]{start, end};
         }
-
         source = request.getParameter("source");
         signature = request.getParameter("signature");
     }
@@ -85,14 +96,39 @@ public class ResourceLabel {
 
     public String getType() {
         String type = "";
-        switch (act) {
-            case "esi":
-                type = "esi";
-                break;
-            default:
-                type = "resourcelabel";
-                break;
-        }
+//        switch (act) {
+//            case "esi":
+//                type = "esi";
+//                break;
+//            default:
+//                type = "resourcelabel";
+//                break;
+//        }
+        switch (plate) {
+	        case "esi":
+	            type = "esi";
+	            if(block.equals("ourschool")) {
+	            	type = "analysis";
+	            }
+//	            switch (act) {
+//		            case "country":
+//		                type = "analysis";
+//		                break;
+//		            case "organ":
+//		                type = "analysis";
+//		                break;
+//		            case "author":
+//		                type = "analysis";
+//		                break;
+//		            case "journal":
+//		                type = "analysis";
+//		                break;
+//		        }
+	            break;
+	        default:
+	            type = "resourcelabel";
+	            break;
+	    }
         return type;
     }
 
@@ -103,13 +139,25 @@ public class ResourceLabel {
                 filed = "year";
                 break;
             case "jcr":
-                filed = "jcr_year";
+            	if(type.equals("0")) {
+            		filed = "jcr_new";
+            	} else {
+            		filed = "jcr";
+            	}
                 break;
             case "jcr_zky_1":
-                filed = "jcr_b";
+            	if(type.equals("0")) {
+            		filed = "jcr_b_new";
+            	} else {
+            		filed = "jcr_b";
+            	}
                 break;
             case "jcr_zky_2":
-                filed = "jcr_s";
+            	if(type.equals("0")) {
+            		filed = "jcr_s_new";
+            	} else {
+            		filed = "jcr_s";
+            	}
                 break;
             case "jcr_year":
                 filed = "jcr_year";
@@ -174,6 +222,68 @@ public class ResourceLabel {
         return list;
     }
     
+    public FacetField getFacetField() {
+    	FacetField facetField = new FacetField();
+    	switch (table) {
+	        case "amount":
+	        	facetField.setName("year");
+	        	facetField.setField("year");
+	            break;
+	        case "jcr":
+	        	if(type.equals("0")) {
+	        		facetField.setName("jcr_new");
+	        		facetField.setField("jcr_new");
+	        	} else {
+	        		facetField.setName("jcr");
+	        		facetField.setField("jcr");
+	        	}
+	            break;
+	        case "jcr_zky_1":
+	        	if(type.equals("0")) {
+	        		facetField.setName("jcr_b_new");
+	        		facetField.setField("jcr_b_new");
+	        	} else {
+	        		facetField.setName("jcr_b");
+	        		facetField.setField("jcr_b");
+	        	}
+	            break;
+	        case "jcr_zky_2":
+	        	if(type.equals("0")) {
+	        		facetField.setName("jcr_s_new");
+	        		facetField.setField("jcr_s_new");
+	        	} else {
+	        		facetField.setName("jcr_s");
+	        		facetField.setField("jcr_s");
+	        	}
+	            break;
+//	        case "jcr_year":
+//	        	facetField.setName("jcr_year");
+//	        	facetField.setField("jcr");
+//	            break;
+//	        case "jcr_zky_1_year":
+//	        	facetField.setName("jcr_year");
+//	        	facetField.setField("jcr_b");
+//	            break;
+//	        case "jcr_zky_2_year":
+//	        	facetField.setName("jcr_year");
+//	        	facetField.setField("jcr_s");
+//	            break;
+	        case "total_cited":            //总被引频次
+	        	facetField.setName("wosCitesAll");
+	        	facetField.setField("year");
+	            break;
+	        case "paper_cited":            //篇均被引频次
+	        	facetField.setName("wosCites");
+	        	facetField.setField("year");
+	            break;
+	        default:
+	        	facetField.setName("year");
+	        	facetField.setField("year");
+	            break;
+	    }
+		return facetField;
+    }
+    
     
     public Map<String,String> getFacetMap() {
     	Map<String,String> facetMap = new HashMap<>();
@@ -182,13 +292,26 @@ public class ResourceLabel {
 	        	facetMap.put("year", "year");
 	            break;
 	        case "jcr":
-	        	facetMap.put("jcr_year", "jcr");
+	        	if(type.equals("0")) {
+            		facetMap.put("jcr_new", "jcr_new");
+            	} else {
+            		facetMap.put("jcr", "jcr");
+            	}
 	            break;
 	        case "jcr_zky_1":
-	        	facetMap.put("jcr_b", "jcr_b");
+	        	if(type.equals("0")) {
+            		facetMap.put("jcr_b_new", "jcr_b_new");
+            	} else {
+            		facetMap.put("jcr_b", "jcr_b");
+            	}
 	            break;
 	        case "jcr_zky_2":
-	        	facetMap.put("jcr_s", "jcr_s");
+	        	if(type.equals("0")) {
+//            		filed = "jcr_new";
+            		facetMap.put("jcr_s_new", "jcr_s_new");
+            	} else {
+            		facetMap.put("jcr_s", "jcr_s");
+            	}
 	            break;
 	        case "jcr_year":
 	        	facetMap.put("jcr_year", "jcr");
@@ -216,6 +339,12 @@ public class ResourceLabel {
     public String toXML(String scid) {
         StringBuilder xml = new StringBuilder();
         xml.append("<params>");
+        if (block != null) {
+            xml.append("<block>" + block + "</block>");
+        }
+        if (plate != null) {
+            xml.append("<plate>" + plate + "</plate>");
+        }
         if (act != null) {
             xml.append("<act>" + act + "</act>");
         }
@@ -260,5 +389,10 @@ public class ResourceLabel {
     public String getSignature() {
         return signature;
     }
+
+
+	public String getBlock() {
+		return block;
+	}
 
 }

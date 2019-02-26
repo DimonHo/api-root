@@ -53,10 +53,11 @@
 		</property>
 		<property name="sortBuilders">
 			<map>
+				<entry key="documents.year" value-ref="timeSort" />
 				<entry key="year" value-ref="timeSort" />
 				<entry key="wosCites" value-ref="timeSort" />
 				<entry key="docTitleFacet" value-ref="timeSort" />
-				<entry key="boostField" value-ref="timeSort" />
+				<entry key="my_boost_field" value-ref="timeSort" />
 				<!-- <entry key="year">
 					<bean class="com.wd.cloud.bse.es.sort.TimeSortBuilder">
 						<property name="field" value="orgRecordList.document.year"></property>
@@ -95,7 +96,7 @@
 						<bean class="com.wd.cloud.bse.vo.FacetField">
 							<property name="name" value="esiIssue"></property>
 							<property name="field" value="esiIssue"></property>
-							<property name="size" value="20" />
+							<property name="size" value="50" />
 							<property name="orderByCount" value="true" />
 						</bean>
 						<bean class="com.wd.cloud.bse.vo.FacetField">
@@ -218,7 +219,7 @@
 						<bean class="com.wd.cloud.bse.vo.FacetField">
 							<property name="name" value="esiIssue"></property>
 							<property name="field" value="esiIssue"></property>
-							<property name="size" value="20" />
+							<property name="size" value="50" />
 							<property name="orderByCount" value="true" />
 						</bean>
 						<bean class="com.wd.cloud.bse.vo.FacetField">
@@ -319,7 +320,7 @@
 						<bean class="com.wd.cloud.bse.vo.FacetField">
 							<property name="name" value="esiIssue"></property>
 							<property name="field" value="esiIssue"></property>
-							<property name="size" value="20" />
+							<property name="size" value="50" />
 							<property name="orderByCount" value="true" />
 						</bean>
 						<bean class="com.wd.cloud.bse.vo.FacetField">

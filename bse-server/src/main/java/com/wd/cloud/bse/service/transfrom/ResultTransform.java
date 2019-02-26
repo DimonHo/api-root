@@ -65,11 +65,11 @@ public class ResultTransform {
 	SourceTransfrom sourceTransfrom;
 	
 	/**
-	 * 学科平台人物成果
+	 * 学科平台人物成果--结果解析
 	 * @param searchResponse
 	 * @return
 	 */
-	public List<String> transformScholar(SearchResponse searchResponse) {
+	public List<String> transformScholar(SearchResponse searchResponse,String schoolSmail) {
 		List<String> result = new ArrayList<>();
 		SearchHits searchHits = searchResponse.getHits();
 		for (SearchHit hit : searchHits.getHits()) {
@@ -79,6 +79,17 @@ public class ResultTransform {
 			Map<Integer,Object> urlMap = new TreeMap<Integer,Object>();
 			for (int i = 0; i < list.size(); i++) {
 				Map<String, Object> json = list.get(i);
+				String org = json.get("org").toString();
+				boolean isOrg = false;
+				String[] schoolSmails = schoolSmail.split(";"); 
+				for (String school : schoolSmails) {
+					if(org.contains(school)) {
+						isOrg = true;
+					}
+				}
+				if(!isOrg) {
+					break;
+				}
 				// 遍历map中的键
 				for (String key : json.keySet()) {
 					if(json.get(key) == null) continue;
@@ -171,14 +182,16 @@ public class ResultTransform {
 		return result;
 	}
 	
-	
+	/**
+	 * 结果解析
+	 * @param searchResponse
+	 * @param condition
+	 * @return
+	 */
 	public SearchPager transform(SearchResponse searchResponse,SearchCondition condition) {
 		SearchPager pager = new SearchPager();
 		SearchHits searchHits = searchResponse.getHits();
 		pager.setTotal((int)searchHits.getTotalHits());
-//		if(condition != null && condition.getIsTop() == 1) {
-//			pager.setTotal(100);
-//		}
 		ResourceMerger ResourceMerger = new ResourceMerger();
 		List<Document> list = new ArrayList<>();
 		for (SearchHit hit : searchHits.getHits()) {
@@ -194,9 +207,8 @@ public class ResultTransform {
 				dctl.put("MLA", sourceTransfrom.getMLA(doc,doc.getAuthor()).replaceAll("'", "\""));
 				doc.setSource(dctl);
 				regulate(doc, resourceIndex.getEsiIssue());
-				
 				List<Url> urls = doc.getUrl();
-				if(urls != null){
+				if(urls != null){			//解析来源地址与链接
 					List<ArticleSource> links = new ArrayList<ArticleSource>();	
 					Set<String> urlSet = new HashSet<>();
 					for(Url url : urls){
@@ -232,11 +244,10 @@ public class ResultTransform {
 		FacetResult esiShoulu=new FacetResult(),  esiIssueShoulu= facetResults.get("esiIssue"), shoulu = facetResults.get("shoulu"), 
 				yearRange =facetResults.get("yearRange"),scids = facetResults.get("scids");
 		Set<String> esiIssues = new HashSet<>();
-		if(esiIssues.size() == 0){
+		if(esiIssues.size() == 0){			//获取esiIssues的最新期
 			esiIssues.add(cacheService.getEsiIssue());
 		}
-		
-		if(esiIssueShoulu != null) {
+		if(esiIssueShoulu != null) {		//只取esiIssues最新期作为聚合结果
 			for(Entry entry : esiIssueShoulu.getEntries()){
 				String[] items = entry.getTerm().toString().split("\\^");
 				if (items.length==2) {
@@ -249,7 +260,7 @@ public class ResultTransform {
 		if(shoulu == null){
 			facetResults.put("shoulu", esiShoulu);
 		}else{
-			if(esiShoulu != null){
+			if(esiShoulu != null){		//将esiIssue和shoulu字段的聚合合并成一项
 				esiShoulu.getEntries().addAll(shoulu.getEntries());
 				esiShoulu.getEntries().sort(new Comparator<Entry>(){
 					@Override
@@ -279,7 +290,11 @@ public class ResultTransform {
 		pager.setYearRange(yearRangeObj);
 		return pager;
 	}
-	
+	/**
+	 * 聚合结果解析
+	 * @param agg
+	 * @param facetResults
+	 */
 	private void facetConvert(Aggregation agg, final Map<String,FacetResult> facetResults){
 		if(agg instanceof Nested || agg instanceof Filter){
 			Map<String,Aggregation> aggs = ((SingleBucketAggregation)agg).getAggregations().getAsMap();

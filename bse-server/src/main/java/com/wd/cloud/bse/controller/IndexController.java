@@ -49,6 +49,10 @@ public class IndexController {
 	@Autowired
 	IndexLogService indexLogService;
 	
+	@ApiOperation(value = "列表查询")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "查询学者id", dataType = "String", paramType = "query")
+    })
     @RequestMapping("/bse")
     public ResponseModel bse(HttpServletRequest request) {
     	try {
@@ -66,13 +70,12 @@ public class IndexController {
 					condition.addQueryCondition(new QueryCondition("orgQuery","org", schoolSmails[1],2));
 				}
 			}
-//			condition.addSort("year","documents",2);
+			condition.addSort("documents.year","documents",2);
 			condition.setSize(5000);
 			condition.setIsFacets(1);
 			condition.setIndexName("res");
 			condition.setTypes(new String[] {"paper"});
-			
-			List<String> result = bseService.searchScholar(condition);
+			List<String> result = bseService.searchScholar(condition,schoolSmail);
 			return ResponseModel.ok().setBody(result);
     	} catch (Exception e) {
     		e.printStackTrace();
@@ -92,7 +95,7 @@ public class IndexController {
 		condition.setSize(5000);
 		condition.setIndexName("res");
 		condition.setTypes(new String[] {"paper"});
-		List<String> result = bseService.searchScholar(condition);
+		List<String> result = bseService.searchScholar(condition,"");
         return ResponseModel.ok().setBody(result);
     }
     
@@ -226,15 +229,16 @@ public class IndexController {
     		String reqParams = request.getParameter("params");
     		indexLogService.save(new IndexLog("getRangYear",reqParams));
     		QueryParam params = ParamsAnalyze.parse(reqParams);
-    		SearchCondition  condition  = params.converToSearchCondition();
-    		List<FacetField> facets = new ArrayList<>();
-    		facets.add(new FacetField("yearRange","year",100,true));
-//    		SearchCondition condition = new SearchCondition();
-    		condition.setFacetFields(facets);
-    		condition.setIndexName("res_xk");
     		Map<String,Object> map = new HashMap<>();
     		
     		for (DocType docType : DocType.values()) {
+    			SearchCondition  condition  = params.converToSearchCondition();
+    			List<FacetField> facets = new ArrayList<>();
+        		facets.add(new FacetField("yearRange","year",100,true));
+//        		SearchCondition condition = new SearchCondition();
+        		condition.setFacetFields(facets);
+        		condition.setIndexName("res_xk");
+    			
     			condition.addFilterCondition(new QueryCondition("docType",docType.getKey()+""));
     			condition.setTypes(new String[]{docType.getValue()});
     			condition.setSize(0);
@@ -248,6 +252,7 @@ public class IndexController {
         return ResponseModel.fail();
     }
     
+    @ApiOperation(value = "更新时间")
     @RequestMapping("/getUpdateTime")
     public ResponseModel getUpdateTime() {
     	Issue issue = cacheService.getIssue();

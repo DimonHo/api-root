@@ -27,5 +27,8 @@ public interface AnalysisRepository<T, Long extends Serializable> {
     List<Map<String, Object>> query(String string);
 
     Map<String, Object> queryOne(String string);
+    
+    
+    public Map<String, Object> searchA(int scid, String issue, String category, String classify, String column, int type_c);
 
 }

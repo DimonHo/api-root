@@ -8,3 +8,4 @@ com.wd.cloud.bse.service.transfrom.merge.StringMultiLangMergeRule
 com.wd.cloud.bse.service.transfrom.merge.AccessionNumJoinRule
 com.wd.cloud.bse.service.transfrom.merge.CategoryMergeRule
 com.wd.cloud.bse.service.transfrom.merge.SubjectsMergeRule
+com.wd.cloud.bse.service.transfrom.merge.ReferenceMergeRule

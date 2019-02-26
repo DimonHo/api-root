@@ -17,5 +17,12 @@ public interface AnalysisByDBServiceI {
     public Map<String, Object> analysis(int scid, String issue, String category, String classify, String column, int type_c);
 
     public Map<String, Object> getColumnList(int scid, String issue, String scname);
+    
+    
+    
+    
+    
+    
+    public Map<String, Object> compareAnalysis(int scid, String category , String act, int type_c);
 
 }

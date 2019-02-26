@@ -78,10 +78,8 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                     if (!column.equals("distribution") && !column.equals("percentile")) {
                         sql = sql + " AND type = '" + ConfigUtil.getStr(classify + ".type") + "'";
                     }
-
                 }
                 if (classify.equals("level")) {
-
                     sql = "SELECT * FROM st_analysis_year WHERE issue = '" + issue + "' and category = '全部领域' AND scid = '" + scid + "' and type = 2";
                 }
                 if (classify.equals("paper")) {
@@ -89,9 +87,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                         sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
                     }
                 }
-
                 List<Map<String, Object>> result = analysisRepository.query(sql);
-
                 if (handleResult(result, classify)) {
                     List<String> columns = new ArrayList<>();
                     if (map.containsKey(classify)) {
@@ -100,7 +96,6 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                     columns.add(column);
                     map.put(classify, columns);
                 }
-
             }
         }
         cache.put(scid + ":" + issue, map);
@@ -127,5 +122,35 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
         }
         return false;
     }
+    
+    
+    /**
+     * 本校ESI学科论文分析
+     */
+    @Override
+    public Map<String, Object> compareAnalysis(int scid, String category , String act, int type_c) {
+    	Map<String, Object> result = new HashMap<>();
+    	List<Map<String, Object>> list = analysisRepository.getIssue(0, 1);
+    	if(list == null) return null;
+    	String issue = list.get(0).get("esi_issue").toString();
+    	String classify = "thesis";
+    	String column = act;
+    	
+    	if("potential".equals(act)) {
+    		classify = "competitive";
+    	}
+    	
+    	if(act.equals("amount")) {
+    		result = analysisRepository.searchA(scid, issue, category, classify, "scale", type_c);
+    	} else if(act.equals("cited")) {
+    		result = analysisRepository.searchA(scid, issue, category, classify, "scale", type_c);
+    	} else {
+    		result = analysisRepository.searchA(scid, issue, category, classify, act, type_c);
+    	}
+    	
+        return result;
+    }
+    
+    
 
 }

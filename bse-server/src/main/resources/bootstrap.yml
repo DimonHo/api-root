@@ -1,10 +1,12 @@
 spring:
   application:
     name: bse-server
-#  profiles:
+  profiles:
+    active: dev
 #    active: test
-#  cloud:
-#    config:
-#      uri: http://192.168.1.7:8888
-#      enabled: true
-#      fail-fast: true
+#    active: prod
+  cloud:
+    config:
+      uri: http://192.168.1.7:8888
+      enabled: true
+      fail-fast: true

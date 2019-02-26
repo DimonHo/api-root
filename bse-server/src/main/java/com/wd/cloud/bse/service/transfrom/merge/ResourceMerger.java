@@ -11,7 +11,12 @@ import com.wd.cloud.bse.data.Document;
 import com.wd.cloud.bse.data.ResourceIndex;
 import com.wd.cloud.bse.util.CommUtil;
 
-
+/**
+ * 数据融合
+ * @author yangshuaifei
+ *
+ * @param <T>
+ */
 public class ResourceMerger <T> {
 	
 	private DefaultSelectRule defaultSelectRule = new DefaultSelectRule();
@@ -32,6 +37,10 @@ public class ResourceMerger <T> {
 		followedMap.put("wosCites", new PropertyTuple("wosCites", "wosCitesMerge", null));
 		followedMap.put("category", new PropertyTuple("category", "categoryMerge", null));
 		followedMap.put("subjects", new PropertyTuple("subjects", "subjectsMerge", null));
+		followedMap.put("org", new PropertyTuple("org", "stringMultiLangMerge", null));
+		
+//		followedMap.put("references", new PropertyTuple("references", "referenceMerge", null));
+		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -46,16 +55,14 @@ public class ResourceMerger <T> {
 				Object object = null;
 				field.setAccessible(true);
 				List<T> dataList = getData(field, docList);
-//				if(dataList.size() > 0) {
-					MergeRule<T> mergeRule = null;
-					Map<String, String> parameters = new HashMap<>();
-					if (!followedMap.containsKey(field.getName())) {	//默认融合规则
-						object = defaultSelectRule.merge(dataList);
-					} else {
-						mergeRule = MergeRule.getRule(followedMap.get(field.getName()).rule);
-						object = mergeRule.merge(dataList, resource);
-					}
-//				}
+				MergeRule<T> mergeRule = null;
+				Map<String, String> parameters = new HashMap<>();
+				if (!followedMap.containsKey(field.getName())) {	//默认融合规则
+					object = defaultSelectRule.merge(dataList);
+				} else {
+					mergeRule = MergeRule.getRule(followedMap.get(field.getName()).rule);
+					object = mergeRule.merge(dataList, resource);
+				}
 				try {
 					if (object!=null) {
 						field.set(doc,object);					

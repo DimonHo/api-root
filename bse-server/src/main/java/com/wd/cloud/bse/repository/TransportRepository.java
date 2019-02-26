@@ -82,6 +82,7 @@ public class TransportRepository {
 		if(condition != null) {
 			requestBuildUtil.build(condition, searchRequest,id);
 		}
+		System.out.println(searchRequest.toString());
 		SearchResponse resp = searchRequest.execute().actionGet();
 		return resp;
 	}

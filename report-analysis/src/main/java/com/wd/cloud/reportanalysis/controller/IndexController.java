@@ -43,10 +43,13 @@ public class IndexController {
 
     @ApiOperation(value = "发文量、分区、被引频次对比分析（非esi）")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "act", value = "分析类型（发文量、分区、被引频次）", dataType = "String", paramType = "query"),
+    	@ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
+    	@ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "act", value = "分析类型;amount：发文量;partition：分区;cited：被引频次", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "table", value = "表名", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "scid", value = "学校scid", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "compareScids", value = "对比 学校", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "category_type", value = "esi(领域)", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "time", value = "时间段", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "source", value = "数据类型", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query")
@@ -58,13 +61,16 @@ public class IndexController {
         String type = resource.getType();
         resource.getScids().forEach(scid -> {
             School school = schoolService.findByScid(Integer.parseInt(scid));
-            if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
+            if(type.equals("analysis")) {
+            	scidMap.put(scid, analysisByDBService.compareAnalysis(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
+            } else if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
                 List<QueryCondition> list = resource.getQueryList();
                 list.add(new QueryCondition("scid", scid));
                 if (resource.getSignature() != null) {
                     list.add(new QueryCondition("signature", scid, resource.getSignature()));
                 }
-                scidMap.put(scid, analysisByESService.amount(list, resource.getFiled(), type,resource.getFacetMap()));
+//                scidMap.put(scid, analysisByESService.amount(list, resource.getFiled(), type,resource.getFacetMap()));
+                scidMap.put(scid, analysisByESService.amount(list, resource.getFacetField(), type));
             } else {
                 scidMap.put(scid, cxfWebService.amount(resource.toXML(scid)));
             }
@@ -73,11 +79,27 @@ public class IndexController {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("explain", explain);
         result.put("content", scidMap);
+        if(resource.getBlock().equals("ourschool")) {
+        	result.put("content", scidMap.get(resource.getScid()));
+        }
         System.out.println(result);
         return ResponseModel.ok().setBody(result);
     }
 
     @ApiOperation(value = "智慧云分析数据：发文量、分区、被引频次对比分析（非esi）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "act", value = "分析类型;amount：发文量;partition：分区;cited：被引频次", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "table", value = "表名", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "scid", value = "学校scid", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "type_c", value = "", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "classify", value = "", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "column", value = "", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "issue", value = "期数", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "category", value = "esi(领域)", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "limit_start", value = "", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "limit_num", value = "", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query")
+    })
     @RequestMapping("/analysis")
     public ResponseModel analysis(HttpServletRequest request) {
         String act = request.getParameter("act");
@@ -121,10 +143,10 @@ public class IndexController {
             case "category":        //获取优势学科
                 result = analysisByDBService.getanalysisCategory("category", issue, school.getName(), Integer.parseInt(scid));
                 break;
-            case "categoryins":        //获取优势学科
+            case "categoryins":        //获取潜力学科
                 result = analysisByDBService.getanalysisCategory("categoryins", issue, school.getName(), Integer.parseInt(scid));
                 break;
-            case "categoryap":
+            case "categoryap":		//ESI优势及潜力学科论文分析
                 result = analysisByDBService.getanalysisCategory("categoryap", issue, school.getName(), Integer.parseInt(scid));
                 break;
             case "data":

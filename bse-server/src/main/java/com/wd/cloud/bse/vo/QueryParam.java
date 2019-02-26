@@ -383,7 +383,7 @@ public class QueryParam {
 			default:
 				if(condition.getQueryConditions()!=null  && condition.getQueryConditions().size()>0){
 				}else{//没有筛选条件，使用默认的排序方式
-					condition.addSort("boostField", SortEnum.desc.value());
+					condition.addSort("my_boost_field", SortEnum.desc.value());
 				}
 				break;
 			}
