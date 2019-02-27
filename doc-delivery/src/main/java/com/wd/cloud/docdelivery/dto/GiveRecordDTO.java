@@ -60,6 +60,10 @@ public class GiveRecordDTO {
      */
     private String docTitle;
 
+    private String docHref;
+
+    private String remark;
+
     Date gmtModified;
 
     Date gmtCreate;

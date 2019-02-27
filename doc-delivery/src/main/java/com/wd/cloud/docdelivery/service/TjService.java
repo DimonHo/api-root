@@ -38,6 +38,10 @@ public interface TjService {
      */
     long todayTotalForHelp();
 
+    long avgResponseTime(String startDate);
+
+    long avgSuccessResponseTime(String startDate);
+
     /**
      * 我的统计
      *
@@ -47,4 +51,6 @@ public interface TjService {
 
 
     MyTjDTO tjEmail(String email, String ip);
+
+
 }

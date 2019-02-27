@@ -141,6 +141,12 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     HelpRecord findByHelperName(String helperName);
 
+    @Query(value = "select avg(TIMESTAMPDIFF(HOUR,t1.gmt_create,t2.gmt_create)) from help_record t1,give_record t2 where t1.id = t2.help_record_id and t1.gmt_create >= ?1",nativeQuery = true)
+    long avgResponseDate(String startDate);
+
+    @Query(value = "select avg(TIMESTAMPDIFF(HOUR,gmt_create,gmt_modified)) from help_record t where t.status=4 and t.gmt_create >= ?1",nativeQuery = true)
+    long avgSuccessResponseDate(String startDate);
+
     class SpecificationBuilder {
         public static Specification<HelpRecord> buildHelpRecord(String helperName,
                                                                 String email,

@@ -1,6 +1,7 @@
 package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.AuthException;
@@ -8,6 +9,7 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.dto.MyTjDTO;
 import com.wd.cloud.docdelivery.dto.TjDTO;
+import com.wd.cloud.docdelivery.model.AvgResponseTimeModel;
 import com.wd.cloud.docdelivery.service.TjService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -37,6 +39,8 @@ public class TjController {
 
     @Autowired
     HttpServletRequest request;
+
+
 
     @ApiOperation(value = "邮箱统计")
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
@@ -103,6 +107,18 @@ public class TjController {
         body.setTodayTotalForHelp(tjService.todayTotalForHelp());
 
         return ResponseModel.ok().setBody(body);
+    }
+
+    @ApiOperation(value = "获取平均响应时间")
+    @ApiImplicitParam(name = "startDate", value = "起始统计时间", dataType = "String", paramType = "query")
+    @GetMapping("/tj/avg-time")
+    public ResponseModel avgTime(@RequestParam(required = false, defaultValue = "2019-01-01 00:00:00") String startDate) {
+        long avgResponseTime = tjService.avgResponseTime(startDate);
+        long avgSuccessResponseTime = tjService.avgSuccessResponseTime(startDate);
+        JSONObject avgResponseJson = new JSONObject();
+        avgResponseJson.put("avgResponseTime", avgResponseTime);
+        avgResponseJson.put("avgSuccessResponseTime", avgSuccessResponseTime);
+        return ResponseModel.ok().setBody(avgResponseJson);
     }
 
 }

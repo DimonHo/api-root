@@ -441,10 +441,11 @@ public class FrontServiceImpl implements FrontService {
             BeanUtil.copyProperties(giveRecord, giveRecordDTO);
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
             optionalHelpRecord.ifPresent(helpRecord -> {
-                giveRecordDTO.setHelperEmail(helpRecord.isAnonymous() ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()));
+                giveRecordDTO.setHelperEmail(helpRecord.isAnonymous() ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()))
+                        .setRemark(helpRecord.getRemark());
                 Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
                 optionalLiterature.ifPresent(literature -> {
-                    giveRecordDTO.setDocTitle(literature.getDocTitle());
+                    giveRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());
                 });
             });
             return giveRecordDTO;
