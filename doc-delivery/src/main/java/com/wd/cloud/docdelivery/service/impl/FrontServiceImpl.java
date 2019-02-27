@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.json.JSONObject;
@@ -11,6 +10,7 @@ import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.exception.UndefinedException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
+import com.wd.cloud.commons.util.StrUtil;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
@@ -442,7 +442,7 @@ public class FrontServiceImpl implements FrontService {
             BeanUtil.copyProperties(giveRecord, giveRecordDTO);
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
             optionalHelpRecord.ifPresent(helpRecord -> {
-                giveRecordDTO.setHelperEmail(helpRecord.getHelperEmail());
+                giveRecordDTO.setHelperEmail(helpRecord.isAnonymous() ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()));
                 Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
                 optionalLiterature.ifPresent(literature -> {
                     giveRecordDTO.setDocTitle(literature.getDocTitle());
@@ -457,7 +457,7 @@ public class FrontServiceImpl implements FrontService {
             vHelpRecord.setHelperEmail("匿名").setHelperName("匿名");
         } else {
             String helperEmail = vHelpRecord.getHelperEmail();
-            String s = helperEmail.replaceAll("(\\w?)(\\w+)(\\w)(@\\w+\\.[a-z]+(\\.[a-z]+)?)", "$1****$3$4");
+            String s = StrUtil.hideMailAddr(helperEmail);
             vHelpRecord.setHelperEmail(s);
         }
         return vHelpRecord;
