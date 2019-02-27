@@ -48,6 +48,8 @@ public class HelpRecordDTO {
      */
     private int status;
 
+    private boolean difficult;
+
     private String remark;
 
     private List<GiveRecord> giveRecords;

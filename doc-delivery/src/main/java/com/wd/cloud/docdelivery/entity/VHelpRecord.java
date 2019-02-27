@@ -4,7 +4,10 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Immutable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -66,6 +69,9 @@ public class VHelpRecord {
 
     @Column(name = "is_send")
     private boolean send;
+
+    @Column(name = "is_difficult")
+    private boolean difficult;
 
     @Column(name = "is_anonymous")
     private boolean anonymous;
