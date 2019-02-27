@@ -63,31 +63,27 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
     @Override
     public ResponseModel<byte[]> getpdf(String rowKey) {
         ResponseModel<byte[]> responseModel = ResponseModel.fail();
-        byte[] file = getValue(tableName,rowKey,family,column);
-        if(file!=null){
-            //查询hbase;
-            responseModel = ResponseModel.ok();
-            responseModel.setBody(file);
-        }
-        return responseModel;
-    }
-
-    private byte[] getValue(String tableName,String rowkey,String family,String column){
         Table table = null;
         Connection connection=null;
         byte[] res= null;
         if (StringUtils.isEmpty(tableName) || StringUtils.isEmpty(family)
-                || StringUtils.isEmpty(rowkey) || StringUtils.isEmpty(column)) {
+                || StringUtils.isEmpty(rowKey) || StringUtils.isEmpty(column)) {
             return null;
         }
         try {
             connection = ConnectionFactory.createConnection(con.configuration());
             table = connection.getTable(TableName.valueOf(tableName));
-            Get get = new Get(rowkey.getBytes());
+            Get get = new Get(rowKey.getBytes());
             Result result = table.get(get);
             res = result.getValue(Bytes.toBytes(family), Bytes.toBytes(column));
+            String fileName = rowKey+"."+Bytes.toString(result.getValue(Bytes.toBytes(family), Bytes.toBytes("t")));
+            if(res!=null){
+                //查询hbase;
+                responseModel = ResponseModel.ok().setMessage(fileName);
+                responseModel.setBody(res);
+            }
         } catch (IOException e) {
-            log.error(e, "文件查询失败", rowkey);
+            log.error(e, "文件查询失败", rowKey);
         }finally {
             try {
                 if(table!=null){
@@ -100,7 +96,7 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
                 log.error(e, "hbase关闭链接失败");
             }
         }
-        return res;
+        return responseModel;
     }
 
     private String getRokey(LiteratureModel literatureModel){
@@ -108,7 +104,6 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
         String title = literatureModel.getDocTitle();
         QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("title",title);
         log.info("精确查询："+queryBuilder.toString());
-        System.out.println();
         SearchResponse searchResponse =elasticRepository.queryByName(indexName,type,queryBuilder);
         SearchHits hits =searchResponse.getHits();
         if(hits.getTotalHits()==1){//标题精确匹配只有一条
@@ -233,7 +228,7 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
 
     private boolean matchField(String field,String key,LiteratureModel literatureModel){
         Map<String,Object> map =BeanUtil.beanToMap(literatureModel);
-        if(!StringUtils.isEmpty(field) && map.containsKey(key)){
+        if(!StringUtils.isEmpty(field) && map.get(key)!=null){
             String value = map.get(key).toString();
             if(field.equals(value)){
                 return true;
