@@ -442,7 +442,7 @@ public class FrontServiceImpl implements FrontService {
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
             optionalHelpRecord.ifPresent(helpRecord -> {
                 giveRecordDTO.setHelperEmail(helpRecord.isAnonymous() ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()))
-                        .setRemark(helpRecord.getRemark());
+                        .setRemark(helpRecord.getRemark()).setHelperScname(helpRecord.getHelperScname());
                 Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
                 optionalLiterature.ifPresent(literature -> {
                     giveRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());

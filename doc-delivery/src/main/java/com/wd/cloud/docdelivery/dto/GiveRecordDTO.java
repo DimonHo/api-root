@@ -64,6 +64,8 @@ public class GiveRecordDTO {
 
     private String remark;
 
+    private String helperScname;
+
     Date gmtModified;
 
     Date gmtCreate;
