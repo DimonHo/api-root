@@ -67,7 +67,7 @@ public class MyTjDTO {
     /**
      * 我应助成功的数量
      */
-    @ApiModelProperty(value = "我的应助成功总次数", example = "13")
+    @ApiModelProperty(value = "我的应助成功总数", example = "13")
     private Long successGiveCount;
 
 

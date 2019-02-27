@@ -80,6 +80,6 @@ public interface BackendService {
      *
      * @return
      */
-    boolean reusing(Map<String, Object> param);
+    void reusing(Long literatureId, Long docFileId, Boolean reusing, String handlerName);
 
 }

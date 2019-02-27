@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.wd.cloud.commons.annotation.ValidateUser;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
@@ -163,7 +162,7 @@ public class BackendController {
             @ApiImplicitParam(name = "username", value = "应助者(处理人)username", dataType = "String", paramType = "query")
     })
     @PostMapping("/fiaied/{id}")
-    public ResponseModel helpFail(@PathVariable Long id,  @RequestParam String username) {
+    public ResponseModel helpFail(@PathVariable Long id, @RequestParam String username) {
         backendService.failed(id, username);
         return ResponseModel.ok().setMessage("处理成功");
     }
@@ -213,17 +212,12 @@ public class BackendController {
             @ApiImplicitParam(name = "username", value = "复用人(处理人)username", dataType = "String", paramType = "query")
     })
     @GetMapping("/reusing/pass/{docFileId}")
-    public ResponseModel reusing(@PathVariable Long docFileId,@RequestParam Long literatureId, @RequestParam String username) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("docFileId", docFileId);
-        param.put("reusing", true);
-        param.put("literatureId", literatureId);
-        param.put("username", username);
-        Boolean result = backendService.reusing(param);
-        if (result) {
+    public ResponseModel reusing(@PathVariable Long docFileId, @RequestParam Long literatureId, @RequestParam String username) {
+        try {
+            backendService.reusing(literatureId, docFileId, true, username);
             return ResponseModel.ok();
-        } else {
-            return ResponseModel.fail().setMessage("一篇文章不允许复用多个文档");
+        } catch (Exception e) {
+            return ResponseModel.fail().setMessage("复用失败，请重试！");
         }
     }
 
@@ -236,22 +230,15 @@ public class BackendController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "docFileId", value = "上传文档id", dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "literatureId", value = "元数据id", dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "reMark", value = "取消复用原因", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "reuseUserName", value = "复用人(处理人)username", dataType = "String", paramType = "query")
     })
     @GetMapping("/reusing/nopass/{docFileId}")
-    public ResponseModel notReusing(@PathVariable Long docFileId, @RequestParam Long literatureId, @RequestParam String reMark, @RequestParam String username) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("docFileId", docFileId);
-        param.put("reusing", false);
-        param.put("literatureId", literatureId);
-        param.put("username", username);
-        param.put("reMark", reMark);
-        Boolean result = backendService.reusing(param);
-        if (result) {
+    public ResponseModel notReusing(@PathVariable Long docFileId, @RequestParam Long literatureId, @RequestParam String username) {
+        try {
+            backendService.reusing(literatureId, docFileId, false, username);
             return ResponseModel.ok();
-        } else {
-            return ResponseModel.fail();
+        } catch (Exception e) {
+            return ResponseModel.fail().setMessage("取消复用失败，请重试！");
         }
     }
 

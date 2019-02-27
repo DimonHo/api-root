@@ -257,38 +257,19 @@ public class BackendServiceImpl implements BackendService {
 
 
     @Override
-    public boolean reusing(Map<String, Object> param) {
-        long literatureId = (long) param.get("literatureId");
-        Literature literature = literatureRepository.findById(literatureId).orElse(null);
-        long docFileId = (long) param.get("docFileId");
-        boolean reusing = (boolean) param.get("reusing");
-        String handlerName = (String) param.get("username");
-        List<DocFile> list = docFileRepository.findByLiteratureIdAndBigDbFalse(literatureId);
-        DocFile doc = null;
-        for (DocFile docFile : list) {
-            //如果是复用操作，并且已经有文档被复用，则返回false，如果是取消复用，则不会进入
-            if (docFile.isReusing() && reusing) {
-                return false;
-            }
-            if (docFile.getId() == docFileId) {
-                doc = docFile;
-                if (!reusing) {
-                    break;
-                }
-            }
-        }
-        if (doc == null || literature == null) {
-            return false;
-        }
-        doc.setReusing(reusing).setHandlerName(handlerName);
-//        ReusingLog reusingLog = new ReusingLog();
-//        reusingLog.setReusing(reusing);
-//        reusingLog.setHandlerName((String) param.get("username"));
-//        reusingLogRepository.save(reusingLog);
-        docFileRepository.save(doc);
+    public void reusing(Long literatureId, Long docFileId, Boolean reusing, String handlerName) {
+
+        Literature literature = literatureRepository.findById(literatureId).orElseThrow(NotFoundException::new);
         literature.setReusing(reusing).setLastHandlerName(handlerName);
         literatureRepository.save(literature);
-        return true;
+        List<DocFile> docFiles = docFileRepository.findByLiteratureIdAndBigDbFalse(literatureId);
+        docFiles.forEach(docFile -> {
+            docFile.setReusing(false);
+            if (docFile.getId().equals(docFileId)) {
+                docFile.setReusing(reusing).setHandlerName(handlerName);
+            }
+            docFileRepository.save(docFile);
+        });
     }
 
 
