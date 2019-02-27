@@ -229,7 +229,7 @@ public class BackendServiceImpl implements BackendService {
             throw new NotFoundException("未找到待审核的应助记录");
         }
         giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.value()).setHandlerName(handlerName);
-        helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
+        helpRecord.setStatus(helpRecord.isDifficult() ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
     }

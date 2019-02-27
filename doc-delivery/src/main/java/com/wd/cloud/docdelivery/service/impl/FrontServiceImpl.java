@@ -254,7 +254,7 @@ public class FrontServiceImpl implements FrontService {
                 GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverName(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.value(), giverName);
                 giveRecord.setStatus(GiveStatusEnum.CANCEL.value());
                 //更新求助记录状态
-                helpRecord.setStatus(HelpStatusEnum.WAIT_HELP.value());
+                helpRecord.setStatus(helpRecord.isDifficult() ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
                 giveRecordRepository.save(giveRecord);
                 helpRecordRepository.save(helpRecord);
                 flag = true;
