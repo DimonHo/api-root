@@ -88,14 +88,14 @@ public interface FrontService {
     Page<GiveRecordDTO> myGiveRecords(String giverName, List<Integer> status, Pageable pageable);
 
 
-    Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Pageable pageable, Long orgId);
+    Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, Long orgId, Pageable pageable);
 
     /**
      * 获取待应助的求助记录
      *
      * @return
      */
-    Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Long orgId, Pageable pageable);
+    Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Boolean isDifficult, Long orgId, Pageable pageable);
 
     /**
      * 求助完成列表

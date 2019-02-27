@@ -70,6 +70,12 @@ public class HelpRecord extends AbstractEntity {
     private int status;
 
     /**
+     * 是否是疑难文献
+     */
+    @Column(name = "is_difficult", columnDefinition = "bit default 0 COMMENT '1：疑难文献'")
+    private boolean difficult;
+
+    /**
      * 是否成功发送邮件
      */
     @Column(name = "is_send", columnDefinition = "bit default 1 COMMENT '0：未发送邮件， 1：已成功发送邮件'")

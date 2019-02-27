@@ -107,6 +107,7 @@ public class FrontendController {
                                      @RequestParam(required = false) List<Integer> status,
                                      @RequestParam(required = false) String keyword,
                                      @RequestParam(required = false) String email,
+                                     @RequestParam(required = false, defaultValue = "false") boolean isDifficult,
                                      @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                      @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Long orgId = null;
@@ -114,7 +115,7 @@ public class FrontendController {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
             orgId = orgDTO != null ? orgDTO.getId() : null;
         }
-        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, pageable, orgId);
+        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, isDifficult, orgId, pageable);
         return ResponseModel.ok().setBody(helpRecordDTOS);
     }
 
@@ -122,6 +123,7 @@ public class FrontendController {
     @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query")
     @GetMapping("/help/records/wait")
     public ResponseModel helpWaitList(@RequestParam(required = false) List<Integer> channel,
+                                      @RequestParam(required = false) Boolean isDifficult,
                                       @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Long orgId = null;
@@ -129,7 +131,7 @@ public class FrontendController {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
             orgId = orgDTO != null ? orgDTO.getId() : null;
         }
-        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, orgId, pageable);
+        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, isDifficult, orgId, pageable);
 
         return ResponseModel.ok().setBody(waitHelpRecords);
     }

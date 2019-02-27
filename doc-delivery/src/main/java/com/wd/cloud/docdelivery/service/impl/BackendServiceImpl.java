@@ -181,7 +181,8 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public void failed(Long helpRecordId, String giverName) {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
-        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value());
+        //标记为疑难文献
+        helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value()).setDifficult(true);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
         Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.value());
 
@@ -207,12 +208,12 @@ public class BackendServiceImpl implements BackendService {
 
         giveRecord.setStatus(GiveStatusEnum.SUCCESS.value());
         giveRecord.setHandlerName(handlerName);
-        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).get();
+        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElseThrow(NotFoundException::new);
 
         DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(giveRecord.getFileId(), literature.getId()).orElse(new DocFile());
         docFile.setLiteratureId(literature.getId()).setFileId(giveRecord.getFileId());
 
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
+        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value()).setDifficult(false);
         docFileRepository.save(docFile);
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);

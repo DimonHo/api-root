@@ -51,7 +51,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
         }
 
 
-        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Long orgId) {
+        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, Long orgId) {
             return new Specification<VHelpRecord>() {
                 @Override
                 public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -76,6 +76,10 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                     }
                     if (StrUtil.isNotBlank(keyword)) {
                         list.add(cb.or(cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"), cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
+                    }
+                    // 是否是疑难文献
+                    if (isDifficult != null) {
+                        list.add(cb.equal(root.get("difficult").as(boolean.class), isDifficult));
                     }
                     if (orgId != null) {
                         list.add(cb.equal(root.get("helperScid"), orgId));
