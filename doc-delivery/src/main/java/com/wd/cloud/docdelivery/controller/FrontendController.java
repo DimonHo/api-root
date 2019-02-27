@@ -187,6 +187,7 @@ public class FrontendController {
     })
     @GetMapping("/help/records/failed")
     public ResponseModel helpFailedList(@RequestParam(required = false) List<Integer> channel,
+                                        @RequestParam(required = false) List<Integer> status,
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Long orgId = null;
@@ -194,7 +195,7 @@ public class FrontendController {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
             orgId = orgDTO != null ? orgDTO.getId() : null;
         }
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, orgId, pageable);
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgId, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }

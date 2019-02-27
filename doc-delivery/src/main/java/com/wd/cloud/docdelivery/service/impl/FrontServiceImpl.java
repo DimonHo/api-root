@@ -357,8 +357,8 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, null, null, null, null, true, orgId), pageable);
+    public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, List<Integer> status, Long orgId, Pageable pageable) {
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, true, orgId), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 

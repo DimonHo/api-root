@@ -48,7 +48,7 @@ public class HelpRecordDTO {
      */
     private int status;
 
-    private boolean difficult;
+    private Boolean difficult;
 
     private String remark;
 
