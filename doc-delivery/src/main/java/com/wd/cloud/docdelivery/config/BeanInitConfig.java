@@ -15,7 +15,6 @@ public class BeanInitConfig {
 
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
-
         return new ThreadPoolTaskScheduler();
     }
 
