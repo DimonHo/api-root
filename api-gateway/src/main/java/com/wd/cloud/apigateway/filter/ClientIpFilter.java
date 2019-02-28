@@ -1,6 +1,7 @@
 package com.wd.cloud.apigateway.filter;
 
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.wd.cloud.apigateway.feign.OrgServerApi;
@@ -31,8 +32,8 @@ public class ClientIpFilter extends ZuulFilter {
         HttpServletRequest request = ctx.getRequest();
         Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
+        String clientIp = HttpUtil.getClientIP(request);
         if (isOut == null || level == null) {
-            String clientIp = HttpUtil.getClientIP(request);
             ResponseModel<OrgDTO> orgResponse = orgServerApi.getByIp(clientIp);
             if (!orgResponse.isError()) {
                 //非校外访问

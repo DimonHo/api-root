@@ -24,7 +24,7 @@ public class ErrorFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 100;
+        return -1;
     }
 
     @Override

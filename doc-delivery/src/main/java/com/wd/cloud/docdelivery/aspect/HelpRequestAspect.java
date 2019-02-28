@@ -56,8 +56,9 @@ public class HelpRequestAspect {
         UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
         OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
+        Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
         log.info("当前等级：[{}]", level);
-        if (level == null || level < 1) {
+        if (isOut && userDTO == null) {
             throw new AuthException("校外必须先登录才能求助");
         }
         long helpTotal = 0;

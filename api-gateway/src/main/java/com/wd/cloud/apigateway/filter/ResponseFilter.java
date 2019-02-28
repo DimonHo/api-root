@@ -1,12 +1,11 @@
 package com.wd.cloud.apigateway.filter;
 
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import com.wd.cloud.commons.constant.SessionConstant;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -32,16 +31,15 @@ public class ResponseFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return false;
+        return true;
     }
 
     @Override
     public Object run() throws ZuulException {
         //如果是文件下载，此处会读取文件流导致客户端读取的文件流不完整而出现下载文件损坏。
-        InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
-        String body = IoUtil.read(bodyStream, CharsetUtil.UTF_8);
-        log.info("http响应::> {}", body);
-        RequestContext.getCurrentContext().setResponseBody(body);
+        //InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
+        Integer levle = (Integer) RequestContext.getCurrentContext().getRequest().getSession().getAttribute(SessionConstant.LEVEL);
+        RequestContext.getCurrentContext().getResponse().setHeader("level", levle + "");
         return null;
     }
 
