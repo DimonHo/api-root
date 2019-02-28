@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.docdelivery.entity.Permission;
 import com.wd.cloud.docdelivery.exception.AppException;
 import com.wd.cloud.docdelivery.exception.ExceptionEnum;
@@ -48,7 +49,7 @@ public class HelpRequestAspect {
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
-        if (validateParam(request)){
+        if (validateParam(request)) {
             throw new AppException(ExceptionEnum.HELP_PARAM);
         }
         HttpSession session = request.getSession();
@@ -56,6 +57,9 @@ public class HelpRequestAspect {
         OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
         log.info("当前等级：[{}]", level);
+        if (level == null || level < 1) {
+            throw new AuthException("校外必须先登录才能求助");
+        }
         long helpTotal = 0;
         long helpTotalToday = 0;
         if (userDTO != null) {
@@ -87,10 +91,11 @@ public class HelpRequestAspect {
 
     /**
      * 参数校验
+     *
      * @param request
      * @return
      */
-    private boolean validateParam(HttpServletRequest request){
+    private boolean validateParam(HttpServletRequest request) {
         String email = request.getParameter("helperEmail");
         String docTitle = request.getParameter("docTitle");
         return StrUtil.isBlank(email) || StrUtil.isBlank(docTitle);

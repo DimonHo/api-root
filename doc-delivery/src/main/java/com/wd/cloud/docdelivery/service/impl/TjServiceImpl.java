@@ -17,6 +17,7 @@ import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.PermissionRepository;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.TjService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -35,10 +36,10 @@ import java.util.Objects;
  * @date 2018/12/18
  * @Description:
  */
+@Slf4j
 @Service("tjService")
 public class TjServiceImpl implements TjService {
 
-    private static final Log log = LogFactory.get();
     @Autowired
     HelpRecordRepository helpRecordRepository;
 
