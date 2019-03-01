@@ -7,6 +7,7 @@ import com.wd.cloud.apigateway.feign.UserServerApi;
 import com.wd.cloud.apigateway.service.UserInfoService;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +78,10 @@ public class UserInfoServiceImpl implements UserInfoService {
                 break;
         }
         ResponseModel<JSONObject> userInfoResponse = userServerApi.getUserInfo(username);
-        if (!userInfoResponse.isError()) {
-            BeanUtil.copyProperties(userInfoResponse.getBody(), userDTO);
+        if (userInfoResponse.isError() || userInfoResponse.getBody() == null || userInfoResponse.getBody().get("username") == null) {
+            throw new NotFoundException();
         }
+        BeanUtil.copyProperties(userInfoResponse.getBody(), userDTO);
         // 如果用户有所属机构，则把有效机构设置为用户所属机构
         if (orgId != null) {
             ResponseModel<OrgDTO> orgResponse = orgServerApi.getOrg(orgId);

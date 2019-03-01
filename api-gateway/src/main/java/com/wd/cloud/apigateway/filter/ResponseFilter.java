@@ -1,5 +1,6 @@
 package com.wd.cloud.apigateway.filter;
 
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONUtil;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -40,7 +41,7 @@ public class ResponseFilter extends ZuulFilter {
         UserDTO userDTO = (UserDTO) RequestContext.getCurrentContext().getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
         RequestContext.getCurrentContext().getResponse().setHeader("level", level + "");
         if (userDTO != null) {
-            RequestContext.getCurrentContext().getResponse().setHeader("user", JSONUtil.toJsonStr(userDTO));
+            RequestContext.getCurrentContext().getResponse().setHeader("user", URLUtil.encode(JSONUtil.toJsonStr(userDTO)));
         }
         return null;
     }
