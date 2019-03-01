@@ -62,7 +62,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public UserDTO buildUserInfo(String username, Long orgId, String type, String openId) {
+
+        ResponseModel<JSONObject> userInfoResponse = userServerApi.getUserInfo(username);
+        if (userInfoResponse.isError() || userInfoResponse.getBody() == null || userInfoResponse.getBody().get("username") == null) {
+            throw new NotFoundException();
+        }
         UserDTO userDTO = new UserDTO();
+        BeanUtil.copyProperties(userInfoResponse.getBody(), userDTO);
         userDTO.setLoginType(type);
         switch (type) {
             case "qq":
@@ -77,11 +83,6 @@ public class UserInfoServiceImpl implements UserInfoService {
             default:
                 break;
         }
-        ResponseModel<JSONObject> userInfoResponse = userServerApi.getUserInfo(username);
-        if (userInfoResponse.isError() || userInfoResponse.getBody() == null || userInfoResponse.getBody().get("username") == null) {
-            throw new NotFoundException();
-        }
-        BeanUtil.copyProperties(userInfoResponse.getBody(), userDTO);
         // 如果用户有所属机构，则把有效机构设置为用户所属机构
         if (orgId != null) {
             ResponseModel<OrgDTO> orgResponse = orgServerApi.getOrg(orgId);

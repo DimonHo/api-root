@@ -77,11 +77,13 @@ public class UserInfoServerImpl implements UserInfoServer {
     public UserDTO getUserInfo(String username) {
         Optional<UserInfo> optionalUserInfo = userInfoRepository.findByUsername(username);
         optionalUserInfo.orElseThrow(NotFoundException::new);
-        ResponseModel<OrgDTO> orgResponse = orgServerApi.getOrg(optionalUserInfo.get().getOrgId());
         UserDTO userDTO = new UserDTO();
         BeanUtil.copyProperties(optionalUserInfo.get(), userDTO);
-        if (!orgResponse.isError()) {
-            userDTO.setOrg(orgResponse.getBody());
+        if (optionalUserInfo.get().getOrgId()!= null){
+            ResponseModel<OrgDTO> orgResponse = orgServerApi.getOrg(optionalUserInfo.get().getOrgId());
+            if (!orgResponse.isError()) {
+                userDTO.setOrg(orgResponse.getBody());
+            }
         }
         return userDTO;
     }
