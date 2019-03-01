@@ -26,6 +26,14 @@ public class UserDTO implements Serializable {
     private String phone;
     private String qq;
     private Integer sex;
+    /**
+     * 用户类型：1普通，2机构管理员，3后台管理员
+     */
+    private Integer userType;
+    /**
+     * 登陆类型,1 normal，2qq，3wechat，4weibo
+     */
+    private String loginType;
     private String qqOpenid;
     private String wechatOpenid;
     private String weiboOpenid;

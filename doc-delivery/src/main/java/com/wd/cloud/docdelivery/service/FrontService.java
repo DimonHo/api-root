@@ -83,7 +83,7 @@ public interface FrontService {
      * @param status
      * @return
      */
-    Page<HelpRecordDTO> myHelpRecords(String helperName, List<Integer> status, Pageable pageable);
+    Page<HelpRecordDTO> myHelpRecords(String helperName, List<Integer> status, Boolean isDifficult, Pageable pageable);
 
     Page<GiveRecordDTO> myGiveRecords(String giverName, List<Integer> status, Pageable pageable);
 
@@ -122,7 +122,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel,List<Integer> status, Long orgId, Pageable pageable);
+    Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel, List<Integer> status, Long orgId, Pageable pageable);
 
     DocFile getReusingFile(Long literatureId);
 

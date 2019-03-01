@@ -1,28 +1,19 @@
 package com.wd.cloud.apigateway.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.http.Header;
-import cn.hutool.http.useragent.UserAgentUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.apigateway.feign.OrgServerApi;
-import com.wd.cloud.apigateway.feign.SsoServerApi;
 import com.wd.cloud.apigateway.feign.UserServerApi;
 import com.wd.cloud.apigateway.service.UserInfoService;
-import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
-import com.wd.cloud.commons.enums.ClientType;
-import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 
@@ -53,7 +44,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         log.info("用户[{}]登陆成功", userDTO.getUsername());
         // 如果用户有所属机构，则把有效机构设置为用户所属机构
-        Long orgId = (Long)authInfo.get("school_id");
+        Long orgId = (Long) authInfo.get("school_id");
         if (orgId != null) {
             ResponseModel<OrgDTO> orgResponse = orgServerApi.getOrg(orgId);
             if (!orgResponse.isError()) {
@@ -64,6 +55,38 @@ public class UserInfoServiceImpl implements UserInfoService {
         ResponseModel<JSONObject> userInfoResponse = userServerApi.getUserInfo(userDTO.getUsername());
         if (!userInfoResponse.isError()) {
             BeanUtil.copyProperties(userInfoResponse.getBody(), userDTO);
+        }
+        return userDTO;
+    }
+
+    @Override
+    public UserDTO buildUserInfo(String username, Long orgId, String type, String openId) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setLoginType(type);
+        switch (type) {
+            case "qq":
+                userDTO.setQqOpenid(openId);
+                break;
+            case "wechat":
+                userDTO.setWechatOpenid(openId);
+                break;
+            case "weibo":
+                userDTO.setWeiboOpenid(openId);
+                break;
+            default:
+                break;
+        }
+        ResponseModel<JSONObject> userInfoResponse = userServerApi.getUserInfo(username);
+        if (!userInfoResponse.isError()) {
+            BeanUtil.copyProperties(userInfoResponse.getBody(), userDTO);
+        }
+        // 如果用户有所属机构，则把有效机构设置为用户所属机构
+        if (orgId != null) {
+            ResponseModel<OrgDTO> orgResponse = orgServerApi.getOrg(orgId);
+            if (!orgResponse.isError()) {
+                OrgDTO orgDTO = orgResponse.getBody();
+                userDTO.setOrg(orgDTO);
+            }
         }
         return userDTO;
     }

@@ -207,13 +207,14 @@ public class FrontendController {
     @GetMapping("/help/records/my")
     public ResponseModel myHelpRecords(@RequestParam(required = false) String username,
                                        @RequestParam(required = false) List<Integer> status,
+                                       @RequestParam(required = false) Boolean isDifficult,
                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         HttpSession session = request.getSession();
         UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
             throw new AuthException();
         }
-        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(userDTO.getUsername(), status, pageable);
+        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(userDTO.getUsername(), status, isDifficult, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 

@@ -307,9 +307,9 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Page<HelpRecordDTO> myHelpRecords(String username, List<Integer> status, Pageable pageable) {
+    public Page<HelpRecordDTO> myHelpRecords(String username, List<Integer> status, Boolean isDifficult, Pageable pageable) {
 
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(null, status, null, username, null, null, null), pageable);
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(null, status, null, username, null, isDifficult, null), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 

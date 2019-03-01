@@ -1,6 +1,5 @@
 package com.wd.cloud.apigateway.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
@@ -9,7 +8,6 @@ import cn.hutool.http.useragent.UserAgentUtil;
 import cn.hutool.system.UserInfo;
 import com.wd.cloud.apigateway.config.CasProperties;
 import com.wd.cloud.apigateway.service.UserInfoService;
-import com.wd.cloud.apigateway.utils.CasUtil;
 import com.wd.cloud.apigateway.utils.HttpUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
@@ -24,15 +22,11 @@ import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +58,7 @@ public class AuthController {
 
     @Autowired
     UserInfoService userInfoService;
+
 
     @PostMapping("/login")
     public ResponseModel<UserDTO> login(@RequestParam String username,
@@ -118,14 +113,30 @@ public class AuthController {
         response.addCookie(cookie);
         Document loginResultDoc = Jsoup.parse(loginResultResponse.body());
         if (loginResultResponse.getStatus() == 302) {
-            String st = CasUtil.getSt(request,
-                    casProperties.getServerLoginUrl(),
-                    request.getRequestURL().toString().replace("/login", "/userinfo"),
-                    tgcCookie);
-            return ResponseModel.ok().setBody(request.getRequestURL().toString().replace("/login", "/userinfo?ticket=" + st));
+            return ResponseModel.ok().setBody(request.getRequestURL().toString().replace("/login", "/userinfo"));
         } else {
             throw new AuthException();
         }
+    }
+
+    /**
+     * 第三方登陆
+     *
+     * @param type
+     * @param username
+     * @param org
+     * @param openid
+     * @return
+     */
+    @PostMapping("/{type}/login")
+    public ResponseModel<UserInfo> login(@PathVariable String type,
+                                         @RequestParam String username,
+                                         @RequestParam Long org,
+                                         @RequestParam String openid) {
+        UserDTO userDTO = userInfoService.buildUserInfo(username, org, type, openid);
+        // session Key
+        createSession(userDTO);
+        return ResponseModel.ok().setBody(userDTO);
     }
 
     @GetMapping("/userinfo")
@@ -136,6 +147,12 @@ public class AuthController {
         }
         Map<String, Object> authInfo = principal.getAttributes();
         UserDTO userDTO = userInfoService.buildUserInfo(authInfo);
+        createSession(userDTO);
+        return ResponseModel.ok().setBody(userDTO);
+    }
+
+
+    private void createSession(UserDTO userDTO) {
         // session Key
         String sessionKey = null;
         //如果是移动端
@@ -171,7 +188,6 @@ public class AuthController {
             level += 4;
         }
         request.getSession().setAttribute(SessionConstant.LEVEL, level);
-        return ResponseModel.ok().setBody(userDTO);
     }
 
 
