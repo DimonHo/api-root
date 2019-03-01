@@ -39,7 +39,9 @@ public class ResponseFilter extends ZuulFilter {
         Integer level = (Integer) RequestContext.getCurrentContext().getRequest().getSession().getAttribute(SessionConstant.LEVEL);
         UserDTO userDTO = (UserDTO) RequestContext.getCurrentContext().getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
         RequestContext.getCurrentContext().getResponse().setHeader("level", level + "");
-        RequestContext.getCurrentContext().getResponse().setHeader("user", JSONUtil.toJsonStr(userDTO));
+        if (userDTO != null) {
+            RequestContext.getCurrentContext().getResponse().setHeader("user", JSONUtil.toJsonStr(userDTO));
+        }
         return null;
     }
 
