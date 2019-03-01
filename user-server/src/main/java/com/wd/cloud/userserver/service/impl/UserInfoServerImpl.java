@@ -13,6 +13,7 @@ import com.wd.cloud.userserver.constants.GlobalConstants;
 import com.wd.cloud.userserver.entity.UserInfo;
 import com.wd.cloud.userserver.feign.FsServerApi;
 import com.wd.cloud.userserver.feign.OrgServerApi;
+import com.wd.cloud.userserver.model.RegisterModel;
 import com.wd.cloud.userserver.repository.UserInfoRepository;
 import com.wd.cloud.userserver.service.UserInfoServer;
 import lombok.extern.slf4j.Slf4j;
@@ -83,5 +84,12 @@ public class UserInfoServerImpl implements UserInfoServer {
             userDTO.setOrg(orgResponse.getBody());
         }
         return userDTO;
+    }
+
+    @Override
+    public UserInfo register(RegisterModel registerModel) {
+        UserInfo userInfo = BeanUtil.toBean(registerModel,UserInfo.class);
+        return userInfoRepository.save(userInfo);
+
     }
 }

@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -40,6 +41,16 @@ public class UserInfo extends AbstractEntity {
      * 头像
      */
     public String photo;
+
+    /**
+     * 用户类型
+     */
+    public Integer userType;
+    private String registerIp;
+
+    private String qqOpenid;
+    private String wechatOpenid;
+    private String weiboOpenid;
     /**
      * 证件照
      */
