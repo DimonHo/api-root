@@ -62,8 +62,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public UserDTO buildUserInfo(String username, Long orgId, String type, String openId) {
-
+        log.info("{}登陆用户：{}", type, username);
         ResponseModel<JSONObject> userInfoResponse = userServerApi.getUserInfo(username);
+        log.info("查找user-server中得到的登陆用户信息：{}", userInfoResponse.toString());
         if (userInfoResponse.isError() || userInfoResponse.getBody() == null || userInfoResponse.getBody().get("username") == null) {
             throw new NotFoundException();
         }
