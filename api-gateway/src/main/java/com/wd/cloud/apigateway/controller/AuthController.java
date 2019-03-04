@@ -175,9 +175,10 @@ public class AuthController {
         // 如果用户有所属机构，则把有效机构设置为用户所属机构
         if (userDTO.getOrg() != null) {
             request.getSession().setAttribute(SessionConstant.ORG, userDTO.getOrg());
+            log.info("设置ORG session:{}", userDTO.toString());
         }
         request.getSession().setAttribute(SessionConstant.LOGIN_USER, userDTO);
-
+        log.info("设置LOGIN_USER session:{}", userDTO.toString());
         // 登陆成功 level +2
         Integer level = request.getSession().getAttribute(SessionConstant.LEVEL) == null ? 0 : (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
 
@@ -189,6 +190,7 @@ public class AuthController {
             level += 4;
         }
         request.getSession().setAttribute(SessionConstant.LEVEL, level);
+        log.info("设置LEVEL session:{}", userDTO.toString());
     }
 
 
