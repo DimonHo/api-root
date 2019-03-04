@@ -134,6 +134,7 @@ public class AuthController {
                                          @RequestParam Long org,
                                          @RequestParam String openid) {
         UserDTO userDTO = userInfoService.buildUserInfo(username, org, type, openid);
+        log.info("userDTO:===={}", userDTO.toString());
         // session Key
         createSession(userDTO);
         return ResponseModel.ok().setBody(userDTO);
