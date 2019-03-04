@@ -131,7 +131,7 @@ public class AuthController {
     @PostMapping("/{type}/login")
     public ResponseModel<UserInfo> login(@PathVariable String type,
                                          @RequestParam String username,
-                                         @RequestParam Long org,
+                                         @RequestParam(required = false) Long org,
                                          @RequestParam String openid) {
         UserDTO userDTO = userInfoService.buildUserInfo(username, org, type, openid);
         log.info("userDTO:===={}", userDTO.toString());
