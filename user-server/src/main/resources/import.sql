@@ -1,1 +1,0 @@
--- insert into user_info (username,nickname, email, org_id, org_name,phone,gmt_create,gmt_modified ) select username,nickname,email,school_id as org_id,school_name,phone,now(),now() from sso.`user` t1, sso.school t2 where t1.school_id = t2.id;

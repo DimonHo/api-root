@@ -5,7 +5,7 @@ import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.docdelivery.feign.UserServerApi;
+import com.wd.cloud.docdelivery.feign.UoServerApi;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,7 +30,7 @@ import java.util.Objects;
 public class UserInfoAspect {
 
     @Autowired
-    UserServerApi userServerApi;
+    UoServerApi uoServerApi;
 
     @Before(value = "@annotation(com.wd.cloud.commons.annotation.ValidateUser)")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
@@ -43,7 +43,7 @@ public class UserInfoAspect {
         if (StrUtil.isNotBlank(username)) {
             if (userDTO == null) {
                 // 获取用户信息
-                ResponseModel<UserDTO> userDTOResponse = userServerApi.getUserInfo(username);
+                ResponseModel<UserDTO> userDTOResponse = uoServerApi.getUserInfo(username);
                 if (!userDTOResponse.isError()) {
                     userDTO = userDTOResponse.getBody();
                     session.setAttribute(SessionConstant.LOGIN_USER, userDTO);

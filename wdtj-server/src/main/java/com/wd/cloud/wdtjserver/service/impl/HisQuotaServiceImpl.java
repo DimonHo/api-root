@@ -13,7 +13,7 @@ import com.wd.cloud.wdtjserver.entity.TjHisQuota;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
 import com.wd.cloud.wdtjserver.exception.AppException;
 import com.wd.cloud.wdtjserver.exception.ExceptionEnum;
-import com.wd.cloud.wdtjserver.feign.OrgServerApi;
+import com.wd.cloud.wdtjserver.feign.UoServerApi;
 import com.wd.cloud.wdtjserver.model.DateIntervalModel;
 import com.wd.cloud.wdtjserver.model.HisQuotaModel;
 import com.wd.cloud.wdtjserver.model.TotalModel;
@@ -62,11 +62,11 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     TjViewDataRepository tjViewDataRepository;
 
     @Autowired
-    OrgServerApi orgServerApi;
+    UoServerApi uoServerApi;
 
     @Override
     public TjHisQuota save(TjHisQuota tjHisQuota) {
-        ResponseModel responseModel = orgServerApi.getOrg(tjHisQuota.getOrgId());
+        ResponseModel responseModel = uoServerApi.getOrg(tjHisQuota.getOrgId());
         if (!responseModel.isError()) {
             String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
             tjHisQuota.setOrgName(orgName);
@@ -80,7 +80,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     public List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas) {
         try {
             // 调用org-server服务获取机构信息
-            ResponseModel responseModel = orgServerApi.getOrg(tjHisQuotas.get(0).getOrgId());
+            ResponseModel responseModel = uoServerApi.getOrg(tjHisQuotas.get(0).getOrgId());
             if (responseModel.isError()) {
                 log.error(responseModel.getMessage());
                 throw new AppException(ExceptionEnum.ORG_SERVER);

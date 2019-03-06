@@ -1,7 +1,5 @@
 package com.wd.cloud.docdelivery.service.impl;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
@@ -10,7 +8,7 @@ import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.docdelivery.dto.MyTjDTO;
 import com.wd.cloud.docdelivery.entity.Permission;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.feign.OrgServerApi;
+import com.wd.cloud.docdelivery.feign.UoServerApi;
 import com.wd.cloud.docdelivery.model.AvgResponseTimeModel;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
@@ -53,7 +51,7 @@ public class TjServiceImpl implements TjService {
     AvgResponseTimeModel avgResponseTimeModel;
 
     @Autowired
-    OrgServerApi orgServerApi;
+    UoServerApi uoServerApi;
 
     @Autowired
     FrontService frontService;

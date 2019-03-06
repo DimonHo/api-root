@@ -15,8 +15,8 @@ import java.util.List;
  * @date 2018/11/21
  * @Description:
  */
-@FeignClient(value = "org-server", fallback = OrgServerApi.Fallback.class)
-public interface OrgServerApi {
+@FeignClient(value = "uo-server", fallback = UoServerApi.Fallback.class)
+public interface UoServerApi {
 
     @GetMapping("/org/all")
     ResponseModel<List<JSONObject>> getAll();
@@ -25,7 +25,7 @@ public interface OrgServerApi {
     ResponseModel getOrg(@PathVariable(value = "id") Long id);
 
     @Component
-    class Fallback implements OrgServerApi {
+    class Fallback implements UoServerApi {
         @Override
         public ResponseModel<List<JSONObject>> getAll() {
             return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:org-server调用失败！");
