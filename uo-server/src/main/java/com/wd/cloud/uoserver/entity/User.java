@@ -29,8 +29,10 @@ public class User extends AbstractEntity {
 
     private String email;
 
+    @Column(name = "org_id")
     private Long orgId;
 
+    @Column(name = "org_name")
     private String orgName;
     /**
      * 手机号码
@@ -40,16 +42,36 @@ public class User extends AbstractEntity {
     /**
      * 头像
      */
+    @Column(name = "head_img")
     public String headImg;
 
     /**
      * 用户类型
      */
+    @Column(name = "user_type")
     public Integer userType;
+
+    /**
+     * 注册IP
+     */
+    @Column(name = "register_ip")
     private String registerIp;
 
+
+    /**
+     * qqID
+     */
+    @Column(name = "qq_qpenid")
     private String qqOpenid;
+    /**
+     * 微信ID
+     */
+    @Column(name = "wechat_openid")
     private String wechatOpenid;
+    /**
+     * 微博ID
+     */
+    @Column(name = "weibo_openid")
     private String weiboOpenid;
     /**
      * 证件照
@@ -70,6 +92,7 @@ public class User extends AbstractEntity {
     private Integer identity;
 
     /**职工号/学号*/
+    @Column(name = "department_id")
     private String departmentId;
 
     /**教育程度*/
@@ -79,6 +102,7 @@ public class User extends AbstractEntity {
     private Short sex;
 
     /**入学年份*/
+    @Column(name = "entrance_time")
     private String entranceTime;
 
     /**登录权限*/
