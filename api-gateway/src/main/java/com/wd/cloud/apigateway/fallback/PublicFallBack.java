@@ -57,14 +57,11 @@ public class PublicFallBack implements FallbackProvider {
 
             @Override
             public InputStream getBody() throws IOException {
-                String message = "[" + route + "]" + cause.getMessage();
+                String message = "[" + route + "] " + cause.getMessage();
                 ResponseModel responseModel = ResponseModel.fail().setMessage(message);
                 if (cause instanceof HystrixTimeoutException) {
                     responseModel.setStatus(HttpStatus.GATEWAY_TIMEOUT.value());
-                } else if (cause instanceof ApiException) {
-                    responseModel.setStatus(((ApiException) cause).getStatus());
-                    responseModel.setBody(((ApiException) cause).getBody());
-                } else {
+                }  else {
                     responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 }
                 //返回前端的内容

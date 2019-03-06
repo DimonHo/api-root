@@ -1,15 +1,15 @@
 package com.wd.cloud.apigateway.filter;
 
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.wd.cloud.apigateway.feign.OrgServerApi;
+import com.wd.cloud.apigateway.feign.UoServerApi;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.model.ResponseModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 public class ClientIpFilter extends ZuulFilter {
 
     @Autowired
-    OrgServerApi orgServerApi;
+    UoServerApi uoServerApi;
 
     @Override
     public Object run() {
@@ -33,8 +33,9 @@ public class ClientIpFilter extends ZuulFilter {
         Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         String clientIp = HttpUtil.getClientIP(request);
+        log.info("访问IP：{}", clientIp);
         if (isOut == null || level == null) {
-            ResponseModel<OrgDTO> orgResponse = orgServerApi.getByIp(clientIp);
+            ResponseModel<OrgDTO> orgResponse = uoServerApi.getOrg(null, null, null, null, clientIp);
             if (!orgResponse.isError()) {
                 //非校外访问
                 request.getSession().setAttribute(SessionConstant.IS_OUT, false);
@@ -57,7 +58,7 @@ public class ClientIpFilter extends ZuulFilter {
 
     @Override
     public String filterType() {
-        return "pre";
+        return FilterConstants.PRE_TYPE;
     }
 
     @Override

@@ -49,7 +49,7 @@ public class UserDTO implements Serializable {
     /**
      * 头像
      */
-    private String photo;
+    private String headImg;
 
     private OrgDTO org;
 

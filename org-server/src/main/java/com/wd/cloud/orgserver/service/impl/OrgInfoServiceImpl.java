@@ -8,7 +8,7 @@ import cn.hutool.log.LogFactory;
 import com.google.common.collect.Lists;
 import com.wd.cloud.commons.dto.IpRangeDTO;
 import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.commons.util.IpUtil;
+import com.wd.cloud.commons.util.NetUtil;
 import com.wd.cloud.orgserver.entity.IpRange;
 import com.wd.cloud.orgserver.entity.Org;
 import com.wd.cloud.orgserver.exception.NotFoundOrgException;
@@ -77,7 +77,7 @@ public class OrgInfoServiceImpl implements OrgInfoService {
         for (IpRange ipRange : ipRanges) {
             String beginIp = ipRange.getBegin();
             String endIp = ipRange.getEnd();
-            if (IpUtil.isInner(ip, beginIp, endIp)) {
+            if (NetUtil.isInner(ip, beginIp, endIp)) {
                 log.info("begin={},end={}", beginIp, endIp);
                 Long orgId = ipRange.getOrgId();
                 if (orgIpMap.get(orgId) == null) {
@@ -125,8 +125,8 @@ public class OrgInfoServiceImpl implements OrgInfoService {
         Map<IpRangeDTO, Set<IpRange>> orgIpMap = new HashMap<>();
         for (int i = 0; i < ipRanges.size(); i++) {
             IpRange ipRange1 = ipRanges.get(i);
-            long beginIp = IpUtil.ipToLong(ipRange1.getBegin());
-            long endIp = IpUtil.ipToLong(ipRange1.getEnd());
+            long beginIp = NetUtil.ipToLong(ipRange1.getBegin());
+            long endIp = NetUtil.ipToLong(ipRange1.getEnd());
             if (beginIp > endIp) {
                 long temp = beginIp;
                 beginIp = endIp;
@@ -134,8 +134,8 @@ public class OrgInfoServiceImpl implements OrgInfoService {
             }
             for (int j = i + 1; j < ipRanges.size(); j++) {
                 IpRange ipRange2 = ipRanges.get(j);
-                long beginIp2 = IpUtil.ipToLong(ipRange2.getBegin());
-                long endIp2 = IpUtil.ipToLong(ipRange2.getEnd());
+                long beginIp2 = NetUtil.ipToLong(ipRange2.getBegin());
+                long endIp2 = NetUtil.ipToLong(ipRange2.getEnd());
                 if (beginIp2 > endIp2) {
                     long temp2 = beginIp2;
                     beginIp2 = endIp2;
@@ -150,7 +150,7 @@ public class OrgInfoServiceImpl implements OrgInfoService {
                 }
                 if (beginIp2 < endIp2) {
                     IpRangeDTO ipRangDTOKey = new IpRangeDTO();
-                    ipRangDTOKey.setBegin(IpUtil.longToIp(beginIp2)).setEnd(IpUtil.longToIp(endIp2));
+                    ipRangDTOKey.setBegin(NetUtil.longToIp(beginIp2)).setEnd(NetUtil.longToIp(endIp2));
                     if (orgIpMap.get(ipRangDTOKey) != null) {
                         orgIpMap.get(ipRangDTOKey).add(ipRange1);
                         orgIpMap.get(ipRangDTOKey).add(ipRange2);
@@ -175,8 +175,8 @@ public class OrgInfoServiceImpl implements OrgInfoService {
         for (IpRange ipRange:ipRanges){
             String begin = ipRange.getBegin();
             String end = ipRange.getEnd();
-            long beginIp = IpUtil.ipToLong(begin);
-            long endIp = IpUtil.ipToLong(end);
+            long beginIp = NetUtil.ipToLong(begin);
+            long endIp = NetUtil.ipToLong(end);
             if (beginIp>endIp){//如果开始IP比结束IP大则替换他们的IP
                 ipRange.setBegin(end);
                 ipRange.setEnd(begin);

@@ -1,5 +1,6 @@
 package com.wd.cloud.orgserver.controller;
 
+import cn.hutool.http.HttpUtil;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.exception.UndefinedException;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -29,6 +31,9 @@ public class OrgInfoController {
 
     @Autowired
     OrgInfoService orgInfoService;
+
+    @Autowired
+    HttpServletRequest request;
 
     /**
      * 添加一个机构
@@ -155,5 +160,13 @@ public class OrgInfoController {
     public ResponseModel updateBeginAndEnd(){
         orgInfoService.findByBeginAndEnd();
         return ResponseModel.ok().setMessage("修改成功");
+    }
+
+    @ApiOperation(value = "判断是否在校外", tags = {"机构查询"})
+    @GetMapping("/check")
+    public ResponseModel isOut(){
+        String clientIp = HttpUtil.getClientIP(request);
+        OrgDTO org = orgInfoService.findByIp(clientIp);
+        return ResponseModel.ok().setBody(org == null);
     }
 }

@@ -8,6 +8,7 @@ import com.netflix.zuul.exception.ZuulException;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class ResponseFilter extends ZuulFilter {
     @Override
     public String filterType() {
-        return "post";
+        return FilterConstants.POST_TYPE;
     }
 
     @Override
@@ -35,15 +36,17 @@ public class ResponseFilter extends ZuulFilter {
 
     @Override
     public Object run() throws ZuulException {
+        RequestContext ctx = RequestContext.getCurrentContext();
+        ctx.getResponse().getHeader("Accept");
         //如果是文件下载，此处会读取文件流导致客户端读取的文件流不完整而出现下载文件损坏。
         //InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
-        Integer level = (Integer) RequestContext.getCurrentContext().getRequest().getSession().getAttribute(SessionConstant.LEVEL);
+        Integer level = (Integer) ctx.getRequest().getSession().getAttribute(SessionConstant.LEVEL);
         log.info("响应头中加入用户level信息:{}", level);
-        UserDTO userDTO = (UserDTO) RequestContext.getCurrentContext().getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
-        RequestContext.getCurrentContext().getResponse().setHeader("level", level + "");
+        UserDTO userDTO = (UserDTO) ctx.getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
+        ctx.getResponse().setHeader("level", level + "");
         if (userDTO != null) {
             log.info("响应头中加入登陆用户信息:{}", userDTO.toString());
-            RequestContext.getCurrentContext().getResponse().setHeader("user", URLUtil.encode(JSONUtil.toJsonStr(userDTO)));
+            ctx.getResponse().setHeader("user", URLUtil.encode(JSONUtil.toJsonStr(userDTO)));
         }
         return null;
     }

@@ -23,6 +23,8 @@ public enum StatusEnum {
      */
     SUCCESS(1, "Successed"),
 
+    NOT_PERMISSION(808001, "无权访问"),
+
     // =======================HTTP通用状态码=======================
     /**
      * 状态码

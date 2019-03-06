@@ -1,11 +1,13 @@
 package com.wd.cloud.apigateway.filter;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
+import cn.hutool.json.JSONUtil;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import com.wd.cloud.commons.exception.ApiException;
+import com.wd.cloud.commons.model.ResponseModel;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,18 +15,18 @@ import org.springframework.stereotype.Component;
  * @date 2018/10/25
  * @Description:
  */
+@Slf4j
 @Component
 public class ErrorFilter extends ZuulFilter {
-    private static final Log log = LogFactory.get();
 
     @Override
     public String filterType() {
-        return "error";
+        return FilterConstants.ERROR_TYPE;
     }
 
     @Override
     public int filterOrder() {
-        return -1;
+        return FilterConstants.SEND_ERROR_FILTER_ORDER - 1;
     }
 
     @Override
@@ -34,11 +36,15 @@ public class ErrorFilter extends ZuulFilter {
 
     @Override
     public Object run() throws ZuulException {
-        JSONObject responseModel = new JSONObject();
-        responseModel.put("error", true);
-        responseModel.put("status", -1);
-        responseModel.put("message", "未知错误！！！");
-        RequestContext.getCurrentContext().setResponseBody(responseModel.toString());
+        RequestContext ctx = RequestContext.getCurrentContext();
+        Throwable cause = ctx.getThrowable();
+        ResponseModel responseModel = new ResponseModel();
+        if (cause instanceof ApiException) {
+            responseModel.setStatus(((ApiException) cause).getStatus());
+            responseModel.setBody(((ApiException) cause).getBody());
+            responseModel.setError(true);
+        }
+        RequestContext.getCurrentContext().setResponseBody(JSONUtil.toJsonStr(responseModel));
         return null;
     }
 }
