@@ -36,6 +36,7 @@ public class ClientIpFilter extends ZuulFilter {
         log.info("访问IP：{}", clientIp);
         if (isOut == null || level == null) {
             ResponseModel<OrgDTO> orgResponse = uoServerApi.getOrg(null, null, null, null, clientIp);
+            log.info(orgResponse.toString());
             if (!orgResponse.isError()) {
                 //非校外访问
                 request.getSession().setAttribute(SessionConstant.IS_OUT, false);
