@@ -1,8 +1,11 @@
 package com.wd.cloud.uoserver.service;
 
 import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.uoserver.entity.AuditUserInfo;
 import com.wd.cloud.uoserver.entity.User;
 import com.wd.cloud.uoserver.model.RegisterModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
@@ -60,4 +63,18 @@ public interface UserService {
      * @return
      */
     User register(RegisterModel registerModel);
+
+    void give(String userName, String idPhoto, String nickName, String orgName, String department, Integer identity,
+              String departmentId, Integer education, Short sex, String entranceTime, String email, Integer permission);
+
+
+    AuditUserInfo getUserName(String userName);
+
+    Page<AuditUserInfo> findAll(Pageable pageable, Map<String, Object> param);
+
+    AuditUserInfo findById(Long id);
+
+    void apply(Long id, Integer permission, String handlerName);
+
+    void notApply(Long id, Integer permission, String handlerName);
 }

@@ -62,4 +62,31 @@ public class User extends AbstractEntity {
      */
     @Column(name = "is_validated", columnDefinition = "tinyint(1) default 0 COMMENT '0:未认证，1：已认证'")
     private boolean validated;
+
+    /**院系*/
+    private String department;
+
+    /**身份*/
+    private Integer identity;
+
+    /**职工号/学号*/
+    private String departmentId;
+
+    /**教育程度*/
+    private Integer education;
+
+    /**性别*/
+    private Short sex;
+
+    /**入学年份*/
+    private String entranceTime;
+
+    /**登录权限*/
+    private Integer permission = 0;
+
+    /**是否在线*/
+    @Column(name = "is_online",columnDefinition = "tinyint(1) default 0 COMMENT '0:在线，1：离线'")
+    private boolean isOnline;
+
+    private Integer forbidden;
 }
