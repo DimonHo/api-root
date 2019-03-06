@@ -12,11 +12,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -81,5 +88,29 @@ public class UserInfoController {
         userDTO = userInfoServer.getUserInfo(userDTO.getUsername());
         return ResponseModel.ok().setBody(userDTO);
     }
+
+    @ApiOperation(value = "用户管理")
+    @GetMapping("/getUserInfoSchool")
+    public ResponseModel<List<Map<String,Object>>> getUserInfoSchool(@RequestParam(required = false) Map<String, Object> params){
+        List<Map<String, Object>> userInfoSchool = userInfoServer.getUserInfoSchool(params);
+        return ResponseModel.ok().setBody(userInfoSchool);
+
+    }
+
+    @ApiOperation(value = "获取所有用户信息")
+    @GetMapping("/findAll")
+    public ResponseModel<List<UserInfo>> findAll(@RequestParam(required = false) String orgName,
+                                                 @RequestParam(required = false) String department,
+                                                 @RequestParam(required = false) String keyword,
+                                                 @PageableDefault(value = 20, sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable){
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("orgName", orgName);
+        param.put("department",department);
+        param.put("keyword", keyword);
+        Page<UserInfo> userInfos = userInfoServer.findAll(pageable,param);
+        return ResponseModel.ok().setBody(userInfos);
+    }
+
+
 
 }

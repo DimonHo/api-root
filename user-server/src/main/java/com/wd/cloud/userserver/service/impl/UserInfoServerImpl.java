@@ -18,11 +18,15 @@ import com.wd.cloud.userserver.repository.UserInfoRepository;
 import com.wd.cloud.userserver.service.UserInfoServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -45,7 +49,7 @@ public class UserInfoServerImpl implements UserInfoServer {
 
     @Override
     public void uploadIdPhoto(MultipartFile file) {
-
+        UserInfo userInfo = new UserInfo();
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (userDTO == null) {
             throw new AuthException();
@@ -56,7 +60,7 @@ public class UserInfoServerImpl implements UserInfoServer {
             throw new FeignException("fsServer.uploadFile");
         }
         String idPhoto = responseModel.getBody().getStr("fileId");
-        UserInfo userInfo = userInfoRepository.findByUsername(userDTO.getUsername()).orElse(new UserInfo());
+        userInfo = userInfoRepository.findByUsername(userDTO.getUsername()).orElse(new UserInfo());
         userInfo.setUsername(userDTO.getUsername());
         userInfo.setIdPhoto(idPhoto);
         userInfo.setValidated(false);
@@ -94,4 +98,22 @@ public class UserInfoServerImpl implements UserInfoServer {
         return userInfoRepository.save(userInfo);
 
     }
+
+    @Override
+    public List<Map<String,Object>> getUserInfoSchool(Map<String, Object> params) {
+       List<Map<String, Object>> userInfoSchool = userInfoRepository.getUserInfoSchool(params);
+        return userInfoSchool;
+    }
+
+    @Override
+    public Page<UserInfo> findAll(Pageable pageable, Map<String, Object> param) {
+        String orgName = (String) param.get("orgName");
+        String department = (String) param.get("department");
+        String keyword = ((String) param.get("keyword"));
+        keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
+        Page<UserInfo> userInfo = userInfoRepository.findAll(UserInfoRepository.SpecificationBuilder.buildFindUserInfoList(orgName, department, keyword), pageable);
+        return userInfo;
+    }
+
+
 }
