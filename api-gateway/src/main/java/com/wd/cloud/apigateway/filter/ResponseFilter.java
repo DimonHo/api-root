@@ -44,6 +44,7 @@ public class ResponseFilter extends ZuulFilter {
         log.info("响应头中加入用户level信息:{}", level);
         UserDTO userDTO = (UserDTO) ctx.getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
         ctx.getResponse().setHeader("level", level + "");
+        ctx.getResponse().setHeader("Access-Control-Allow-Headers", "*");
         if (userDTO != null) {
             log.info("响应头中加入登陆用户信息:{}", userDTO.toString());
             ctx.getResponse().setHeader("user", URLUtil.encode(JSONUtil.toJsonStr(userDTO)));
