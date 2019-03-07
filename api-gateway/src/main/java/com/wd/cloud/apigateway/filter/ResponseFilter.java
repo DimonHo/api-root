@@ -37,14 +37,14 @@ public class ResponseFilter extends ZuulFilter {
     @Override
     public Object run() throws ZuulException {
         RequestContext ctx = RequestContext.getCurrentContext();
-        ctx.getResponse().getHeader("Accept");
+        ctx.getResponse().setHeader("Access-Control-Allow-Headers", "*");
+        ctx.getResponse().setHeader("Access-Control-Expose-Headers", "*");
         //如果是文件下载，此处会读取文件流导致客户端读取的文件流不完整而出现下载文件损坏。
         //InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
         Integer level = (Integer) ctx.getRequest().getSession().getAttribute(SessionConstant.LEVEL);
         log.info("响应头中加入用户level信息:{}", level);
         UserDTO userDTO = (UserDTO) ctx.getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
         ctx.getResponse().setHeader("level", level + "");
-        ctx.getResponse().setHeader("Access-Control-Allow-Headers", "*");
         if (userDTO != null) {
             log.info("响应头中加入登陆用户信息:{}", userDTO.toString());
             ctx.getResponse().setHeader("user", URLUtil.encode(JSONUtil.toJsonStr(userDTO)));
