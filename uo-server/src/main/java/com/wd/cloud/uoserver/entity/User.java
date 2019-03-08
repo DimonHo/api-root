@@ -61,7 +61,7 @@ public class User extends AbstractEntity {
     /**
      * qqID
      */
-    @Column(name = "qq_qpenid")
+    @Column(name = "qq_openid")
     private String qqOpenid;
     /**
      * 微信ID

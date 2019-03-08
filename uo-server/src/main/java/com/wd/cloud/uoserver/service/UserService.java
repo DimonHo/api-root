@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,6 +65,8 @@ public interface UserService {
      */
     User register(RegisterModel registerModel);
 
+    List<Map<String,Object>> getUserInfoSchool(Map<String, Object> params);
+
     void give(String userName, String idPhoto, String nickName, String orgName, String department, Integer identity,
               String departmentId, Integer education, Short sex, String entranceTime, String email, Integer permission);
 
@@ -74,7 +77,25 @@ public interface UserService {
 
     AuditUserInfo findById(Long id);
 
+    Page<User> findUserAll(Pageable pageable, Map<String, Object> param);
+
     void apply(Long id, Integer permission, String handlerName);
 
     void notApply(Long id, Integer permission, String handlerName);
+
+    User updateUser(Long id, String pwd, String nickName, String orgName, String department,
+                    Integer identity,String entranceTime, String departmentId, Integer education,
+                    Integer userType, Short sex, Integer permission,Long orgId);
+
+    User findByUserId(Long id);
+
+    User findByUserType(Long id,Integer userType);
+
+    void deleteUserId(Long id);
+
+    User userSave(User user);
+
+    User findByEmail(String email);
+
+
 }
