@@ -37,7 +37,6 @@ public class ResponseFilter extends ZuulFilter {
     @Override
     public Object run() throws ZuulException {
         RequestContext ctx = RequestContext.getCurrentContext();
-        ctx.getResponse().getHeader("Accept");
         //如果是文件下载，此处会读取文件流导致客户端读取的文件流不完整而出现下载文件损坏。
         //InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
         Integer level = (Integer) ctx.getRequest().getSession().getAttribute(SessionConstant.LEVEL);
