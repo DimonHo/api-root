@@ -309,14 +309,14 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public Page<HelpRecordDTO> myHelpRecords(String username, List<Integer> status, Boolean isDifficult, Pageable pageable) {
 
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(null, status, null, username, null, isDifficult, null), pageable);
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(null, status, null, username, null, isDifficult, null), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
     @Override
     public Page<GiveRecordDTO> myGiveRecords(String giverName, List<Integer> status, Pageable pageable) {
 
-        Page<GiveRecord> giveRecords = giveRecordRepository.findAll(GiveRecordRepository.SpecificationBuilder.buildGiveRecord(status, giverName), pageable);
+        Page<GiveRecord> giveRecords = giveRecordRepository.findAll(GiveRecordRepository.SpecBuilder.buildGiveRecord(status, giverName), pageable);
 
         return coversGiveRecordDTO(giveRecords);
     }
@@ -324,7 +324,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, Long orgId, Pageable pageable) {
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, email, null, keyword, isDifficult, orgId), pageable);
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, email, null, keyword, isDifficult, orgId), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
@@ -336,14 +336,14 @@ public class FrontServiceImpl implements FrontService {
                 HelpStatusEnum.WAIT_HELP.value(),
                 HelpStatusEnum.HELPING.value(),
                 HelpStatusEnum.HELP_THIRD.value());
-        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, isDifficult, orgId), pageable);
+        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, isDifficult, orgId), pageable);
         return coversHelpRecordDTO(waitHelpRecords);
     }
 
     @Override
     public Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value(), HelpStatusEnum.HELP_FAILED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgId), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgId), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 
@@ -351,14 +351,14 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgId), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgId), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
 
     }
 
     @Override
     public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, List<Integer> status, Long orgId, Pageable pageable) {
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildVhelpRecord(channel, status, null, null, null, true, orgId), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, true, orgId), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 

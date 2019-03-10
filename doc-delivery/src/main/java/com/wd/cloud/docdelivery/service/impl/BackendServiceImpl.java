@@ -75,7 +75,7 @@ public class BackendServiceImpl implements BackendService {
         keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
         String beginTime = (String) param.get("beginTime");
         String endTime = param.get("endTime") + " 23:59:59";
-        Page<VHelpRecord> result = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecificationBuilder.buildBackendList(helpUserScid, status, keyword, beginTime, endTime), pageable);
+        Page<VHelpRecord> result = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildBackendList(helpUserScid, status, keyword, beginTime, endTime), pageable);
 
         Page<HelpRecordDTO> helpRecordDTOS = result.map(vHelpRecord -> {
             HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
@@ -91,7 +91,7 @@ public class BackendServiceImpl implements BackendService {
         Boolean reusing = (Boolean) param.get("reusing");
         String keyword = ((String) param.get("keyword"));
         keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
-        return literatureRepository.findAll(LiteratureRepository.SpecificationBuilder.buildWaitResuing(reusing, keyword), pageable);
+        return literatureRepository.findAll(LiteratureRepository.SpecBuilder.buildWaitResuing(reusing, keyword), pageable);
     }
 
     @Override
