@@ -30,7 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -126,6 +128,13 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public List<Map<String,Object>> getUserInfoSchool(Map<String, Object> params) {
+        List<Map<String, Object>> userInfoSchool = userRepository.getUserInfoSchool(params);
+        return userInfoSchool;
+    }
+
+
 
     @Override
     public void give(String userName, String idPhoto, String nickName, String orgName, String department, Integer identity,
@@ -166,6 +175,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<User> findUserAll(Pageable pageable, Map<String, Object> param) {
+        String orgName = (String) param.get("orgName");
+        String department = (String) param.get("department");
+        String keyword = ((String) param.get("keyword"));
+        keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
+        Page<User> userInfo = userRepository.findAll(UserRepository.SpecificationBuilder.buildFindUserInfoList(orgName, department, keyword), pageable);
+        return userInfo;
+    }
+
+
+    @Override
     public void apply(Long id,Integer permission,String handlerName) {
         AuditUserInfo idCard = auditUserInfoRepository.findById(id).orElseThrow(NotFoundException::new);
         Date date = new Date();
@@ -198,5 +218,57 @@ public class UserServiceImpl implements UserService {
         auditUserInfo.setPermission(permission);
         auditUserInfo.setStatus(1);
         auditUserInfoRepository.save(auditUserInfo);
+    }
+
+    @Override
+    public User updateUser(Long id, String pwd, String nickName, String orgName, String department,
+                                   Integer identity,String entranceTime, String departmentId, Integer education,
+                                    Integer userType, Short sex, Integer permission,Long orgId) {
+        User userId = userRepository.findById(id).orElse(null);
+        userId.setPassword(pwd);
+        userId.setNickname(nickName);
+        userId.setOrgName(orgName);
+        userId.setDepartment(department);
+        userId.setIdentity(identity);
+        userId.setEntranceTime(entranceTime);
+        userId.setDepartmentId(departmentId);
+        userId.setEducation(education);
+        userId.setUserType(userType);
+        userId.setSex(sex);
+        userId.setPermission(permission);
+        userId.setOrgId(orgId);
+        User save = userRepository.save(userId);
+        return save;
+    }
+
+    @Override
+    public User findByUserId(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        return user;
+    }
+
+    @Override
+    public User findByUserType(Long id ,Integer forbidden) {
+        User user = userRepository.findById(id).orElse(null);
+        user.setForbidden(forbidden);
+        userRepository.save(user);
+        return user;
+    }
+
+    @Override
+    public void deleteUserId(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    public User userSave(User user) {
+        User save = userRepository.save(user);
+        return save;
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        return user;
     }
 }
