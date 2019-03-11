@@ -2,6 +2,7 @@ package com.wd.cloud.docdelivery.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
 import lombok.experimental.Accessors;
 
 /**
@@ -9,11 +10,11 @@ import lombok.experimental.Accessors;
  * @date 2018/12/25
  * @Description:
  */
-@Getter
-@Setter
+@Value
 @Accessors(chain = true)
 public class TjDTO {
 
+    private Long orgId;
     /**
      * 求助总量
      */

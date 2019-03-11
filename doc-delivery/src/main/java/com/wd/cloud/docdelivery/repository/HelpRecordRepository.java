@@ -36,8 +36,6 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     HelpRecord findByIdAndStatusIn(long id, int[] status);
 
-    List<HelpRecord> findByHelperEmailAndGmtCreateAfter(String email, Date date);
-
     /**
      * 统计一个机构某个时间内的求助数量
      *
@@ -144,42 +142,4 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
     @Query(value = "select avg(TIMESTAMPDIFF(HOUR,gmt_create,gmt_modified)) from help_record t where t.status=4 and t.gmt_create >= ?1", nativeQuery = true)
     long avgSuccessResponseDate(String startDate);
 
-    class SpecificationBuilder {
-        public static Specification<HelpRecord> buildHelpRecord(String helperName,
-                                                                String email,
-                                                                List<Integer> channel,
-                                                                List<Integer> status,
-                                                                String keyword,
-                                                                String beginTime, String endTime) {
-            return (Specification<HelpRecord>) (root, query, cb) -> {
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (StrUtil.isNotBlank(helperName)) {
-                    list.add(cb.equal(root.get("helperName"), helperName));
-                }
-                if (StrUtil.isNotBlank(email)) {
-                    list.add(cb.equal(root.get("helperEmail"), email));
-                }
-                // 渠道过滤
-                if (channel != null && channel.size() > 0) {
-                    CriteriaBuilder.In<Integer> inChannel = cb.in(root.get("helpChannel"));
-                    channel.forEach(inChannel::value);
-                    list.add(inChannel);
-                }
-                // 状态过滤
-                if (status != null && status.size() > 0) {
-                    CriteriaBuilder.In<Integer> inStatus = cb.in(root.get("status"));
-                    status.forEach(inStatus::value);
-                    list.add(inStatus);
-                }
-                if (StrUtil.isNotBlank(keyword)) {
-                    list.add(cb.or(cb.like(root.get("docTitle").as(String.class), "%" + keyword.trim() + "%"), cb.like(root.get("helperEmail").as(String.class), "%" + keyword.trim() + "%")));
-                }
-                if (StrUtil.isNotBlank(beginTime) && StrUtil.isNotBlank(endTime)) {
-                    list.add(cb.between(root.get("gmtCreate").as(Date.class), DateUtil.parse(beginTime), DateUtil.parse(endTime)));
-                }
-                Predicate[] p = new Predicate[list.size()];
-                return cb.and(list.toArray(p));
-            };
-        }
-    }
 }

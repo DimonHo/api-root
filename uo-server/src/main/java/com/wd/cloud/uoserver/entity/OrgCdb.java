@@ -33,7 +33,8 @@ public class OrgCdb extends AbstractEntity {
     private String localUrl;
 
     /**
-     * 是否显示馆藏数据库
+     * 是否隐藏馆藏数据库
      */
+    @Column(name = "is_display")
     private boolean display;
 }
