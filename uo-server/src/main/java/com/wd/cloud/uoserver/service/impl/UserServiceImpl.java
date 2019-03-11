@@ -271,4 +271,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElse(null);
         return user;
     }
+
+    @Override
+    public List<Map<String,Object>> findByCountOrgName(String orgName) {
+        List<Map<String, Object>> byCountOrgName = userRepository.findByCountOrgName(orgName);
+        return byCountOrgName;
+    }
 }

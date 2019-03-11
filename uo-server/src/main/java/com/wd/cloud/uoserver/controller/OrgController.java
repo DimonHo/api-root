@@ -1,6 +1,9 @@
 package com.wd.cloud.uoserver.controller;
 
+import com.wd.cloud.uoserver.dto.DepartmentDTO;
+import com.wd.cloud.uoserver.entity.Department;
 import com.wd.cloud.uoserver.entity.IpRange;
+import com.wd.cloud.uoserver.entity.Org;
 import com.wd.cloud.uoserver.service.OrgService;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -25,6 +28,7 @@ public class OrgController {
 
     @Autowired
     OrgService orgService;
+
 
     @ApiOperation(value = "添加机构信息", tags = {"机构管理"})
     @PostMapping("/org")
@@ -102,4 +106,45 @@ public class OrgController {
         orgService.overlay();
         return ResponseModel.ok();
     }
+
+    @ApiOperation(value = "根据学校查询学院")
+    @GetMapping("/findByOrgId")
+    public  ResponseModel<DepartmentDTO> findByOrgId(@RequestParam(required = false) Long orgId){
+        List<DepartmentDTO> byOrgId = orgService.findByOrgId(orgId);
+        return ResponseModel.ok().setBody(byOrgId);
+    }
+
+    @ApiOperation(value = "根据ID获取学校信息")
+    @GetMapping("/getOrgId")
+    public  ResponseModel<Org> getOrgId(@RequestParam(required = false) Long orgId){
+        Org org = orgService.getOrgId(orgId);
+        return ResponseModel.ok().setBody(org);
+    }
+
+    @ApiOperation(value = "新增院系")
+    @GetMapping("/insertDepartment")
+    public  ResponseModel<Department> insertDepartment(@RequestParam(required = false) Long orgId,
+                                                     @RequestParam(required = false) String name){
+        orgService.insertDepartment(orgId, name);
+        return ResponseModel.ok().setMessage("新增院系成功");
+    }
+
+
+    @ApiOperation(value = "修改院系")
+    @PostMapping("/updateDepartment")
+    public  ResponseModel<Department> updateDepartment(@RequestParam(required = false) Long id,
+                                                     @RequestParam(required = false) Long orgId,
+                                                     @RequestParam(required = false) String name){
+        orgService.updateDepartment(id, orgId, name);
+
+        return ResponseModel.ok().setMessage("修改院系成功");
+    }
+
+    @ApiOperation(value = "删除院系")
+    @PostMapping("/deleteDepartmentId")
+    public ResponseModel deleteDepartmentId(@RequestParam(required = false)Long id){
+        orgService.deleteDepartmentId(id);
+        return ResponseModel.ok().setMessage("删除成功");
+    }
+
 }
