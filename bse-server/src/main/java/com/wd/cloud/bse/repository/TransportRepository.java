@@ -36,7 +36,11 @@ public class TransportRepository {
 	 
 	 @Autowired
 	 FacetBuildUtil facetBuildUtil;
-	 
+	 /**
+	  * 根据条件查询列表
+	  * @param condition
+	  * @return
+	  */
 	 public SearchResponse query(SearchCondition condition) {
 		 SearchRequestBuilder searchRequest = transportClient.prepareSearch(condition.getIndexName()).setTypes(condition.getTypes());
 		 requestBuildUtil.build(condition, searchRequest);
@@ -45,7 +49,11 @@ public class TransportRepository {
 		 return response;
 	 }
 	 
-	 
+	 /**
+	  * 根据条件查询列表
+	  * @param condition
+	  * @return
+	  */
 	 public Iterator<SearchHit> query(QueryBuilder queryBuilder, QueryBuilder filterBuilder, List<AbstractAggregationBuilder> aggregations,String index, String type) {
 		 SearchRequestBuilder searchRequest = transportClient.prepareSearch(index).setTypes(type);
 		 searchRequest.setSearchType(SearchType.DEFAULT);
@@ -67,13 +75,23 @@ public class TransportRepository {
 		 SearchResponse response = searchRequest.get();
 		 return new BulkInterator(response);
 	 }
-	 
+	 /**
+	  * 根据id查询详细
+	  * @param id
+	  * @param index
+	  * @return
+	  */
 	public SearchResponse queryByIds(String[] id,String index) {
 		SearchResponse resp = transportClient.prepareSearch(index).setQuery(QueryBuilders.idsQuery().addIds(id)).execute().actionGet();
 		return resp;
 	}
 	
-	
+	/**
+	 * 根据条件查询id数组里的数据（）
+	 * @param id
+	 * @param condition
+	 * @return
+	 */
 	public SearchResponse search(String[] id,SearchCondition condition) {
 		SearchRequestBuilder searchRequest = transportClient.prepareSearch(condition.getIndexName()).setTypes(condition.getTypes());
 		if(id != null) {

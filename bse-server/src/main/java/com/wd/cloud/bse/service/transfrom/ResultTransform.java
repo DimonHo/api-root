@@ -65,7 +65,7 @@ public class ResultTransform {
 	SourceTransfrom sourceTransfrom;
 	
 	/**
-	 * 学科平台人物成果--结果解析
+	 * 学科平台专家学者人物成果--结果解析
 	 * @param searchResponse
 	 * @return
 	 */
@@ -82,7 +82,8 @@ public class ResultTransform {
 				String org = json.get("org").toString();
 				boolean isOrg = false;
 				String[] schoolSmails = schoolSmail.split(";"); 
-				for (String school : schoolSmails) {
+				//如果学校不匹配，则跳过，如查询中南大学，会查出中南林业科技大学，需要剔除
+				for (String school : schoolSmails) {	
 					if(org.contains(school)) {
 						isOrg = true;
 					}
@@ -183,7 +184,7 @@ public class ResultTransform {
 	}
 	
 	/**
-	 * 结果解析
+	 * 学科结果解析
 	 * @param searchResponse
 	 * @param condition
 	 * @return

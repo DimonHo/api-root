@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query查询组合器
+ * @author yangshuaifei
+ *
+ */
 @Component
 public class QueryBuilderUtil {
 	

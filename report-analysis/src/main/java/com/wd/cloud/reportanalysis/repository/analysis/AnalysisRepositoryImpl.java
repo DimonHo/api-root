@@ -74,11 +74,11 @@ public class AnalysisRepositoryImpl<T, ID extends Serializable> implements Analy
         switch (classify) {
             case "subject":            //ESI学科分析
                 object = new Object[]{issue, scid};
-                if (column.equals("selected")) {
+                if (column.equals("selected")) {				//优势学科
                     sql = "SELECT * FROM st_analysis_subjecta WHERE issue = ? AND scid = ?";
-                } else if (column.equals("potential")) {
+                } else if (column.equals("potential")) {		//潜力学科
                     sql = "SELECT * FROM st_analysis_subjectp WHERE issue = ? AND scid = ?";
-                } else {
+                } else {										//学科全景
                     sql = "SELECT * FROM st_analysis_subjectall WHERE issue = ? AND scid = ?";
                 }
                 break;
@@ -179,35 +179,34 @@ public class AnalysisRepositoryImpl<T, ID extends Serializable> implements Analy
     }
     
     
-    /**
-     * 分析平台
-     * @param scid
-     * @param issue
-     * @param category
-     * @param classify
-     * @param column
-     * @param type_c
-     * @return
-     */
     @Override
-    public Map<String, Object> searchA(int scid, String issue, String category, String classify, String column, int type_c) {
+    public Map<String, Object> searchEsi(int scid, String issue, String category, String classify, String column, int type_c) {
         String sql = "";
         Object[] object = null;
         switch (classify) {
-            
-            case "competitive":        //ESI学科竞争力分析
-                object = new Object[]{issue};
-                if (column.equals("selected")) {			//ESI优势学科机构竞争力
-//                    sql = "SELECT * FROM st_analysis_esi WHERE issue = ? and category = ?";//?//?
-                    if(column.equals("")) {		//优势学科总体情况
-//                    	getAdvantageEsi(scid, categorys);
-                    } else {
-                    	getScale(scid, issue, category);
-                    }
-                } else {									//ESI潜力学科机构竞争力
-                    sql = "SELECT * FROM st_analysis_incites WHERE issue = ?";//'物理学'
-                }
-                break;
+	        case "subject":            //ESI学科分析
+	            object = new Object[]{issue, scid};
+	            if (column.equals("selected")) {			//优势学科总体情况
+	                sql = "SELECT * FROM st_analysis_subjecta WHERE issue = ? AND scid = ?";
+	            } else if (column.equals("potential")) {	//潜力学科总体情况
+	                sql = "SELECT * FROM st_analysis_subjectp WHERE issue = ? AND scid = ?";
+	            } else {									//ESI 22个学科进入ESI全球前1%潜力值分析
+	                sql = "SELECT * FROM st_analysis_subjectall WHERE issue = ? AND scid = ?";
+	            }
+	            break;
+//            case "competitive":        //ESI学科竞争力分析
+//                object = new Object[]{issue};
+//                if (column.equals("selected")) {			//ESI优势学科机构竞争力
+////                    sql = "SELECT * FROM st_analysis_esi WHERE issue = ? and category = ?";//?//?
+//                    if(column.equals("")) {		//优势学科总体情况
+////                    	getAdvantageEsi(scid, categorys);
+//                    } else {
+//                    	getScale(scid, issue, category);
+//                    }
+//                } else {									//ESI潜力学科机构竞争力
+//                    sql = "SELECT * FROM st_analysis_incites WHERE issue = ?";//'物理学'
+//                }
+//                break;
             case "thesis":        //本校ESI论文分析
             	if(StringUtils.isEmpty(category)) {
             		category = "全部领域";

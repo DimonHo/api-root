@@ -23,7 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import cn.hutool.setting.Setting;
-
+/**
+ * 聚合查询组合器
+ * @author yangshuaifei
+ *
+ */
 @Component
 public class FacetBuildUtil {
 	
@@ -31,7 +35,7 @@ public class FacetBuildUtil {
 	QueryBuildContext queryBuilderStrategyContext;
 	
 	/**
-	 * 排序
+	 * 聚合
 	 * @param elasticSearchCondition
 	 * @return
 	 */

@@ -124,30 +124,22 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
     }
     
     
-    /**
-     * 本校ESI学科论文分析
-     */
+    
     @Override
-    public Map<String, Object> compareAnalysis(int scid, String category , String act, int type_c) {
+    public Map<String, Object> analysisEsiPaper(int scid, String category , String act, int type_c) {
     	Map<String, Object> result = new HashMap<>();
     	List<Map<String, Object>> list = analysisRepository.getIssue(0, 1);
     	if(list == null) return null;
     	String issue = list.get(0).get("esi_issue").toString();
     	String classify = "thesis";
-    	String column = act;
-    	
-    	if("potential".equals(act)) {
+    	if("potential".equals(act)) {		//分区对比
     		classify = "competitive";
     	}
-    	
-    	if(act.equals("amount")) {
-    		result = analysisRepository.searchA(scid, issue, category, classify, "scale", type_c);
-    	} else if(act.equals("cited")) {
-    		result = analysisRepository.searchA(scid, issue, category, classify, "scale", type_c);
+    	if(act.equals("amount") || act.equals("cited")) {			//发文趋势||被引频次对比
+    		result = analysisRepository.searchEsi(scid, issue, category, classify, "scale", type_c);
     	} else {
-    		result = analysisRepository.searchA(scid, issue, category, classify, act, type_c);
+    		result = analysisRepository.searchEsi(scid, issue, category, classify, act, type_c);
     	}
-    	
         return result;
     }
     

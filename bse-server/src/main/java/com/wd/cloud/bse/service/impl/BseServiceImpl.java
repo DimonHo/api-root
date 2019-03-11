@@ -50,7 +50,7 @@ public class BseServiceImpl implements BseService {
 	}
 	
 	/**
-	 * 最新100条等功能
+	 * 最新100条等功能（首先查出最新100条数据，然后从100条数据中进行筛选）
 	 * @param condition
 	 * @return
 	 */

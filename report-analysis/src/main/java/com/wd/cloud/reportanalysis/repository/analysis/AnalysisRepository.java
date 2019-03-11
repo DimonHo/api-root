@@ -29,6 +29,16 @@ public interface AnalysisRepository<T, Long extends Serializable> {
     Map<String, Object> queryOne(String string);
     
     
-    public Map<String, Object> searchA(int scid, String issue, String category, String classify, String column, int type_c);
+    /**
+     * 本校ESI学科论文分析
+     * @param scid	
+     * @param issue			期
+     * @param category		ESI学科类别
+     * @param classify
+     * @param column
+     * @param type_c
+     * @return
+     */
+    public Map<String, Object> searchEsi(int scid, String issue, String category, String classify, String column, int type_c);
 
 }

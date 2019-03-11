@@ -33,7 +33,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
-@Api(value = "bse接口", tags = {""})
+@Api(value = "学科bse接口", tags = {""})
 @RestController
 public class IndexController {
 	
@@ -49,7 +49,7 @@ public class IndexController {
 	@Autowired
 	IndexLogService indexLogService;
 	
-	@ApiOperation(value = "列表查询")
+	@ApiOperation(value = "专家学者发表论文列表查询")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "查询学者id", dataType = "String", paramType = "query")
     })
@@ -100,7 +100,7 @@ public class IndexController {
     }
     
     
-    @ApiOperation(value = "列表查询")
+    @ApiOperation(value = "学科数据列表查询")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "params", value = "查询条件", dataType = "String", paramType = "query")
     })
@@ -219,7 +219,7 @@ public class IndexController {
         return ResponseModel.fail();
     }
     
-    @ApiOperation(value = "年份查询")
+    @ApiOperation(value = "年份范围查询")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "params", value = "查询条件", dataType = "String", paramType = "query")
     })

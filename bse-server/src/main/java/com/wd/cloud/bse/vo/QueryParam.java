@@ -375,10 +375,10 @@ public class QueryParam {
 				condition.addSort("wosCites", SortEnum.asc.value());
 				break;
 			case 5:
-				condition.addSort("docTitleFacet", SortEnum.desc.value());
+				condition.addSort("fristWord", SortEnum.desc.value());
 				break;
 			case 6:
-				condition.addSort("docTitleFacet", SortEnum.asc.value());
+				condition.addSort("fristWord", SortEnum.asc.value());
 				break;
 			default:
 				if(condition.getQueryConditions()!=null  && condition.getQueryConditions().size()>0){

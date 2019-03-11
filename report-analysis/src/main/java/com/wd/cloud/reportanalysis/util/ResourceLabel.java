@@ -93,121 +93,51 @@ public class ResourceLabel {
     public String getAct() {
         return act;
     }
-
+    /**
+     * compare接口查询索引类型
+     * @return 索引类型type
+     */
     public String getType() {
         String type = "";
-//        switch (act) {
-//            case "esi":
-//                type = "esi";
-//                break;
-//            default:
-//                type = "resourcelabel";
-//                break;
-//        }
         switch (plate) {
-	        case "esi":
-	            type = "esi";
-	            if(block.equals("ourschool")) {
-	            	type = "analysis";
-	            }
-//	            switch (act) {
-//		            case "country":
-//		                type = "analysis";
-//		                break;
-//		            case "organ":
-//		                type = "analysis";
-//		                break;
-//		            case "author":
-//		                type = "analysis";
-//		                break;
-//		            case "journal":
-//		                type = "analysis";
-//		                break;
-//		        }
-	            break;
-	        default:
-	            type = "resourcelabel";
-	            break;
-	    }
-        return type;
-    }
-
-    public String getFiled() {
-        String filed = "";
-        switch (table) {
-            case "amount":
-                filed = "year";
-                break;
-            case "jcr":
-            	if(type.equals("0")) {
-            		filed = "jcr_new";
-            	} else {
-            		filed = "jcr";
-            	}
-                break;
-            case "jcr_zky_1":
-            	if(type.equals("0")) {
-            		filed = "jcr_b_new";
-            	} else {
-            		filed = "jcr_b";
-            	}
-                break;
-            case "jcr_zky_2":
-            	if(type.equals("0")) {
-            		filed = "jcr_s_new";
-            	} else {
-            		filed = "jcr_s";
-            	}
-                break;
-            case "jcr_year":
-                filed = "jcr_year";
-                break;
-            case "jcr_zky_1_year":
-                filed = "jcr_year";
-                break;
-            case "jcr_zky_2_year":
-                filed = "jcr_year";
-                break;
-            case "total_cited":            //总被引频次
-                filed = "wosCitesAll";
-                break;
-            case "paper_cited":            //篇均被引频次
-                filed = "wosCites";
+            case "esi":
+                type = "esi";
                 break;
             default:
-                filed = "year";
+                type = "resourcelabel";
                 break;
         }
-
-
-//		switch (act) {
-//			case "amount":
-//				filed = "year";
-//				break;
-//			case "partition":
-//				if(table.equals("jcr")) {
-//					filed = "jcr";
-//				} else if(table.equals("jcr_zky_1")) {
-//					filed = "jcr_b";
-//				} else {
-//					filed = "jcr_s";
-//				}
-//				break;
-//			case "cited":
-//				if(table.equals("total_cited")) {	//总被引频次
-//					filed = "wosCitesAll";			//总被引频次
-//				} else {
-//					filed = "wosCites";
-//				}
-//				break;
-//			default:
-//				filed = "year";
-//				break;
-//		}
-        return filed;
+//        switch (plate) {
+//	        case "esi":
+//	            type = "esi";
+//	            if(block.equals("ourschool")) {
+//	            	type = "analysis";
+//	            }
+//	            break;
+//	        default:
+//	            type = "resourcelabel";
+//	            break;
+//	    }
+        return type;
+    }
+    
+    
+    public String getEsiType() {
+    	String type = "";
+    	switch (act) {
+        case "amount":
+        case "partition":
+        case "cited":
+            type = "esi";
+            break;
+        default:
+            type = "analysis";
+            break;
+    	}
+    	return type;
     }
 
-
+    
     public List<QueryCondition> getQueryList() {
         List<QueryCondition> list = new ArrayList<>();
         if (time != null) {

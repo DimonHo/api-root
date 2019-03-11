@@ -13,7 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.wd.cloud.bse.vo.SearchCondition;
-
+/**
+ * 查询规则构建工具类
+ * @author yangshuaifei
+ *
+ */
 @Component
 public class RequestBuildUtil {
 	

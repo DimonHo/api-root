@@ -23,7 +23,7 @@ public class DocumentGeneration implements DocumentGenerationI {
 //    @Autowired
 //    private RestTemplate restTemplate;
 
-    @Autowired
+//    @Autowired
 //    FsServerApi fsServerApi;
     private RestTemplate restTemplate;
     private ClientHttpRequestFactory factory;

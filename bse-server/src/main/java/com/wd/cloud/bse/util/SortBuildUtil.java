@@ -13,7 +13,11 @@ import java.util.Map;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+/**
+ * 数据排序组合器
+ * @author yangshuaifei
+ *
+ */
 @Component
 public class SortBuildUtil {
 	
