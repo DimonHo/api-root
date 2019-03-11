@@ -318,6 +318,14 @@ public class UserController {
         return ResponseModel.ok().setBody(byEmail);
     }
 
+    @ApiOperation(value = "根据学校名称获取统计学校院系")
+    @GetMapping("/findByCountOrgName")
+    public  ResponseModel<List<Map<String,Object>>> findByCountOrgName(@RequestParam(required = false)String orgName) {
+        List<Map<String, Object>> byCountOrgName = userService.findByCountOrgName(orgName);
+        return ResponseModel.ok().setBody(byCountOrgName);
+    }
+
+
 
 
     private void createSession(UserDTO userDTO) {

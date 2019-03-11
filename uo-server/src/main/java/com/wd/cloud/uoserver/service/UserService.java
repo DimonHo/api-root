@@ -2,6 +2,7 @@ package com.wd.cloud.uoserver.service;
 
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.uoserver.entity.AuditUserInfo;
+import com.wd.cloud.uoserver.entity.Org;
 import com.wd.cloud.uoserver.entity.User;
 import com.wd.cloud.uoserver.model.RegisterModel;
 import org.springframework.data.domain.Page;
@@ -96,6 +97,8 @@ public interface UserService {
     User userSave(User user);
 
     User findByEmail(String email);
+
+    List<Map<String,Object>> findByCountOrgName(String orgName);
 
 
 }

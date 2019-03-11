@@ -39,6 +39,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     Optional<User> findByEmail(String email);
 
+    @Query(value = "SELECT COUNT(id) AS COUNT,department FROM user WHERE email != 'Tourist' and org_name = ?1 GROUP BY department",nativeQuery = true)
+    List<Map<String,Object>> findByCountOrgName(String orgName);
+
 
 
 

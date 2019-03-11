@@ -1,8 +1,11 @@
 package com.wd.cloud.uoserver.service;
 
+import com.wd.cloud.uoserver.dto.DepartmentDTO;
+import com.wd.cloud.uoserver.entity.Department;
 import com.wd.cloud.uoserver.entity.IpRange;
 import com.wd.cloud.commons.dto.IpRangeDTO;
 import com.wd.cloud.commons.dto.OrgDTO;
+import com.wd.cloud.uoserver.entity.Org;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -50,4 +53,15 @@ public interface OrgService {
     OrgDTO addOrg();
 
     OrgDTO getOrg(Long orgId);
+
+    List<DepartmentDTO> findByOrgId(Long orgId);
+
+    Org getOrgId(Long orgId);
+
+    Department insertDepartment(Long orgId, String name);
+
+    Department updateDepartment(Long id,Long orgId, String name);
+
+    void deleteDepartmentId(Long id);
+
 }

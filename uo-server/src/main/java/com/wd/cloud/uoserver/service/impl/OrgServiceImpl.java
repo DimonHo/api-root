@@ -5,12 +5,17 @@ import cn.hutool.core.lang.Validator;
 import com.wd.cloud.commons.dto.IpRangeDTO;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.util.NetUtil;
+import com.wd.cloud.commons.util.StrUtil;
+import com.wd.cloud.uoserver.dto.DepartmentDTO;
+import com.wd.cloud.uoserver.entity.Department;
 import com.wd.cloud.uoserver.entity.IpRange;
 import com.wd.cloud.uoserver.entity.Org;
+import com.wd.cloud.uoserver.repository.DepartmentRepository;
 import com.wd.cloud.uoserver.repository.IpRangeRepository;
 import com.wd.cloud.uoserver.repository.OrgRepository;
 import com.wd.cloud.uoserver.service.OrgService;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +39,9 @@ public class OrgServiceImpl implements OrgService {
 
     @Autowired
     OrgRepository orgRepository;
+
+    @Autowired
+    DepartmentRepository departmentRepository;
 
     @Override
     public List<IpRange> validatorIp() {
@@ -138,4 +146,52 @@ public class OrgServiceImpl implements OrgService {
     public OrgDTO getOrg(Long orgId) {
         return null;
     }
+
+    @Override
+    public List<DepartmentDTO> findByOrgId(Long orgId) {
+        List<DepartmentDTO> arrayDepartmentDTO = new ArrayList<>();
+        List<Department> departments = departmentRepository.findByOrgId(orgId);
+        Org byId = orgRepository.findById(orgId).orElse(null);
+        for (Department department : departments){
+            DepartmentDTO giveRecordDTO = new DepartmentDTO();
+            giveRecordDTO.setOrgName(byId.getName());
+            giveRecordDTO.setNumber(0);
+            BeanUtil.copyProperties(department, giveRecordDTO);
+            arrayDepartmentDTO.add(giveRecordDTO);
+        }
+        return arrayDepartmentDTO;
+    }
+
+    @Override
+    public Org getOrgId(Long orgId) {
+        Org org = orgRepository.findById(orgId).orElse(null);
+        return org;
+    }
+
+    @Override
+    public Department insertDepartment(Long orgId, String name) {
+        Department department = new Department();
+        department.setName(name);
+        department.setOrgId(orgId);
+        departmentRepository.save(department);
+        return department;
+    }
+
+    @Override
+    public Department updateDepartment(Long id,Long orgId, String name) {
+        Department department = new Department();
+        department.setId(id);
+        department.setName(name);
+        department.setOrgId(orgId);
+        departmentRepository.save(department);
+        return department;
+    }
+
+    @Override
+    public void deleteDepartmentId(Long id) {
+        departmentRepository.deleteById(id);
+
+    }
+
+
 }
