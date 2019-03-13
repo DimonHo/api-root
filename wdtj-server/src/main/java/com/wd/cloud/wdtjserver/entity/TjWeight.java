@@ -1,5 +1,9 @@
 package com.wd.cloud.wdtjserver.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -10,6 +14,9 @@ import javax.persistence.UniqueConstraint;
  * @date 2018/11/12
  * @Description: 权重表
  */
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tj_weight", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"date_index", "date_type"})
@@ -42,49 +49,4 @@ public class TjWeight extends AbstractEntity {
      * 最高权重
      */
     private Double high;
-
-    public int getDateIndex() {
-        return dateIndex;
-    }
-
-    public TjWeight setDateIndex(int dateIndex) {
-        this.dateIndex = dateIndex;
-        return this;
-    }
-
-    public int getDateType() {
-        return dateType;
-    }
-
-    public TjWeight setDateType(int dateType) {
-        this.dateType = dateType;
-        return this;
-    }
-
-    public Double getLow() {
-        return low;
-    }
-
-    public TjWeight setLow(Double low) {
-        this.low = low;
-        return this;
-    }
-
-    public Double getHigh() {
-        return high;
-    }
-
-    public TjWeight setHigh(Double high) {
-        this.high = high;
-        return this;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public TjWeight setRemark(String remark) {
-        this.remark = remark;
-        return this;
-    }
 }

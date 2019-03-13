@@ -16,11 +16,13 @@ public class UniversityServiceImpl implements UniversityService {
 	@Autowired
 	UniversityRepository universityRepository;
 	
-	public University findById(int id) {
+	@Override
+    public University findById(int id) {
 		return universityRepository.findById(id);
 	}
 	
-	public List<University> findAll() {
+	@Override
+    public List<University> findAll() {
 		return universityRepository.findAll();
 	}
 	

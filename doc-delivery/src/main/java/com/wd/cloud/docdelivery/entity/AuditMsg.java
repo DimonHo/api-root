@@ -1,6 +1,8 @@
 package com.wd.cloud.docdelivery.entity;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -10,27 +12,12 @@ import javax.persistence.Table;
  * @date 2018/5/22
  * @Description:
  */
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "audit_msg")
 public class AuditMsg extends AbstractEntity {
 
     private String msg;
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("msg", msg)
-                .append("id", id)
-                .append("gmtModified", gmtModified)
-                .append("gmtCreate", gmtCreate)
-                .toString();
-    }
 }

@@ -93,9 +93,11 @@ public class ResultTransform {
 				}
 				// 遍历map中的键
 				for (String key : json.keySet()) {
-					if(json.get(key) == null) continue;
+					if(json.get(key) == null) {
+                        continue;
+                    }
 					String value = json.get(key).toString();
-					if (key.equals("url")) {
+					if ("url".equals(key)) {
 						List<Map<String, Object>> url = (List<Map<String, Object>>) json.get(key);
 						String linkUrl = urlFieldConvertor.convert(url);
 						if(linkUrl != null) {
@@ -110,7 +112,7 @@ public class ResultTransform {
 							}
 							
 						}
-					} else if(key.equals("doi") && StringUtils.isNotEmpty(json.get(key).toString())) {
+					} else if("doi".equals(key) && StringUtils.isNotEmpty(json.get(key).toString())) {
 						String linkUrl =  "http://doi.org/" + json.get(key).toString();
 						urlMap.put(4, linkUrl);
 					}

@@ -14,7 +14,8 @@ import com.wd.cloud.reportanalysis.es.build.FacetBuilderStrategyI;
 @Component("analysisFacet")
 public class AnalysisFacet implements FacetBuilderStrategyI{
 
-	public AbstractAggregationBuilder execute(String field) {
+	@Override
+    public AbstractAggregationBuilder execute(String field) {
 		if ("wosCitesAll".equals(field) || "wosCites".equals(field)) {        //总被引频次
 		    TermsAggregationBuilder termsBuilders = AggregationBuilders.terms(field).field("year").size(Integer.MAX_VALUE).order(Terms.Order.term(true));
 		    AggregationBuilder termsBuilder = AggregationBuilders.sum("wosCites").field("wosCites");

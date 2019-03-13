@@ -65,25 +65,25 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                 String table = entry.getValue();
                 String sql = "SELECT * FROM " + table + " WHERE issue = '" + issue + "'";
 
-                if (!classify.equals("competitive")) {
+                if (!"competitive".equals(classify)) {
                     sql = sql + " AND scid = '" + scid + "'";
                 } else {
-                    if (column.equals("selected")) {
+                    if ("selected".equals(column)) {
                         sql = "SELECT * FROM st_analysis_category WHERE issue = '" + issue + "' and institution_cn = '" + scname + "'";
                     } else {
                         sql = "SELECT * FROM st_analysis_categoryins WHERE issue = '" + issue + "' and institution_cn = '" + scname + "'";
                     }
                 }
                 if (ConfigUtil.getStr(classify + ".type") != null) {
-                    if (!column.equals("distribution") && !column.equals("percentile")) {
+                    if (!"distribution".equals(column) && !"percentile".equals(column)) {
                         sql = sql + " AND type = '" + ConfigUtil.getStr(classify + ".type") + "'";
                     }
                 }
-                if (classify.equals("level")) {
+                if ("level".equals(classify)) {
                     sql = "SELECT * FROM st_analysis_year WHERE issue = '" + issue + "' and category = '全部领域' AND scid = '" + scid + "' and type = 2";
                 }
-                if (classify.equals("paper")) {
-                    if (!column.equals("percentile")) {
+                if ("paper".equals(classify)) {
+                    if (!"percentile".equals(column)) {
                         sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
                     }
                 }
@@ -104,7 +104,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
 
     public boolean handleResult(List<Map<String, Object>> result, String classify) {
         if (result != null && result.size() > 0) {
-            if (classify.equals("level")) {
+            if ("level".equals(classify)) {
                 String content = result.get(0).get("content").toString();
                 Map<String, Object> contentObj = JSONObject.fromObject(content);
                 List<Map<String, Object>> contents = (List<Map<String, Object>>) contentObj.get("content");
@@ -129,13 +129,15 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
     public Map<String, Object> analysisEsiPaper(int scid, String category , String act, int type_c) {
     	Map<String, Object> result = new HashMap<>();
     	List<Map<String, Object>> list = analysisRepository.getIssue(0, 1);
-    	if(list == null) return null;
+    	if(list == null) {
+            return null;
+        }
     	String issue = list.get(0).get("esi_issue").toString();
     	String classify = "thesis";
     	if("potential".equals(act)) {		//分区对比
     		classify = "competitive";
     	}
-    	if(act.equals("amount") || act.equals("cited")) {			//发文趋势||被引频次对比
+    	if("amount".equals(act) || "cited".equals(act)) {			//发文趋势||被引频次对比
     		result = analysisRepository.searchEsi(scid, issue, category, classify, "scale", type_c);
     	} else {
     		result = analysisRepository.searchEsi(scid, issue, category, classify, act, type_c);

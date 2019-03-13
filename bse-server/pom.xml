@@ -1,25 +1,26 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <artifactId>bse-server</artifactId>
-  <version>${parent.version}</version>
-  <packaging>jar</packaging>
-    
-   
-  <parent>
-    <groupId>com.wd.cloud</groupId>
-    <artifactId>api-root</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  
-  <name>bse-server</name>
-  <description>bse数据分析接口</description>
-  
-  
-  <dependencies>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>bse-server</artifactId>
+    <version>${parent.version}</version>
+    <packaging>jar</packaging>
+
+
+    <parent>
+        <groupId>com.wd.cloud</groupId>
+        <artifactId>api-root</artifactId>
+        <version>0.0.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <name>bse-server</name>
+    <description>bse数据分析接口</description>
+
+
+    <dependencies>
         <!-- ========================= public start ========================= -->
         <!-- 热部署 -->
         <dependency>
@@ -33,10 +34,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- feign接口 -->
+        <!-- 自定义微服务启动器 -->
         <dependency>
             <groupId>com.wd.cloud</groupId>
-            <artifactId>api-feign</artifactId>
+            <artifactId>service-spring-boot-starter</artifactId>
         </dependency>
         <!-- ========================= public end ============================= -->
 
@@ -57,11 +58,11 @@
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
         </dependency>
-        <dependency>  
-    <groupId>com.alibaba</groupId>  
-    <artifactId>fastjson</artifactId>  
-    <version>1.2.41</version>  
-</dependency> 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.41</version>
+        </dependency>
 
         <!-- webservice客户端接口包 -->
         <dependency>
@@ -153,47 +154,46 @@
             <artifactId>gson</artifactId>
             <version>2.8.0</version>
         </dependency>
-        
+
         <dependency>
-			<groupId>opensymphony</groupId>
-			<artifactId>oscache</artifactId>
-			<version>2.3</version>
-		</dependency>
-		
-		
-		
-		 <dependency>
-			<groupId>com.weidu</groupId>
-			<artifactId>scholarData</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>jaxen</groupId>
-			<artifactId>jaxen</artifactId>
-			<version>1.1.4</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.belerweb</groupId>
-			<artifactId>pinyin4j</artifactId>
-			<version>2.5.0</version>
-		</dependency>
-		
-		<dependency>
-	    	<groupId>com.weidu</groupId>
-	    	<artifactId>docCom</artifactId>
-	    	<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		
-		<dependency>
-	    	<groupId>com.hnlat</groupId>
-	  		<artifactId>esmapping</artifactId>
-	  		<version>0.0.1-SNAPSHOT</version>
-	    </dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>oscache</artifactId>
+            <version>2.3</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.weidu</groupId>
+            <artifactId>scholarData</artifactId>
+            <version>1.0.3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>1.1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.weidu</groupId>
+            <artifactId>docCom</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hnlat</groupId>
+            <artifactId>esmapping</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
-  
+
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>

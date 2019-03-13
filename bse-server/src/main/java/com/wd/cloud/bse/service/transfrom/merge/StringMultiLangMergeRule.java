@@ -65,7 +65,7 @@ public class StringMultiLangMergeRule extends MergeRule<String>{
 		}
 		
 		if (lanMap.containsKey(2)) {
-			if (!str.equals("")) {
+			if (!"".equals(str)) {
 				str += spliter;
 			}
 			str += getMaxNumStr(lanMap.get(2));

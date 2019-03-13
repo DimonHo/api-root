@@ -44,7 +44,9 @@ public class GuiderQueryBuildStrategy implements QueryBuilderStrategyI {
 			}
 		}
 		for(String author : authors){
-			if(StringUtils.isEmpty(author)) continue;
+			if(StringUtils.isEmpty(author)) {
+                continue;
+            }
 			boolean english = false;
 			if(isEnglish(author)){ 
 				english = true;

@@ -19,16 +19,16 @@ public class DefiningDataController {
         model.addAttribute("source", source);
         model.addAttribute("signature", signature);
         model.addAttribute("category_type", category_type);
-        if (act.equalsIgnoreCase("amount") && table.equalsIgnoreCase("amount")) {
+        if ("amount".equalsIgnoreCase(act) && "amount".equalsIgnoreCase(table)) {
             return "forward:/hut";
         }
-        if (act.equalsIgnoreCase("partition") && table.equalsIgnoreCase("jcr")) {
+        if ("partition".equalsIgnoreCase(act) && "jcr".equalsIgnoreCase(table)) {
             return "forward:/fenqu";
         }
-        if (act.equalsIgnoreCase("cited") && table.equalsIgnoreCase("total_cited")) {
+        if ("cited".equalsIgnoreCase(act) && "total_cited".equalsIgnoreCase(table)) {
             return "forward:/frequency";
         }
-        if (act.equalsIgnoreCase("esi") && table.equalsIgnoreCase("amount")) {
+        if ("esi".equalsIgnoreCase(act) && "amount".equalsIgnoreCase(table)) {
             model.addAttribute("category_type", category_type);
             return "forward:/esi";
         }

@@ -126,23 +126,26 @@ public class UrlFieldConvert {
 	public static Map<String, Object> getUrlParams(String param) {
 
 		Map<String, Object> map = new HashMap<String, Object>(0);
-		if (param == null)
-			return map;
+		if (param == null) {
+            return map;
+        }
 		String[] params = param.split("&");
 		for (int i = 0; i < params.length; i++) {
 			String[] p = params[i].split("=");
-			if (p.length == 2)
-				map.put(p[0], p[1]);
-			else
-				map.put("key", p[0]);
+			if (p.length == 2) {
+                map.put(p[0], p[1]);
+            } else {
+                map.put("key", p[0]);
+            }
 		}
 		return map;
 	}
 
 	public static String composeMessage(String urlRule, Map<String, Object> params) {
 		boolean isChange = false;
-		if (params.isEmpty())
-			return "";
+		if (params.isEmpty()) {
+            return "";
+        }
 		Set<Entry<String, Object>> entry = params.entrySet();
 		for (Entry<String, Object> entry2 : entry) {
 			if (null != urlRule) {

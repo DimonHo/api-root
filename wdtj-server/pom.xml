@@ -33,10 +33,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- feign接口 -->
+        <!-- 微服务基础包 -->
         <dependency>
             <groupId>com.wd.cloud</groupId>
-            <artifactId>api-feign</artifactId>
+            <artifactId>service-spring-boot-starter</artifactId>
         </dependency>
         <!-- ========================= public end =============================== -->
 

@@ -1,12 +1,12 @@
 package com.wd.cloud.docdelivery.repository;
 
 import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.Literature;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -15,16 +15,19 @@ import java.util.List;
  */
 public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
+    List<DocFile> findByLiteratureIdOrderByReusingDescGmtModifiedDesc(Long literatureId);
 
-    DocFile findByFileId(String fileId);
+    DocFile findByLiteratureIdAndReusingIsTrue(long literature);
 
-    List<DocFile> findByFileIdIsNull();
+    Optional<DocFile> findByLiteratureIdAndFileId(long literatureId, String fileId);
 
-    DocFile findByLiteratureAndReusingIsTrue(Literature literature);
+    List<DocFile> findByLiteratureIdAndBigDbFalse(Long literatureId);
 
-    DocFile findByLiteratureAndFileId(Literature literature, String fileId);
+    List<DocFile> findByLiteratureIdIn(List ids);
 
-    @Query("from DocFile where literature = :literature and (auditStatus is null or auditStatus = 1)")
-    List<DocFile> getResuingDoc(@Param("literature") Literature literature);
+    Optional<DocFile> findByFileIdAndLiteratureId(String fileId , long literatureId);
+
+
+
 
 }

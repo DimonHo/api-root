@@ -1,17 +1,15 @@
 package com.wd.cloud.bse.service.transfrom;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
 import com.wd.cloud.bse.data.Dissertation;
 import com.wd.cloud.bse.data.Document;
 import com.wd.cloud.bse.data.Periodical;
 import com.wd.cloud.bse.data.Proceedings;
-import com.wd.cloud.bse.data.ResourceIndex;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 @Component
@@ -19,7 +17,6 @@ public class SourceTransfrom {
 	
 	/**
 	 * .GB/T7714
-	 * @param source
 	 * @return
 	 */
 	public String getGB(Document doc,String authors) {
@@ -170,7 +167,6 @@ public class SourceTransfrom {
 	}
 	/**
 	 * .APA
-	 * @param source
 	 * @return
 	 */
 	public String getAPA(Document doc,String authors) {
@@ -305,9 +301,9 @@ public class SourceTransfrom {
 				APA = APA + "(";
 			}
 			if(StringUtils.isNotEmpty(degree)) {
-				if(degree.equals("硕士")) {
+				if("硕士".equals(degree)) {
 					degree = "Master dissertation";
-				} else if(degree.equals("博士")) {
+				} else if("博士".equals(degree)) {
 					degree = "Doctoral dissertation";
 				}
 				APA = APA + "" + degree;
@@ -326,7 +322,6 @@ public class SourceTransfrom {
 	}
 	/**
 	 * .MLA
-	 * @param source
 	 * @return
 	 */
 	public String getMLA(Document doc,String authors) {

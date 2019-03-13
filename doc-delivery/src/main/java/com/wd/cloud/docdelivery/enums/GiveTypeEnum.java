@@ -7,26 +7,24 @@ package com.wd.cloud.docdelivery.enums;
  */
 public enum GiveTypeEnum {
 
-    AUTO("系统自动应助", 0),
+    /**
+     * 应助者类型
+     */
+    AUTO("自动应助", 0),
     MANAGER("管理员应助", 1),
     USER("用户应助", 2),
-    THIRD("第三方应助", 3),
-    OTHER("其它渠道应助", 4);
+    BIG_DB("数据库全文", 3);
 
     private String name;
-    private int code;
+    private int value;
 
-    private GiveTypeEnum(String name, int code) {
+    private GiveTypeEnum(String name, int value) {
         this.name = name;
-        this.code = code;
+        this.value = value;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getCode() {
-        return code;
+    public int value() {
+        return value;
     }
 
 }

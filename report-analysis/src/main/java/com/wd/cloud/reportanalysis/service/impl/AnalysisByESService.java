@@ -116,19 +116,19 @@ public class AnalysisByESService implements AnalysisByESServiceI {
             String key = collegeBucket.getKey().toString();
             long yearCount = collegeBucket.getDocCount();
             double val = 0;
-            if (filed.equals("wosCites")) {
+            if ("wosCites".equals(filed)) {
                 InternalSum pvTerms = (InternalSum) collegeBucket.getAggregations().asMap().get("wosCites");
                 double value = pvTerms.getValue();
                 double avg = (double) Math.round(value / yearCount * 100) / 100;
                 val = avg;
                 cites += value;
-            } else if (filed.equals("wosCitesAll")) {
+            } else if ("wosCitesAll".equals(filed)) {
                 InternalSum pvTerms = (InternalSum) collegeBucket.getAggregations().asMap().get("wosCites");
                 double value = pvTerms.getValue();
                 cites += value;
                 val = value;
             }
-            else if(filed.equals("jcr_year")) {
+            else if("jcr_year".equals(filed)) {
             	Terms jcrTerms = (Terms) collegeBucket.getAggregations().asMap().get("jcr");
             	Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> jcrIter = (Iterator<Bucket>) jcrTerms.getBuckets().iterator();
             	Map<String, Object> jcrMap = new LinkedHashMap<>();
@@ -143,12 +143,12 @@ public class AnalysisByESService implements AnalysisByESServiceI {
             else {
                 val = yearCount;
             }
-            if (StringUtils.isNotEmpty(key) && !filed.equals("jcr_year")) {
+            if (StringUtils.isNotEmpty(key) && !"jcr_year".equals(filed)) {
                 map.put(key, val);
             }
         }
         result.put("list", map);
-        if (filed.equals("wosCites") || filed.equals("wosCitesAll")) {
+        if ("wosCites".equals(filed) || "wosCitesAll".equals(filed)) {
             result.put("cites", cites);
             double avgCites = (double) cites / total;
             avgCites = (double) Math.round(avgCites * 100) / 100;
@@ -176,19 +176,19 @@ public class AnalysisByESService implements AnalysisByESServiceI {
             String key = collegeBucket.getKey().toString();
             long yearCount = collegeBucket.getDocCount();
             double val = 0;
-            if (filedName.equals("wosCites")) {
+            if ("wosCites".equals(filedName)) {
                 InternalSum pvTerms = (InternalSum) collegeBucket.getAggregations().asMap().get("wosCites");
                 double value = pvTerms.getValue();
                 double avg = (double) Math.round(value / yearCount * 100) / 100;
                 val = avg;
                 cites += value;
-            } else if (filedName.equals("wosCitesAll")) {
+            } else if ("wosCitesAll".equals(filedName)) {
                 InternalSum pvTerms = (InternalSum) collegeBucket.getAggregations().asMap().get("wosCites");
                 double value = pvTerms.getValue();
                 cites += value;
                 val = value;
             }
-            else if(filedName.equals("jcr_year")) {
+            else if("jcr_year".equals(filedName)) {
             	Terms jcrTerms = (Terms) collegeBucket.getAggregations().asMap().get("jcr");
             	Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> jcrIter = (Iterator<Bucket>) jcrTerms.getBuckets().iterator();
             	Map<String, Object> jcrMap = new LinkedHashMap<>();
@@ -203,12 +203,12 @@ public class AnalysisByESService implements AnalysisByESServiceI {
             else {
                 val = yearCount;
             }
-            if (StringUtils.isNotEmpty(key) && !filedName.equals("jcr_year")) {
+            if (StringUtils.isNotEmpty(key) && !"jcr_year".equals(filedName)) {
                 map.put(key, val);
             }
         }
         result.put("list", map);
-        if (filedName.equals("wosCites") || filedName.equals("wosCitesAll")) {
+        if ("wosCites".equals(filedName) || "wosCitesAll".equals(filedName)) {
             result.put("cites", cites);
             double avgCites = (double) cites / total;
             avgCites = (double) Math.round(avgCites * 100) / 100;

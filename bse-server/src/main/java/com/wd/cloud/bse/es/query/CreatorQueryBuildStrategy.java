@@ -1,8 +1,10 @@
 package com.wd.cloud.bse.es.query;
 
 
-import java.util.List;
-
+import com.wd.cloud.bse.es.QueryBuilderStrategyI;
+import com.wd.cloud.bse.util.PinYinUtil;
+import com.wd.cloud.bse.vo.LatConstant;
+import com.wd.cloud.bse.vo.QueryCondition;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -12,10 +14,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.wd.cloud.bse.es.QueryBuilderStrategyI;
-import com.wd.cloud.bse.util.PinYinUtil;
-import com.wd.cloud.bse.vo.LatConstant;
-import com.wd.cloud.bse.vo.QueryCondition;
+import java.util.List;
 
 
 @Component("creatorQuery")
@@ -47,7 +46,9 @@ public class CreatorQueryBuildStrategy implements QueryBuilderStrategyI {
 			}
 		}
 		for(String author : authors){
-			if(StringUtils.isEmpty(author)) continue;
+			if(StringUtils.isEmpty(author)) {
+                continue;
+            }
 			boolean english = false;
 			if(isEnglish(author)){ 
 				english = true;

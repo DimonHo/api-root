@@ -12,6 +12,7 @@ import static org.elasticsearch.search.aggregations.AggregationBuilders.terms;
 @Component("yearFacet")
 public class YearFacet implements FacetBuilderStrategyI{
 	
+    @Override
     public AbstractAggregationBuilder execute(String field) {
         return terms("year").field("year").order(Terms.Order.term(false)).size(10).shardSize(20);
     }

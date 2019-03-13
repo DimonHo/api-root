@@ -13,8 +13,9 @@ import java.util.Map.Entry;
 public class WFJournalUrlField {
 	
 	public static String conver(String urlRule,Map<String, Object> params) {
-		if (params.isEmpty())
-			return "";
+		if (params.isEmpty()) {
+            return "";
+        }
 		if(params.containsKey("key")) {
 			Set<Entry<String, Object>> entry = params.entrySet();
 			for (Entry<String, Object> entry2 : entry) {

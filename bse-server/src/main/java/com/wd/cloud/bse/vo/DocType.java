@@ -49,7 +49,9 @@ public enum DocType {
 
 	public static DocType valueOf(int key){
 		for(DocType type : DocType.values()){
-			if(type.key == key) return type;
+			if(type.key == key) {
+                return type;
+            }
 		}
 		return null;
 	}

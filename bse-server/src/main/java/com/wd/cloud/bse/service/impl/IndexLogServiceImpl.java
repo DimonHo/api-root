@@ -12,7 +12,8 @@ public class IndexLogServiceImpl implements IndexLogService {
 	@Autowired
 	IndexLogRepository indexLogRepository;
 	
-	public void save(IndexLog indexLog) {
+	@Override
+    public void save(IndexLog indexLog) {
 		indexLogRepository.save(indexLog);
 	}
 	

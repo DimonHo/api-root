@@ -15,5 +15,4 @@ public interface FileService {
 
     String getDownloadUrl(Long helpRecordId);
 
-    int buildFileId();
 }

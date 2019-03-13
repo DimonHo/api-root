@@ -164,8 +164,9 @@ public class SimpleUtil {
 
 	public static boolean mapIsNull(Map<?, ?> testMap) {
 
-		if (null == testMap || testMap.isEmpty())
-			return true;
+		if (null == testMap || testMap.isEmpty()) {
+            return true;
+        }
 		return false;
 	}
 

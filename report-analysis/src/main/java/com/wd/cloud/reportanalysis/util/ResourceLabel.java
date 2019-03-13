@@ -1,16 +1,13 @@
 package com.wd.cloud.reportanalysis.util;
 
+import com.wd.cloud.commons.util.StrUtil;
 import com.wd.cloud.reportanalysis.entity.FacetField;
 import com.wd.cloud.reportanalysis.entity.QueryCondition;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 封装查询条件
@@ -54,7 +51,7 @@ public class ResourceLabel {
         scid = request.getParameter("scid");
         category = request.getParameter("category_type");
         type = request.getParameter("type");
-        if(org.apache.commons.lang3.StringUtils.isEmpty(type)) {
+        if(StrUtil.isEmpty(type)) {
         	type = "0";
         }
 //		compareScids = request.getParameterValues("compare_scids");
@@ -160,7 +157,7 @@ public class ResourceLabel {
 	        	facetField.setField("year");
 	            break;
 	        case "jcr":
-	        	if(type.equals("0")) {
+	        	if("0".equals(type)) {
 	        		facetField.setName("jcr_new");
 	        		facetField.setField("jcr_new");
 	        	} else {
@@ -169,7 +166,7 @@ public class ResourceLabel {
 	        	}
 	            break;
 	        case "jcr_zky_1":
-	        	if(type.equals("0")) {
+	        	if("0".equals(type)) {
 	        		facetField.setName("jcr_b_new");
 	        		facetField.setField("jcr_b_new");
 	        	} else {
@@ -178,7 +175,7 @@ public class ResourceLabel {
 	        	}
 	            break;
 	        case "jcr_zky_2":
-	        	if(type.equals("0")) {
+	        	if("0".equals(type)) {
 	        		facetField.setName("jcr_s_new");
 	        		facetField.setField("jcr_s_new");
 	        	} else {
@@ -222,21 +219,21 @@ public class ResourceLabel {
 	        	facetMap.put("year", "year");
 	            break;
 	        case "jcr":
-	        	if(type.equals("0")) {
+	        	if("0".equals(type)) {
             		facetMap.put("jcr_new", "jcr_new");
             	} else {
             		facetMap.put("jcr", "jcr");
             	}
 	            break;
 	        case "jcr_zky_1":
-	        	if(type.equals("0")) {
+	        	if("0".equals(type)) {
             		facetMap.put("jcr_b_new", "jcr_b_new");
             	} else {
             		facetMap.put("jcr_b", "jcr_b");
             	}
 	            break;
 	        case "jcr_zky_2":
-	        	if(type.equals("0")) {
+	        	if("0".equals(type)) {
 //            		filed = "jcr_new";
             		facetMap.put("jcr_s_new", "jcr_s_new");
             	} else {

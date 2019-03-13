@@ -35,7 +35,8 @@ public class BseServiceImpl implements BseService {
 		return resultTransform.transformScholar(searchResponse,schoolSmail);
 	}
 	
-	public SearchPager query(SearchCondition condition) {
+	@Override
+    public SearchPager query(SearchCondition condition) {
 		SearchResponse searchResponse = transportRepository.query(condition);
 		SearchPager pager = resultTransform.transform(searchResponse,condition);
 		return pager;
@@ -54,7 +55,8 @@ public class BseServiceImpl implements BseService {
 	 * @param condition
 	 * @return
 	 */
-	public <T> SearchPager searchNew(SearchCondition condition) {
+	@Override
+    public <T> SearchPager searchNew(SearchCondition condition) {
 		int from = condition.getFrom();
 		int size = condition.getSize();
 		List<QueryCondition> queryConditions = condition.getQueryConditions();
@@ -62,7 +64,7 @@ public class BseServiceImpl implements BseService {
 		condition.setQueryConditions(null);
 		condition.setFilterConditions(new ArrayList<QueryCondition>());
 		for (QueryCondition queryCondition : filterConditions) {
-			if(queryCondition.getFieldFlag().equals("docType")) {
+			if("docType".equals(queryCondition.getFieldFlag())) {
 				condition.addFilterCondition(queryCondition);
 			}
 		}
@@ -88,7 +90,8 @@ public class BseServiceImpl implements BseService {
 	}
 	
 	
-	public <T> SearchPager searchEsiHot(SearchCondition condition) {
+	@Override
+    public <T> SearchPager searchEsiHot(SearchCondition condition) {
 		String lastEsiIssue = cacheService.getEsiIssue();
 		int from = condition.getFrom();
 		int size = condition.getSize();
@@ -97,7 +100,7 @@ public class BseServiceImpl implements BseService {
 		condition.setQueryConditions(null);
 		condition.setFilterConditions(new ArrayList<QueryCondition>());
 		for (QueryCondition queryCondition : filterConditions) {
-			if(queryCondition.getFieldFlag().equals("docType")) {
+			if("docType".equals(queryCondition.getFieldFlag())) {
 				condition.addFilterCondition(queryCondition);
 			}
 		}
@@ -123,7 +126,8 @@ public class BseServiceImpl implements BseService {
 		return pager;
 	}
 	
-	public <T> SearchPager searchEsiTop(SearchCondition condition) {
+	@Override
+    public <T> SearchPager searchEsiTop(SearchCondition condition) {
 		String lastEsiIssue = cacheService.getEsiIssue();
 		int from = condition.getFrom();
 		int size = condition.getSize();
@@ -132,7 +136,7 @@ public class BseServiceImpl implements BseService {
 		condition.setQueryConditions(null);
 		condition.setFilterConditions(new ArrayList<QueryCondition>());
 		for (QueryCondition queryCondition : filterConditions) {
-			if(queryCondition.getFieldFlag().equals("docType")) {
+			if("docType".equals(queryCondition.getFieldFlag())) {
 				condition.addFilterCondition(queryCondition);
 			}
 		}

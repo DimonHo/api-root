@@ -1,30 +1,31 @@
 package com.wd.cloud.docdelivery.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.annotation.ValidateUser;
 import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.dto.OrgDTO;
+import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.StatusEnum;
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.util.FileUtil;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
+import com.wd.cloud.docdelivery.config.Global;
+import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
+import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.Literature;
-import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
-import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
-import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.entity.Permission;
+import com.wd.cloud.docdelivery.exception.AppException;
+import com.wd.cloud.docdelivery.exception.ExceptionEnum;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
-import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.MailService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,9 +35,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -47,12 +51,8 @@ import java.io.IOException;
 @RequestMapping("/front")
 public class FrontendController {
 
-    private static final Log log = LogFactory.get();
     @Autowired
-    GlobalConfig globalConfig;
-
-    @Autowired
-    FileService fileService;
+    Global global;
 
     @Autowired
     MailService mailService;
@@ -61,217 +61,234 @@ public class FrontendController {
     FrontService frontService;
 
     @Autowired
-    FsServerApi fsServerApi;
+    HttpServletRequest request;
 
-    /**
-     * 1. 文献求助
-     *
-     * @return
-     */
     @ApiOperation(value = "文献求助")
+    @ValidateUser
     @PostMapping(value = "/help/form")
-    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel, HttpServletRequest request) {
+    public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
+        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
 
+        String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
-        String helpEmail = helpRequestModel.getHelperEmail();
-        helpRecord.setHelpChannel(helpRequestModel.getHelpChannel());
-        helpRecord.setHelperScid(helpRequestModel.getHelperScid());
-        helpRecord.setHelperScname(helpRequestModel.getHelperScname());
-        helpRecord.setHelperId(helpRequestModel.getHelperId());
-        helpRecord.setHelperName(helpRequestModel.getHelperName());
-        helpRecord.setHelperIp(request.getHeader("CLIENT_IP"));
-        helpRecord.setHelperEmail(helpEmail);
-        helpRecord.setSend(true);
-        helpRecord.setAnonymous(helpRequestModel.isAnonymous());
-        helpRecord.setRemark(helpRequestModel.getRemark());
-        log.info("用户:[{}]正在求助文献:[{}],IP={}", helpEmail, helpRequestModel.getDocTitle(), request.getHeader("CLIENT_IP"));
         Literature literature = new Literature();
-        // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        literature.setDocTitle(frontService.clearHtml(helpRequestModel.getDocTitle().trim()));
-        literature.setDocHref(helpRequestModel.getDocHref().trim());
-        // 先查询元数据是否存在
-        Literature literatureData = frontService.queryLiterature(literature);
-        String msg = "waiting:文献求助已发送，应助结果将会在24h内发送至您的邮箱，请注意查收";
-        if (null == literatureData) {
-            // 如果不存在，则新增一条元数据
-            literatureData = frontService.saveLiterature(literature);
+        BeanUtil.copyProperties(helpRequestModel, helpRecord);
+        BeanUtil.copyProperties(helpRequestModel, literature);
+
+        if (userDTO != null) {
+            helpRecord.setHelperName(userDTO.getUsername());
         }
-        if (frontService.checkExists(helpEmail, literatureData)) {
-            return ResponseModel
-                    .fail(StatusEnum.DOC_HELP_REPEATED)
-                    .setMessage("error:您最近15天内已求助过这篇文献,请注意查收邮箱");
-        }
-        helpRecord.setLiterature(literatureData);
-        DocFile docFile = frontService.getReusingFile(literatureData);
-        // 如果文件已存在，自动应助成功
-        if (null != docFile) {
-            helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.getCode());
-            GiveRecord giveRecord = new GiveRecord();
-            giveRecord.setDocFile(docFile);
-            giveRecord.setGiverType(GiveTypeEnum.AUTO.getCode());
-            giveRecord.setGiverName("自动应助");
-            //先保存求助记录，得到求助ID，再关联应助记录
-            helpRecord = frontService.saveHelpRecord(helpRecord);
-            giveRecord.setHelpRecord(helpRecord);
-            frontService.saveGiveRecord(giveRecord);
-            String downloadUrl = fileService.getDownloadUrl(helpRecord.getId());
-            mailService.sendMail(helpRecord.getHelpChannel(),
-                    helpRequestModel.getHelperScname(),
-                    helpEmail,
-                    helpRecord.getLiterature().getDocTitle(),
-                    downloadUrl,
-                    HelpStatusEnum.HELP_SUCCESSED,
-                    helpRecord.getId());
-            msg = "success:文献求助成功,请登陆邮箱" + helpEmail + "查收结果";
+        if (orgDTO != null) {
+            helpRecord.setHelperScid(orgDTO.getId()).setHelperScname(orgDTO.getName());
         } else {
-            try {
-                // 保存求助记录
-                frontService.saveHelpRecord(helpRecord);
-                // 发送通知邮件
-                mailService.sendNotifyMail(helpRecord.getHelpChannel(), helpRequestModel.getHelperScname(), helpRequestModel.getHelperEmail(), helpRecord.getId());
-            } catch (Exception e) {
-                return ResponseModel
-                        .fail(StatusEnum.DB_PRIMARY_EXCEPTION)
-                        .setMessage(msg);
-            }
+            helpRecord.setHelperScid(helpRequestModel.getHelperScid()).setHelperScname(helpRequestModel.getHelperScname());
         }
-        return ResponseModel.ok().setMessage(msg);
+        helpRecord.setHelperIp(ip);
+        helpRecord.setSend(true);
+        try {
+            String msg = frontService.help(helpRecord, literature);
+            return ResponseModel.ok().setMessage(msg);
+        } catch (ConstraintViolationException e) {
+            throw new AppException(ExceptionEnum.HELP_CHONGFU);
+        }
     }
 
-    /**
-     * 待应助列表
-     *
-     * @return
-     */
+    @ApiOperation(value = "查询求助记录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "List", paramType = "query"),
+            @ApiImplicitParam(name = "status", value = "过滤状态，0：待应助， 1：应助中（用户已认领，15分钟内上传文件）， 2: 待审核（用户已应助）， 3：求助第三方（第三方应助）， 4：应助成功（审核通过或管理员应助）， 5：应助失败（超过15天无结果）", dataType = "List", paramType = "query"),
+            @ApiImplicitParam(name = "keyword", value = "模糊查询", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "email", value = "邮箱过滤", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "isDifficult", value = "是否是疑难文献", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query"),
+    })
+    @GetMapping("/help/records")
+    public ResponseModel helpRecords(@RequestParam(required = false) List<Integer> channel,
+                                     @RequestParam(required = false) List<Integer> status,
+                                     @RequestParam(required = false) String keyword,
+                                     @RequestParam(required = false) String email,
+                                     @RequestParam(required = false) Boolean isDifficult,
+                                     @RequestParam(required = false, defaultValue = "false") boolean isOrg,
+                                     @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO != null ? orgDTO.getId() : null;
+        }
+        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, isDifficult, orgId, pageable);
+        return ResponseModel.ok().setBody(helpRecordDTOS);
+    }
+
     @ApiOperation(value = "待应助列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
-    @GetMapping("/help/wait/{helpChannel}")
-    public ResponseModel helpWaitList(@PathVariable int helpChannel,
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "isDifficult", value = "是否是疑难文献", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
+    })
+    @GetMapping("/help/records/wait")
+    public ResponseModel helpWaitList(@RequestParam(required = false) List<Integer> channel,
+                                      @RequestParam(required = false) Boolean isDifficult,
+                                      @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> waitHelpRecords = frontService.getWaitHelpRecords(helpChannel, pageable);
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO != null ? orgDTO.getId() : null;
+        }
+        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, isDifficult, orgId, pageable);
+
         return ResponseModel.ok().setBody(waitHelpRecords);
     }
 
-    /**
-     * 应助完成列表，包含成功和失败的
-     *
-     * @param helpChannel
-     * @param pageable
-     * @return
-     */
+
     @ApiOperation(value = "求助完成列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
-    @GetMapping("/help/finish/{helpChannel}")
-    public ResponseModel helpSuccessList(@PathVariable Integer helpChannel,
-                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
+    })
+    @GetMapping("/help/records/finish")
+    public ResponseModel helpFinishList(@RequestParam(required = false) List<Integer> channel,
+                                        @RequestParam(required = false, defaultValue = "false") boolean isOrg,
+                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO != null ? orgDTO.getId() : null;
+        }
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, orgId, pageable);
+
         return ResponseModel.ok().setBody(finishHelpRecords);
+    }
+
+
+    @ApiOperation(value = "求助成功列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
+    })
+    @GetMapping("/help/records/success")
+    public ResponseModel helpSuccessList(@RequestParam(required = false) List<Integer> channel,
+                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
+                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO != null ? orgDTO.getId() : null;
+        }
+        Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgId, pageable);
+        return ResponseModel.ok().setBody(successHelpRecords);
     }
 
     @ApiOperation(value = "疑难文献列表")
-    @ApiImplicitParam(name = "helpChannel", value = "求助渠道，0:所有渠道，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "path")
-    @GetMapping("/help/failed/{helpChannel}")
-    public ResponseModel helpFailedList(@PathVariable Integer helpChannel,
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "channel", value = "求助渠道，0:paper平台，1：QQ,2:SPIS,3:智汇云，4：CRS", dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
+    })
+    @GetMapping("/help/records/failed")
+    public ResponseModel helpFailedList(@RequestParam(required = false) List<Integer> channel,
+                                        @RequestParam(required = false) List<Integer> status,
+                                        @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> finishHelpRecords = frontService.getFinishHelpRecords(helpChannel, pageable);
+        Long orgId = null;
+        if (isOrg) {
+            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+            orgId = orgDTO != null ? orgDTO.getId() : null;
+        }
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgId, pageable);
+
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
 
-    /**
-     * 4. 我的求助
-     *
-     * @param helperId
-     * @return
-     */
+
     @ApiOperation(value = "我的求助记录")
-    @ApiImplicitParam(name = "helperId", value = "用户ID", dataType = "Long", paramType = "path")
-    @GetMapping("/help/records/{helperId}")
-    public ResponseModel myRecords(@PathVariable Long helperId,
-                                   @PageableDefault(sort = {"gmtCreate"},
-                                           direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> myHelpRecords = frontService.getHelpRecordsForUser(helperId, pageable);
+    @ApiImplicitParam(name = "status", value = "状态", dataType = "List", paramType = "query")
+    @ValidateUser
+    @GetMapping("/help/records/my")
+    public ResponseModel myHelpRecords(@RequestParam(required = false) String username,
+                                       @RequestParam(required = false) List<Integer> status,
+                                       @RequestParam(required = false) Boolean isDifficult,
+                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        HttpSession session = request.getSession();
+        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
+        }
+        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(userDTO.getUsername(), status, isDifficult, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
+    @ApiOperation(value = "我的应助记录")
+    @ApiImplicitParam(name = "status", value = "状态", dataType = "List", paramType = "query")
+    @ValidateUser
+    @GetMapping("/give/records/my")
+    public ResponseModel myGiveRecords(@RequestParam(required = false) String username,
+                                       @RequestParam(required = false) List<Integer> status,
+                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        HttpSession session = request.getSession();
+        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
+        }
+        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(userDTO.getUsername(), status, pageable);
+        return ResponseModel.ok().setBody(myGiveRecords);
+    }
 
-    /**
-     * 应助认领
-     *
-     * @param helpRecordId
-     * @param giverId
-     * @return
-     */
-    @ApiOperation(value = "我要应助")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "giverName", value = "应助者用户名称", dataType = "String", paramType = "query")
-    })
-    @PatchMapping("/give/{helpRecordId}")
+
+    @ApiOperation(value = "应助认领")
+    @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path")
+    @ValidateUser
+    @PatchMapping("/help/records/{helpRecordId}/giving")
     public ResponseModel giving(@PathVariable Long helpRecordId,
-                                @RequestParam Long giverId,
-                                @RequestParam String giverName,
-                                HttpServletRequest request) {
-        HelpRecord helpRecord = frontService.getWaitOrThirdHelpRecord(helpRecordId);
-        // 该求助记录状态为非待应助，那么可能已经被其他人应助过或已应助完成
-        if (helpRecord == null) {
-            return ResponseModel
-                    .fail(StatusEnum.DOC_OTHER_GIVING);
+                                @RequestParam(required = false) String username) {
+        String ip = HttpUtil.getClientIP(request);
+        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
         }
-        //检查用户是否已经认领了应助
-        String docTitle = frontService.checkExistsGiveing(giverId);
-        if (docTitle != null) {
-            return ResponseModel
-                    .fail(StatusEnum.DOC_FINISH_GIVING)
-                    .setMessage("请先完成您正在应助的文献:" + docTitle);
-        }
-        helpRecord = frontService.givingHelp(helpRecordId, giverId, giverName, HttpUtil.getClientIP(request));
-        return ResponseModel.ok().setBody(helpRecord);
+        frontService.give(helpRecordId, userDTO.getUsername(), ip);
+        return ResponseModel.ok().setMessage("应助认领成功");
     }
 
-    /**
-     * 取消应助
-     *
-     * @param helpRecordId
-     * @return
-     */
-    @ApiOperation(value = "取消应助")
+
+    @ApiOperation(value = "应助取消")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query")
+            @ApiImplicitParam(name = "username", value = "应助者用户名称", dataType = "String", paramType = "query")
     })
-    @PatchMapping("/give/cancle/{helpRecordId}")
+    @ValidateUser
+    @PatchMapping("/help/records/{helpRecordId}/giving/cancel")
     public ResponseModel cancelGiving(@PathVariable Long helpRecordId,
-                                      @RequestParam Long giverId) {
-        //检查用户是否已经认领了应助
-        String docTtitle = frontService.checkExistsGiveing(giverId);
-        if (docTtitle != null) {
-            //有认领记录，可以取消
-            frontService.cancelGivingHelp(helpRecordId, giverId);
-            return ResponseModel.ok();
+                                      @RequestParam(required = false) String username) {
+        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
         }
-        return ResponseModel.fail(StatusEnum.NOT_FOUND);
+        if (frontService.cancelGivingHelp(helpRecordId, userDTO.getUsername())) {
+            return ResponseModel.ok();
+        } else {
+            return ResponseModel.fail(StatusEnum.NOT_FOUND);
+        }
     }
 
-    /**
-     * 我来应助，上传文件
-     *
-     * @param file
-     * @return
-     */
-    @ApiOperation(value = "用户上传应助文件")
+
+    @ApiOperation(value = "应助上传文件")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "giverId", value = "应助者用户ID", dataType = "Long", paramType = "query")
+            @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path")
     })
+    @ValidateUser
     @PostMapping("/give/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
-                                @RequestParam Long giverId,
-                                @NotNull MultipartFile file,
-                                HttpServletRequest request) {
+                                @RequestParam(required = false) String username,
+                                @NotNull MultipartFile file) {
+        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (userDTO == null) {
+            throw new AuthException();
+        }
+        String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
-        } else if (!globalConfig.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
+        } else if (!global.getFileTypes().contains(StrUtil.subAfter(file.getOriginalFilename(), ".", true))) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_TYPE_ERROR);
         }
         // 检查求助记录状态是否为HelpStatusEnum.HELPING
@@ -279,76 +296,37 @@ public class FrontendController {
         if (helpRecord == null) {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
-        String fileId = null;
-        try {
-            String fileMd5 = FileUtil.fileMd5(file.getInputStream());
-            ResponseModel<JSONObject> checkResult = fsServerApi.checkFile(globalConfig.getHbaseTableName(), fileMd5);
-            if (!checkResult.isError() && checkResult.getBody() != null) {
-                log.info("文件已存在，秒传成功！");
-                fileId = checkResult.getBody().getStr("fileId");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (StrUtil.isBlank(fileId)) {
-            //保存文件
-            ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalConfig.getHbaseTableName(), file);
-            if (responseModel.isError()) {
-                log.error("文件服务调用失败：{}", responseModel.getMessage());
-                return ResponseModel.fail().setMessage("文件上传失败，请重试");
-            }
-            fileId = responseModel.getBody().getStr("fileId");
-        }
-        String fileName = file.getOriginalFilename();
-        DocFile docFile = frontService.saveDocFile(helpRecord.getLiterature(), fileId, fileName);
-        //更新记录
-        frontService.createGiveRecord(helpRecord, giverId, docFile, HttpUtil.getClientIP(request));
+        frontService.uploadFile(helpRecord, userDTO.getUsername(), file, ip);
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");
     }
 
 
-    /**
-     * 指定邮箱的求助记录
-     *
-     * @param email
-     * @return
-     */
-    @ApiOperation(value = "根据邮箱查询求助记录")
-    @ApiImplicitParam(name = "email", value = "条件email", dataType = "String", paramType = "query")
-    @GetMapping("/help/records")
-    public ResponseModel recordsByEmail(@RequestParam String email,
-                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> helpRecords = frontService.getHelpRecordsForEmail(email, pageable);
-        return ResponseModel.ok().setBody(helpRecords);
-    }
-
-    @ApiOperation(value = "邮箱或标题查询记录")
-    @ApiImplicitParam(name = "keyword", value = "条件keyword", dataType = "String", paramType = "query")
-    @GetMapping("/help/search")
-    public ResponseModel recordsBySearch(@RequestParam String keyword, @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<HelpRecord> helpRecords = frontService.search(keyword, pageable);
-
-        return ResponseModel.ok().setBody(helpRecords);
-    }
-
-    /**
-     * 文献求助记录
-     *
-     * @return
-     */
-
-    @GetMapping("/help/records/all")
-    public ResponseModel allRecords(@PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) {
-        return ResponseModel.ok().setBody(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
-    }
-
-
-    @ApiOperation(value = "获取用户当天已求助记录的数量")
+    @ApiOperation(value = "查询邮箱当天已求助记录的数量")
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
     @GetMapping("/help/count")
     public ResponseModel getUserHelpCountToDay(@RequestParam String email) {
 
         return ResponseModel.ok().setBody(frontService.getCountHelpRecordToDay(email));
     }
+
+    @ApiOperation(value = "下一个级别的求助上限")
+    @ValidateUser
+    @GetMapping("/level/next")
+    public ResponseModel nextLevel(@RequestParam(required = false) String username) {
+        Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
+        OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+        Long orgId = orgDTO != null ? orgDTO.getId() : null;
+        Permission permission = frontService.nextPermission(orgId, level);
+        Map<String, Long> resp = new HashMap<>();
+        if (permission == null) {
+            resp.put("todayTotal", 10L);
+            resp.put("total", 20L);
+        } else {
+            resp.put("todayTotal", permission.getTodayTotal());
+            resp.put("total", permission.getTotal());
+        }
+        return ResponseModel.ok().setBody(resp);
+    }
+
 
 }

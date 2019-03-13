@@ -7,7 +7,7 @@ import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.wdtjserver.entity.TjOrg;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
-import com.wd.cloud.wdtjserver.feign.OrgServerApi;
+import com.wd.cloud.wdtjserver.feign.UoServerApi;
 import com.wd.cloud.wdtjserver.repository.TjHisQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjOrgRepository;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
@@ -42,11 +42,11 @@ public class SettingServiceImpl implements SettingService {
     TjHisQuotaRepository tjHisQuotaRepository;
 
     @Autowired
-    OrgServerApi orgServerApi;
+    UoServerApi uoServerApi;
 
     @Override
     public TjOrg save(TjOrg tjOrg) {
-        ResponseModel responseModel = orgServerApi.getOrg(tjOrg.getOrgId());
+        ResponseModel responseModel = uoServerApi.getOrg(tjOrg.getOrgId());
         String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
         if (!responseModel.isError()) {
             //根据学校ID查询是否有该学校
@@ -77,7 +77,7 @@ public class SettingServiceImpl implements SettingService {
 
     @Override
     public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser) {
-        ResponseModel responseModel = orgServerApi.getOrg(orgId);
+        ResponseModel responseModel = uoServerApi.getOrg(orgId);
         String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
         if (!responseModel.isError()) {
             //根据学校ID查询是否有该学校
@@ -156,7 +156,7 @@ public class SettingServiceImpl implements SettingService {
     @Override
     public List<JSONObject> getOrgList() {
         List<JSONObject> orgs = new ArrayList<>();
-        ResponseModel<List<JSONObject>> responseModel = orgServerApi.getAll();
+        ResponseModel<List<JSONObject>> responseModel = uoServerApi.getAll();
         List<String> orgNames = tjOrgRepository.distinctByOrgId();
         if (!responseModel.isError()) {
             log.info("总机构数量：{}", responseModel.getBody().size());

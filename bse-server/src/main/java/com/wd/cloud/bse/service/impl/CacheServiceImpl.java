@@ -76,7 +76,7 @@ public class CacheServiceImpl implements CacheService,InitializingBean{
 			rule.setDocLinkPattern((String)map.get("docLinkPattern"));
 			rule.setRuleName((String)map.get("ruleName"));
 			rule.setNewDocLinkPattern((String)map.get("newDocLinkPattern"));
-			if(map.get("ruleName").toString().equals("链接地址")) {
+			if("链接地址".equals(map.get("ruleName").toString())) {
 				rule.setRuleName("DOI");
 			}
 			rule.setRuleOrder((Integer)map.get("ruleOrder"));
@@ -111,7 +111,8 @@ public class CacheServiceImpl implements CacheService,InitializingBean{
 	
 	
 	
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
 	public Map<Integer,List<RuleInfo>> getRuleMap(){
 		Map<Integer,List<RuleInfo>> rules =null;
 		try{
@@ -124,7 +125,8 @@ public class CacheServiceImpl implements CacheService,InitializingBean{
 		return rules;
 	}
 	
-	public Issue getIssue() {
+	@Override
+    public Issue getIssue() {
 		Issue issue = null;
 		try{
 			issue = (Issue) cache.get("issue");
@@ -136,7 +138,8 @@ public class CacheServiceImpl implements CacheService,InitializingBean{
 		return issue;
 	}
 	
-	public String getEsiIssue() {
+	@Override
+    public String getEsiIssue() {
 		String esiIssue = null;
 		try{
 			Issue issue = (Issue) cache.get("issue");
@@ -149,7 +152,8 @@ public class CacheServiceImpl implements CacheService,InitializingBean{
 		return esiIssue;
 	}
 	
-	public String getSchool(int id) {
+	@Override
+    public String getSchool(int id) {
 		String name = null;
 		try{
 			Map<Integer,String> universityMap = (Map<Integer,String>) cache.get("university");

@@ -23,7 +23,7 @@ public class CorsConfig {
         config.addAllowedOrigin("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-        config.addExposedHeader("Location");
+        config.addExposedHeader("Location,level,user");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

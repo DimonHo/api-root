@@ -10,7 +10,7 @@ import com.wd.cloud.wdtjserver.entity.AbstractTjDataEntity;
 import com.wd.cloud.wdtjserver.entity.TjQuota;
 import com.wd.cloud.wdtjserver.entity.TjTaskData;
 import com.wd.cloud.wdtjserver.entity.TjViewData;
-import com.wd.cloud.wdtjserver.feign.OrgServerApi;
+import com.wd.cloud.wdtjserver.feign.UoServerApi;
 import com.wd.cloud.wdtjserver.model.TotalModel;
 import com.wd.cloud.wdtjserver.repository.TjQuotaRepository;
 import com.wd.cloud.wdtjserver.repository.TjTaskDataRepository;
@@ -60,11 +60,11 @@ public class QuotaServiceImpl implements QuotaService {
     WeightService weightService;
 
     @Autowired
-    OrgServerApi orgServerApi;
+    UoServerApi uoServerApi;
 
     @Override
     public TjQuota save(TjQuota tjQuota) {
-        ResponseModel responseModel = orgServerApi.getOrg(tjQuota.getOrgId());
+        ResponseModel responseModel = uoServerApi.getOrg(tjQuota.getOrgId());
         if (!responseModel.isError()) {
             String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
             tjQuota.setOrgName(orgName);

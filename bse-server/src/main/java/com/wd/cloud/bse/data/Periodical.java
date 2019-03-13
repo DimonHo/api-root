@@ -270,10 +270,18 @@ public class Periodical extends Document {
 	private List<String> findSame() {
 		List<String> new_shoulu = new ArrayList<String>();
 		for (String soulu : shoulu) {		//剔除不正确的收录
-			if(soulu.equals("MEDLINE")) soulu = "Medline";
-			if(soulu.equals("A&amp;HCI")) soulu = "A&HCI";
-			if(soulu.toUpperCase().equals("CPCI")) soulu = "CPCI-S";
-			if(soulu.toUpperCase().equals("AHCI")) soulu = "A&HCI";
+			if("MEDLINE".equals(soulu)) {
+                soulu = "Medline";
+            }
+			if("A&amp;HCI".equals(soulu)) {
+                soulu = "A&HCI";
+            }
+			if("CPCI".equals(soulu.toUpperCase())) {
+                soulu = "CPCI-S";
+            }
+			if("AHCI".equals(soulu.toUpperCase())) {
+                soulu = "A&HCI";
+            }
 			List<String> SHOULUS = Arrays.asList(LatConstant.SHOULUS);
 			if(SHOULUS.contains(soulu)) {
 				new_shoulu.add(soulu);
