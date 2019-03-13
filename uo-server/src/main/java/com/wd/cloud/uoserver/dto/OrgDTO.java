@@ -42,5 +42,6 @@ public class OrgDTO implements Serializable {
      */
     private String city;
     private List<IpRangeDTO> ipRanges;
+    private List<ProductDTO> products;
     private boolean enabled;
 }

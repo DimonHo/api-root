@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.enums;
 
-public enum AuditEnums {
+public enum AuditEnum {
     /**
      * 待审核
      */
@@ -11,13 +11,13 @@ public enum AuditEnums {
     private String name;
     private int value;
 
-    private AuditEnums(String name, int value) {
+    private AuditEnum(String name, int value) {
         this.name = name;
         this.value = value;
     }
 
     public static String name(int value) {
-        for (AuditEnums auditIdCardEnums : AuditEnums.values()) {
+        for (AuditEnum auditIdCardEnums : AuditEnum.values()) {
             if (auditIdCardEnums.value() == value) {
                 return auditIdCardEnums.name();
             }
@@ -25,8 +25,8 @@ public enum AuditEnums {
         return null;
     }
 
-    public static AuditEnums match(int value) {
-        for (AuditEnums auditIdCardEnums : AuditEnums.values()) {
+    public static AuditEnum match(int value) {
+        for (AuditEnum auditIdCardEnums : AuditEnum.values()) {
             if (auditIdCardEnums.value() == value) {
                 return auditIdCardEnums;
             }

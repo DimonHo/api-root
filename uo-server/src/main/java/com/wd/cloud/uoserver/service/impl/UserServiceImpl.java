@@ -11,7 +11,7 @@ import com.wd.cloud.uoserver.constants.GlobalConstants;
 import com.wd.cloud.uoserver.entity.AuditUserInfo;
 import com.wd.cloud.uoserver.entity.Org;
 import com.wd.cloud.uoserver.entity.User;
-import com.wd.cloud.uoserver.enums.AuditEnums;
+import com.wd.cloud.uoserver.enums.AuditEnum;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.exception.NotFoundUserException;
 import com.wd.cloud.uoserver.feign.FsServerApi;
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
         auditIdCard.setIdPhoto(idPhoto);
         auditIdCard.setNickName(nickName);
         auditIdCard.setOrgName(orgName);
-        auditIdCard.setStatus(AuditEnums.WAITE.value());
+        auditIdCard.setStatus(AuditEnum.WAITE.value());
         auditIdCard.setDepartment(department);
         auditIdCard.setDepartmentId(departmentId);
         auditIdCard.setIdentity(identity);
