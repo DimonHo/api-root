@@ -1,6 +1,8 @@
 package com.wd.cloud.uoserver.controller;
 
+import com.wd.cloud.uoserver.dto.CdbDTO;
 import com.wd.cloud.uoserver.dto.DepartmentDTO;
+import com.wd.cloud.uoserver.dto.OrgProductDTO;
 import com.wd.cloud.uoserver.entity.Department;
 import com.wd.cloud.uoserver.entity.IpRange;
 import com.wd.cloud.uoserver.entity.Org;
@@ -122,7 +124,7 @@ public class OrgController {
     }
 
     @ApiOperation(value = "新增院系")
-    @GetMapping("/insertDepartment")
+    @PostMapping("/insertDepartment")
     public  ResponseModel<Department> insertDepartment(@RequestParam(required = false) Long orgId,
                                                      @RequestParam(required = false) String name){
         orgService.insertDepartment(orgId, name);
@@ -146,5 +148,17 @@ public class OrgController {
         orgService.deleteDepartmentId(id);
         return ResponseModel.ok().setMessage("删除成功");
     }
+
+    @ApiOperation(value = "学校基本信息")
+    @GetMapping("/findByNameAndIp")
+    public ResponseModel<Page<CdbDTO>> findByNameAndIp(@RequestParam(required = false) String orgName,
+                                                        @RequestParam(required = false) String ip,
+                                                        @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable){
+        Page<com.wd.cloud.uoserver.dto.OrgDTO> orgProductDTO= orgService.findByNameAndIp(pageable, orgName,ip);
+        return ResponseModel.ok().setBody(orgProductDTO);
+    }
+
+
+
 
 }

@@ -4,18 +4,15 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Validator;
 import com.wd.cloud.commons.dto.IpRangeDTO;
 import com.wd.cloud.commons.dto.OrgDTO;
+import com.wd.cloud.uoserver.dto.*;
 import com.wd.cloud.commons.util.NetUtil;
-import com.wd.cloud.commons.util.StrUtil;
 import com.wd.cloud.uoserver.dto.DepartmentDTO;
-import com.wd.cloud.uoserver.entity.Department;
-import com.wd.cloud.uoserver.entity.IpRange;
-import com.wd.cloud.uoserver.entity.Org;
-import com.wd.cloud.uoserver.repository.DepartmentRepository;
-import com.wd.cloud.uoserver.repository.IpRangeRepository;
-import com.wd.cloud.uoserver.repository.OrgRepository;
+import com.wd.cloud.uoserver.dto.OrgProductDTO;
+import com.wd.cloud.uoserver.dto.ProductDTO;
+import com.wd.cloud.uoserver.entity.*;
+import com.wd.cloud.uoserver.repository.*;
 import com.wd.cloud.uoserver.service.OrgService;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +39,12 @@ public class OrgServiceImpl implements OrgService {
 
     @Autowired
     DepartmentRepository departmentRepository;
+
+    @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
+    OrgProductRepository orgProductRepository;
 
     @Override
     public List<IpRange> validatorIp() {
@@ -192,6 +195,35 @@ public class OrgServiceImpl implements OrgService {
         departmentRepository.deleteById(id);
 
     }
+
+
+    @Override
+    public Page<com.wd.cloud.uoserver.dto.OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip) {
+        Page<Org> org = orgRepository.findAll(OrgRepository.SpecificationBuilder.findByNameAndIp(orgName, ip), pageable);
+        return coversGiveRecordDTO(org);
+    }
+
+
+    private Page<com.wd.cloud.uoserver.dto.OrgDTO> coversGiveRecordDTO(Page<Org> orgRecordPage) {
+        return orgRecordPage.map(org -> {
+            com.wd.cloud.uoserver.dto.OrgDTO orgDTO = new com.wd.cloud.uoserver.dto.OrgDTO();
+            List<OrgProduct> orgProducts = orgProductRepository.findByOrgId(org.getId());
+            List<ProductDTO> productDTOS = new ArrayList<>();
+            for (OrgProduct orgProduct : orgProducts){
+                Product product = productRepository.findById(orgProduct.getProductId()).orElse(null);
+                ProductDTO productDTO = new ProductDTO();
+                productDTO.setName(product.getName());
+                productDTO.setStatus(orgProduct.getStatus());
+                productDTO.setBeginTime(orgProduct.getBeginDate());
+                productDTO.setEndTime(orgProduct.getEndDate());
+                productDTOS.add(productDTO);
+                BeanUtil.copyProperties(org, orgDTO);
+            }
+            orgDTO.setProducts(productDTOS);
+            return orgDTO;
+        });
+    }
+
 
 
 }
