@@ -4,9 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -58,5 +56,6 @@ public class Org extends AbstractEntity {
      * 是否激活使用0：否，1：是
      */
     private boolean enabled;
+
 
 }
