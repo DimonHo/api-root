@@ -28,6 +28,7 @@
         <module>wdtj-server</module><!--访问统计服务-->
         <module>bse-server</module>
         <module>pdfsearch-server</module>
+        <module>agg-search</module> <!--聚合搜索-->
     </modules>
 
     <parent>
