@@ -44,6 +44,9 @@ public class OrgServiceImpl implements OrgService {
     @Autowired
     OrgProductRepository orgProductRepository;
 
+    @Autowired
+    LinkmanRepository linkmanRepository;
+
     @Override
     public List<IpRange> validatorIp() {
         List<IpRange> errorIps = new ArrayList<>();
@@ -198,11 +201,51 @@ public class OrgServiceImpl implements OrgService {
     @Override
     public Page<OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip) {
         Page<Org> org = orgRepository.findAll(OrgRepository.SpecificationBuilder.findByNameAndIp(orgName, ip), pageable);
-        return coversGiveRecordDTO(org);
+        return coversOrgDTO(org);
     }
+
+    @Override
+    public com.wd.cloud.uoserver.dto.OrgDTO findByOrgNameDetail(Long id) {
+        Org org = orgRepository.findById(id).orElse(null);
+        com.wd.cloud.uoserver.dto.OrgDTO orgDTO = new com.wd.cloud.uoserver.dto.OrgDTO();
+        List<IpRange> ipRanges = ipRangeRepository.findByOrgId(id);
+        List<IpRangeDTO> ipRangeDTOS = new ArrayList<>();
+
+        List<OrgProduct> orgProducts = orgProductRepository.findByOrgId(org.getId());
+        List<ProductDTO> productDTOS = new ArrayList<>();
+        Linkman linkman = linkmanRepository.findByOrgId(org.getId());
+        if (linkman!=null){
+            orgDTO.setContactPerson(linkman.getName());
+            orgDTO.setContact(linkman.getPhone());
+            orgDTO.setEmail(linkman.getEmail());
+        }
 
 
     private Page<OrgDTO> coversGiveRecordDTO(Page<Org> orgRecordPage) {
+
+        for (OrgProduct orgProduct : orgProducts){
+            Product product = productRepository.findById(orgProduct.getProductId()).orElse(null);
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setName(product.getName());
+            productDTO.setStatus(orgProduct.getStatus());
+            productDTO.setBeginTime(orgProduct.getBeginDate());
+            productDTO.setEndTime(orgProduct.getEndDate());
+            productDTOS.add(productDTO);
+            BeanUtil.copyProperties(org, orgDTO);
+        }
+        for (IpRange ipRange : ipRanges){
+            IpRangeDTO ipRangeDTO = new IpRangeDTO();
+            ipRangeDTO.setBegin(ipRange.getBegin());
+            ipRangeDTO.setEnd(ipRange.getEnd());
+            ipRangeDTOS.add(ipRangeDTO);
+            BeanUtil.copyProperties(org, orgDTO);
+        }
+        orgDTO.setProducts(productDTOS);
+        orgDTO.setIpRanges(ipRangeDTOS);
+        return orgDTO;
+    }
+
+    private Page<com.wd.cloud.uoserver.dto.OrgDTO> coversOrgDTO(Page<Org> orgRecordPage) {
         return orgRecordPage.map(org -> {
             OrgDTO orgDTO = new OrgDTO();
             List<OrgProduct> orgProducts = orgProductRepository.findByOrgId(org.getId());

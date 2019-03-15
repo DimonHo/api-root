@@ -8,6 +8,7 @@ import com.wd.cloud.uoserver.entity.OrgProduct;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Metamodel;
@@ -23,8 +24,6 @@ import java.util.Optional;
 public interface OrgRepository extends JpaRepository<Org, Long>, JpaSpecificationExecutor<Org> {
 
     Optional<Org> findByFlagOrSpisFlagOrEduFlag(String flag, String spisFlag, String eduFlag);
-
-
 
     class SpecificationBuilder {
         public static Specification<Org> findOrg(String orgName, String flag, String spisFlag, String eduFlag, String ip, boolean isLike) {

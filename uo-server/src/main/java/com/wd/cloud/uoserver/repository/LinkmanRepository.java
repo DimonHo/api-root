@@ -9,4 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @Description:
  */
 public interface LinkmanRepository extends JpaRepository<Linkman, Long> {
+
+    Linkman findByOrgId(Long orgId);
 }
