@@ -229,8 +229,19 @@ public class OrgServiceImpl implements OrgService {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setName(product.getName());
             productDTO.setStatus(orgProduct.getStatus());
+            productDTO.setId(orgProduct.getId());
+            productDTO.setUrl(product.getUrl());
             productDTO.setBeginTime(orgProduct.getBeginDate());
             productDTO.setEndTime(orgProduct.getEndDate());
+            productDTO.setOrgId(orgProduct.getOrgId());
+            productDTO.setProductId(orgProduct.getProductId());
+            boolean single = orgProduct.isSingle();
+            if (single == true){
+                productDTO.setSingle(true);
+            }else{
+                productDTO.setSingle(false);
+            }
+
             productDTOS.add(productDTO);
             BeanUtil.copyProperties(org, orgDTO);
         }

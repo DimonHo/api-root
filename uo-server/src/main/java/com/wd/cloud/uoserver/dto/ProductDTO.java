@@ -33,4 +33,8 @@ public class ProductDTO {
      * 是否单独购买
      */
     private Boolean single;
+
+    private Long orgId;
+
+    private Long productId;
 }
