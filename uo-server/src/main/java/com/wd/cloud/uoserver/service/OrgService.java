@@ -66,7 +66,7 @@ public interface OrgService {
 
     Page<OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip);
 
-    com.wd.cloud.uoserver.dto.OrgDTO findByOrgNameDetail(Long id);
+    OrgDTO findByOrgNameDetail(Long id);
 
 
 

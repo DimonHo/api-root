@@ -15,6 +15,9 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 public class CdbDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private Long id;
 
     /**馆藏名称*/

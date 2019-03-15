@@ -14,6 +14,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class OrgDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Long id;
 
     private String name;
@@ -35,6 +36,12 @@ public class OrgDTO implements Serializable {
      * 省份
      */
     private String province;
+
+    private String contactPerson;
+
+    private String contact;
+
+    private String email;
 
     /**
      * 市、区

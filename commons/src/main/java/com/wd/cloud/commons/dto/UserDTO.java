@@ -14,6 +14,7 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 public class UserDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Long id;
     private String email;
     private String username;

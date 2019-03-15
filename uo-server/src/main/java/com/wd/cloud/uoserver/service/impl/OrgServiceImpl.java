@@ -2,11 +2,11 @@ package com.wd.cloud.uoserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Validator;
+import com.wd.cloud.commons.dto.DepartmentDTO;
 import com.wd.cloud.commons.dto.IpRangeDTO;
 import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.commons.util.NetUtil;
-import com.wd.cloud.commons.dto.DepartmentDTO;
 import com.wd.cloud.commons.dto.ProductDTO;
+import com.wd.cloud.commons.util.NetUtil;
 import com.wd.cloud.uoserver.entity.*;
 import com.wd.cloud.uoserver.repository.*;
 import com.wd.cloud.uoserver.service.OrgService;
@@ -205,9 +205,9 @@ public class OrgServiceImpl implements OrgService {
     }
 
     @Override
-    public com.wd.cloud.uoserver.dto.OrgDTO findByOrgNameDetail(Long id) {
+    public OrgDTO findByOrgNameDetail(Long id) {
         Org org = orgRepository.findById(id).orElse(null);
-        com.wd.cloud.uoserver.dto.OrgDTO orgDTO = new com.wd.cloud.uoserver.dto.OrgDTO();
+        OrgDTO orgDTO = new OrgDTO();
         List<IpRange> ipRanges = ipRangeRepository.findByOrgId(id);
         List<IpRangeDTO> ipRangeDTOS = new ArrayList<>();
 
@@ -221,7 +221,6 @@ public class OrgServiceImpl implements OrgService {
         }
 
 
-    private Page<OrgDTO> coversGiveRecordDTO(Page<Org> orgRecordPage) {
 
         for (OrgProduct orgProduct : orgProducts){
             Product product = productRepository.findById(orgProduct.getProductId()).orElse(null);
@@ -256,7 +255,7 @@ public class OrgServiceImpl implements OrgService {
         return orgDTO;
     }
 
-    private Page<com.wd.cloud.uoserver.dto.OrgDTO> coversOrgDTO(Page<Org> orgRecordPage) {
+    private Page<OrgDTO> coversOrgDTO(Page<Org> orgRecordPage) {
         return orgRecordPage.map(org -> {
             OrgDTO orgDTO = new OrgDTO();
             List<OrgProduct> orgProducts = orgProductRepository.findByOrgId(org.getId());
@@ -275,6 +274,7 @@ public class OrgServiceImpl implements OrgService {
             return orgDTO;
         });
     }
+
 
 
 
