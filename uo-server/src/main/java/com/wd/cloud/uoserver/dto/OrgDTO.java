@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,6 +37,23 @@ public class OrgDTO implements Serializable {
      * 省份
      */
     private String province;
+
+    private Date gmtCreate;
+
+    /**
+     * 联系人
+     */
+    private String contactPerson;
+
+    /**
+     *联系方式
+     */
+    private String contact;
+
+    /**
+     *邮箱
+     */
+    private String email;
 
     /**
      * 市、区

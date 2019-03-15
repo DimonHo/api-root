@@ -159,6 +159,14 @@ public class OrgController {
     }
 
 
+    @ApiOperation(value = "学校详细信息")
+    @GetMapping("/findByOrgNameDetail")
+    public ResponseModel<com.wd.cloud.uoserver.dto.OrgDTO> findByOrgNameDetail(@RequestParam(required = false) Long id){
+        com.wd.cloud.uoserver.dto.OrgDTO byOrgNameDetail = orgService.findByOrgNameDetail(id);
+        return ResponseModel.ok().setBody(byOrgNameDetail);
+    }
+
+
 
 
 }
