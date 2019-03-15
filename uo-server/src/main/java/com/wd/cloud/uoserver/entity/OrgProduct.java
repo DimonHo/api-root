@@ -42,4 +42,11 @@ public class OrgProduct extends AbstractEntity {
      * 状态  1购买、2试用、0停用
      */
     private Integer status;
+
+
+    /**
+     * 是否独立购买
+     */
+    @Column(name = "single",columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
+    private boolean single;
 }
