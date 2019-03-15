@@ -2,13 +2,10 @@ package com.wd.cloud.uoserver.service.impl;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.wd.cloud.uoserver.dto.CdbDTO;
-import com.wd.cloud.uoserver.dto.DepartmentDTO;
-import com.wd.cloud.uoserver.dto.OrgProductDTO;
+import com.wd.cloud.commons.dto.CdbDTO;
 import com.wd.cloud.uoserver.entity.*;
 import com.wd.cloud.uoserver.repository.CdbRepository;
 import com.wd.cloud.uoserver.repository.OrgCdbRepository;
-import com.wd.cloud.uoserver.repository.OrgProductRepository;
 import com.wd.cloud.uoserver.repository.OrgRepository;
 import com.wd.cloud.uoserver.service.OrgCdbService;
 import lombok.extern.slf4j.Slf4j;

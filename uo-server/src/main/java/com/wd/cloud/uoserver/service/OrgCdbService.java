@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.service;
 
-import com.wd.cloud.uoserver.dto.CdbDTO;
+import com.wd.cloud.commons.dto.CdbDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

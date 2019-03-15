@@ -4,11 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Validator;
 import com.wd.cloud.commons.dto.IpRangeDTO;
 import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.uoserver.dto.*;
 import com.wd.cloud.commons.util.NetUtil;
-import com.wd.cloud.uoserver.dto.DepartmentDTO;
-import com.wd.cloud.uoserver.dto.OrgProductDTO;
-import com.wd.cloud.uoserver.dto.ProductDTO;
+import com.wd.cloud.commons.dto.DepartmentDTO;
+import com.wd.cloud.commons.dto.ProductDTO;
 import com.wd.cloud.uoserver.entity.*;
 import com.wd.cloud.uoserver.repository.*;
 import com.wd.cloud.uoserver.service.OrgService;
@@ -198,15 +196,15 @@ public class OrgServiceImpl implements OrgService {
 
 
     @Override
-    public Page<com.wd.cloud.uoserver.dto.OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip) {
+    public Page<OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip) {
         Page<Org> org = orgRepository.findAll(OrgRepository.SpecificationBuilder.findByNameAndIp(orgName, ip), pageable);
         return coversGiveRecordDTO(org);
     }
 
 
-    private Page<com.wd.cloud.uoserver.dto.OrgDTO> coversGiveRecordDTO(Page<Org> orgRecordPage) {
+    private Page<OrgDTO> coversGiveRecordDTO(Page<Org> orgRecordPage) {
         return orgRecordPage.map(org -> {
-            com.wd.cloud.uoserver.dto.OrgDTO orgDTO = new com.wd.cloud.uoserver.dto.OrgDTO();
+            OrgDTO orgDTO = new OrgDTO();
             List<OrgProduct> orgProducts = orgProductRepository.findByOrgId(org.getId());
             List<ProductDTO> productDTOS = new ArrayList<>();
             for (OrgProduct orgProduct : orgProducts){

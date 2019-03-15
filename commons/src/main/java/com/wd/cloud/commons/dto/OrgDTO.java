@@ -8,13 +8,12 @@ import java.util.List;
 
 /**
  * @author He Zhigang
- * @date 2018/11/14
+ * @date 2019/3/4
  * @Description:
  */
 @Data
 @Accessors(chain = true)
 public class OrgDTO implements Serializable {
-
     private Long id;
 
     private String name;
@@ -42,5 +41,8 @@ public class OrgDTO implements Serializable {
      */
     private String city;
     private List<IpRangeDTO> ipRanges;
-    private boolean enabled;
+    private List<ProductDTO> products;
+    private List<DepartmentDTO> departments;
+    private List<CdbDTO> cdbs;
+    private Boolean enabled;
 }

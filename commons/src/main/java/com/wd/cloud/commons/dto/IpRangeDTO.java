@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 /**
  * @author He Zhigang
- * @date 2018/11/14
+ * @date 2019/3/4
  * @Description:
  */
 @Data
@@ -16,5 +16,4 @@ public class IpRangeDTO implements Serializable {
 
     private String begin;
     private String end;
-
 }

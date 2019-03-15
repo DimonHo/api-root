@@ -1,7 +1,6 @@
 package com.wd.cloud.uoserver.service;
 
-import com.wd.cloud.uoserver.dto.DepartmentDTO;
-import com.wd.cloud.uoserver.dto.OrgProductDTO;
+import com.wd.cloud.commons.dto.DepartmentDTO;
 import com.wd.cloud.uoserver.entity.Department;
 import com.wd.cloud.uoserver.entity.IpRange;
 import com.wd.cloud.commons.dto.IpRangeDTO;
@@ -65,7 +64,7 @@ public interface OrgService {
 
     void deleteDepartmentId(Long id);
 
-    Page<com.wd.cloud.uoserver.dto.OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip);
+    Page<OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip);
 
 
 

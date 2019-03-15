@@ -1,7 +1,7 @@
 package com.wd.cloud.uoserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.uoserver.dto.CdbDTO;
+import com.wd.cloud.commons.dto.CdbDTO;
 import com.wd.cloud.uoserver.service.OrgCdbService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

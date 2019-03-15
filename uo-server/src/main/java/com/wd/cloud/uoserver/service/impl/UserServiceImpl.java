@@ -56,15 +56,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO buildUserInfo(Map<String, Object> authInfo) {
         UserDTO userDTO = BeanUtil.mapToBean(authInfo, UserDTO.class, true);
-        // 如果用户有所属机构，则把有效机构设置为用户所属机构
-        String spisFlag = (String) authInfo.get("school_flag");
-        String eduFlag = (String) authInfo.get("edu_flag");
-        if (spisFlag != null || eduFlag != null) {
-            Org org = orgRepository.findByFlagOrSpisFlagOrEduFlag(spisFlag,spisFlag,eduFlag).orElseThrow(NotFoundOrgException::new);
-            OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
-            userDTO.setOrg(orgDTO);
-        }
         User user = userRepository.findByUsername(userDTO.getUsername()).orElseThrow(NotFoundUserException::new);
+        Org org = orgRepository.findById(user.getOrgId()).orElseThrow(NotFoundOrgException::new);
+        OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
+        userDTO.setOrg(orgDTO);
         BeanUtil.copyProperties(user, userDTO);
         return userDTO;
     }
@@ -127,16 +122,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Map<String,Object>> getUserInfoSchool(Map<String, Object> params) {
+    public List<Map<String, Object>> getUserInfoSchool(Map<String, Object> params) {
         List<Map<String, Object>> userInfoSchool = userRepository.getUserInfoSchool(params);
         return userInfoSchool;
     }
 
 
-
     @Override
     public void give(String userName, String idPhoto, String nickName, String orgName, String department, Integer identity,
-                     String departmentId, Integer education, Short sex, String entranceTime,String email,Integer permission) {
+                     String departmentId, Integer education, Short sex, String entranceTime, String email, Integer permission) {
         AuditUserInfo auditIdCard = new AuditUserInfo();
         auditIdCard.setUsername(userName);
         auditIdCard.setIdPhoto(idPhoto);
@@ -164,7 +158,7 @@ public class UserServiceImpl implements UserService {
         Integer status = (Integer) param.get("status");
         String keyword = ((String) param.get("keyword"));
         keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
-        return auditUserInfoRepository.findAll(AuditUserInfoRepository.SpecificationBuilder.buildBackendList(status,keyword), pageable);
+        return auditUserInfoRepository.findAll(AuditUserInfoRepository.SpecificationBuilder.buildBackendList(status, keyword), pageable);
     }
 
     @Override
@@ -184,7 +178,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void apply(Long id,Integer permission,String handlerName) {
+    public void apply(Long id, Integer permission, String handlerName) {
         AuditUserInfo idCard = auditUserInfoRepository.findById(id).orElseThrow(NotFoundException::new);
         Date date = new Date();
         idCard.setHandleTime(date);
@@ -208,7 +202,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void notApply(Long id,Integer permission,String handlerName) {
+    public void notApply(Long id, Integer permission, String handlerName) {
         AuditUserInfo auditUserInfo = auditUserInfoRepository.findById(id).orElseThrow(NotFoundOrgException::new);
         Date date = new Date();
         auditUserInfo.setHandleTime(date);
@@ -220,8 +214,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(Long id, String pwd, String nickName, String orgName, String department,
-                                   Integer identity,String entranceTime, String departmentId, Integer education,
-                                    Integer userType, Short sex, Integer permission,Long orgId) {
+                           Integer identity, String entranceTime, String departmentId, Integer education,
+                           Integer userType, Short sex, Integer permission, Long orgId) {
         User userId = userRepository.findById(id).orElse(null);
         userId.setPassword(pwd);
         userId.setNickname(nickName);
@@ -246,7 +240,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUserType(Long id ,Integer forbidden) {
+    public User findByUserType(Long id, Integer forbidden) {
         User user = userRepository.findById(id).orElse(null);
         user.setForbidden(forbidden);
         userRepository.save(user);
@@ -271,7 +265,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Map<String,Object>> findByCountOrgName(String orgName) {
+    public List<Map<String, Object>> findByCountOrgName(String orgName) {
         List<Map<String, Object>> byCountOrgName = userRepository.findByCountOrgName(orgName);
         return byCountOrgName;
     }
