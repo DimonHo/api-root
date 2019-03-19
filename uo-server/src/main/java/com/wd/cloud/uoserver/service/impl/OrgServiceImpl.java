@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.util.*;
 
 /**
@@ -159,7 +160,7 @@ public class OrgServiceImpl implements OrgService {
         for (Department department : departments){
             DepartmentDTO giveRecordDTO = new DepartmentDTO();
             giveRecordDTO.setOrgName(byId.getName());
-            giveRecordDTO.setNumber(0);
+            giveRecordDTO.setUserCount(0);
             BeanUtil.copyProperties(department, giveRecordDTO);
             arrayDepartmentDTO.add(giveRecordDTO);
         }
@@ -203,6 +204,19 @@ public class OrgServiceImpl implements OrgService {
         Page<Org> org = orgRepository.findAll(OrgRepository.SpecificationBuilder.findByNameAndIp(orgName, ip), pageable);
         return coversOrgDTO(org);
     }
+
+    @Override
+    public Page<OrgDTO> findByStatus(Integer status, Pageable pageable) {
+        Page<Org> org = orgRepository.findByStatus(status, pageable);
+        return getOrgDTOS(status, org);
+    }
+
+    @Override
+    public Page<OrgDTO> notFindByStatus(Pageable pageable) {
+        Page<Org> org = orgRepository.notFindByStatus(pageable);
+        return notGetOrgDTOS(org);
+    }
+
 
     @Override
     public OrgDTO findByOrgNameDetail(Long id) {
@@ -255,6 +269,131 @@ public class OrgServiceImpl implements OrgService {
         return orgDTO;
     }
 
+    @Override
+    public void updateOrgAndLinkman(Long id, String orgName, String flag, String province, String city, String name, String email, String phone) {
+        Org org = orgRepository.findById(id).orElse(null);
+        org.setId(id);
+        org.setName(orgName);
+        org.setFlag(flag);
+        org.setProvince(province);
+        org.setCity(city);
+        orgRepository.save(org);
+        Linkman linkman = new Linkman();
+        Linkman linkmans = linkmanRepository.findByOrgId(org.getId());
+        if (linkmans!=null){
+            Long linkmanId = linkmans.getId();
+            linkman.setId(linkmanId);
+        }
+        linkman.setName(name);
+        linkman.setPhone(phone);
+        linkman.setEmail(email);
+        linkman.setOrgId(org.getId());
+        linkmanRepository.save(linkman);
+
+    }
+
+    @Override
+    public void insertOrgAndProduct(Long orgId, Long productId, Date beginDate, Date endDate, Integer status, Boolean single) {
+        OrgProduct orgProduct = new OrgProduct();
+        orgProduct.setOrgId(orgId);
+        orgProduct.setProductId(productId);
+        orgProduct.setBeginDate(beginDate);
+        orgProduct.setEndDate(endDate);
+        orgProduct.setStatus(status);
+        orgProduct.setSingle(single);
+        orgProductRepository.save(orgProduct);
+    }
+
+    @Override
+    public void insertOrgAndIpRangeS(Long orgId, String beginAndEnd) {
+
+        String[] sourceStrArray = beginAndEnd.split(";");
+        for (int i = 0; i < sourceStrArray.length; i++) {
+            String ipBeginAndEnd = sourceStrArray[i];
+            String[] sourceArray = ipBeginAndEnd.split("---");
+            IpRange ipRange = new IpRange();
+
+            ipRange.setOrgId(orgId);
+            ipRange.setBegin(sourceArray[0]);
+            long beginNumber = cn.hutool.core.util.NetUtil.ipv4ToLong(ipRange.getBegin());
+            ipRange.setBeginNumber(beginNumber);
+
+            ipRange.setEnd(sourceArray[1]);
+            long endNumber = cn.hutool.core.util.NetUtil.ipv4ToLong(ipRange.getEnd());
+            ipRange.setEndNumber(endNumber);
+
+            ipRangeRepository.save(ipRange);
+
+        }
+
+    }
+
+
+    @Override
+    public Org insertOrgAndLinkman(String orgName, String flag, String province, String city, String name, String email, String phone) {
+        Org org = new Org();
+        org.setName(orgName);
+        org.setFlag(flag);
+        org.setProvince(province);
+        org.setCity(city);
+        orgRepository.save(org);
+        if(email !=null || phone!=null || name !=null){
+            Linkman linkman = new Linkman();
+            linkman.setName(name);
+            linkman.setPhone(phone);
+            linkman.setEmail(email);
+            linkman.setOrgId(org.getId());
+            linkmanRepository.save(linkman);
+        }
+        return org;
+    }
+
+    @Override
+    public void deleteIpRangeOrgId(Long orgId) {
+        ipRangeRepository.deleteByOrgId(orgId);
+    }
+
+    @Override
+    public void deleteProductOrgId(Long orgId) {
+        orgProductRepository.deleteByOrgId(orgId);
+    }
+
+    @Override
+    public Boolean findIpRangesExist(String begin, String end) {
+        IpRange ipRange = ipRangeRepository.findByBeginAndEnd( begin, end);
+        if (ipRange!=null){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean findExistsFlag(String flag) {
+        Org org = orgRepository.findByFlag(flag);
+        if (org!=null){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean findOrgNameExist(String name) {
+        Org org = orgRepository.findByName(name);
+        if (org!=null){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Org findByName(String name) {
+        Org org = orgRepository.findByName(name);
+        return org;
+    }
+
+
+
+
     private Page<OrgDTO> coversOrgDTO(Page<Org> orgRecordPage) {
         return orgRecordPage.map(org -> {
             OrgDTO orgDTO = new OrgDTO();
@@ -274,6 +413,47 @@ public class OrgServiceImpl implements OrgService {
             return orgDTO;
         });
     }
+
+    private Page<OrgDTO> getOrgDTOS(Integer status, Page<Org> org1) {
+        return org1.map(org -> {
+            OrgDTO orgDTO = new OrgDTO();
+            List<OrgProduct> orgProducts = orgProductRepository.findByOrgIdAndStatus(org.getId(),status);
+            List<ProductDTO> productDTOS = new ArrayList<>();
+            for (OrgProduct orgProduct : orgProducts){
+                Product product = productRepository.findById(orgProduct.getProductId()).orElse(null);
+                ProductDTO productDTO = new ProductDTO();
+                productDTO.setName(product.getName());
+                productDTO.setStatus(orgProduct.getStatus());
+                productDTO.setBeginTime(orgProduct.getBeginDate());
+                productDTO.setEndTime(orgProduct.getEndDate());
+                productDTOS.add(productDTO);
+                BeanUtil.copyProperties(org, orgDTO);
+            }
+            orgDTO.setProducts(productDTOS);
+            return orgDTO;
+        });
+    }
+
+    private Page<OrgDTO> notGetOrgDTOS(Page<Org> org1) {
+        return org1.map(org -> {
+            OrgDTO orgDTO = new OrgDTO();
+            List<OrgProduct> orgProducts = orgProductRepository.notFindByOrgId(org.getId());
+            List<ProductDTO> productDTOS = new ArrayList<>();
+            for (OrgProduct orgProduct : orgProducts){
+                Product product = productRepository.findById(orgProduct.getProductId()).orElse(null);
+                ProductDTO productDTO = new ProductDTO();
+                productDTO.setName(product.getName());
+                productDTO.setStatus(orgProduct.getStatus());
+                productDTO.setBeginTime(orgProduct.getBeginDate());
+                productDTO.setEndTime(orgProduct.getEndDate());
+                productDTOS.add(productDTO);
+                BeanUtil.copyProperties(org, orgDTO);
+            }
+            orgDTO.setProducts(productDTOS);
+            return orgDTO;
+        });
+    }
+
 
 
 

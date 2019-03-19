@@ -37,16 +37,27 @@ public class OrgDTO implements Serializable {
      */
     private String province;
 
-    private String contactPerson;
-
-    private String contact;
-
-    private String email;
-
     /**
      * 市、区
      */
     private String city;
+
+    /**
+     * 联系人
+     */
+    private String contactPerson;
+
+    /**
+     * 联系电话
+     */
+    private String contact;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+
     private List<IpRangeDTO> ipRanges;
     private List<ProductDTO> products;
     private List<DepartmentDTO> departments;

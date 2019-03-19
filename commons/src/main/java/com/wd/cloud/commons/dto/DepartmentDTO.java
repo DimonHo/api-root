@@ -24,5 +24,8 @@ public class DepartmentDTO implements Serializable {
 
     private String orgName;
 
-    private Integer number;
+    /**
+     * 用户数量
+     */
+    private Integer userCount;
 }

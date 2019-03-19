@@ -47,6 +47,6 @@ public class OrgProduct extends AbstractEntity {
     /**
      * 是否独立购买
      */
-    @Column(name = "single",columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
+    @Column(name = "is_single",columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
     private boolean single;
 }
