@@ -17,9 +17,4 @@ public class StringUtil {
                 .toLowerCase();
 
     }
-
-    public static void main(String[] args) {
-        String ss = "1.2    -3<4>   5《6》7_8'9;0,WES";
-        System.out.println(repalceSymbol(ss));
-    }
 }

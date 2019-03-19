@@ -11,9 +11,11 @@ import java.util.Set;
 @EnableConfigurationProperties(HbaseProperties.class)
 public class HbaseConfig {
     private final HbaseProperties properties;
+
     public HbaseConfig(HbaseProperties properties) {
         this.properties = properties;
     }
+
     public org.apache.hadoop.conf.Configuration configuration() {
         org.apache.hadoop.conf.Configuration configuration = HBaseConfiguration.create();
         Map<String, String> config = properties.getConfig();
