@@ -19,7 +19,7 @@ public class LibgenAllSearchController {
 
     @ApiOperation(value = "根据标题或doi检索libgen_all获取数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "val", value = "文章标题或doi", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "val", value = "文章标题或doi", dataType = "String", paramType = "query")
     })
     @GetMapping(value = "/searchPaper")
     public ResponseModel<List<JSON>> getRowKey(@RequestParam String val){
