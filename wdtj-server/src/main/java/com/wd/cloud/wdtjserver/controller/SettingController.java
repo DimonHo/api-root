@@ -16,7 +16,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -31,23 +30,23 @@ public class SettingController {
 
     @ApiOperation(value = "设置机构参数", tags = {"后台设置"})
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path"),
+            @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "showPv", value = "是否显示访问量", dataType = "boolean", paramType = "query"),
             @ApiImplicitParam(name = "showSc", value = "是否显示搜索量", dataType = "boolean", paramType = "query"),
             @ApiImplicitParam(name = "showDc", value = "是否显示下载量", dataType = "boolean", paramType = "query"),
             @ApiImplicitParam(name = "showDdc", value = "是否显示文献传递量", dataType = "boolean", paramType = "query"),
             @ApiImplicitParam(name = "showAvgTime", value = "是否显示平均访问时长", dataType = "boolean", paramType = "query")
     })
-    @PostMapping("/org/{orgId}")
+    @PostMapping("/org/{orgFlag}")
     public ResponseModel add(
-            @PathVariable Long orgId,
+            @PathVariable String orgFlag,
             @RequestParam String createUser,
             @RequestParam(required = false, defaultValue = "false") boolean showPv,
             @RequestParam(required = false, defaultValue = "false") boolean showSc,
             @RequestParam(required = false, defaultValue = "false") boolean showDc,
             @RequestParam(required = false, defaultValue = "false") boolean showDdc,
             @RequestParam(required = false, defaultValue = "false") boolean showAvgTime) {
-        TjOrg tjOrg = settingService.saveTjOrg(orgId, showPv, showSc, showDc, showDdc, showAvgTime, createUser);
+        TjOrg tjOrg = settingService.saveTjOrg(orgFlag, showPv, showSc, showDc, showDdc, showAvgTime, createUser);
         if (tjOrg != null) {
             return ResponseModel.ok().setBody(tjOrg);
         }
@@ -55,10 +54,10 @@ public class SettingController {
     }
 
     @ApiOperation(value = "获取机构参数", tags = {"后台设置"})
-    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
-    @GetMapping("/org/{orgId}")
-    public ResponseModel get(@PathVariable Long orgId) {
-        TjOrg tjOrg = settingService.getOrgInfo(orgId);
+    @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path")
+    @GetMapping("/org/{orgFlag}")
+    public ResponseModel get(@PathVariable String orgFlag) {
+        TjOrg tjOrg = settingService.getOrgInfo(orgFlag);
         if (tjOrg == null) {
             return ResponseModel.fail().setMessage("没有找到该机构");
         }
@@ -66,10 +65,10 @@ public class SettingController {
     }
 
     @ApiOperation(value = "禁用/解除禁用某机构", tags = {"后台设置"})
-    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "String", paramType = "path")
-    @PatchMapping("/org/{orgId}")
-    public ResponseModel forbadeOrg(@PathVariable Long orgId) {
-        TjOrg tjOrg = settingService.forbade(orgId);
+    @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path")
+    @PatchMapping("/org/{orgFlag}")
+    public ResponseModel forbadeOrg(@PathVariable String orgFlag) {
+        TjOrg tjOrg = settingService.forbade(orgFlag);
         if (tjOrg != null) {
             return ResponseModel.ok().setBody(tjOrg);
         }

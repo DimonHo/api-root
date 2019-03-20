@@ -23,16 +23,16 @@ public interface QuotaService {
 
 
     /**
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    TjQuota findOrgQuota(Long orgId);
+    TjQuota findOrgQuota(String orgFlag);
 
     /**
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    Page<TjQuota> findOrgQuota(Long orgId, Boolean history, Pageable pageable);
+    Page<TjQuota> findOrgQuota(String orgFlag, Boolean history, Pageable pageable);
 
     /**
      * @param history

@@ -48,7 +48,7 @@ public class MailTemplateModel {
     /**
      * 机构名称
      */
-    private String helperScname;
+    private String orgName;
     /**
      * 求助邮箱
      */

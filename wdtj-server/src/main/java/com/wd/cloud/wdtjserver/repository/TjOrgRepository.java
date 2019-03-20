@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
-import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long>, JpaSpecific
     Page<TjOrg> findAllByHistory(boolean history, Pageable pageable);
 
     @Query(value = "select distinct(org_name) from tj_org where is_history = false",nativeQuery = true)
-    List<String> distinctByOrgId();
+    List<String> distinctByOrgFlag();
 
 
     /**
@@ -41,17 +40,17 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long>, JpaSpecific
     List<TjOrg> findByHistoryIsFalse();
 
     /**
-     * 根据orgId查询生效的设置
+     * 根据orgFlag查询生效的设置
      */
-    TjOrg findByOrgIdAndHistoryIsFalse(long orgId);
+    TjOrg findByOrgFlagAndHistoryIsFalse(String orgFlag);
 
     /**
      * 查询机构所有的设置记录
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    TjOrg findByOrgId(long orgId);
+    TjOrg findByOrgFlag(String orgFlag);
 
     /**
      * 根据机构名称查询机构设置

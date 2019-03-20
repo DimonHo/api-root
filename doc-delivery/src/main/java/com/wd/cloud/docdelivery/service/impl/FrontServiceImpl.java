@@ -323,42 +323,42 @@ public class FrontServiceImpl implements FrontService {
 
 
     @Override
-    public Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, Long orgId, Pageable pageable) {
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, email, null, keyword, isDifficult, orgId), pageable);
+    public Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, String orgFlag, Pageable pageable) {
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, email, null, keyword, isDifficult, orgFlag), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
 
     @Override
-    public Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Boolean isDifficult, Long orgId, Pageable pageable) {
+    public Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Boolean isDifficult, String orgFlag, Pageable pageable) {
 
         List<Integer> status = CollectionUtil.newArrayList(
                 HelpStatusEnum.WAIT_HELP.value(),
                 HelpStatusEnum.HELPING.value(),
                 HelpStatusEnum.HELP_THIRD.value());
-        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, isDifficult, orgId), pageable);
+        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, isDifficult, orgFlag), pageable);
         return coversHelpRecordDTO(waitHelpRecords);
     }
 
     @Override
-    public Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
+    public Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, String orgFlag, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value(), HelpStatusEnum.HELP_FAILED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgId), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgFlag), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 
 
     @Override
-    public Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> channel, Long orgId, Pageable pageable) {
+    public Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> channel, String orgFlag, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgId), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgFlag), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
 
     }
 
     @Override
-    public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, List<Integer> status, Long orgId, Pageable pageable) {
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, true, orgId), pageable);
+    public Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> channel, List<Integer> status, String orgFlag, Pageable pageable) {
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, true, orgFlag), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 
@@ -387,19 +387,19 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public Permission nextPermission(Long orgId, Integer level) {
+    public Permission nextPermission(String orgFlag, Integer level) {
         int nextLevel = nexLevel(level);
-        return getPermission(orgId, nextLevel);
+        return getPermission(orgFlag, nextLevel);
     }
 
     @Override
-    public Permission getPermission(Long orgId, Integer level) {
+    public Permission getPermission(String orgFlag, Integer level) {
         Permission permission = null;
-        if (orgId != null) {
-            permission = permissionRepository.getOrgIdAndLevel(orgId, level);
+        if (orgFlag != null) {
+            permission = permissionRepository.getOrgFlagAndLevel(orgFlag, level);
         }
         if (permission == null) {
-            permission = permissionRepository.findByOrgIdIsNullAndLevel(level);
+            permission = permissionRepository.findByOrgFlagIsNullAndLevel(level);
         }
         return permission;
     }
@@ -442,7 +442,7 @@ public class FrontServiceImpl implements FrontService {
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
             optionalHelpRecord.ifPresent(helpRecord -> {
                 giveRecordDTO.setHelperEmail(helpRecord.isAnonymous() ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()))
-                        .setRemark(helpRecord.getRemark()).setHelperScname(helpRecord.getHelperScname());
+                        .setRemark(helpRecord.getRemark()).setOrgName(helpRecord.getOrgName());
                 Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
                 optionalLiterature.ifPresent(literature -> {
                     giveRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref());

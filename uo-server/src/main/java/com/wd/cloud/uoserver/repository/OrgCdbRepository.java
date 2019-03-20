@@ -24,7 +24,7 @@ public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecif
     List<OrgCdb> findByCdbId(Long cdbId);
 
     class SpecificationBuilder {
-        public static Specification<OrgCdb> findByOrgIdAndCollection(String orgFlag, Boolean collection) {
+        public static Specification<OrgCdb> findByOrgFlagAndCollection(String orgFlag, Boolean collection) {
             return (Specification<OrgCdb>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (StrUtil.isNotBlank(orgFlag)) {
@@ -38,7 +38,7 @@ public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecif
             };
         }
 
-        public static Specification<OrgCdb> findByOrgIdAndLocalUrlIsNotNull(String orgFlag) {
+        public static Specification<OrgCdb> findByOrgFlagAndLocalUrlIsNotNull(String orgFlag) {
             return (Specification<OrgCdb>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 Path localUrl = root.get("localUrl");

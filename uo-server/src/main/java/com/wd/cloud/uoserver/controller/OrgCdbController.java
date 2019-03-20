@@ -21,19 +21,19 @@ public class OrgCdbController {
 
     @ApiOperation(value = "根据学校查询馆藏资源")
     @GetMapping("/findByOrgIdAndCollection")
-    public ResponseModel<Page<OrgCdbDTO>> findByOrgIdAndCollection(@RequestParam(required = false) String orgFlag,
+    public ResponseModel<Page<OrgCdbDTO>> findByOrgFlagAndCollection(@RequestParam(required = false) String orgFlag,
                                                                    @RequestParam(required = false) Boolean collection,
                                                                    @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
-        Page<OrgCdbDTO> byOrgIdAndDisplay = orgCdbService.findByOrgIdAndCollection(pageable, orgFlag, collection);
-        return ResponseModel.ok().setBody(byOrgIdAndDisplay);
+        Page<OrgCdbDTO> byOrgFlagAndDisplay = orgCdbService.findByOrgFlagAndCollection(pageable, orgFlag, collection);
+        return ResponseModel.ok().setBody(byOrgFlagAndDisplay);
     }
 
     @ApiOperation(value = "根据学校查询url替换地址")
     @GetMapping("/findByOrgIdAndLocalUrlIsNotNull")
-    public ResponseModel<Page<OrgCdbDTO>> findByOrgIdAndLocalUrlIsNotNull(@RequestParam(required = false) String orgFlag,
+    public ResponseModel<Page<OrgCdbDTO>> findByOrgFlagAndLocalUrlIsNotNull(@RequestParam(required = false) String orgFlag,
                                                                           @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
-        Page<OrgCdbDTO> byOrgIdAndLocalUrlIsNotNull = orgCdbService.findByOrgIdAndLocalUrlIsNotNull(pageable, orgFlag);
-        return ResponseModel.ok().setBody(byOrgIdAndLocalUrlIsNotNull);
+        Page<OrgCdbDTO> byOrgFlagAndLocalUrlIsNotNull = orgCdbService.findByOrgFlagAndLocalUrlIsNotNull(pageable, orgFlag);
+        return ResponseModel.ok().setBody(byOrgFlagAndLocalUrlIsNotNull);
     }
 
     @ApiOperation(value = "根据资源或者网站查询详细信息")

@@ -35,15 +35,15 @@ public class QuotaController {
 
     @ApiOperation(value = "设置日基数", tags = {"后台设置"})
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path"),
+            @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "createUser", value = "创建人名称", dataType = "String", paramType = "query")
     })
-    @PostMapping("/quota/{orgId}")
-    public ResponseModel addQuota(@PathVariable Long orgId,
+    @PostMapping("/quota/{orgFlag}")
+    public ResponseModel addQuota(@PathVariable String orgFlag,
                                   @RequestParam String createUser,
                                   @RequestBody @Valid QuotaModel quotaModel) {
         TjQuota tjQuota = ModelUtil.build(quotaModel);
-        tjQuota.setOrgId(orgId).setCreateUser(createUser);
+        tjQuota.setOrgFlag(orgFlag).setCreateUser(createUser);
         TjQuota body = quotaService.save(tjQuota);
         if (body == null) {
             return ResponseModel.fail().setMessage("数据保存失败");
@@ -61,29 +61,29 @@ public class QuotaController {
     }
 
     @ApiOperation(value = "获取机构正在使用的日基数设置", tags = {"后台设置"})
-    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
-    @GetMapping("/quota/{orgId}")
-    public ResponseModel findOrgQuota(@PathVariable Long orgId,
+    @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path")
+    @GetMapping("/quota/{orgFlag}")
+    public ResponseModel findOrgQuota(@PathVariable String orgFlag,
                                       @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        TjQuota tjQuota = quotaService.findOrgQuota(orgId);
+        TjQuota tjQuota = quotaService.findOrgQuota(orgFlag);
         return ResponseModel.ok().setBody(tjQuota);
     }
 
     @ApiOperation(value = "获取机构历史日基数设置", tags = {"后台设置"})
-    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
-    @GetMapping("/quota/{orgId}/his")
-    public ResponseModel findOrgQuotaHis(@PathVariable Long orgId,
+    @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path")
+    @GetMapping("/quota/{orgFlag}/his")
+    public ResponseModel findOrgQuotaHis(@PathVariable String orgFlag,
                                          @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<TjQuota> tjQuotas = quotaService.findOrgQuota(orgId, true, pageable);
+        Page<TjQuota> tjQuotas = quotaService.findOrgQuota(orgFlag, true, pageable);
         return ResponseModel.ok().setBody(tjQuotas);
     }
 
     @ApiOperation(value = "机构所有日基数设置记录", tags = {"后台设置"})
-    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
-    @GetMapping("/quota/{orgId}/all")
-    public ResponseModel findQuota(@PathVariable Long orgId,
+    @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path")
+    @GetMapping("/quota/{orgFlag}/all")
+    public ResponseModel findQuota(@PathVariable String orgFlag,
                                    @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<TjQuota> tjQuotas = quotaService.findOrgQuota(orgId, null, pageable);
+        Page<TjQuota> tjQuotas = quotaService.findOrgQuota(orgFlag, null, pageable);
         return ResponseModel.ok().setBody(tjQuotas);
     }
 

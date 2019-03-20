@@ -12,11 +12,11 @@ public interface ViewService {
 
 
     /**
-     * @param orgId
+     * @param orgFlag
      * @param beginTime
      * @param entTime
      * @return
      */
-    ViewDataModel getViewDate(Long orgId, String beginTime, String entTime, int viewType);
+    ViewDataModel getViewDate(String orgFlag, String beginTime, String entTime, int viewType);
 
 }

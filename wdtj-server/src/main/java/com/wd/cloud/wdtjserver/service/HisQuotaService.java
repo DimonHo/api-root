@@ -36,11 +36,11 @@ public interface HisQuotaService {
     /**
      * 添加生成历史数据
      *
-     * @param orgId
+     * @param orgFlag
      * @param hisQuotaModels
      * @return
      */
-    Map<String, DateIntervalModel> checkInterval(Long orgId, List<HisQuotaModel> hisQuotaModels);
+    Map<String, DateIntervalModel> checkInterval(String orgFlag, List<HisQuotaModel> hisQuotaModels);
 
 
     TjHisQuota getHisQuota(Long hisId);
@@ -48,10 +48,10 @@ public interface HisQuotaService {
     /**
      * 获取机构历史设置记录
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    Page<TjHisQuota> getHisQuotaByOrg(Long orgId, Pageable pageable);
+    Page<TjHisQuota> getHisQuotaByOrg(String orgFlag, Pageable pageable);
 
     /**
      * 模糊查询

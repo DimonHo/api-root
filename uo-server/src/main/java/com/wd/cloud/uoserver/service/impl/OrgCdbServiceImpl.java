@@ -33,9 +33,9 @@ public class OrgCdbServiceImpl implements OrgCdbService {
 
 
     @Override
-    public Page<OrgCdbDTO> findByOrgIdAndCollection(Pageable pageable, String orgFlag, Boolean collection) {
+    public Page<OrgCdbDTO> findByOrgFlagAndCollection(Pageable pageable, String orgFlag, Boolean collection) {
 
-        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgIdAndCollection(orgFlag, collection), pageable);
+        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgFlagAndCollection(orgFlag, collection), pageable);
         Org org = orgRepository.findByFlag(orgFlag).orElse(null);
         Page<OrgCdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
             Cdb cdb = cdbRepository.findById(orgCdb.getCdbId()).orElse(null);
@@ -50,8 +50,8 @@ public class OrgCdbServiceImpl implements OrgCdbService {
     }
 
     @Override
-    public Page<OrgCdbDTO> findByOrgIdAndLocalUrlIsNotNull(Pageable pageable, String orgFlag) {
-        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgIdAndLocalUrlIsNotNull(orgFlag), pageable);
+    public Page<OrgCdbDTO> findByOrgFlagAndLocalUrlIsNotNull(Pageable pageable, String orgFlag) {
+        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgFlagAndLocalUrlIsNotNull(orgFlag), pageable);
         Page<OrgCdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
             Cdb byId = cdbRepository.findById(orgCdb.getCdbId()).orElse(null);
             OrgCdbDTO orgCdbDTO = new OrgCdbDTO();

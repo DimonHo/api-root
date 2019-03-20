@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.exception.FeignException;
@@ -195,7 +196,7 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public Page<HelpRecordDTO> helpRecordList(Map<String, Object> param, Pageable pageable) {
-        Short helpUserScid = MapUtil.getShort(param, "helperScid");
+        String orgFlag = MapUtil.getStr(param, "orgFlag");
         List<Integer> statusList = MapUtil.get(param, "status", List.class);
         String keyword = MapUtil.getStr(param, "keyword") == null ? null : MapUtil.getStr(param, "keyword").replaceAll("\\\\", "\\\\\\\\");
         Date beginTime = MapUtil.getDate(param, "beginTime");
@@ -206,8 +207,8 @@ public class ProcessServiceImpl implements ProcessService {
             public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
                 // 机构过滤
-                if (helpUserScid != null) {
-                    list.add(cb.equal(root.get("helperScid"), helpUserScid));
+                if (StrUtil.isNotBlank(orgFlag)) {
+                    list.add(cb.equal(root.get("orgFlag"), orgFlag));
                 }
                 if (helperId != null) {
                     list.add(cb.equal(root.get("helperId"), helperId));

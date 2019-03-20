@@ -66,7 +66,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
 
     @Override
     public TjHisQuota save(TjHisQuota tjHisQuota) {
-        ResponseModel responseModel = uoServerApi.getOrg(tjHisQuota.getOrgId());
+        ResponseModel responseModel = uoServerApi.getOrg(tjHisQuota.getOrgFlag());
         if (!responseModel.isError()) {
             String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
             tjHisQuota.setOrgName(orgName);
@@ -80,7 +80,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     public List<TjHisQuota> save(List<TjHisQuota> tjHisQuotas) {
         try {
             // 调用org-server服务获取机构信息
-            ResponseModel responseModel = uoServerApi.getOrg(tjHisQuotas.get(0).getOrgId());
+            ResponseModel responseModel = uoServerApi.getOrg(tjHisQuotas.get(0).getOrgFlag());
             if (responseModel.isError()) {
                 log.error(responseModel.getMessage());
                 throw new AppException(ExceptionEnum.ORG_SERVER);
@@ -100,8 +100,8 @@ public class HisQuotaServiceImpl implements HisQuotaService {
     }
 
     @Override
-    public Page<TjHisQuota> getHisQuotaByOrg(Long orgId, Pageable pageable) {
-        return tjHisQuotaRepository.findByOrgId(orgId, pageable);
+    public Page<TjHisQuota> getHisQuotaByOrg(String orgFlag, Pageable pageable) {
+        return tjHisQuotaRepository.findByOrgFlag(orgFlag, pageable);
     }
 
     @Override
@@ -117,8 +117,8 @@ public class HisQuotaServiceImpl implements HisQuotaService {
 
 
     @Override
-    public Map<String, DateIntervalModel> checkInterval(Long orgId, List<HisQuotaModel> hisQuotaModels) {
-        List<TjHisQuota> tjHisQuotaList = tjHisQuotaRepository.findByOrgId(orgId);
+    public Map<String, DateIntervalModel> checkInterval(String orgFlag, List<HisQuotaModel> hisQuotaModels) {
+        List<TjHisQuota> tjHisQuotaList = tjHisQuotaRepository.findByOrgFlag(orgFlag);
         // 返回重叠时间区间
         Map<String, DateIntervalModel> overlapMap = new HashMap<>();
         for (HisQuotaModel hisQuotaModel : hisQuotaModels) {
@@ -162,7 +162,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         }
         log.info("待生成[{} - {}]共{}天数据", tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), dayList.size());
         //删除旧的数据
-        tjViewDataRepository.deleteByTjDate(tjHisQuota.getOrgId(),DateUtil.formatDateTime(tjHisQuota.getBeginTime()),DateUtil.formatDateTime(tjHisQuota.getEndTime()));
+        tjViewDataRepository.deleteByTjDate(tjHisQuota.getOrgFlag(),DateUtil.formatDateTime(tjHisQuota.getBeginTime()),DateUtil.formatDateTime(tjHisQuota.getEndTime()));
         // 计算每天的权重
         List<WeightRandom.WeightObj<DateTime>> dayWeightList = RandomUtil.dayWeightList(weightMap, dayList);
         // 生成随机历史数据

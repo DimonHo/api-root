@@ -1,7 +1,6 @@
 package com.wd.cloud.docdelivery.dto;
 
 import lombok.Data;
-import lombok.Value;
 import lombok.experimental.Accessors;
 
 /**
@@ -13,7 +12,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TjDTO {
 
-    private Long orgId;
+    private String orgFlag;
     /**
      * 求助总量
      */

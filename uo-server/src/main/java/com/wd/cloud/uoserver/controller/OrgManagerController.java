@@ -1,7 +1,6 @@
 package com.wd.cloud.uoserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.uoserver.pojo.entity.Department;
 import com.wd.cloud.uoserver.pojo.entity.IpRange;
 import com.wd.cloud.uoserver.pojo.vo.OrgIpVO;
 import com.wd.cloud.uoserver.pojo.vo.OrgProductVO;
@@ -26,14 +25,14 @@ public class OrgManagerController {
     @Autowired
     OrgService orgService;
 
-    @ApiOperation(value = "检查错误IP", tags = {"机构管理"})
+    @ApiOperation(value = "检查错误IP", tags = {"IP维护"})
     @GetMapping("/manager/ip/validator-ip")
     public ResponseModel validatorIp() {
         List<IpRange> errorIpRanges = orgService.validatorIp();
         return ResponseModel.ok().setBody(errorIpRanges);
     }
 
-    @ApiOperation(value = "翻转Ip起始和结束顺序", tags = {"机构管理"})
+    @ApiOperation(value = "翻转Ip起始和结束顺序", tags = {"IP维护"})
     @PatchMapping("/manager/ip/reverse")
     public ResponseModel reverse() {
         orgService.reverse();
@@ -41,7 +40,7 @@ public class OrgManagerController {
     }
 
 
-    @ApiOperation(value = "查询重叠IP段", tags = {"机构管理"})
+    @ApiOperation(value = "查询重叠IP段", tags = {"IP维护"})
     @GetMapping("/manager/ip/overlay")
     public ResponseModel overlay() {
         orgService.overlay();
@@ -63,31 +62,14 @@ public class OrgManagerController {
         return ResponseModel.ok().setBody(ipRangeList);
     }
 
-    @ApiOperation(value = "新增院系", tags = {"机构管理"})
-    @PostMapping("/manager/org/department")
-    public ResponseModel<Department> insertDepartment(@RequestParam String orgFlag,
-                                                      @RequestParam String name) {
-        orgService.insertDepartment(orgFlag, name);
-        return ResponseModel.ok().setMessage("新增院系成功");
-    }
-
-    @ApiOperation(value = "修改院系")
-    @PutMapping("/manager/org/department")
-    public ResponseModel<Department> modifyDepartment(@RequestParam(required = false) String orgFlag,
-                                                      @RequestParam(required = false) Long id,
-                                                      @RequestParam(required = false) String name) {
-        orgService.updateDepartment(id, orgFlag, name);
-        return ResponseModel.ok().setMessage("修改院系成功");
-    }
-
-    @ApiOperation(value = "删除院系")
+    @ApiOperation(value = "删除院系",tags = {"机构管理"})
     @DeleteMapping("/manager/org/department")
     public ResponseModel deleteDepartmentId(@RequestParam Long id) {
         orgService.deleteDepartmentId(id);
         return ResponseModel.ok().setMessage("删除成功");
     }
 
-    @ApiOperation(value = "更改订购产品状态")
+    @ApiOperation(value = "更改订购产品状态",tags = {"机构管理"})
     @PostMapping("/manager/org/product")
     public ResponseModel modifyOrgProduct(@RequestParam String orgFlag,
                                           @RequestBody List<OrgProductVO> product) {
@@ -95,11 +77,12 @@ public class OrgManagerController {
         return ResponseModel.ok().setMessage("更该成功");
     }
 
-    @ApiOperation(value = "取消订购产品")
+    @ApiOperation(value = "取消订购产品",tags = {"机构管理"})
     @DeleteMapping("/manager/org/product")
     public ResponseModel cancelOrgProduct(@RequestParam String orgFlag,
                                           @RequestBody(required = false) List<Long> productId) {
         orgService.cancelProduct(orgFlag, productId);
         return ResponseModel.ok().setMessage("删除成功");
     }
+
 }

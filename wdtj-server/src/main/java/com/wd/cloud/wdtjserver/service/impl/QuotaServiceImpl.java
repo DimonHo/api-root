@@ -64,12 +64,12 @@ public class QuotaServiceImpl implements QuotaService {
 
     @Override
     public TjQuota save(TjQuota tjQuota) {
-        ResponseModel responseModel = uoServerApi.getOrg(tjQuota.getOrgId());
+        ResponseModel responseModel = uoServerApi.getOrg(tjQuota.getOrgFlag());
         if (!responseModel.isError()) {
             String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
             tjQuota.setOrgName(orgName);
             //根据学校ID查询TjDaySetting是否有数据
-            TjQuota oldTjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjQuota.getOrgId());
+            TjQuota oldTjQuota = tjQuotaRepository.findByOrgFlagAndHistoryIsFalse(tjQuota.getOrgFlag());
             if (oldTjQuota != null) {
                 oldTjQuota.setHistory(true);
                 tjQuota.setPid(oldTjQuota.getId());
@@ -82,16 +82,16 @@ public class QuotaServiceImpl implements QuotaService {
     }
 
     @Override
-    public TjQuota findOrgQuota(Long orgId) {
-        return tjQuotaRepository.findByOrgIdAndHistoryIsFalse(orgId);
+    public TjQuota findOrgQuota(String orgFlag) {
+        return tjQuotaRepository.findByOrgFlagAndHistoryIsFalse(orgFlag);
     }
 
     @Override
-    public Page<TjQuota> findOrgQuota(Long orgId, Boolean history, Pageable pageable) {
+    public Page<TjQuota> findOrgQuota(String orgFlag, Boolean history, Pageable pageable) {
         if (history == null) {
-            return tjQuotaRepository.findByOrgId(orgId, pageable);
+            return tjQuotaRepository.findByOrgFlag(orgFlag, pageable);
         } else {
-            return tjQuotaRepository.findByOrgIdAndHistory(orgId, history, pageable);
+            return tjQuotaRepository.findByOrgFlagAndHistory(orgFlag, history, pageable);
         }
 
     }
@@ -167,7 +167,7 @@ public class QuotaServiceImpl implements QuotaService {
         // 计算用户访问总时间 = 平均访问时间 * 访问次数
         long avgTimeTotal = Math.round(DateUtil.getTimeMillis(tjQuota.getAvgTime()) * RandomUtil.randomDouble(0.5, 2) * vvTotal);
 
-        totalModel.setOrgId(tjQuota.getOrgId())
+        totalModel.setOrgFlag(tjQuota.getOrgFlag())
                 .setOrgName(tjQuota.getOrgName())
                 .setDate(dayWeight.getObj())
                 .setPvTotal(pvTotal)

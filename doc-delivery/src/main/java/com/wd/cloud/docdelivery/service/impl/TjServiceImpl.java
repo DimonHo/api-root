@@ -143,10 +143,10 @@ public class TjServiceImpl implements TjService {
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
         OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
         //如果用户信息中没有机构信息则去IP_ORG中取，都没有则为0（公共配置）
-        Long orgId = orgDTO != null ? orgDTO.getId() : null;
-        Permission permission = frontService.getPermission(orgId, level);
+        String orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
+        Permission permission = frontService.getPermission(orgFlag, level);
         if (permission == null) {
-            throw new NotFoundException("未找到匹配orgId=" + orgId + ",level=" + level + "的配置");
+            throw new NotFoundException("未找到匹配orgFlag=" + orgFlag + ",level=" + level + "的配置");
         }
         return permission;
     }

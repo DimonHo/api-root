@@ -13,8 +13,8 @@ import java.util.Date;
 @Embeddable
 public class TjDataPk implements Serializable {
 
-    @Column(name = "org_id")
-    private Long orgId;
+    @Column(name = "org_falg")
+    private String orgFlag;
 
     @Column(name = "tj_date")
     private Date tjDate;
@@ -22,17 +22,17 @@ public class TjDataPk implements Serializable {
     public TjDataPk() {
     }
 
-    public TjDataPk(Long orgId, Date tjDate) {
-        this.orgId = orgId;
+    public TjDataPk(String orgFlag, Date tjDate) {
+        this.orgFlag = orgFlag;
         this.tjDate = tjDate;
     }
 
-    public Long getOrgId() {
-        return orgId;
+    public String getOrgFlag() {
+        return orgFlag;
     }
 
-    public TjDataPk setOrgId(Long orgId) {
-        this.orgId = orgId;
+    public TjDataPk setOrgFlag(String orgFlag) {
+        this.orgFlag = orgFlag;
         return this;
     }
 
@@ -56,7 +56,7 @@ public class TjDataPk implements Serializable {
 
         TjDataPk tjDataPk = (TjDataPk) o;
 
-        if (orgId != null ? !orgId.equals(tjDataPk.orgId) : tjDataPk.orgId != null) {
+        if (orgFlag != null ? !orgFlag.equals(tjDataPk.orgFlag) : tjDataPk.orgFlag != null) {
             return false;
         }
         return tjDate != null ? tjDate.equals(tjDataPk.tjDate) : tjDataPk.tjDate == null;
@@ -64,7 +64,7 @@ public class TjDataPk implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = orgId != null ? orgId.hashCode() : 0;
+        int result = orgFlag != null ? orgFlag.hashCode() : 0;
         result = 31 * result + (tjDate != null ? tjDate.hashCode() : 0);
         return result;
     }

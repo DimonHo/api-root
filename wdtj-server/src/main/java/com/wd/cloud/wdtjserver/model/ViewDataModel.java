@@ -2,6 +2,8 @@ package com.wd.cloud.wdtjserver.model;
 
 import com.wd.cloud.wdtjserver.utils.DateUtil;
 import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +13,12 @@ import java.util.List;
  * @date 2018/11/6
  * @Description: 前台展示数据模型
  */
+@Data
+@Accessors(chain = true)
 @ApiModel(value = "返回给前台数据对象")
 public class ViewDataModel {
 
-    private Long orgId;
+    private String orgFlag;
 
     private List<String> tjDate = new ArrayList<>();
 
@@ -46,150 +50,6 @@ public class ViewDataModel {
 
     private List<Long> avgTime = new ArrayList<>();
 
-    public Long getOrgId() {
-        return orgId;
-    }
-
-    public ViewDataModel setOrgId(Long orgId) {
-        this.orgId = orgId;
-        return this;
-    }
-
-    public List<String> getTjDate() {
-        return tjDate;
-    }
-
-    public ViewDataModel setTjDate(List<String> tjDate) {
-        this.tjDate = tjDate;
-        return this;
-    }
-
-    public List<Integer> getPvCount() {
-        return pvCount;
-    }
-
-    public ViewDataModel setPvCount(List<Integer> pvCount) {
-        this.pvCount = pvCount;
-        return this;
-    }
-
-    public List<Integer> getScCount() {
-        return scCount;
-    }
-
-    public ViewDataModel setScCount(List<Integer> scCount) {
-        this.scCount = scCount;
-        return this;
-    }
-
-    public List<Integer> getDcCount() {
-        return dcCount;
-    }
-
-    public ViewDataModel setDcCount(List<Integer> dcCount) {
-        this.dcCount = dcCount;
-        return this;
-    }
-
-    public List<Integer> getDdcCount() {
-        return ddcCount;
-    }
-
-    public ViewDataModel setDdcCount(List<Integer> ddcCount) {
-        this.ddcCount = ddcCount;
-        return this;
-    }
-
-    public List<Integer> getUvCount() {
-        return uvCount;
-    }
-
-    public ViewDataModel setUvCount(List<Integer> uvCount) {
-        this.uvCount = uvCount;
-        return this;
-    }
-
-    public Integer getVvTotal() {
-        return vvTotal;
-    }
-
-    public ViewDataModel setVvTotal(Integer vvTotal) {
-        this.vvTotal = vvTotal;
-        return this;
-    }
-
-    public List<Integer> getVvCount() {
-        return vvCount;
-    }
-
-    public ViewDataModel setVvCount(List<Integer> vvCount) {
-        this.vvCount = vvCount;
-        return this;
-    }
-
-    public Integer getPvTotal() {
-        return pvTotal;
-    }
-
-    public ViewDataModel setPvTotal(Integer pvTotal) {
-        this.pvTotal = pvTotal;
-        return this;
-    }
-
-    public Integer getScTotal() {
-        return scTotal;
-    }
-
-    public ViewDataModel setScTotal(Integer scTotal) {
-        this.scTotal = scTotal;
-        return this;
-    }
-
-    public Integer getDcTotal() {
-        return dcTotal;
-    }
-
-    public ViewDataModel setDcTotal(Integer dcTotal) {
-        this.dcTotal = dcTotal;
-        return this;
-    }
-
-    public Integer getDdcTotal() {
-        return ddcTotal;
-    }
-
-    public ViewDataModel setDdcTotal(Integer ddcTotal) {
-        this.ddcTotal = ddcTotal;
-        return this;
-    }
-
-    public Integer getUvTotal() {
-        return uvTotal;
-    }
-
-    public ViewDataModel setUvTotal(Integer uvTotal) {
-        this.uvTotal = uvTotal;
-        return this;
-    }
-
-
-    public Long getAvgTimeTotal() {
-        return avgTimeTotal;
-    }
-
-    public ViewDataModel setAvgTimeTotal(Long avgTimeTotal) {
-        this.avgTimeTotal = avgTimeTotal;
-        return this;
-    }
-
-    public List<Long> getAvgTime() {
-        return avgTime;
-    }
-
-    public ViewDataModel setAvgTime(List<Long> avgTime) {
-        this.avgTime = avgTime;
-        return this;
-    }
 
     /**
      * 计算总量

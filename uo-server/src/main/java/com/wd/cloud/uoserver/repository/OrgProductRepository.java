@@ -55,7 +55,7 @@ public interface OrgProductRepository extends JpaRepository<OrgProduct, Long> {
      * @return
      */
     @Query(value = "select * from org_product where org_flag =?1 and status =?2 and to_days(end_date) > to_days(now())",nativeQuery = true)
-    List<OrgProduct> findByOrgIdAndStatus(String orgFlag,Integer status);
+    List<OrgProduct> findByOrgFlagAndStatus(String orgFlag,Integer status);
 
     /**
      * 过期产品

@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -27,15 +26,15 @@ public interface SettingService {
     /**
      * 获取机构信息
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    TjOrg getOrgInfo(Long orgId);
+    TjOrg getOrgInfo(String orgFlag);
 
     /**
      * 保存/更新机构设置
      *
-     * @param orgId
+     * @param orgFlag
      * @param showPv
      * @param showSc
      * @param showDc
@@ -43,15 +42,15 @@ public interface SettingService {
      * @param showAvgTime
      * @return
      */
-    TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser);
+    TjOrg saveTjOrg(String orgFlag, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser);
 
     /**
      * 禁止/解除禁止机构
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    TjOrg forbade(Long orgId);
+    TjOrg forbade(String orgFlag);
 
     /**
      * 模糊查询

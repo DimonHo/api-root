@@ -1,10 +1,13 @@
 package com.wd.cloud.docdelivery.model;
 
+import lombok.Data;
+
 /**
  * @author He Zhigang
  * @date 2018/10/19
  * @Description:
  */
+@Data
 public class DefaultMailNotifyModel {
     /**
      * 邮件标题
@@ -13,36 +16,10 @@ public class DefaultMailNotifyModel {
     /**
      * 机构名称
      */
-    private String helperScname;
+    private String orgName;
     /**
      * 求助用户
      */
     private String helperName;
 
-    public String getMailTitle() {
-        return mailTitle;
-    }
-
-    public DefaultMailNotifyModel setMailTitle(String mailTitle) {
-        this.mailTitle = mailTitle;
-        return this;
-    }
-
-    public String getHelperScname() {
-        return helperScname;
-    }
-
-    public DefaultMailNotifyModel setHelperScname(String helperScname) {
-        this.helperScname = helperScname;
-        return this;
-    }
-
-    public String getHelperName() {
-        return helperName;
-    }
-
-    public DefaultMailNotifyModel setHelperName(String helperName) {
-        this.helperName = helperName;
-        return this;
-    }
 }

@@ -33,7 +33,7 @@ public class OrgController {
     OrgService orgService;
 
 
-    @ApiOperation(value = "查找机构标识是否已经存在")
+    @ApiOperation(value = "查找机构标识是否已经存在", tags = {"机构查询"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "flag", value = "机构标识", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "name", value = "机构名称", dataType = "String", paramType = "query")
@@ -96,10 +96,12 @@ public class OrgController {
     }
 
 
-    @ApiOperation(value = "根据学校查询学院")
+    @ApiOperation(value = "根据学校查询学院", tags = {"机构查询"})
     @GetMapping("/org/department")
-    public ResponseModel<DepartmentDTO> findByOrgId(@RequestParam(required = false) String orgFlag) {
-        List<DepartmentDTO> byOrgId = orgService.findByOrgId(orgFlag);
-        return ResponseModel.ok().setBody(byOrgId);
+    public ResponseModel<DepartmentDTO> findByOrgFlag(@RequestParam(required = false) String orgFlag) {
+        List<DepartmentDTO> byOrgFlag = orgService.queryDepartments(orgFlag);
+        return ResponseModel.ok().setBody(byOrgFlag);
     }
+
+
 }

@@ -7,8 +7,9 @@ import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.commons.dto.*;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.commons.util.NetUtil;
-import com.wd.cloud.uoserver.pojo.entity.*;
 import com.wd.cloud.uoserver.exception.IPValidException;
+import com.wd.cloud.uoserver.exception.NotFoundOrgException;
+import com.wd.cloud.uoserver.pojo.entity.*;
 import com.wd.cloud.uoserver.pojo.vo.OrgIpVO;
 import com.wd.cloud.uoserver.pojo.vo.OrgLinkmanVO;
 import com.wd.cloud.uoserver.pojo.vo.OrgProductVO;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author He Zhigang
@@ -170,6 +170,7 @@ public class OrgServiceImpl implements OrgService {
         if (orgVO.getLinkman() != null){
             saveLinkman(orgVO.getFlag(),orgVO.getLinkman());
         }
+        orgRepository.save(org);
     }
 
     /**
@@ -182,9 +183,9 @@ public class OrgServiceImpl implements OrgService {
      */
     @Override
     public OrgDTO findOrg(String orgName, String flag, String ip) {
-        List<Org> orgList = orgRepository.findAll(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, ip, null, null, false));
-        List<OrgDTO> orgDTOList = orgList.stream().map(org -> convertOrgToDTO(org, null,null,false, "ip", "product", "linkman", "department")).collect(Collectors.toList());
-        return orgDTOList.get(0);
+        Org org = orgRepository.findOne(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, ip, null, null, false))
+                .orElseThrow(NotFoundOrgException::new);
+        return convertOrgToDTO(org, null,null,false, "ip", "product", "linkman", "department");
     }
 
     /**
@@ -348,7 +349,7 @@ public class OrgServiceImpl implements OrgService {
 
 
     @Override
-    public List<DepartmentDTO> findByOrgId(String orgFlag) {
+    public List<DepartmentDTO> queryDepartments(String orgFlag) {
         List<DepartmentDTO> arrayDepartmentDTO = new ArrayList<>();
         List<Department> departments = departmentRepository.findByOrgFlag(orgFlag);
         Org byId = orgRepository.findByFlag(orgFlag).orElse(null);
@@ -362,24 +363,6 @@ public class OrgServiceImpl implements OrgService {
         return arrayDepartmentDTO;
     }
 
-    @Override
-    public Department insertDepartment(String orgFlag, String name) {
-        Department department = new Department();
-        department.setName(name);
-        department.setOrgFlag(orgFlag);
-        departmentRepository.save(department);
-        return department;
-    }
-
-    @Override
-    public Department updateDepartment(Long id, String orgFlag, String name) {
-        Department department = new Department();
-        department.setId(id);
-        department.setName(name);
-        department.setOrgFlag(orgFlag);
-        departmentRepository.save(department);
-        return department;
-    }
 
     @Override
     public void deleteDepartmentId(Long id) {
@@ -395,8 +378,7 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus,Boolean isExp,boolean isFilter, String... includes) {
-        OrgDTO orgDTO = new OrgDTO();
-        BeanUtil.copyProperties(org, orgDTO);
+        OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
         for (String include : includes) {
             if ("ip".equals(include)) {
                 List<IpRange> ipRanges = ipRangeRepository.findByOrgFlag(org.getFlag());

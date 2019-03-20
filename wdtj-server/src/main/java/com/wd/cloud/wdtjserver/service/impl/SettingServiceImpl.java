@@ -46,11 +46,11 @@ public class SettingServiceImpl implements SettingService {
 
     @Override
     public TjOrg save(TjOrg tjOrg) {
-        ResponseModel responseModel = uoServerApi.getOrg(tjOrg.getOrgId());
+        ResponseModel responseModel = uoServerApi.getOrg(tjOrg.getOrgFlag());
         String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
         if (!responseModel.isError()) {
             //根据学校ID查询是否有该学校
-            TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
+            TjOrg oldTjOrg = tjOrgRepository.findByOrgFlagAndHistoryIsFalse(tjOrg.getOrgFlag());
             if (oldTjOrg != null) {
                 //修改History为true
                 oldTjOrg.setHistory(true);
@@ -58,7 +58,7 @@ public class SettingServiceImpl implements SettingService {
                 tjOrgRepository.save(oldTjOrg);
             }
             tjOrg.setOrgName(orgName);
-            TjQuota tjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(tjOrg.getOrgId());
+            TjQuota tjQuota = tjQuotaRepository.findByOrgFlagAndHistoryIsFalse(tjOrg.getOrgFlag());
             if (tjQuota == null) {
                 tjQuota = new TjQuota();
                 tjQuotaRepository.save(tjQuota);
@@ -71,17 +71,17 @@ public class SettingServiceImpl implements SettingService {
     }
 
     @Override
-    public TjOrg getOrgInfo(Long orgId) {
-        return tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
+    public TjOrg getOrgInfo(String orgFlag) {
+        return tjOrgRepository.findByOrgFlagAndHistoryIsFalse(orgFlag);
     }
 
     @Override
-    public TjOrg saveTjOrg(long orgId, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser) {
-        ResponseModel responseModel = uoServerApi.getOrg(orgId);
+    public TjOrg saveTjOrg(String orgFlag, boolean showPv, boolean showSc, boolean showDc, boolean showDdc, boolean showAvgTime, String createUser) {
+        ResponseModel responseModel = uoServerApi.getOrg(orgFlag);
         String orgName = JSONUtil.parseObj(responseModel.getBody(), true).getStr("name");
         if (!responseModel.isError()) {
             //根据学校ID查询是否有该学校
-            TjOrg oldTjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
+            TjOrg oldTjOrg = tjOrgRepository.findByOrgFlagAndHistoryIsFalse(orgFlag);
             TjOrg newTjOrg = new TjOrg();
             if (oldTjOrg != null) {
                 //修改History为true
@@ -89,7 +89,7 @@ public class SettingServiceImpl implements SettingService {
                 newTjOrg.setPid(oldTjOrg.getId());
                 tjOrgRepository.save(oldTjOrg);
             }
-            newTjOrg.setOrgId(orgId)
+            newTjOrg.setOrgFlag(orgFlag)
                     .setOrgName(orgName)
                     .setCreateUser(createUser)
                     .setShowPv(showPv)
@@ -98,10 +98,10 @@ public class SettingServiceImpl implements SettingService {
                     .setShowDdc(showDdc)
                     .setShowAvgTime(showAvgTime);
 
-            TjQuota tjQuota = tjQuotaRepository.findByOrgIdAndHistoryIsFalse(orgId);
+            TjQuota tjQuota = tjQuotaRepository.findByOrgFlagAndHistoryIsFalse(orgFlag);
             if (tjQuota == null) {
                 tjQuota = new TjQuota();
-                tjQuota.setOrgId(orgId);
+                tjQuota.setOrgFlag(orgFlag);
                 tjQuota.setOrgName(orgName);
                 tjQuotaRepository.save(tjQuota);
             }
@@ -112,8 +112,8 @@ public class SettingServiceImpl implements SettingService {
     }
 
     @Override
-    public TjOrg forbade(Long orgId) {
-        TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
+    public TjOrg forbade(String orgFlag) {
+        TjOrg tjOrg = tjOrgRepository.findByOrgFlagAndHistoryIsFalse(orgFlag);
         if (tjOrg != null) {
             // 禁用和解除禁用切换
             tjOrg.setForbade(!tjOrg.isForbade());
@@ -157,7 +157,7 @@ public class SettingServiceImpl implements SettingService {
     public List<JSONObject> getOrgList() {
         List<JSONObject> orgs = new ArrayList<>();
         ResponseModel<List<JSONObject>> responseModel = uoServerApi.getAll();
-        List<String> orgNames = tjOrgRepository.distinctByOrgId();
+        List<String> orgNames = tjOrgRepository.distinctByOrgFlag();
         if (!responseModel.isError()) {
             log.info("总机构数量：{}", responseModel.getBody().size());
             responseModel.getBody().stream().filter(o -> !orgNames.contains(o.getStr("name")))

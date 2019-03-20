@@ -19,14 +19,14 @@ import javax.persistence.UniqueConstraint;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tj_org", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id", "pid"})
+        @UniqueConstraint(columnNames = {"org_falg", "pid"})
 })
 public class TjOrg extends AbstractEntity {
     /**
      * 机构ID
      */
-    @Column(name = "org_id")
-    private Long orgId;
+    @Column(name = "org_flag")
+    private String orgFlag;
     /**
      * 机构名称
      */

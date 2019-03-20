@@ -2,8 +2,8 @@ package com.wd.cloud.uoserver.service;
 
 import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.User;
-import com.wd.cloud.uoserver.pojo.entity.VUser;
 import com.wd.cloud.uoserver.pojo.entity.VUserAudit;
+import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
 import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
 import com.wd.cloud.uoserver.pojo.vo.UserVO;
 import org.springframework.data.domain.Page;
@@ -34,7 +34,21 @@ public interface UserService {
      * @param userVO
      * @return
      */
-    User addUser(UserVO userVO);
+    User registerUser(UserVO userVO);
+
+    /**
+     * 后台手动添加新用户
+     * @param backUserVO
+     * @return
+     */
+    User addUser(BackUserVO backUserVO);
+
+    /**
+     * 更新user
+     * @param backUserVO
+     * @return
+     */
+    User saveUser(BackUserVO backUserVO);
 
 
     /**
@@ -77,7 +91,18 @@ public interface UserService {
      */
     UserDTO getUserDTO(String id);
 
-    Page<VUser> getUsers(String orgFlag,String orgName, Long departmentId,String department,Integer userType, String keyword, Pageable pageable);
+    /**
+     * 用户查询
+     * @param orgFlag
+     * @param orgName
+     * @param departmentId
+     * @param department
+     * @param userType
+     * @param keyword
+     * @param pageable
+     * @return
+     */
+    Page<UserDTO> queryUsers(String orgFlag, String orgName, Long departmentId, String department, List<Integer> userType, String keyword, Pageable pageable);
 
     /**
      * 删除用户
@@ -93,10 +118,5 @@ public interface UserService {
      * @return
      */
     Page<VUserAudit> validList(Integer status, String keyword, Pageable pageable);
-
-    List<Map<String,Object>> getUserInfoSchool(Map<String, Object> params);
-
-    List<Map<String,Object>> findByCountOrgName(String orgName);
-
 
 }

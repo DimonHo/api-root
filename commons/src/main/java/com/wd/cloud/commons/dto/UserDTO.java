@@ -22,6 +22,11 @@ public class UserDTO implements Serializable {
     private Date gmtModified;
     private String email;
     private String nickname;
+    private String realname;
+    private String orgFlag;
+    private String orgName;
+    private Long departmentId;
+    private String departmentName;
     private Boolean forbidden;
     private Date loginTime;
     private String lastLoginIp;

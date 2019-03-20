@@ -82,21 +82,21 @@ public class MailServiceImpl implements MailService {
                 case WAIT_HELP:
                     mailTemplateModel.setMailTitle("用户文献互助")
                             .setHelperEmail(vHelpRecord.getHelperEmail())
-                            .setHelperScname(vHelpRecord.getHelperScname())
-                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-notify"));
+                            .setOrgName(vHelpRecord.getOrgName())
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getOrgName() + "-notify"));
                     break;
                 case HELP_THIRD:
                     mailTemplateModel.setMailTitle(String.format("[文献互助•疑难文献]-%s", vHelpRecord.getDocTitle()))
-                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-third"));
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getOrgName() + "-third"));
                     break;
                 case HELP_SUCCESSED:
                     mailTemplateModel.setMailTitle(String.format("[文献互助•成功]-%s", vHelpRecord.getDocTitle()))
                             .setDownloadUrl(buildDownloadUrl(vHelpRecord.getId()))
-                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-success"));
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getOrgName() + "-success"));
                     break;
                 case HELP_FAILED:
                     mailTemplateModel.setMailTitle(String.format("[文献互助•失败]-%s", vHelpRecord.getDocTitle()))
-                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getHelperScname() + "-failed"));
+                            .setTemplate(String.format(vHelpRecord.getChannelTemplate(), vHelpRecord.getOrgName() + "-failed"));
                     break;
                 default:
                     throw new MailException("邮件构建错误");

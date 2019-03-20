@@ -54,7 +54,7 @@ public class User extends AbstractEntity {
     /**
      * 用户类型
      */
-    @Column(name = "user_type")
+    @Column(name = "user_type",columnDefinition = "tinyint(1) default 1 COMMENT '1:普通用户，1：机构管理员用户，2，后台操作员用户，9：超级管理员用户'")
     public Integer userType;
 
     /**

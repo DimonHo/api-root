@@ -39,13 +39,13 @@ public class HelpRecord extends AbstractEntity {
     /**
      * 求助用户的机构id
      */
-    @Column(name = "helper_scid")
-    private Long helperScid;
+    @Column(name = "org_flag")
+    private String orgFlag;
 
     /**
      * 求助用户的机构名称
      */
-    private String helperScname;
+    private String orgName;
 
     /**
      * 求助IP

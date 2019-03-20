@@ -26,12 +26,12 @@ public class SpecBuilder {
     @PersistenceContext
     EntityManager entityManager;
 
-    public TjDTO tj(Long helperScid, String helperEmail, String helperName, String beginDate, String endDate, String format) {
+    public TjDTO tj(String orgFlag, String helperEmail, String helperName, String beginDate, String endDate, String format) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<TjDTO> query = cb.createQuery(TjDTO.class);
         Root<VHelpRecord> root = query.from(VHelpRecord.class);
-        Path<Long> helperScidPath = root.get("helperScid");
+        Path<String> orgFlagPath = root.get("orgFlag");
         Path<String> helperEmailPath = root.get("helperEmail");
         Path<String> helperNamePath = root.get("helperName");
         Path<Integer> statusPath = root.get("status");
@@ -39,10 +39,10 @@ public class SpecBuilder {
 
 
         //拼接where条件
-        List<Predicate> predicateList = new ArrayList<Predicate>();
-        if (helperScid != null) {
-            predicateList.add(cb.equal(helperScidPath, helperScid));
-            query.multiselect(helperScidPath).groupBy(helperScidPath);
+        List<Predicate> predicateList = new ArrayList<>();
+        if (orgFlag != null) {
+            predicateList.add(cb.equal(orgFlagPath, orgFlag));
+            query.multiselect(orgFlagPath).groupBy(orgFlagPath);
         }
         if (StrUtil.isNotBlank(helperEmail)) {
             predicateList.add(cb.equal(helperEmailPath, helperEmail));

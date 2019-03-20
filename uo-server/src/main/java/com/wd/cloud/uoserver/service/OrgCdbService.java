@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrgCdbService {
 
-    Page<OrgCdbDTO> findByOrgIdAndCollection(Pageable pageable, String orgFlag, Boolean collection);
+    Page<OrgCdbDTO> findByOrgFlagAndCollection(Pageable pageable, String orgFlag, Boolean collection);
 
-    Page<OrgCdbDTO> findByOrgIdAndLocalUrlIsNotNull(Pageable pageable, String orgFlag);
+    Page<OrgCdbDTO> findByOrgFlagAndLocalUrlIsNotNull(Pageable pageable, String orgFlag);
 
     Page<OrgCdbDTO> findByNameAndUrl(Pageable pageable, String keyword);
 

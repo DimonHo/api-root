@@ -40,8 +40,8 @@ public class ViewServiceImpl implements ViewService {
     TjViewDataRepository tjViewDataRepository;
 
     @Override
-    public ViewDataModel getViewDate(Long orgId, String beginTime, String endTime, int viewType) {
-        TjOrg tjOrg = tjOrgRepository.findByOrgIdAndHistoryIsFalse(orgId);
+    public ViewDataModel getViewDate(String orgFlag, String beginTime, String endTime, int viewType) {
+        TjOrg tjOrg = tjOrgRepository.findByOrgFlagAndHistoryIsFalse(orgFlag);
         if (tjOrg == null) {
             return null;
         }
@@ -56,10 +56,10 @@ public class ViewServiceImpl implements ViewService {
 
         List<String> tjDates = dateTimes.stream().map(dateTime -> DateUtil.format(dateTime, formatTime)).collect(Collectors.toList());
 
-        List<Map<String, Object>> viewDatas = tjViewDataRepository.groupByTjDate(orgId, DateUtil.formatDateTime(start), DateUtil.formatDateTime(end), formatSqlTime);
+        List<Map<String, Object>> viewDatas = tjViewDataRepository.groupByTjDate(orgFlag, DateUtil.formatDateTime(start), DateUtil.formatDateTime(end), formatSqlTime);
 
         ViewDataModel viewDataModel = new ViewDataModel();
-        viewDataModel.setOrgId(orgId).setTjDate(tjDates);
+        viewDataModel.setOrgFlag(orgFlag).setTjDate(tjDates);
 
         Map<String, Map<String, Object>> tjDateMap = new HashMap<>();
 

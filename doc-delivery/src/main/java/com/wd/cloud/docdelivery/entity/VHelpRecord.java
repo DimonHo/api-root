@@ -47,9 +47,9 @@ public class VHelpRecord {
 
     private String helperName;
 
-    private Long helperScid;
+    private String orgFlag;
 
-    private String helperScname;
+    private String orgName;
 
     private String helperIp;
 

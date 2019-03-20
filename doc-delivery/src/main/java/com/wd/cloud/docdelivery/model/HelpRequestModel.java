@@ -22,9 +22,9 @@ public class HelpRequestModel {
 
     private String username;
 
-    private Long helperScid;
+    private String orgFlag;
 
-    private String helperScname;
+    private String orgName;
     /**
      * 求助渠道
      */

@@ -32,7 +32,7 @@ public class HelpRecordDTO {
 
     private String helperName;
 
-    private String helperScname;
+    private String orgName;
 
     private String helperIp;
 

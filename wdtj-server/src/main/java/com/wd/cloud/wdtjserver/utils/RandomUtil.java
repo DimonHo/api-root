@@ -350,7 +350,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         Map<DateTime, TotalModel> dayTotalMap = new HashMap<>();
         dayWeightList.forEach(day -> {
             TotalModel totalModel = new TotalModel();
-            totalModel.setOrgId(tjHisQuota.getOrgId()).setOrgName(tjHisQuota.getOrgName()).setDate(day.getObj());
+            totalModel.setOrgFlag(tjHisQuota.getOrgFlag()).setOrgName(tjHisQuota.getOrgName()).setDate(day.getObj());
             dayTotalMap.put(day.getObj(), totalModel);
         });
         int pvTotal = tjHisQuota.getPvCount();
@@ -437,7 +437,7 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         //其它时段所占比列
         double otherWeight = 1 - amHighWeight - pmHighWeight - amLowWeight - pmLowWeight;
 
-        Long orgId = dayTotalModel.getValue().getOrgId();
+        String orgFlag = dayTotalModel.getValue().getOrgFlag();
         String orgName = dayTotalModel.getValue().getOrgName();
         int scTotal = dayTotalModel.getValue().getScTotal();
         int pvTotal = dayTotalModel.getValue().getPvTotal();
@@ -498,23 +498,23 @@ public class RandomUtil extends cn.hutool.core.util.RandomUtil {
         List<Integer> otherSvvCountList = daySvvXq.getOtherCountList();
 
         amHighMinutes.forEach(minute -> {
-            TjDataPk tjDataPk = new TjDataPk(orgId, minute);
+            TjDataPk tjDataPk = new TjDataPk(orgFlag, minute);
             tjDayDataList.add(createTjData(isHistory, orgName, tjDataPk, visitList, amHighScCountList, amHighSpvCountList, amHighDcCountList, amHighDdcCountList, amHighUvCountList, amHighSvvCountList));
         });
         pmHighMinutes.forEach(minute -> {
-            TjDataPk tjDataPk = new TjDataPk(orgId, minute);
+            TjDataPk tjDataPk = new TjDataPk(orgFlag, minute);
             tjDayDataList.add(createTjData(isHistory, orgName, tjDataPk, visitList, pmHighScCountList, pmHighSpvCountList, pmHighDcCountList, pmHighDdcCountList, pmHighUvCountList, pmHighSvvCountList));
         });
         amLowMinutes.forEach(minute -> {
-            TjDataPk tjDataPk = new TjDataPk(orgId, minute);
+            TjDataPk tjDataPk = new TjDataPk(orgFlag, minute);
             tjDayDataList.add(createTjData(isHistory, orgName, tjDataPk, visitList, amLowScCountList, amLowSpvCountList, amLowDcCountList, amLowDdcCountList, amLowUvCountList, amLowSvvCountList));
         });
         pmLowMinutes.forEach(minute -> {
-            TjDataPk tjDataPk = new TjDataPk(orgId, minute);
+            TjDataPk tjDataPk = new TjDataPk(orgFlag, minute);
             tjDayDataList.add(createTjData(isHistory, orgName, tjDataPk, visitList, pmLowScCountList, pmLowSpvCountList, pmLowDcCountList, pmLowDdcCountList, pmLowUvCountList, pmLowSvvCountList));
         });
         otherMinutes.forEach(minute -> {
-            TjDataPk tjDataPk = new TjDataPk(orgId, minute);
+            TjDataPk tjDataPk = new TjDataPk(orgFlag, minute);
             tjDayDataList.add(createTjData(isHistory, orgName, tjDataPk, visitList, otherScCountList, otherSpvCountList, otherDcCountList, otherDdcCountList, otherUvCountList, otherSvvCountList));
         });
         return tjDayDataList;

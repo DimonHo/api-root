@@ -11,12 +11,12 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
 
-    Permission findByOrgIdAndLevel(Long orgId, Integer level);
+    Permission findByOrgFlagAndLevel(String orgFlag, Integer level);
 
-    Permission findByOrgIdIsNullAndLevel(Integer level);
+    Permission findByOrgFlagIsNullAndLevel(Integer level);
 
-    @Query(value = "select * from permission where org_id = ?1 and level = ?2", nativeQuery = true)
-    Permission getOrgIdAndLevel(Long orgId, int level);
+    @Query(value = "select * from permission where org_flag = ?1 and level = ?2", nativeQuery = true)
+    Permission getOrgFlagAndLevel(String orgFlag, int level);
 
-    Permission getByLevelAndOrgId(int level,long orgId);
+    Permission getByLevelAndOrgFlag(int level,String orgFlag);
 }

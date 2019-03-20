@@ -78,10 +78,10 @@ public class HelpRequestAspect {
         }
         Permission permission = null;
         if (orgDTO != null) {
-            permission = permissionRepository.findByOrgIdAndLevel(orgDTO.getId(), level);
+            permission = permissionRepository.findByOrgFlagAndLevel(orgDTO.getFlag(), level);
         }
         if (permission == null) {
-            permission = permissionRepository.findByOrgIdIsNullAndLevel(level);
+            permission = permissionRepository.findByOrgFlagIsNullAndLevel(level);
         }
         if (permission != null) {
             if (permission.getTotal() != null && permission.getTotal() <= helpTotal) {

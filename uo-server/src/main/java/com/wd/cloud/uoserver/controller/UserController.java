@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +45,7 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @ApiOperation(value = "登陆用户的信息")
+    @ApiOperation(value = "登陆用户的信息",tags = {"用户查询"})
     @GetMapping("/login/info")
     public ResponseModel<UserDTO> getLogin() {
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
@@ -60,18 +59,18 @@ public class UserController {
         return ResponseModel.ok().setBody(userDTO);
     }
 
-    @ApiOperation(value = "新增用户")
+    @ApiOperation(value = "新增用户",tags = {"用户注册"})
     @PostMapping("/user")
-    public ResponseModel newUser(@RequestBody UserVO userVO) {
+    public ResponseModel registerUser(@RequestBody UserVO userVO) {
         try {
-            User user = userService.addUser(userVO);
+            User user = userService.registerUser(userVO);
             return ResponseModel.ok().setBody(user);
         } catch (Exception e) {
             return ResponseModel.fail().setBody("用户" + userVO.getUsername() + "已存在");
         }
     }
 
-    @ApiOperation(value = "完善用户信息")
+    @ApiOperation(value = "完善用户信息",tags = {"用户修改资料"})
     @PutMapping("/user")
     public ResponseModel updateUser(@RequestBody PerfectUserVO perfectUserVO) {
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
@@ -81,7 +80,7 @@ public class UserController {
         return ResponseModel.ok().setBody(userService.perfectUser(perfectUserVO));
     }
 
-    @ApiOperation(value = "获取用户信息")
+    @ApiOperation(value = "获取用户信息",tags = {"用户查询"})
     @GetMapping("/user")
     public ResponseModel<UserDTO> getUser(@RequestParam String id) {
         UserDTO userDTO = userService.getUserDTO(id);
@@ -95,7 +94,7 @@ public class UserController {
      * @param file
      * @return
      */
-    @ApiOperation(value = "上传头像")
+    @ApiOperation(value = "上传头像",tags = {"用户修改资料"})
     @PostMapping("/user/head-img")
     public ResponseModel uploadHeadImg(MultipartFile file) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
@@ -112,7 +111,7 @@ public class UserController {
      * @param file
      * @return
      */
-    @ApiOperation(value = "上传证件照")
+    @ApiOperation(value = "上传证件照",tags = {"用户修改资料"})
     @PostMapping("/user/id-photo")
     public ResponseModel uploadIdPhoto(MultipartFile file) {
         UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
@@ -121,22 +120,6 @@ public class UserController {
         }
         userService.uploadIdPhoto(userDTO.getUsername(), file);
         return ResponseModel.ok();
-    }
-
-
-    @ApiOperation(value = "用户管理")
-    @GetMapping("/getUserInfoSchool")
-    public ResponseModel<List<Map<String, Object>>> getUserInfoSchool(@RequestParam(required = false) Map<String, Object> params) {
-        List<Map<String, Object>> userInfoSchool = userService.getUserInfoSchool(params);
-        return ResponseModel.ok().setBody(userInfoSchool);
-
-    }
-
-    @ApiOperation(value = "根据学校名称获取统计学校院系")
-    @GetMapping("/findByCountOrgName")
-    public ResponseModel<List<Map<String, Object>>> findByCountOrgName(@RequestParam(required = false) String orgName) {
-        List<Map<String, Object>> byCountOrgName = userService.findByCountOrgName(orgName);
-        return ResponseModel.ok().setBody(byCountOrgName);
     }
 
 

@@ -55,12 +55,12 @@ public class ModelUtil {
         return tjHisQuota;
     }
 
-    public static Map<DateTime, TotalModel> createResultMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, Long orgId, String orgName) {
+    public static Map<DateTime, TotalModel> createResultMap(List<WeightRandom.WeightObj<DateTime>> hoursWeightList, String orgFlag, String orgName) {
         Map<DateTime, TotalModel> hourTotalModelHashMap = new HashMap<>();
         hoursWeightList.forEach(hoursWeight -> {
             TotalModel hourTotalModel = new TotalModel();
-            //设置orgId和hourDate
-            hourTotalModel.setOrgId(orgId);
+            //设置orgFlag和hourDate
+            hourTotalModel.setOrgFlag(orgFlag);
             hourTotalModel.setOrgName(orgName);
             hourTotalModel.setDate(hoursWeight.getObj());
             hourTotalModelHashMap.put(hoursWeight.getObj(), hourTotalModel);

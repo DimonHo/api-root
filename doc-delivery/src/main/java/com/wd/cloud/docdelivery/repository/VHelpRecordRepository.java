@@ -21,11 +21,11 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
 
     class SpecBuilder {
 
-        public static Specification<VHelpRecord> buildBackendList(Long helpUserScid, Integer status, String keyword, String beginTime, String endTime) {
+        public static Specification<VHelpRecord> buildBackendList(String orgFlag, Integer status, String keyword, String beginTime, String endTime) {
             return (Specification<VHelpRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (helpUserScid != null && helpUserScid != 0) {
-                    list.add(cb.equal(root.get("helperScid").as(Integer.class), helpUserScid));
+                if (StrUtil.isNotBlank(orgFlag)) {
+                    list.add(cb.equal(root.get("orgFlag"), orgFlag));
                 }
                 if (status != null && status != 0) {
                     //列表查询未处理
@@ -51,7 +51,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
         }
 
 
-        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, Long orgId) {
+        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, String orgFlag) {
             return new Specification<VHelpRecord>() {
                 @Override
                 public Predicate toPredicate(Root<VHelpRecord> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -81,8 +81,8 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                     if (isDifficult != null) {
                         list.add(cb.equal(root.get("difficult").as(boolean.class), isDifficult));
                     }
-                    if (orgId != null) {
-                        list.add(cb.equal(root.get("helperScid"), orgId));
+                    if (orgFlag != null) {
+                        list.add(cb.equal(root.get("orgFlag"), orgFlag));
                     }
                     Predicate[] p = new Predicate[list.size()];
                     return cb.and(list.toArray(p));

@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @Description:
  */
 public interface TjSpisDataRepository extends JpaRepository<TjSpisData, TjDataPk> {
-    TjSpisData findByIdOrgId(Long orgId);
+    TjSpisData findByIdOrgFlag(String orgFlag);
 }

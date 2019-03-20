@@ -88,14 +88,14 @@ public interface FrontService {
     Page<GiveRecordDTO> myGiveRecords(String giverName, List<Integer> status, Pageable pageable);
 
 
-    Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, Long orgId, Pageable pageable);
+    Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, String orgFlag, Pageable pageable);
 
     /**
      * 获取待应助的求助记录
      *
      * @return
      */
-    Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Boolean isDifficult, Long orgId, Pageable pageable);
+    Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Boolean isDifficult, String orgFlag, Pageable pageable);
 
     /**
      * 求助完成列表
@@ -104,7 +104,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, Long orgId, Pageable pageable);
+    Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, String orgFlag, Pageable pageable);
 
     /**
      * 求助成功列表
@@ -113,7 +113,7 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> helpChannel, Long orgId, Pageable pageable);
+    Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> helpChannel, String orgFlag, Pageable pageable);
 
     /**
      * 疑难文献（无结果，求助失败）列表
@@ -122,12 +122,12 @@ public interface FrontService {
      * @param pageable
      * @return
      */
-    Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel, List<Integer> status, Long orgId, Pageable pageable);
+    Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel, List<Integer> status, String orgFlag, Pageable pageable);
 
     DocFile getReusingFile(Long literatureId);
 
-    Permission getPermission(Long orgId, Integer level);
+    Permission getPermission(String orgFlag, Integer level);
 
-    Permission nextPermission(Long orgId, Integer level);
+    Permission nextPermission(String orgFlag, Integer level);
 
 }

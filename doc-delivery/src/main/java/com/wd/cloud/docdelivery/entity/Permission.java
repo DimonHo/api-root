@@ -18,11 +18,11 @@ import javax.persistence.UniqueConstraint;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_id", "level"})})
+@Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_flag", "level"})})
 public class Permission extends AbstractEntity {
 
-    @Column(name = "org_id")
-    private Long orgId;
+    @Column(name = "org_flag")
+    private String orgFlag;
 
     private String orgName;
 

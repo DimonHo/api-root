@@ -27,8 +27,8 @@ public class TjHisQuota extends AbstractEntity {
     /**
      * 机构ID
      */
-    @Column(name = "org_id")
-    private Long orgId;
+    @Column(name = "org_name")
+    private String orgFlag;
 
     private String orgName;
 

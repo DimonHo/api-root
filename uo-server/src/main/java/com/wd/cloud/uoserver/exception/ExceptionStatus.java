@@ -22,4 +22,14 @@ public class ExceptionStatus {
      * Ip已存在
      */
     public static final Integer EXISTS_IP = 1001102;
+
+    /**
+     * 用户已存在
+     */
+    public static final Integer EXISTS_USER = 1001103;
+
+    /**
+     * 邮箱已经被占用
+     */
+    public static final Integer EXISTS_EMAIL = 1001104;
 }

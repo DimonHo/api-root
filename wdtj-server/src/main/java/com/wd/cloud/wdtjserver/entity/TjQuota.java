@@ -23,15 +23,15 @@ import java.sql.Time;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tj_quota", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"org_id", "pid"})
+        @UniqueConstraint(columnNames = {"org_flag", "pid"})
 })
 public class TjQuota extends AbstractEntity {
 
     /**
      * 机构ID
      */
-    @Column(name = "org_id")
-    private Long orgId;
+    @Column(name = "org_flag")
+    private String orgFlag;
 
     private String orgName;
 

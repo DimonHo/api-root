@@ -80,9 +80,9 @@ public class FrontendController {
             helpRecord.setHelperName(userDTO.getUsername());
         }
         if (orgDTO != null) {
-            helpRecord.setHelperScid(orgDTO.getId()).setHelperScname(orgDTO.getName());
+            helpRecord.setOrgFlag(orgDTO.getFlag()).setOrgName(orgDTO.getName());
         } else {
-            helpRecord.setHelperScid(helpRequestModel.getHelperScid()).setHelperScname(helpRequestModel.getHelperScname());
+            helpRecord.setOrgFlag(helpRequestModel.getOrgFlag()).setOrgName(helpRequestModel.getOrgName());
         }
         helpRecord.setHelperIp(ip);
         helpRecord.setSend(true);
@@ -111,12 +111,12 @@ public class FrontendController {
                                      @RequestParam(required = false) Boolean isDifficult,
                                      @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                      @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Long orgId = null;
+        String orgFlag = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO != null ? orgDTO.getId() : null;
+            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
         }
-        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, isDifficult, orgId, pageable);
+        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, isDifficult, orgFlag, pageable);
         return ResponseModel.ok().setBody(helpRecordDTOS);
     }
 
@@ -131,12 +131,12 @@ public class FrontendController {
                                       @RequestParam(required = false) Boolean isDifficult,
                                       @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Long orgId = null;
+        String orgFlag = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO != null ? orgDTO.getId() : null;
+            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
         }
-        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, isDifficult, orgId, pageable);
+        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, isDifficult, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(waitHelpRecords);
     }
@@ -151,12 +151,12 @@ public class FrontendController {
     public ResponseModel helpFinishList(@RequestParam(required = false) List<Integer> channel,
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Long orgId = null;
+        String orgFlag = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO != null ? orgDTO.getId() : null;
+            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
         }
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, orgId, pageable);
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
@@ -171,12 +171,12 @@ public class FrontendController {
     public ResponseModel helpSuccessList(@RequestParam(required = false) List<Integer> channel,
                                          @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Long orgId = null;
+        String orgFlag = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO != null ? orgDTO.getId() : null;
+            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
         }
-        Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgId, pageable);
+        Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgFlag, pageable);
         return ResponseModel.ok().setBody(successHelpRecords);
     }
 
@@ -190,12 +190,12 @@ public class FrontendController {
                                         @RequestParam(required = false) List<Integer> status,
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Long orgId = null;
+        String orgFlag = null;
         if (isOrg) {
             OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgId = orgDTO != null ? orgDTO.getId() : null;
+            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
         }
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgId, pageable);
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
@@ -315,8 +315,8 @@ public class FrontendController {
     public ResponseModel nextLevel(@RequestParam(required = false) String username) {
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-        Long orgId = orgDTO != null ? orgDTO.getId() : null;
-        Permission permission = frontService.nextPermission(orgId, level);
+        String orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
+        Permission permission = frontService.nextPermission(orgFlag, level);
         Map<String, Long> resp = new HashMap<>();
         if (permission == null) {
             resp.put("todayTotal", 10L);
