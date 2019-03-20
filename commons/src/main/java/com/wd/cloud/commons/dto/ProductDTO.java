@@ -3,6 +3,7 @@ package com.wd.cloud.commons.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,9 +13,12 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-public class ProductDTO {
+public class ProductDTO implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private Long id;
+    private Date gmtCreate;
+    private Date gmtModified;
     /**
      * 产品名称
      */
@@ -26,11 +30,11 @@ public class ProductDTO {
     /**
      * 生效时间
      */
-    private Date beginTime;
+    private Date effDate;
     /**
      * 失效时间
      */
-    private Date endTime;
+    private Date expDate;
     /**
      * 产品状态： 购买、试用、停用
      */
@@ -40,7 +44,6 @@ public class ProductDTO {
      */
     private Boolean single;
 
-    private Long orgId;
+    private String orgFlag;
 
-    private Long productId;
 }

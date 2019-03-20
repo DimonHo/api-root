@@ -1,11 +1,10 @@
-package com.wd.cloud.uoserver.entity;
+package com.wd.cloud.uoserver.pojo.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -19,7 +18,11 @@ import javax.persistence.Table;
 @Table(name = "ip_range")
 public class IpRange extends AbstractEntity {
 
-    private Long orgId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+
+    private String orgFlag;
 
     private String begin;
 

@@ -1,12 +1,10 @@
-package com.wd.cloud.uoserver.entity;
+package com.wd.cloud.uoserver.pojo.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -20,20 +18,28 @@ import javax.persistence.Table;
 @Table(name = "user")
 public class User extends AbstractEntity {
 
-    @Column(unique = true)
+    @Id
+    @GeneratedValue
     private String username;
-
-    private String password;
-
-    private String nickname;
 
     private String email;
 
-    @Column(name = "org_id")
-    private Long orgId;
+    private String password;
 
-    @Column(name = "org_name")
-    private String orgName;
+    /**
+     * 昵称
+     */
+    private String nickname;
+
+    /**
+     * 真实姓名
+     */
+    private String realname;
+
+
+    @Column(name = "org_flag")
+    private String orgFlag;
+
     /**
      * 手机号码
      */
@@ -57,7 +63,6 @@ public class User extends AbstractEntity {
     @Column(name = "register_ip")
     private String registerIp;
 
-
     /**
      * qqID
      */
@@ -80,37 +85,37 @@ public class User extends AbstractEntity {
     private String idPhoto;
 
     /**
-     * 是否已认证
+     * 认证状态
      */
-    @Column(name = "is_validated", columnDefinition = "tinyint(1) default 0 COMMENT '0:未认证，1：已认证'")
-    private boolean validated;
+    @Column(name = "valid_status", columnDefinition = "tinyint(1) default 0 COMMENT '0:未认证，1：待认证，2：已认证'")
+    private Integer validStatus;
 
     /**院系*/
-    private String department;
+    private Long departmentId;
 
-    /**身份*/
-    private Integer identity;
+    /**身份类型 1:学生，2：老师*/
+    private Integer identityType;
 
     /**职工号/学号*/
-    @Column(name = "department_id")
-    private String departmentId;
+    @Column(name = "student_id")
+    private String studentId;
 
     /**教育程度*/
-    private Integer education;
+    private Integer eduLevel;
 
     /**性别*/
     private Short sex;
 
     /**入学年份*/
-    @Column(name = "entrance_time")
-    private String entranceTime;
-
-    /**登录权限*/
-    private Integer permission = 0;
+    @Column(name = "entrance_Year")
+    private String entranceYear;
 
     /**是否在线*/
-    @Column(name = "is_online",columnDefinition = "tinyint(1) default 0 COMMENT '0:在线，1：离线'")
-    private boolean isOnline;
+    @Column(name = "is_online",columnDefinition = "tinyint(1) default 0 COMMENT '0:离线，1：在线'")
+    private boolean online;
 
-    private Integer forbidden;
+    /**账号是否被禁用*/
+    @Column(name = "is_forbidden",columnDefinition = "tinyint(1) default 0 COMMENT '0:未禁用，1：禁用'")
+    private boolean forbidden;
+
 }

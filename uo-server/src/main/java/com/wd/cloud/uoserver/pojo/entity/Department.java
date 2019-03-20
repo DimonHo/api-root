@@ -1,12 +1,10 @@
-package com.wd.cloud.uoserver.entity;
+package com.wd.cloud.uoserver.pojo.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -17,9 +15,12 @@ import javax.persistence.Table;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "department")
+@Table(name = "department",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
 public class Department extends AbstractEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     /**
      * 所属上级院系
      */
@@ -30,6 +31,6 @@ public class Department extends AbstractEntity {
      */
     private String name;
 
-    @Column(name = "org_id")
-    private Long orgId;
+    @Column(name = "org_flag")
+    private String orgFlag;
 }

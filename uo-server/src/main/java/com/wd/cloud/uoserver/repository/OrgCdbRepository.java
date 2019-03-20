@@ -1,7 +1,8 @@
 package com.wd.cloud.uoserver.repository;
 
 
-import com.wd.cloud.uoserver.entity.OrgCdb;
+import cn.hutool.core.util.StrUtil;
+import com.wd.cloud.uoserver.pojo.entity.OrgCdb;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -18,15 +19,16 @@ import java.util.List;
  */
 public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecificationExecutor<OrgCdb> {
 
+    List<OrgCdb> findByOrgFlag(String orgFlag);
 
     List<OrgCdb> findByCdbId(Long cdbId);
 
     class SpecificationBuilder {
-        public static Specification<OrgCdb> findByOrgIdAndCollection(Long orgId,Boolean collection) {
+        public static Specification<OrgCdb> findByOrgIdAndCollection(String orgFlag, Boolean collection) {
             return (Specification<OrgCdb>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (orgId != null) {
-                    list.add(cb.equal(root.get("orgId").as(Long.class), orgId));
+                if (StrUtil.isNotBlank(orgFlag)) {
+                    list.add(cb.equal(root.get("orgFlag").as(Long.class), orgFlag));
                 }
                 if (collection != null) {
                     list.add(cb.equal(root.get("collection").as(Boolean.class), collection));
@@ -36,13 +38,13 @@ public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecif
             };
         }
 
-        public static Specification<OrgCdb> findByOrgIdAndLocalUrlIsNotNull(Long orgId) {
+        public static Specification<OrgCdb> findByOrgIdAndLocalUrlIsNotNull(String orgFlag) {
             return (Specification<OrgCdb>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 Path localUrl = root.get("localUrl");
-                if (orgId != null) {
+                if (StrUtil.isNotBlank(orgFlag)) {
                     list.add(cb.and(
-                            cb.equal(root.get("orgId").as(Long.class), orgId),
+                            cb.equal(root.get("orgFlag").as(Long.class), orgFlag),
                             cb.isNotNull(localUrl)
                             )
                     );

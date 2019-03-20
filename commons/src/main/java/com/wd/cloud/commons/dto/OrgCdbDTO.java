@@ -5,20 +5,24 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 /**
  * @author He Zhigang
  * @date 2019/3/4
- * @Description:
+ * @Description: 机构馆藏
  */
+
 @Data
 @Accessors(chain = true)
-public class CdbDTO implements Serializable {
+public class OrgCdbDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private Date gmtCreate;
+    private Date gmtModified;
 
     /**馆藏名称*/
     private String name;
@@ -27,14 +31,14 @@ public class CdbDTO implements Serializable {
     private String url;
 
     /**机构标示*/
-    private String flag;
+    private String orgFlag;
+
+    private String orgName;
 
     /**本地资源url*/
     private String localUrl;
 
     /**是否显示馆藏数据库*/
-    private boolean display;
+    private Boolean display;
 
-    /**学校名称*/
-    private String orgName;
 }

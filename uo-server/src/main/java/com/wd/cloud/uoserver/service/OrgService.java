@@ -1,13 +1,16 @@
 package com.wd.cloud.uoserver.service;
 
 import com.wd.cloud.commons.dto.DepartmentDTO;
-import com.wd.cloud.uoserver.entity.*;
 import com.wd.cloud.commons.dto.IpRangeDTO;
 import com.wd.cloud.commons.dto.OrgDTO;
+import com.wd.cloud.uoserver.pojo.entity.*;
+import com.wd.cloud.uoserver.pojo.vo.OrgIpVO;
+import com.wd.cloud.uoserver.pojo.vo.OrgLinkmanVO;
+import com.wd.cloud.uoserver.pojo.vo.OrgProductVO;
+import com.wd.cloud.uoserver.pojo.vo.OrgVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,68 +42,93 @@ public interface OrgService {
     Map<IpRangeDTO, Set<IpRange>> overlay();
 
     /**
+     * 检查机构名称或标识是否已存在
+     *
+     * @param flag
+     * @param name
+     * @return
+     */
+    boolean orgExists(String flag, String name);
+
+    void saveOrg(OrgVO org);
+
+    /**
      * 查询IP所属机构信息
      *
+     * @param orgName
+     * @param flag
      * @param ip
      * @return
      */
-    OrgDTO findOrg(String orgName, String flag, String spisFlag, String eduFlag, String ip);
+    OrgDTO findOrg(String orgName, String flag, String ip);
+
+    /**
+     * 查询机构列表
+     *
+     * @param orgName
+     * @param flag
+     * @param ip
+     * @param prodStatus 产品状态
+     * @param isExp 产品是否过期
+     * @param pageable
+     * @return
+     */
+    Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp, boolean isFilter, Pageable pageable);
+
+    /**
+     * 新增，更新，删除订购产品的状态
+     * @param orgFlag
+     * @param productVOS
+     * @return
+     */
+    List<OrgProduct> saveOrgProduct(String orgFlag, List<OrgProductVO> productVOS);
+
+    /**
+     * 新增,更新，刪除机构联系人
+     * @param orgFlag
+     * @param linkmanVOS
+     * @return
+     */
+    List<Linkman> saveLinkman(String orgFlag, List<OrgLinkmanVO> linkmanVOS);
+
+    /**
+     * 取消订购产品
+     *
+     * @param orgFlag
+     * @param productIds 取消的产品ID列表
+     */
+    void cancelProduct(String orgFlag, List<Long> productIds);
+
+    /**
+     * 添加机构IP
+     *
+     * @param orgFlag
+     * @param ipRanges
+     * @return
+     */
+    List<IpRange> addOrgIp(String orgFlag, String ipRanges);
+
+    /**
+     * 添加或修改机构IP
+     *
+     * @param orgFlag
+     * @param ipModels
+     * @return
+     */
+    List<IpRange> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels);
 
 
-    Page<OrgDTO> likeOrg(String orgName, String flag, String spisFlag, String eduFlag, String ip, Pageable pageable);
+    List<DepartmentDTO> findByOrgId(String orgFlag);
 
-    OrgDTO addOrg();
 
-    OrgDTO getOrg(Long orgId);
+    Department insertDepartment(String orgId, String name);
 
-    List<DepartmentDTO> findByOrgId(Long orgId);
-
-    Org getOrgId(Long orgId);
-
-    Department insertDepartment(Long orgId, String name);
-
-    Department updateDepartment(Long id,Long orgId, String name);
+    Department updateDepartment(Long id, String orgId, String name);
 
     void deleteDepartmentId(Long id);
 
-    Page<OrgDTO> findByNameAndIp(Pageable pageable, String orgName, String ip);
-
-    Page<OrgDTO> findByStatus(Integer status,Pageable pageable);
-
-    Page<OrgDTO> notFindByStatus(Pageable pageable);
-
-    OrgDTO findByOrgNameDetail(Long id);
-
-    //修改学校基本信息接口
-    void updateOrgAndLinkman(Long id,String orgName,String flag,String province,String city,String name,String email,String phone);
-
-    //根据学校新增产品
-    void insertOrgAndProduct(Long orgId, Long productId, Date beginDate, Date endDate, Integer status, Boolean single);
-
-    //根据学校批量新增IP
-    void insertOrgAndIpRangeS(Long orgId,String beginAndEnd);
-
-    //新增学校基本信息
-    Org insertOrgAndLinkman(String orgName,String flag,String province,String city,String name,String email,String phone);
-
-    //根据学校删除IP
-    void deleteIpRangeOrgId(Long orgId);
-    //根据学校删除产品
-    void deleteProductOrgId(Long orgId);
 
 
-    //检测IP是否存在
-    Boolean findIpRangesExist(String begin,String end);
-
-
-    //查找机构标识是否已经存在
-    Boolean findExistsFlag(String flag);
-
-    //检测机构名是否存在
-    Boolean findOrgNameExist(String name);
-
-    //根据学校查询学校信息
-    Org findByName(String name);
 
 
 }

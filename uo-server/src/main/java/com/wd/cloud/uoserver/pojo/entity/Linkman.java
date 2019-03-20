@@ -1,12 +1,10 @@
-package com.wd.cloud.uoserver.entity;
+package com.wd.cloud.uoserver.pojo.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -20,8 +18,12 @@ import javax.persistence.Table;
 @Table(name = "linkman")
 public class Linkman extends AbstractEntity {
 
-    @Column(name = "org_id")
-    private Long orgId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+
+    @Column(name = "org_flag")
+    private String orgFlag;
     /**
      * 联系人名称
      */

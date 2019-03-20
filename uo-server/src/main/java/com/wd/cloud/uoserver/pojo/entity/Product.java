@@ -1,11 +1,10 @@
-package com.wd.cloud.uoserver.entity;
+package com.wd.cloud.uoserver.pojo.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -19,6 +18,9 @@ import javax.persistence.Table;
 @Table(name = "product")
 public class Product extends AbstractEntity{
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
     /**
      * 产品名称
      */

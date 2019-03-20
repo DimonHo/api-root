@@ -1,11 +1,12 @@
 package com.wd.cloud.uoserver.repository;
 
 import com.wd.cloud.commons.util.StrUtil;
-import com.wd.cloud.uoserver.entity.User;
+import com.wd.cloud.uoserver.pojo.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -18,24 +19,17 @@ import java.util.Optional;
  * @date 2019/3/4
  * @Description:
  */
-public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
 
     /**
      * 用户名查询
      *
-     * @param username
+     * @param id
      * @return
      */
-    Optional<User> findByUsername(String username);
+    @Query("FROM User where username=:id or email =:id")
+    Optional<User> findUserById(@Param("id") String id);
 
-
-    /**
-     * 用户名查询
-     * @param username
-     * @param validated
-     * @return
-     */
-    Optional<User> findByUsernameAndValidated(String username, Boolean validated);
 
     Optional<User> findByEmail(String email);
 
@@ -53,6 +47,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     List<Map<String,Object>> getUserInfoSchool(Map<String, Object> params);
 
     class SpecificationBuilder {
+
+
         public static Specification<User> buildFindUserInfoList(String orgName, String department, String keyword) {
             return (Specification<User>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();

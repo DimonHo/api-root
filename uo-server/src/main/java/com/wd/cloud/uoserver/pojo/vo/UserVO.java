@@ -1,4 +1,4 @@
-package com.wd.cloud.uoserver.model;
+package com.wd.cloud.uoserver.pojo.vo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -13,15 +13,19 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-public class RegisterModel {
+public class UserVO {
     @NotNull
     private String username;
 
+    private String password;
+
     private String nickname;
+
+    private String realname;
 
     private String email;
 
-    private Long orgId;
+    private String orgFlag;
 
     private String orgName;
     /**

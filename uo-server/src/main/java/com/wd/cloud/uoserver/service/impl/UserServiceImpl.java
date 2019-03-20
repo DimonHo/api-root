@@ -1,6 +1,9 @@
 package com.wd.cloud.uoserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
@@ -8,17 +11,16 @@ import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.uoserver.constants.GlobalConstants;
-import com.wd.cloud.uoserver.entity.AuditUserInfo;
-import com.wd.cloud.uoserver.entity.Org;
-import com.wd.cloud.uoserver.entity.User;
+import com.wd.cloud.uoserver.pojo.entity.*;
 import com.wd.cloud.uoserver.enums.AuditEnum;
+import com.wd.cloud.uoserver.enums.OutsideEnum;
+import com.wd.cloud.uoserver.enums.PermissionTypeEnum;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.exception.NotFoundUserException;
 import com.wd.cloud.uoserver.feign.FsServerApi;
-import com.wd.cloud.uoserver.model.RegisterModel;
-import com.wd.cloud.uoserver.repository.AuditUserInfoRepository;
-import com.wd.cloud.uoserver.repository.OrgRepository;
-import com.wd.cloud.uoserver.repository.UserRepository;
+import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
+import com.wd.cloud.uoserver.pojo.vo.UserVO;
+import com.wd.cloud.uoserver.repository.*;
 import com.wd.cloud.uoserver.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +43,12 @@ import java.util.Map;
 @Service("userService")
 @Transactional(rollbackFor = Exception.class)
 public class UserServiceImpl implements UserService {
-    @Autowired
-    AuditUserInfoRepository auditUserInfoRepository;
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PermissionRepository permissionRepository;
 
     @Autowired
     OrgRepository orgRepository;
@@ -53,60 +56,69 @@ public class UserServiceImpl implements UserService {
     @Autowired
     FsServerApi fsServerApi;
 
+    @Autowired
+    AuditLogRepository auditLogRepository;
+
+    @Autowired
+    VUserRepository vUserRepository;
+
+    @Autowired
+    VUserAuditRepository vUserAuditRepository;
+
     @Override
     public UserDTO buildUserInfo(Map<String, Object> authInfo) {
+        log.info("SSO认证中心用户对象： {}",MapUtil.join(authInfo,";","="));
         UserDTO userDTO = BeanUtil.mapToBean(authInfo, UserDTO.class, true);
-        User user = userRepository.findByUsername(userDTO.getUsername()).orElseThrow(NotFoundUserException::new);
-        Org org = orgRepository.findById(user.getOrgId()).orElseThrow(NotFoundOrgException::new);
+        User user = userRepository.findUserById(userDTO.getUsername()).orElseThrow(NotFoundUserException::new);
+        Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundOrgException::new);
         OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
         userDTO.setOrg(orgDTO);
         BeanUtil.copyProperties(user, userDTO);
         return userDTO;
     }
 
+
+    /**
+     * 添加新用户
+     * @param userVO
+     * @return
+     */
     @Override
-    public void uploadPhoto(String username, MultipartFile file) {
-        String headImg = uploadImage(file);
-        User user = userRepository.findByUsername(username).orElse(new User());
-        user.setUsername(username);
-        user.setHeadImg(headImg);
-        userRepository.save(user);
+    public User addUser(UserVO userVO) {
+        User user = BeanUtil.toBean(userVO, User.class);
+        return userRepository.save(user);
+
     }
 
+    /**
+     * 完善用户信息，获得6个月校外访问权限
+     *
+     * @param perfectUserVO
+     * @return
+     */
     @Override
-    public void uploadIdPhoto(String username, MultipartFile file) {
-        String idPhoto = uploadImage(file);
-        User user = userRepository.findByUsername(username).orElse(new User());
-        user.setUsername(username);
-        user.setIdPhoto(idPhoto);
-        user.setValidated(false);
-        userRepository.save(user);
+    public User perfectUser(PerfectUserVO perfectUserVO) {
+        User user = userRepository.findUserById(perfectUserVO.getUsername()).orElseThrow(NotFoundUserException::new);
+        BeanUtil.copyProperties(perfectUserVO, user);
+        // 完善信息自动获得6个月校外权限
+        Permission permission = setOutsidePermission(user.getUsername(), OutsideEnum.HALF_YEAR, 6);
+        permissionRepository.save(permission);
+        user = userRepository.save(user);
+        return user;
     }
 
-    private String uploadImage(MultipartFile file) {
-        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(GlobalConstants.UPLOAD_IMAGE_PATH, file);
-        if (responseModel.isError()) {
-            log.error("文件服务调用失败：{}", responseModel.getMessage());
-            throw new FeignException("fsServer.uploadFile");
-        }
-        return responseModel.getBody().getStr("fileId");
-    }
-
-
+    /**
+     * 根据用户名或邮箱获取用户
+     * @param id username or email
+     * @return
+     */
     @Override
-    public void auditIdPhoto(String username, Boolean validated) {
-        User user = userRepository.findByUsername(username).orElseThrow(NotFoundException::new);
-        user.setValidated(validated);
-        userRepository.save(user);
-    }
-
-    @Override
-    public UserDTO findByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(NotFoundException::new);
+    public UserDTO getUserDTO(String id) {
+        User user = userRepository.findUserById(id).orElseThrow(NotFoundException::new);
         UserDTO userDTO = new UserDTO();
         BeanUtil.copyProperties(user, userDTO);
-        if (user.getOrgId() != null) {
-            Org org = orgRepository.findById(user.getOrgId()).orElseThrow(NotFoundException::new);
+        if (StrUtil.isNotBlank(user.getOrgFlag())) {
+            Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundException::new);
             OrgDTO orgDTO = new OrgDTO();
             BeanUtil.copyProperties(org, orgDTO);
             userDTO.setOrg(orgDTO);
@@ -114,12 +126,98 @@ public class UserServiceImpl implements UserService {
         return userDTO;
     }
 
+    /**
+     * 查询用户列表
+     * @param orgFlag
+     * @param orgName
+     * @param departmentId
+     * @param department
+     * @param userType
+     * @param keyword
+     * @param pageable
+     * @return
+     */
     @Override
-    public User register(RegisterModel registerModel) {
-        User user = BeanUtil.toBean(registerModel, User.class);
-        return userRepository.save(user);
-
+    public Page<VUser> getUsers(String orgFlag,String orgName,Long departmentId, String department,Integer userType, String keyword, Pageable pageable) {
+        keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
+        return vUserRepository.findAll(VUserRepository.SpecBuilder.like(orgFlag,orgName,departmentId,department,userType,keyword),pageable);
     }
+
+    /**
+     * 上传头像
+     * @param username
+     * @param file
+     */
+    @Override
+    public void uploadHeadImg(String username, MultipartFile file) {
+        String headImg = uploadImage(file);
+        User user = userRepository.findUserById(username).orElseThrow(NotFoundUserException::new);
+        user.setHeadImg(headImg);
+        userRepository.save(user);
+    }
+
+    /**
+     * 上传证件照，添加待审核记录
+     * @param username
+     * @param file
+     */
+    @Override
+    public void uploadIdPhoto(String username, MultipartFile file) {
+        User user = userRepository.findUserById(username).orElseThrow(NotFoundUserException::new);
+        String idPhoto = uploadImage(file);
+        user.setIdPhoto(idPhoto);
+        // 待审核
+        user.setValidStatus(1);
+        // 添加待审核记录
+        AuditLog auditLog = auditLogRepository.findByUsernameAndStatus(username,AuditEnum.WAITE.value()).orElse(new AuditLog());
+        auditLog.setStatus(AuditEnum.WAITE.value()).setIdPhoto(idPhoto).setUsername(username);
+        auditLogRepository.save(auditLog);
+        userRepository.save(user);
+    }
+
+    /**
+     * 审核证件照
+     *
+     * @param username
+     * @param validated
+     * @param handlerName
+     */
+    @Override
+    public void auditIdPhoto(String username, Boolean validated, String handlerName) {
+        User user = userRepository.findUserById(username).orElseThrow(NotFoundUserException::new);
+        if (validated) {
+            // 验证通过后获得永久访问权限
+            Permission permission = setOutsidePermission(username, OutsideEnum.FOREVER, 9999);
+            permissionRepository.save(permission);
+        }
+        // 记录审核日志
+        AuditLog auditLog = auditLogRepository.findByUsernameAndStatus(username,AuditEnum.WAITE.value()).orElseThrow(NotFoundException::new);
+        auditLog.setStatus(validated?AuditEnum.PASS.value():AuditEnum.NO_PASS.value())
+                .setHandlerName(handlerName);
+        auditLogRepository.save(auditLog);
+        // 已认证or未认证
+        user.setValidStatus(validated ? 2 : 0);
+        userRepository.save(user);
+    }
+
+
+    @Override
+    public void deleteUser(String username) {
+        userRepository.deleteById(username);
+    }
+
+    /**
+     * 审核记录视图返回
+     * @param status
+     * @param keyword
+     * @param pageable
+     * @return
+     */
+    @Override
+    public Page<VUserAudit> validList(Integer status, String keyword, Pageable pageable){
+        return vUserAuditRepository.findAll(VUserAuditRepository.SpecBuilder.like(status,keyword),pageable);
+    }
+
 
     @Override
     public List<Map<String, Object>> getUserInfoSchool(Map<String, Object> params) {
@@ -129,144 +227,44 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void give(String userName, String idPhoto, String nickName, String orgName, String department, Integer identity,
-                     String departmentId, Integer education, Short sex, String entranceTime, String email, Integer permission) {
-        AuditUserInfo auditIdCard = new AuditUserInfo();
-        auditIdCard.setUsername(userName);
-        auditIdCard.setIdPhoto(idPhoto);
-        auditIdCard.setNickName(nickName);
-        auditIdCard.setOrgName(orgName);
-        auditIdCard.setStatus(AuditEnum.WAITE.value());
-        auditIdCard.setDepartment(department);
-        auditIdCard.setDepartmentId(departmentId);
-        auditIdCard.setIdentity(identity);
-        auditIdCard.setEducation(education);
-        auditIdCard.setSex(sex);
-        auditIdCard.setEntranceTime(entranceTime);
-        auditIdCard.setEmail(email);
-        auditIdCard.setPermission(permission);
-        auditUserInfoRepository.save(auditIdCard);
-    }
-
-    @Override
-    public AuditUserInfo getUserName(String userName) {
-        return auditUserInfoRepository.findByUsername(userName).orElseThrow(NotFoundException::new);
-    }
-
-    @Override
-    public Page<AuditUserInfo> findAll(Pageable pageable, Map<String, Object> param) {
-        Integer status = (Integer) param.get("status");
-        String keyword = ((String) param.get("keyword"));
-        keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
-        return auditUserInfoRepository.findAll(AuditUserInfoRepository.SpecificationBuilder.buildBackendList(status, keyword), pageable);
-    }
-
-    @Override
-    public AuditUserInfo findById(Long id) {
-        return auditUserInfoRepository.findById(id).orElseThrow(NotFoundException::new);
-    }
-
-    @Override
-    public Page<User> findUserAll(Pageable pageable, Map<String, Object> param) {
-        String orgName = (String) param.get("orgName");
-        String department = (String) param.get("department");
-        String keyword = ((String) param.get("keyword"));
-        keyword = keyword != null ? keyword.replaceAll("\\\\", "\\\\\\\\") : null;
-        Page<User> userInfo = userRepository.findAll(UserRepository.SpecificationBuilder.buildFindUserInfoList(orgName, department, keyword), pageable);
-        return userInfo;
-    }
-
-
-    @Override
-    public void apply(Long id, Integer permission, String handlerName) {
-        AuditUserInfo idCard = auditUserInfoRepository.findById(id).orElseThrow(NotFoundException::new);
-        Date date = new Date();
-        idCard.setHandleTime(date);
-        idCard.setHandlerName(handlerName);
-        idCard.setPermission(permission);
-        idCard.setStatus(2);
-        auditUserInfoRepository.save(idCard);
-
-        User user = userRepository.findByUsername(idCard.getUsername()).orElseThrow(NotFoundException::new);
-        user.setIdPhoto(idCard.getIdPhoto());
-        user.setValidated(true);
-        user.setNickname(idCard.getNickName());
-        user.setDepartment(idCard.getDepartment());
-        user.setDepartmentId(idCard.getDepartmentId());
-        user.setPermission(permission);
-        user.setSex(idCard.getSex());
-        user.setIdentity(idCard.getIdentity());
-        user.setEducation(idCard.getEducation());
-        user.setEntranceTime(idCard.getEntranceTime());
-        userRepository.save(user);
-    }
-
-    @Override
-    public void notApply(Long id, Integer permission, String handlerName) {
-        AuditUserInfo auditUserInfo = auditUserInfoRepository.findById(id).orElseThrow(NotFoundOrgException::new);
-        Date date = new Date();
-        auditUserInfo.setHandleTime(date);
-        auditUserInfo.setHandlerName(handlerName);
-        auditUserInfo.setPermission(permission);
-        auditUserInfo.setStatus(1);
-        auditUserInfoRepository.save(auditUserInfo);
-    }
-
-    @Override
-    public User updateUser(Long id, String pwd, String nickName, String orgName, String department,
-                           Integer identity, String entranceTime, String departmentId, Integer education,
-                           Integer userType, Short sex, Integer permission, Long orgId) {
-        User userId = userRepository.findById(id).orElse(null);
-        userId.setPassword(pwd);
-        userId.setNickname(nickName);
-        userId.setOrgName(orgName);
-        userId.setDepartment(department);
-        userId.setIdentity(identity);
-        userId.setEntranceTime(entranceTime);
-        userId.setDepartmentId(departmentId);
-        userId.setEducation(education);
-        userId.setUserType(userType);
-        userId.setSex(sex);
-        userId.setPermission(permission);
-        userId.setOrgId(orgId);
-        User save = userRepository.save(userId);
-        return save;
-    }
-
-    @Override
-    public User findByUserId(Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        return user;
-    }
-
-    @Override
-    public User findByUserType(Long id, Integer forbidden) {
-        User user = userRepository.findById(id).orElse(null);
-        user.setForbidden(forbidden);
-        userRepository.save(user);
-        return user;
-    }
-
-    @Override
-    public void deleteUserId(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    @Override
-    public User userSave(User user) {
-        User save = userRepository.save(user);
-        return save;
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
-        return user;
-    }
-
-    @Override
     public List<Map<String, Object>> findByCountOrgName(String orgName) {
         List<Map<String, Object>> byCountOrgName = userRepository.findByCountOrgName(orgName);
         return byCountOrgName;
+    }
+
+
+
+    /**
+     * 调用fs-server上传照片
+     * @param file
+     * @return
+     */
+    private String uploadImage(MultipartFile file) {
+        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(GlobalConstants.UPLOAD_IMAGE_PATH, file);
+        if (responseModel.isError()) {
+            log.error("文件服务调用失败：{}", responseModel.getMessage());
+            throw new FeignException("fsServer.uploadFile");
+        }
+        return responseModel.getBody().getStr("fileId");
+    }
+
+    /**
+     * 设置校外访问权限
+     *
+     * @param username
+     * @param outsideEnum
+     * @param offsetMonth
+     * @return
+     */
+    private Permission setOutsidePermission(String username, OutsideEnum outsideEnum, Integer offsetMonth) {
+        Permission permission = permissionRepository
+                .findByUsernameAndType(username, PermissionTypeEnum.OUTSIDE.value())
+                .orElse(new Permission());
+        permission.setUsername(username)
+                .setType(PermissionTypeEnum.OUTSIDE.value())
+                .setValue(outsideEnum.value())
+                .setEffDate(new Date())
+                .setExpDate(DateUtil.offsetMonth(new Date(), offsetMonth));
+        return permission;
     }
 }

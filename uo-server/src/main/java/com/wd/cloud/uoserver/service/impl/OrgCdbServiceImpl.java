@@ -2,8 +2,8 @@ package com.wd.cloud.uoserver.service.impl;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.wd.cloud.commons.dto.CdbDTO;
-import com.wd.cloud.uoserver.entity.*;
+import com.wd.cloud.commons.dto.OrgCdbDTO;
+import com.wd.cloud.uoserver.pojo.entity.*;
 import com.wd.cloud.uoserver.repository.CdbRepository;
 import com.wd.cloud.uoserver.repository.OrgCdbRepository;
 import com.wd.cloud.uoserver.repository.OrgRepository;
@@ -33,48 +33,48 @@ public class OrgCdbServiceImpl implements OrgCdbService {
 
 
     @Override
-    public Page<CdbDTO> findByOrgIdAndCollection(Pageable pageable, Long orgId, Boolean collection) {
+    public Page<OrgCdbDTO> findByOrgIdAndCollection(Pageable pageable, String orgFlag, Boolean collection) {
 
-        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgIdAndCollection(orgId, collection), pageable);
-        Org org = orgRepository.findById(orgId).orElse(null);
-        Page<CdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
+        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgIdAndCollection(orgFlag, collection), pageable);
+        Org org = orgRepository.findByFlag(orgFlag).orElse(null);
+        Page<OrgCdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
             Cdb cdb = cdbRepository.findById(orgCdb.getCdbId()).orElse(null);
-            CdbDTO cdbDTO = new CdbDTO();
-            cdbDTO.setFlag(org.getFlag());
-            cdbDTO.setName(cdb.getName());
-            cdbDTO.setUrl(cdb.getUrl());
-            BeanUtil.copyProperties(orgCdb, cdbDTO);
-            return cdbDTO;
+            OrgCdbDTO orgCdbDTO = new OrgCdbDTO();
+            orgCdbDTO.setOrgFlag(org.getFlag());
+            orgCdbDTO.setName(cdb.getName());
+            orgCdbDTO.setUrl(cdb.getUrl());
+            BeanUtil.copyProperties(orgCdb, orgCdbDTO);
+            return orgCdbDTO;
         });
         return cdbDTOS;
     }
 
     @Override
-    public Page<CdbDTO> findByOrgIdAndLocalUrlIsNotNull(Pageable pageable,Long orgId) {
-        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgIdAndLocalUrlIsNotNull(orgId), pageable);
-        Page<CdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
+    public Page<OrgCdbDTO> findByOrgIdAndLocalUrlIsNotNull(Pageable pageable, String orgFlag) {
+        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgIdAndLocalUrlIsNotNull(orgFlag), pageable);
+        Page<OrgCdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
             Cdb byId = cdbRepository.findById(orgCdb.getCdbId()).orElse(null);
-            CdbDTO cdbDTO = new CdbDTO();
-            cdbDTO.setName(byId.getName());
-            cdbDTO.setUrl(byId.getUrl());
-            BeanUtil.copyProperties(orgCdb, cdbDTO);
-            return cdbDTO;
+            OrgCdbDTO orgCdbDTO = new OrgCdbDTO();
+            orgCdbDTO.setName(byId.getName());
+            orgCdbDTO.setUrl(byId.getUrl());
+            BeanUtil.copyProperties(orgCdb, orgCdbDTO);
+            return orgCdbDTO;
         });
         return cdbDTOS;
     }
 
     @Override
-    public Page<CdbDTO> findByNameAndUrl(Pageable pageable, String keyword) {
+    public Page<OrgCdbDTO> findByNameAndUrl(Pageable pageable, String keyword) {
         Page<Cdb> cdbs = cdbRepository.findAll(CdbRepository.SpecificationBuilder.findByNameAndUrl(keyword), pageable);
-        Page<CdbDTO> cdbDTOS = cdbs.map(cdb -> {
+        Page<OrgCdbDTO> cdbDTOS = cdbs.map(cdb -> {
             List<OrgCdb> byCdbId = orgCdbRepository.findByCdbId(cdb.getId());
             for (OrgCdb orgCdb : byCdbId){
-                 CdbDTO cdbDTO = new CdbDTO();
-                 Org org = orgRepository.findById(orgCdb.getOrgId()).orElse(null);
-                 cdbDTO.setOrgName(org.getName());
-                 cdbDTO.setName(cdb.getName());
-                 cdbDTO.setUrl(cdb.getUrl());
-                 return cdbDTO;
+                 OrgCdbDTO orgCdbDTO = new OrgCdbDTO();
+                 Org org = orgRepository.findByFlag(orgCdb.getOrgFlag()).orElse(null);
+                 orgCdbDTO.setOrgName(org.getName());
+                 orgCdbDTO.setName(cdb.getName());
+                 orgCdbDTO.setUrl(cdb.getUrl());
+                 return orgCdbDTO;
             }
             return null;
         });
@@ -89,7 +89,7 @@ public class OrgCdbServiceImpl implements OrgCdbService {
         orgCdb.setId(id);
         orgCdb.setLocalUrl(byId.getLocalUrl());
         orgCdb.setCdbId(byId.getCdbId());
-        orgCdb.setOrgId(byId.getOrgId());
+        orgCdb.setOrgFlag(byId.getOrgFlag());
         orgCdb.setGmtCreate(byId.getGmtCreate());
         orgCdb.setDisplay(display);
 
@@ -103,7 +103,7 @@ public class OrgCdbServiceImpl implements OrgCdbService {
     }
 
     @Override
-    public void insertOrgCdb(String name, String url, Long orgId, Boolean display) {
+    public void insertOrgCdb(String name, String url, String orgFlag, Boolean display) {
         OrgCdb orgCdb = new OrgCdb();
         Cdb cdb = new Cdb();
         cdb.setName(name);
@@ -112,7 +112,7 @@ public class OrgCdbServiceImpl implements OrgCdbService {
 
         Cdb cdbNameUrl = cdbRepository.findByNameAndUrl(name, url);
         orgCdb.setDisplay(display);
-        orgCdb.setOrgId(orgId);
+        orgCdb.setOrgFlag(orgFlag);
         orgCdb.setCdbId(cdbNameUrl.getId());
         orgCdbRepository.save(orgCdb);
     }
@@ -126,7 +126,7 @@ public class OrgCdbServiceImpl implements OrgCdbService {
     }
 
     @Override
-    public void insertCdbUrl(String name, String url, Long orgId, String localUrl) {
+    public void insertCdbUrl(String name, String url, String orgFlag, String localUrl) {
         OrgCdb orgCdb = new OrgCdb();
         Cdb cdb = new Cdb();
         cdb.setName(name);
@@ -134,7 +134,7 @@ public class OrgCdbServiceImpl implements OrgCdbService {
         cdbRepository.save(cdb);
 
         Cdb cdbNameUrl = cdbRepository.findByNameAndUrl(name, url);
-        orgCdb.setOrgId(orgId);
+        orgCdb.setOrgFlag(orgFlag);
         orgCdb.setCdbId(cdbNameUrl.getId());
         orgCdb.setLocalUrl(localUrl);
         orgCdbRepository.save(orgCdb);

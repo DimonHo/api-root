@@ -20,10 +20,9 @@ public class ApiExceptionHandlerAdvice {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public ResponseModel exception(Exception exception, HttpServletResponse response) {
-        ResponseModel responseModel = ResponseModel.fail();
+        ResponseModel responseModel = ResponseModel.fail().setMessage(exception.getMessage());
         //api异常
         if (exception instanceof ApiException) {
-            responseModel.setMessage(exception.getMessage());
             responseModel.setStatus(((ApiException) exception).getStatus());
             responseModel.setBody(((ApiException) exception).getBody());
         }

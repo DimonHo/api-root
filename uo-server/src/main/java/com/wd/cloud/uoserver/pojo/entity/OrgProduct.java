@@ -1,4 +1,4 @@
-package com.wd.cloud.uoserver.entity;
+package com.wd.cloud.uoserver.pojo.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,8 +19,12 @@ import java.sql.Date;
 @Table(name = "org_product")
 public class OrgProduct extends AbstractEntity {
 
-    @Column(name = "org_id")
-    private Long orgId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+
+    @Column(name = "org_flag")
+    private String orgFlag;
 
     /**
      * 产品
@@ -31,12 +35,12 @@ public class OrgProduct extends AbstractEntity {
     /**
      * 开始时间
      */
-    private Date beginDate;
+    private Date effDate;
 
     /**
      * 过期时间
      */
-    private Date endDate;
+    private Date expDate;
 
     /**
      * 状态  1购买、2试用、0停用

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,23 +16,15 @@ import java.util.List;
 @Accessors(chain = true)
 public class OrgDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Long id;
 
+    private Date gmtCreate;
+    private Date gmtModified;
     private String name;
     /**
      * 机构默认标识
      */
     private String flag;
 
-    /**
-     * 兼容spis机构标识
-     */
-    private String spisFlag;
-
-    /**
-     * 兼容智汇云，学科机构标识
-     */
-    private String eduFlag;
     /**
      * 省份
      */
@@ -43,24 +36,27 @@ public class OrgDTO implements Serializable {
     private String city;
 
     /**
-     * 联系人
+     * Ip范围
      */
-    private String contactPerson;
-
-    /**
-     * 联系电话
-     */
-    private String contact;
-
-    /**
-     * 邮箱
-     */
-    private String email;
-
-
     private List<IpRangeDTO> ipRanges;
+    /**
+     * 机构产品
+     */
     private List<ProductDTO> products;
+    /**
+     * 机构院系
+     */
     private List<DepartmentDTO> departments;
-    private List<CdbDTO> cdbs;
+    /**
+     * 机构馆藏
+     */
+    private List<OrgCdbDTO> cdbs;
+    /**
+     * 机构联系人
+     */
+    private List<LinkmanDTO> linkMans;
+    /**
+     * 是否激活
+     */
     private Boolean enabled;
 }

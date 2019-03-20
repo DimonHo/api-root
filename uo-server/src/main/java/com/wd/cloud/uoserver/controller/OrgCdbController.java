@@ -1,7 +1,7 @@
 package com.wd.cloud.uoserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.dto.CdbDTO;
+import com.wd.cloud.commons.dto.OrgCdbDTO;
 import com.wd.cloud.uoserver.service.OrgCdbService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,35 +21,35 @@ public class OrgCdbController {
 
     @ApiOperation(value = "根据学校查询馆藏资源")
     @GetMapping("/findByOrgIdAndCollection")
-    public ResponseModel<Page<CdbDTO>> findByOrgIdAndCollection(@RequestParam(required = false) Long orgId,
-                                                                @RequestParam(required = false) Boolean collection,
-                                                                @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
-        Page<CdbDTO> byOrgIdAndDisplay = orgCdbService.findByOrgIdAndCollection(pageable, orgId, collection);
+    public ResponseModel<Page<OrgCdbDTO>> findByOrgIdAndCollection(@RequestParam(required = false) String orgFlag,
+                                                                   @RequestParam(required = false) Boolean collection,
+                                                                   @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
+        Page<OrgCdbDTO> byOrgIdAndDisplay = orgCdbService.findByOrgIdAndCollection(pageable, orgFlag, collection);
         return ResponseModel.ok().setBody(byOrgIdAndDisplay);
     }
 
     @ApiOperation(value = "根据学校查询url替换地址")
     @GetMapping("/findByOrgIdAndLocalUrlIsNotNull")
-    public ResponseModel<Page<CdbDTO>> findByOrgIdAndLocalUrlIsNotNull(@RequestParam(required = false) Long orgId,
-                                                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
-        Page<CdbDTO> byOrgIdAndLocalUrlIsNotNull = orgCdbService.findByOrgIdAndLocalUrlIsNotNull(pageable, orgId);
+    public ResponseModel<Page<OrgCdbDTO>> findByOrgIdAndLocalUrlIsNotNull(@RequestParam(required = false) String orgFlag,
+                                                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
+        Page<OrgCdbDTO> byOrgIdAndLocalUrlIsNotNull = orgCdbService.findByOrgIdAndLocalUrlIsNotNull(pageable, orgFlag);
         return ResponseModel.ok().setBody(byOrgIdAndLocalUrlIsNotNull);
     }
 
     @ApiOperation(value = "根据资源或者网站查询详细信息")
     @GetMapping("/findByNameAndUrl")
-    public ResponseModel<Page<CdbDTO>> findByNameAndUrl(@RequestParam(required = false) String keyword,
-                                                        @PageableDefault Pageable pageable){
-        Page<CdbDTO> byNameAndUrl = orgCdbService.findByNameAndUrl(pageable, keyword);
+    public ResponseModel<Page<OrgCdbDTO>> findByNameAndUrl(@RequestParam(required = false) String keyword,
+                                                           @PageableDefault Pageable pageable){
+        Page<OrgCdbDTO> byNameAndUrl = orgCdbService.findByNameAndUrl(pageable, keyword);
         return ResponseModel.ok().setBody(byNameAndUrl);
     }
 
     @ApiOperation(value = "根据id修改馆藏资源")
     @PostMapping("/updateOrgCdb")
-    public ResponseModel<Page<CdbDTO>> updateOrgCdb(@RequestParam(required = false) Long id,
-                                                    @RequestParam(required = false) String name,
-                                                    @RequestParam(required = false) String url,
-                                                    @RequestParam(required = false) Boolean display){
+    public ResponseModel<Page<OrgCdbDTO>> updateOrgCdb(@RequestParam(required = false) Long id,
+                                                       @RequestParam(required = false) String name,
+                                                       @RequestParam(required = false) String url,
+                                                       @RequestParam(required = false) Boolean display){
         orgCdbService.updateOrgCdb(id, name,url,display);
         return ResponseModel.ok().setMessage("修改成功");
     }
@@ -58,9 +58,9 @@ public class OrgCdbController {
     @PostMapping("/insertOrgCdb")
     public ResponseModel insertOrgCdb(@RequestParam(required = false) String name,
                                       @RequestParam(required = false) String url,
-                                      @RequestParam(required = false) Long orgId,
+                                      @RequestParam(required = false) String orgFlag,
                                       @RequestParam(required = false) Boolean display){
-        orgCdbService.insertOrgCdb(name, url,orgId,display);
+        orgCdbService.insertOrgCdb(name, url,orgFlag,display);
         return ResponseModel.ok().setMessage("新增成功");
     }
 
@@ -75,9 +75,9 @@ public class OrgCdbController {
     @PostMapping("/insertCdbUrl")
     public ResponseModel insertCdbUrl(@RequestParam(required = false) String name,
                                       @RequestParam(required = false) String url,
-                                      @RequestParam(required = false) Long orgId,
+                                      @RequestParam(required = false) String orgFlag,
                                       @RequestParam(required = false) String localUrl){
-        orgCdbService.insertCdbUrl(name,url,orgId,localUrl);
+        orgCdbService.insertCdbUrl(name,url,orgFlag,localUrl);
         return ResponseModel.ok().setMessage("新增URL成功");
     }
 }

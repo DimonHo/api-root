@@ -1,10 +1,11 @@
 package com.wd.cloud.uoserver.service;
 
 import com.wd.cloud.commons.dto.UserDTO;
-import com.wd.cloud.uoserver.entity.AuditUserInfo;
-import com.wd.cloud.uoserver.entity.Org;
-import com.wd.cloud.uoserver.entity.User;
-import com.wd.cloud.uoserver.model.RegisterModel;
+import com.wd.cloud.uoserver.pojo.entity.User;
+import com.wd.cloud.uoserver.pojo.entity.VUser;
+import com.wd.cloud.uoserver.pojo.entity.VUserAudit;
+import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
+import com.wd.cloud.uoserver.pojo.vo.UserVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,12 +29,28 @@ public interface UserService {
     UserDTO buildUserInfo(Map<String, Object> authInfo);
 
     /**
+     * 注册新用户
+     *
+     * @param userVO
+     * @return
+     */
+    User addUser(UserVO userVO);
+
+
+    /**
+     * 完善用户信息
+     * @param perfectUserVO
+     * @return
+     */
+    User perfectUser(PerfectUserVO perfectUserVO);
+
+    /**
      * 上传头像
      *
      * @param username
      * @param file
      */
-    void uploadPhoto(String username, MultipartFile file);
+    void uploadHeadImg(String username, MultipartFile file);
 
     /**
      * 上传证件照
@@ -46,57 +63,38 @@ public interface UserService {
     /**
      * 审核验证证件照
      *
-     * @param username
+     * @param username 被审核用户名
+     * @param validated 审核通过or不通过
+     * @param handlerName 审核人
      */
-    void auditIdPhoto(String username, Boolean validated);
+    void auditIdPhoto(String username, Boolean validated,String handlerName);
 
     /**
      * 查询用户信息
      *
-     * @param username
+     * @param id username or email
      * @return
      */
-    UserDTO findByUsername(String username);
+    UserDTO getUserDTO(String id);
+
+    Page<VUser> getUsers(String orgFlag,String orgName, Long departmentId,String department,Integer userType, String keyword, Pageable pageable);
 
     /**
-     * 注册新用户
-     *
-     * @param registerModel
+     * 删除用户
+     * @param username
+     */
+    void deleteUser(String username);
+
+    /**
+     * 审核列表
+     * @param status
+     * @param keyword
+     * @param pageable
      * @return
      */
-    User register(RegisterModel registerModel);
+    Page<VUserAudit> validList(Integer status, String keyword, Pageable pageable);
 
     List<Map<String,Object>> getUserInfoSchool(Map<String, Object> params);
-
-    void give(String userName, String idPhoto, String nickName, String orgName, String department, Integer identity,
-              String departmentId, Integer education, Short sex, String entranceTime, String email, Integer permission);
-
-
-    AuditUserInfo getUserName(String userName);
-
-    Page<AuditUserInfo> findAll(Pageable pageable, Map<String, Object> param);
-
-    AuditUserInfo findById(Long id);
-
-    Page<User> findUserAll(Pageable pageable, Map<String, Object> param);
-
-    void apply(Long id, Integer permission, String handlerName);
-
-    void notApply(Long id, Integer permission, String handlerName);
-
-    User updateUser(Long id, String pwd, String nickName, String orgName, String department,
-                    Integer identity,String entranceTime, String departmentId, Integer education,
-                    Integer userType, Short sex, Integer permission,Long orgId);
-
-    User findByUserId(Long id);
-
-    User findByUserType(Long id,Integer userType);
-
-    void deleteUserId(Long id);
-
-    User userSave(User user);
-
-    User findByEmail(String email);
 
     List<Map<String,Object>> findByCountOrgName(String orgName);
 

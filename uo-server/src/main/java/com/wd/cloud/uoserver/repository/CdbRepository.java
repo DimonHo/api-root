@@ -1,13 +1,11 @@
 package com.wd.cloud.uoserver.repository;
 
 import com.wd.cloud.commons.util.StrUtil;
-import com.wd.cloud.uoserver.entity.Cdb;
-import com.wd.cloud.uoserver.entity.OrgCdb;
+import com.wd.cloud.uoserver.pojo.entity.Cdb;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;

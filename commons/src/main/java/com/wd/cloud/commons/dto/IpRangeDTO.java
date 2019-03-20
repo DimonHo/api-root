@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author He Zhigang
@@ -14,7 +15,9 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class IpRangeDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-
+    private Long id;
+    private Date gmtCreate;
+    private Date gmtModified;
     private String begin;
     private String end;
 }

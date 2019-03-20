@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.service;
 
-import com.wd.cloud.commons.dto.CdbDTO;
+import com.wd.cloud.commons.dto.OrgCdbDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -8,11 +8,11 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrgCdbService {
 
-    Page<CdbDTO> findByOrgIdAndCollection(Pageable pageable, Long orgId, Boolean collection);
+    Page<OrgCdbDTO> findByOrgIdAndCollection(Pageable pageable, String orgFlag, Boolean collection);
 
-    Page<CdbDTO> findByOrgIdAndLocalUrlIsNotNull(Pageable pageable,Long orgId);
+    Page<OrgCdbDTO> findByOrgIdAndLocalUrlIsNotNull(Pageable pageable, String orgFlag);
 
-    Page<CdbDTO> findByNameAndUrl(Pageable pageable,String keyword);
+    Page<OrgCdbDTO> findByNameAndUrl(Pageable pageable, String keyword);
 
 
     /**
@@ -24,11 +24,11 @@ public interface OrgCdbService {
      */
     void updateOrgCdb(Long id, String name, String url, Boolean display);
 
-    void insertOrgCdb(String name,String url,Long orgId,Boolean display);
+    void insertOrgCdb(String name,String url,String orgFlag,Boolean display);
 
     void deleteOrgCdb(Long id);
 
-    void insertCdbUrl(String name ,String url ,Long orgId,String localUrl);
+    void insertCdbUrl(String name ,String url ,String orgFlag,String localUrl);
 
 
 }

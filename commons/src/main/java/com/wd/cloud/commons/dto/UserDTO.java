@@ -11,13 +11,16 @@ import java.util.Date;
  * @date 2018/6/13
  * @Description:
  */
+
 @Data
 @Accessors(chain = true)
 public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Long id;
-    private String email;
+
     private String username;
+    private Date gmtCreate;
+    private Date gmtModified;
+    private String email;
     private String nickname;
     private Boolean forbidden;
     private Date loginTime;

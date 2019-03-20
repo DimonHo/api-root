@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.repository;
 
-import com.wd.cloud.uoserver.entity.Product;
+import com.wd.cloud.uoserver.pojo.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.repository;
 
-import com.wd.cloud.uoserver.entity.Department;
+import com.wd.cloud.uoserver.pojo.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,14 +12,10 @@ import java.util.List;
  */
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
-
-
-
     /**
-     *
+     * 查询机构所属院系
      */
-
-    List<Department> findByOrgId(Long orgId);
+    List<Department> findByOrgFlag(String orgFlag);
 
 
 
