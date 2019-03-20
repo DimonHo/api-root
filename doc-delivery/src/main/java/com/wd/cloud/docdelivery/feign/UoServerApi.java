@@ -14,25 +14,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface UoServerApi {
 
     @GetMapping("/org")
-    ResponseModel<JSONObject> getOrg(@RequestParam(required = false) String orgName,
+    ResponseModel<JSONObject> getOrg(@RequestParam(required = false) String name,
                                      @RequestParam(required = false) String flag,
-                                     @RequestParam(required = false) String spisFlag,
-                                     @RequestParam(required = false) String eduFlag,
                                      @RequestParam(required = false) String ip);
 
-    @GetMapping("/user/info")
-    ResponseModel<UserDTO> getUserInfo(@RequestParam(value = "username") String username);
+    /**
+     * 通过邮箱或用户名获取用户信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/user")
+    ResponseModel<UserDTO> user(@RequestParam(value = "id") String id);
 
     @Component("uoServerApi")
     class Fallback implements UoServerApi {
 
         @Override
-        public ResponseModel<JSONObject> getOrg(String orgName, String flag, String spisFlag, String eduFlag, String ip) {
+        public ResponseModel<JSONObject> getOrg(String name, String flag, String ip) {
             return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:uo-server调用失败！");
         }
 
         @Override
-        public ResponseModel<UserDTO> getUserInfo(String username) {
+        public ResponseModel<UserDTO> user(String id) {
             return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:uo-server调用失败！");
         }
     }

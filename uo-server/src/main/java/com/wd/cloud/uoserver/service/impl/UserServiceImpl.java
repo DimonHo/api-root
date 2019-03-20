@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
             Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundException::new);
             OrgDTO orgDTO = new OrgDTO();
             BeanUtil.copyProperties(org, orgDTO);
-            userDTO.setOrg(orgDTO);
+            userDTO.setOrg(orgDTO).setOrgName(org.getName());
         }
         return userDTO;
     }

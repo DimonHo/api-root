@@ -43,7 +43,7 @@ public class UserInfoAspect {
         if (StrUtil.isNotBlank(username)) {
             if (userDTO == null) {
                 // 获取用户信息
-                ResponseModel<UserDTO> userDTOResponse = uoServerApi.getUserInfo(username);
+                ResponseModel<UserDTO> userDTOResponse = uoServerApi.user(username);
                 if (!userDTOResponse.isError()) {
                     userDTO = userDTOResponse.getBody();
                     session.setAttribute(SessionConstant.LOGIN_USER, userDTO);

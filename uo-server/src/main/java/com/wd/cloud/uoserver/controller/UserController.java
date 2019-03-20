@@ -82,7 +82,7 @@ public class UserController {
 
     @ApiOperation(value = "获取用户信息",tags = {"用户查询"})
     @GetMapping("/user")
-    public ResponseModel<UserDTO> getUser(@RequestParam String id) {
+    public ResponseModel<UserDTO> user(@RequestParam String id) {
         UserDTO userDTO = userService.getUserDTO(id);
         return ResponseModel.ok().setBody(userDTO);
     }

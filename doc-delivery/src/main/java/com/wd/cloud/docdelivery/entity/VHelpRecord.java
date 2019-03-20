@@ -65,16 +65,16 @@ public class VHelpRecord {
 
     private Long exp;
 
-    private int status;
+    private Integer status;
 
     @Column(name = "is_send")
-    private boolean send;
+    private Boolean send;
 
     @Column(name = "is_difficult")
-    private boolean difficult;
+    private Boolean difficult;
 
     @Column(name = "is_anonymous")
-    private boolean anonymous;
+    private Boolean anonymous;
 
     private String unid;
 
