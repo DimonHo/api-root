@@ -70,10 +70,14 @@ public class UserServiceImpl implements UserService {
         log.info("SSO认证中心用户对象： {}",MapUtil.join(authInfo,";","="));
         UserDTO userDTO = BeanUtil.mapToBean(authInfo, UserDTO.class, true);
         User user = userRepository.findUserById(userDTO.getUsername()).orElseThrow(NotFoundUserException::new);
-        Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundOrgException::new);
-        OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
-        userDTO.setOrg(orgDTO);
+        log.info("用户信息:{}",user);
+        if (user.getOrgFlag()!= null){
+            Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundOrgException::new);
+            OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
+            userDTO.setOrg(orgDTO);
+        }
         BeanUtil.copyProperties(user, userDTO);
+        log.info("用户DTO信息:{}",userDTO);
         return userDTO;
     }
 
