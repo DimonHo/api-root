@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 /**
  * @author He Zhigang
  * @date 2019/3/5
@@ -18,25 +20,22 @@ public interface UoServerApi {
     /**
      * 查询机构信息
      *
-     * @param orgName
+     * @param name
      * @param flag
-     * @param spisFlag
-     * @param eduFlag
      * @param ip
      * @return
      */
     @GetMapping("/org")
-    ResponseModel<OrgDTO> getOrg(@RequestParam(value = "orgName", required = false) String orgName,
+    ResponseModel<OrgDTO> getOrg(@RequestParam(value = "orgName", required = false) String name,
                                  @RequestParam(value = "flag", required = false) String flag,
-                                 @RequestParam(value = "spisFlag", required = false) String spisFlag,
-                                 @RequestParam(value = "eduFlag", required = false) String eduFlag,
-                                 @RequestParam(value = "ip", required = false) String ip);
+                                 @RequestParam(value = "ip", required = false) String ip,
+                                 @RequestParam(value = "include",required = false) List<String> include);
 
     @Component("uoServerApi")
     class Fallback implements UoServerApi {
 
         @Override
-        public ResponseModel<OrgDTO> getOrg(String orgName, String flag, String spisFlag, String eduFlag, String ip) {
+        public ResponseModel<OrgDTO> getOrg(String orgName, String flag, String ip,List<String> include) {
             return ResponseModel.fail();
         }
     }

@@ -9,7 +9,6 @@ import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.model.ResponseModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +35,7 @@ public class ClientIpFilter extends ZuulFilter {
         String clientIp = HttpUtil.getClientIP(request);
         log.info("访问IP：{}", clientIp);
         if (isOut == null || level == null) {
-            ResponseModel<OrgDTO> orgResponse = uoServerApi.getOrg(null, null, null, null, clientIp);
+            ResponseModel<OrgDTO> orgResponse = uoServerApi.getOrg(null, null, clientIp,null);
             log.info(orgResponse.toString());
             if (!orgResponse.isError()) {
                 //非校外访问
