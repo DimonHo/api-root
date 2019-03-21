@@ -9,8 +9,6 @@ import com.wd.cloud.commons.exception.ApiException;
  */
 public class UserExistsException extends ApiException {
 
-    public UserExistsException(){}
-
     public UserExistsException(Integer status,String message) {
         super(status, message);
     }

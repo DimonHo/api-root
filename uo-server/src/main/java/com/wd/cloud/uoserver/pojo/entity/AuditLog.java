@@ -19,10 +19,6 @@ import javax.persistence.*;
 @Table(name = "audit_log")
 public class AuditLog extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-
     private String username;
 
     /**

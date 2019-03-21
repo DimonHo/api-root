@@ -5,7 +5,6 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
@@ -20,8 +19,6 @@ import javax.persistence.Table;
 @Table(name = "v_user_audit")
 public class VUserAudit  extends AbstractEntity {
 
-    @Id
-    private Long id;
     private String username;
     private String email;
     private String nickname;

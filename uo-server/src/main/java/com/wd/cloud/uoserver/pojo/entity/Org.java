@@ -17,11 +17,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "org")
 public class Org extends AbstractEntity {
-    /**
-     * 机构默认标识
-     */
-    @Id
-    @GeneratedValue
+
+    @Column(unique = true)
     private String flag;
 
     /**

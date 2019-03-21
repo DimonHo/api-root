@@ -18,9 +18,6 @@ import javax.persistence.*;
 @Table(name = "cdb")
 public class Cdb extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
     /**
      * 馆藏数据库名称
      */

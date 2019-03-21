@@ -19,10 +19,6 @@ import java.sql.Date;
 @Table(name = "org_product")
 public class OrgProduct extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-
     @Column(name = "org_flag")
     private String orgFlag;
 

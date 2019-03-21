@@ -18,10 +18,6 @@ import javax.persistence.*;
 @Table(name = "org_cdb")
 public class OrgCdb extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-
     @Column(name = "org_flag")
     private String orgFlag;
     /**

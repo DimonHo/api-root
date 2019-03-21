@@ -18,9 +18,6 @@ import javax.persistence.*;
 @Table(name = "product")
 public class Product extends AbstractEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
     /**
      * 产品名称
      */

@@ -18,9 +18,6 @@ import javax.persistence.*;
 @Table(name = "department",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
 public class Department extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
     /**
      * 所属上级院系
      */

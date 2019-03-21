@@ -18,10 +18,6 @@ import javax.persistence.*;
 @Table(name = "linkman")
 public class Linkman extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-
     @Column(name = "org_flag")
     private String orgFlag;
     /**

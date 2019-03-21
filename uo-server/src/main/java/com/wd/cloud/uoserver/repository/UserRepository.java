@@ -7,7 +7,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -23,13 +22,28 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
 
     /**
-     * 用户名查询
+     * 用户名或郵箱
      *
-     * @param id
+     * @param keyword
      * @return
      */
-    @Query("FROM User where username=:id or email =:id")
-    Optional<User> findUserById(@Param("id") String id);
+    @Query("from User where username = ?1 or email = ?1")
+    Optional<User> findUser(String keyword);
+
+    /**
+     * 用戶名或邮箱查询
+     * @param username
+     * @param email
+     * @return
+     */
+    Optional<User> findByUsernameOrEmail(String username,String email);
+
+    /**
+     * 用户名查询
+     * @param username
+     * @return
+     */
+    Optional<User> findByUsername(String username);
 
     /**
      * 查询邮箱

@@ -18,8 +18,7 @@ import javax.persistence.*;
 @Table(name = "user")
 public class User extends AbstractEntity {
 
-    @Id
-    @GeneratedValue
+    @Column(unique = true)
     private String username;
 
     private String email;

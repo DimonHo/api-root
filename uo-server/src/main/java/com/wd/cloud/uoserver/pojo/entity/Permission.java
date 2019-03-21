@@ -20,9 +20,6 @@ import java.util.Date;
 @Table(name = "permission")
 public class Permission extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
     /**
      * 用户名
      */

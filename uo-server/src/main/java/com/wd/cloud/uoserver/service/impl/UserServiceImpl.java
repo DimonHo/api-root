@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO buildUserInfo(Map<String, Object> authInfo) {
         log.info("SSO认证中心用户对象： {}", MapUtil.join(authInfo, ";", "="));
         UserDTO userDTO = BeanUtil.mapToBean(authInfo, UserDTO.class, true);
-        User user = userRepository.findUserById(userDTO.getUsername()).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findByUsername(userDTO.getUsername()).orElseThrow(NotFoundUserException::new);
         log.info("用户信息:{}", user);
         if (user.getOrgFlag() != null) {
             Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundOrgException::new);
@@ -101,8 +101,9 @@ public class UserServiceImpl implements UserService {
     public User registerUser(UserVO userVO) {
         checkUserExists(userVO.getUsername(), userVO.getEmail());
         User user = BeanUtil.toBean(userVO, User.class);
-        return userRepository.save(user);
-
+        log.info("添加用户到数据库:{}",user.toString());
+        user = userRepository.save(user);
+        return user;
     }
 
     /**
@@ -131,7 +132,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User perfectUser(PerfectUserVO perfectUserVO) {
-        User user = userRepository.findUserById(perfectUserVO.getUsername()).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findByUsername(perfectUserVO.getUsername()).orElseThrow(NotFoundUserException::new);
         BeanUtil.copyProperties(perfectUserVO, user);
         // 完善信息自动获得6个月校外权限
         Permission permission = setOutsidePermission(user.getUsername(), OutsideEnum.HALF_YEAR, 6);
@@ -148,7 +149,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDTO getUserDTO(String id) {
-        User user = userRepository.findUserById(id).orElseThrow(NotFoundException::new);
+        User user = userRepository.findUser(id).orElseThrow(NotFoundException::new);
         UserDTO userDTO = new UserDTO();
         BeanUtil.copyProperties(user, userDTO);
         if (StrUtil.isNotBlank(user.getOrgFlag())) {
@@ -198,7 +199,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void uploadHeadImg(String username, MultipartFile file) {
         String headImg = uploadImage(file);
-        User user = userRepository.findUserById(username).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         user.setHeadImg(headImg);
         userRepository.save(user);
     }
@@ -211,7 +212,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void uploadIdPhoto(String username, MultipartFile file) {
-        User user = userRepository.findUserById(username).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         String idPhoto = uploadImage(file);
         user.setIdPhoto(idPhoto);
         // 待审核
@@ -232,7 +233,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void auditIdPhoto(String username, Boolean validated, String handlerName) {
-        User user = userRepository.findUserById(username).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         if (validated) {
             // 验证通过后获得永久访问权限
             Permission permission = setOutsidePermission(username, OutsideEnum.FOREVER, 9999);
@@ -376,9 +377,15 @@ public class UserServiceImpl implements UserService {
      * @param email
      */
     private void checkUserExists(String username, String email) {
-        // 检查username是否已存在
-        userRepository.findById(username).ifPresent(user -> UserExistsException.userExists(user.getUsername()));
-        // 检查email是否已存在
-        userRepository.findByEmail(email).ifPresent(user -> UserExistsException.emailExists(user.getEmail()));
+
+        if (StrUtil.isNotBlank(username)){
+            // 检查username是否已存在
+            userRepository.findByUsername(username).ifPresent(user -> UserExistsException.userExists(user.getUsername()));
+        }
+        if (StrUtil.isNotBlank(email)){
+            // 检查email是否已存在
+            userRepository.findByEmail(email).ifPresent(user -> UserExistsException.emailExists(user.getEmail()));
+        }
+
     }
 }

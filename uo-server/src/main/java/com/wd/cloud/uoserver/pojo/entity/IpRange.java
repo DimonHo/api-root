@@ -18,10 +18,6 @@ import javax.persistence.*;
 @Table(name = "ip_range")
 public class IpRange extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-
     private String orgFlag;
 
     private String begin;
