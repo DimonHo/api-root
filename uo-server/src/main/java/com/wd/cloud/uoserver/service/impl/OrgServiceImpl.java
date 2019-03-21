@@ -379,23 +379,25 @@ public class OrgServiceImpl implements OrgService {
      */
     private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus,Boolean isExp,boolean isFilter, List<String> includes) {
         OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
-        for (String include : includes) {
-            if ("ipRanges".equals(include)) {
-                includeIpRanges(org, orgDTO);
-            }
-            if ("products".equals(include)) {
-                // 如果isFilter为false,表示返回结果中不过滤产品状态和是否过期
-                if (!isFilter){
-                    prodStatus = null;
-                    isExp = null;
+        if (CollectionUtil.isNotEmpty(includes)){
+            for (String include : includes) {
+                if ("ipRanges".equals(include)) {
+                    includeIpRanges(org, orgDTO);
                 }
-                includeProducts(org, prodStatus, isExp, orgDTO);
-            }
-            if ("linkmans".equals(include)) {
-                includeLinkmans(org, orgDTO);
-            }
-            if ("departments".equals(include)) {
-                includeDepartments(org, orgDTO);
+                if ("products".equals(include)) {
+                    // 如果isFilter为false,表示返回结果中不过滤产品状态和是否过期
+                    if (!isFilter){
+                        prodStatus = null;
+                        isExp = null;
+                    }
+                    includeProducts(org, prodStatus, isExp, orgDTO);
+                }
+                if ("linkmans".equals(include)) {
+                    includeLinkmans(org, orgDTO);
+                }
+                if ("departments".equals(include)) {
+                    includeDepartments(org, orgDTO);
+                }
             }
         }
         return orgDTO;
