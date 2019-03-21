@@ -4,7 +4,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author He Zhigang
@@ -21,6 +23,7 @@ public class User extends AbstractEntity {
     @Column(unique = true)
     private String username;
 
+    @Column(unique = true)
     private String email;
 
     private String password;
@@ -35,7 +38,9 @@ public class User extends AbstractEntity {
      */
     private String realname;
 
-
+    /**
+     * 机构表识
+     */
     @Column(name = "org_flag")
     private String orgFlag;
 
@@ -59,9 +64,17 @@ public class User extends AbstractEntity {
     /**
      * 注册IP
      */
-    @Column(name = "register_ip")
     private String registerIp;
 
+    /**
+     * 最后登陆IP
+     */
+    private String lastLoginIp;
+
+    /**
+     * 登陆次数
+     */
+    private Integer loginCount;
     /**
      * qqID
      */
