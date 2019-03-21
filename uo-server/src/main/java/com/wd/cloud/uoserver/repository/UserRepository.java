@@ -86,13 +86,14 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
             "\tsum( IF ( ( user.user_type = 2 ), 1, 0 ) ) AS orgAdminCount,\n" +
             "\tsum( IF ( ( user.is_online = 1 ), 1, 0 ) ) AS onlineCount,\n" +
             "\tsum( IF ( ( user.org_flag = org.flag AND user.username IN ( SELECT username FROM permission WHERE type = 1 ) ), 1, 0 ) ) AS outsideCount,\n" +
-            "\tuser.org_flag \n" +
-            "\torg.name \n" +
+            "\tuser.org_flag,\n" +
+            "\torg.name\n" +
             "FROM\n" +
-            "\tuser,\n" +
-            "\torg \n" +
+            "\tuser, org \n" +
+            "WHERE \n" +
+            "\tuser.org_flag = org.flag\n" +
             "GROUP BY\n" +
-            "\tuser.org_flag \n" +
+            "\tuser.org_flag\n" +
             "ORDER BY\n" +
             "\tuserCount DESC",nativeQuery = true)
     List<Map<String,Object>> tjOrgUser();
