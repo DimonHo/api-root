@@ -59,13 +59,15 @@ public class OrgController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", value = "机构全称", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "flag", value = "机构标识", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "include", value = "返回中包含哪些数据（ipRanges,products,cdbs,linkmans,departments）", dataType = "String", paramType = "query")
     })
     @GetMapping("/org")
     public ResponseModel getOrg(@RequestParam(required = false) String name,
                                 @RequestParam(required = false) String flag,
-                                @RequestParam(required = false) String ip) {
-        OrgDTO orgDTO = orgService.findOrg(name, flag, ip);
+                                @RequestParam(required = false) String ip,
+                                @RequestParam(required = false) List<String> include) {
+        OrgDTO orgDTO = orgService.findOrg(name, flag, ip,include);
         return ResponseModel.ok().setBody(orgDTO);
     }
 
@@ -81,7 +83,8 @@ public class OrgController {
             @ApiImplicitParam(name = "flag", value = "机构标识", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "prodStatus", value = "产品状态（0：停用，1：试用，2：购买）", dataType = "List", paramType = "query"),
-            @ApiImplicitParam(name = "isExp", value = "产品是否过期", dataType = "Boolean", paramType = "query")
+            @ApiImplicitParam(name = "isExp", value = "产品是否过期", dataType = "Boolean", paramType = "query"),
+            @ApiImplicitParam(name = "include", value = "返回中包含哪些数据（ipRanges,products,cdbs,linkmans,departments）", dataType = "String", paramType = "query")
     })
     @GetMapping("/org/query")
     public ResponseModel<Page> queryOrg(@RequestParam(required = false) String name,
@@ -90,8 +93,9 @@ public class OrgController {
                                         @RequestParam(required = false) List<Integer> prodStatus,
                                         @RequestParam(required = false) Boolean isExp,
                                         @RequestParam(required = false, defaultValue = "false") Boolean isFilter,
+                                        @RequestParam(required = false) List<String> include,
                                         @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<OrgDTO> orgPages = orgService.likeOrg(name, flag, ip, prodStatus, isExp, isFilter, pageable);
+        Page<OrgDTO> orgPages = orgService.likeOrg(name, flag, ip, prodStatus, isExp, isFilter,include, pageable);
         return ResponseModel.ok().setBody(orgPages);
     }
 

@@ -54,7 +54,7 @@ public class OrgDTO implements Serializable {
     /**
      * 机构联系人
      */
-    private List<LinkmanDTO> linkMans;
+    private List<LinkmanDTO> linkmans;
     /**
      * 是否激活
      */

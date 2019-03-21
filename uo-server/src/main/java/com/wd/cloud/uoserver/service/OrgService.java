@@ -66,7 +66,7 @@ public interface OrgService {
      * @param ip
      * @return
      */
-    OrgDTO findOrg(String orgName, String flag, String ip);
+    OrgDTO findOrg(String orgName, String flag, String ip,List<String> includes);
 
     /**
      * 查询机构列表
@@ -79,7 +79,7 @@ public interface OrgService {
      * @param pageable
      * @return
      */
-    Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp, boolean isFilter, Pageable pageable);
+    Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp, boolean isFilter,List<String> result, Pageable pageable);
 
     /**
      * 新增，更新，删除订购产品的状态

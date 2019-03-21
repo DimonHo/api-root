@@ -36,3 +36,66 @@
 
 -- insert into permission(level,org_id,org_name,today_total,total) values (1,null,null,5,10),(2,null,null,6,11),(3,null,null,7,12),(6,null,null,8,14),(7,null,null,10,null);
 -- insert into channel (id,name,url,template) values (1,"QQ","http://paper.hnlat.com","qq/%s.ftl"),(2,"Spischolar学术资源在线","http://www.spischolar.com","spis/%s.ftl"),(3,"智汇云","http://www.yunscholar.com","zhy/%s.ftl"),(4,"crscholar核心论文库","http://www.crscholar.com","crs/%s.ftl"),(0,"paper","http://paper.hnlat.com","paper/%s.ftl");
+
+
+-- CREATE
+-- 	OR REPLACE VIEW v_help_record (
+-- 		`id`,
+-- 		`gmt_create`,
+-- 		`gmt_modified`,
+-- 		`helper_email`,
+-- 		`helper_ip`,
+-- 		`helper_name`,
+-- 		`org_flag`,
+-- 		`org_name`,
+-- 		`help_channel`,
+-- 		`channel_name`,
+-- 		`channel_url`,
+-- 		`channel_template`,
+-- 		`bccs`,
+-- 		`exp`,
+-- 		`is_anonymous`,
+-- 		`is_send`,
+-- 		`literature_id`,
+-- 		`status`,
+-- 		`remark`,
+-- 		`doc_title`,
+-- 		`doc_href`,
+-- 		`author`,
+-- 		`doi`,
+-- 		`summary`,
+-- 		`unid`,
+-- 		`year`,
+-- 	  `is_difficult`
+-- 	) AS SELECT
+-- 		`t1`.`id` AS `id`,
+-- 		`t1`.`gmt_create` AS `gmt_create`,
+-- 		`t1`.`gmt_modified` AS `gmt_modified`,
+-- 		`t1`.`helper_email` AS `helper_email`,
+-- 		`t1`.`helper_ip` AS `helper_ip`,
+-- 		`t1`.`helper_name` AS `helper_name`,
+-- 		`t1`.`org_flag` AS `org_flag`,
+-- 		`t1`.`org_name` AS `org_name`,
+-- 		`t1`.`help_channel` AS `help_channel`,
+-- 		`t3`.`name` AS `channel_name`,
+-- 		`t3`.`url` AS `channel_url`,
+-- 		`t3`.`template` AS `channel_template`,
+-- 		`t3`.`bccs` AS `bccs`,
+-- 		`t3`.`exp` AS `exp`,
+-- 		`t1`.`is_anonymous` AS `is_anonymous`,
+-- 		`t1`.`is_send` AS `is_send`,
+-- 		`t1`.`literature_id` AS `literature_id`,
+-- 		`t1`.`status` AS `status`,
+-- 		`t1`.`remark` AS `remark`,
+-- 		`t2`.`doc_title` AS `doc_title`,
+-- 		`t2`.`doc_href` AS `doc_href`,
+-- 		`t2`.`author` AS `author`,
+-- 		`t2`.`doi` AS `doi`,
+-- 		`t2`.`summary` AS `summary`,
+-- 		`t2`.`unid` AS `unid`,
+-- 		`t2`.`year` AS `year`,
+-- 	  `t1`.`is_difficult`
+-- 	FROM
+-- 		( ( `help_record` `t1` JOIN `literature` `t2` ) JOIN `channel` `t3` )
+-- WHERE
+-- 	( ( `t1`.`literature_id` = `t2`.`id` ) AND ( `t1`.`help_channel` = `t3`.`id` ) );

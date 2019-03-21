@@ -38,10 +38,10 @@ public class Org extends AbstractEntity {
     private String city;
 
     /**
-     * 是否激活使用0：否，1：是
+     * 是否停止使用0：否，1：是
      */
-    @Column(name = "is_enabled",columnDefinition = "bit(1) default 1")
-    private boolean enabled;
+    @Column(name = "is_disable",columnDefinition = "bit(1) default 0")
+    private boolean disable;
 
 
 }

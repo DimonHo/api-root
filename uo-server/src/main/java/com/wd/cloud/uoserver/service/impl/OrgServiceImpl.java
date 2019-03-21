@@ -182,10 +182,10 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public OrgDTO findOrg(String orgName, String flag, String ip) {
+    public OrgDTO findOrg(String orgName, String flag, String ip,List<String> includes) {
         Org org = orgRepository.findOne(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, ip, null, null, false))
                 .orElseThrow(NotFoundOrgException::new);
-        return convertOrgToDTO(org, null,null,false, "ip", "product", "linkman", "department");
+        return convertOrgToDTO(org, null,null,false, includes);
     }
 
     /**
@@ -198,9 +198,9 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp,boolean isFilter, Pageable pageable) {
+    public Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp,boolean isFilter,List<String> includes, Pageable pageable) {
         Page<Org> orgPage = orgRepository.findAll(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, ip, prodStatus, isExp, true), pageable);
-        return orgPage.map(org -> convertOrgToDTO(org, prodStatus,isExp, isFilter,"ip", "product","linkman", "department"));
+        return orgPage.map(org -> convertOrgToDTO(org, prodStatus,isExp, isFilter,includes));
     }
 
     /**
@@ -377,10 +377,10 @@ public class OrgServiceImpl implements OrgService {
      * @param includes   需要包含的关联对象 （"ip" or "product" or "linkman" or "department"）
      * @return
      */
-    private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus,Boolean isExp,boolean isFilter, String... includes) {
+    private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus,Boolean isExp,boolean isFilter, List<String> includes) {
         OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
         for (String include : includes) {
-            if ("ip".equals(include)) {
+            if ("ipRangs".equals(include)) {
                 List<IpRange> ipRanges = ipRangeRepository.findByOrgFlag(org.getFlag());
                 List<IpRangeDTO> ipRangeDTOS = new ArrayList<>();
                 ipRanges.forEach(ipRange -> {
@@ -390,7 +390,7 @@ public class OrgServiceImpl implements OrgService {
                 });
                 orgDTO.setIpRanges(ipRangeDTOS);
             }
-            if ("product".equals(include)) {
+            if ("products".equals(include)) {
                 // 如果isFilter为false,表示返回结果中不过产品状态和是否过期
                 if (!isFilter){
                     prodStatus = null;
@@ -416,14 +416,14 @@ public class OrgServiceImpl implements OrgService {
                         });
                 orgDTO.setProducts(productDTOS);
             }
-            if ("linkman".equals(include)) {
+            if ("linkmans".equals(include)) {
                 List<Linkman> linkmanList = linkmanRepository.findByOrgFlag(org.getFlag());
                 List<LinkmanDTO> linkmanDTOS = new ArrayList<>();
                 linkmanList.forEach(linkman -> {
                     LinkmanDTO linkmanDTO = BeanUtil.toBean(linkman, LinkmanDTO.class);
                     linkmanDTOS.add(linkmanDTO);
                 });
-                orgDTO.setLinkMans(linkmanDTOS);
+                orgDTO.setLinkmans(linkmanDTOS);
             }
             if ("department".equals(include)) {
                 List<Department> departmentList = departmentRepository.findByOrgFlag(org.getFlag());
