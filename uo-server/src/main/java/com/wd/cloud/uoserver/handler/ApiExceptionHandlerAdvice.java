@@ -2,6 +2,7 @@ package com.wd.cloud.uoserver.handler;
 
 import com.wd.cloud.commons.exception.ApiException;
 import com.wd.cloud.commons.model.ResponseModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  * @date 2018/12/25
  * @Description:
  */
+@Slf4j
 @ControllerAdvice(annotations = RestController.class)
 public class ApiExceptionHandlerAdvice {
 
@@ -26,6 +28,7 @@ public class ApiExceptionHandlerAdvice {
             responseModel.setStatus(((ApiException) exception).getStatus());
             responseModel.setBody(((ApiException) exception).getBody());
         }
+        exception.printStackTrace();
         return responseModel;
     }
 }

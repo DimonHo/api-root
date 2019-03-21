@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -46,19 +45,7 @@ public class UserController {
     @ApiOperation(value = "登陆用户的信息",tags = {"用户查询"})
     @GetMapping("/login/info")
     public ResponseModel<UserDTO> getLogin() {
-        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
-        if (principal == null) {
-            throw new AuthException();
-        }
-        log.info("用户[{}]已登录", principal.getName());
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO != null && userDTO.getUsername().equals(principal.getName()) ){
-            return  ResponseModel.ok().setBody(userDTO);
-        }
-        Map<String, Object> authInfo = principal.getAttributes();
-        userDTO = userService.buildUserInfo(authInfo);
-        userService.buildSession(userDTO,request,redisTemplate,redisOperationsSessionRepository);
-        return ResponseModel.ok().setBody(userDTO);
+        return ResponseModel.ok().setBody(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
     }
 
     @ApiOperation(value = "新增用户",tags = {"用户注册"})

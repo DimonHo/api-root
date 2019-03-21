@@ -45,6 +45,10 @@ public class UserInfoAspect {
         HttpSession session = request.getSession();
         AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
         if (principal == null) {
+            Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);
+            isOut = isOut == null ? true : isOut;
+            request.getSession().setAttribute(SessionConstant.LEVEL, isOut ? 0 : 1);
+            request.getSession().removeAttribute(SessionConstant.LOGIN_USER);
             throw new AuthException();
         }
         log.info("用户[{}]已登录", principal.getName());

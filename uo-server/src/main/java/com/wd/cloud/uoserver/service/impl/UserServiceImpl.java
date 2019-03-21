@@ -157,7 +157,13 @@ public class UserServiceImpl implements UserService {
             OrgDTO orgDTO = new OrgDTO();
             BeanUtil.copyProperties(org, orgDTO);
             userDTO.setOrg(orgDTO).setOrgName(org.getName());
+            //如果有部門ID，則返回部門名稱
+            if (user.getDepartmentId() != null){
+                Optional<Department> optionalDepartment = departmentRepository.findByOrgFlagAndId(user.getOrgFlag(),user.getDepartmentId());
+                optionalDepartment.ifPresent(department -> userDTO.setDepartmentName(department.getName()));
+            }
         }
+
         return userDTO;
     }
 
