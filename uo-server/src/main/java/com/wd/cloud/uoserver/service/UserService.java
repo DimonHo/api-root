@@ -8,8 +8,11 @@ import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
 import com.wd.cloud.uoserver.pojo.vo.UserVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -118,5 +121,8 @@ public interface UserService {
      * @return
      */
     Page<VUserAudit> validList(Integer status, String keyword, Pageable pageable);
+
+
+    public void buildSession(UserDTO userDTO, HttpServletRequest request, RedisTemplate<String, String> redisTemplate, RedisOperationsSessionRepository redisOperationsSessionRepository);
 
 }

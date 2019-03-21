@@ -57,7 +57,7 @@ public class WebConfig implements WebMvcConfigurer {
         FilterRegistrationBean<TicketFilter> registrationBean = new FilterRegistrationBean<>(new TicketFilter());
         registrationBean.addInitParameter("casServerLoginUrl", casProperties.getServerLoginUrl());
         registrationBean.addInitParameter("serverName", casProperties.getClientHostUrl());
-        registrationBean.addUrlPatterns(casProperties.getAuthenticationUrlPatterns());
+        registrationBean.addUrlPatterns(casProperties.getAuthenticationUrlPatterns().split(","));
         registrationBean.setName("CAS check login Filter");
         registrationBean.setOrder(2);
         log.info("CAS check login Filter过滤器注册成功！");

@@ -4,9 +4,13 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.Header;
+import cn.hutool.http.useragent.UserAgentUtil;
 import cn.hutool.json.JSONObject;
+import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.commons.enums.ClientType;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -28,10 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +107,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 添加新用户
+     *
      * @param backUserVO
      * @return
      */
@@ -111,7 +119,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(BackUserVO backUserVO) {
-        User user = BeanUtil.toBean(backUserVO,User.class);
+        User user = BeanUtil.toBean(backUserVO, User.class);
         return userRepository.save(user);
     }
 
@@ -179,7 +187,6 @@ public class UserServiceImpl implements UserService {
         Page<User> userPage = userRepository.findAll(UserRepository.SpecBuilder.query(orgFlag, departmentId, userType, keyword), pageable);
         return userPage.map(user -> convertUserToDTO(user, "org"));
     }
-
 
 
     /**
@@ -260,6 +267,48 @@ public class UserServiceImpl implements UserService {
         return vUserAuditRepository.findAll(VUserAuditRepository.SpecBuilder.like(status, keyword), pageable);
     }
 
+    @Override
+    public void buildSession(UserDTO userDTO, HttpServletRequest request, RedisTemplate<String, String> redisTemplate, RedisOperationsSessionRepository redisOperationsSessionRepository) {
+        // session Key
+        String sessionKey = null;
+        //如果是移动端
+        if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
+            request.getSession().setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);
+            sessionKey = userDTO.getUsername() + "-" + ClientType.MOBILE;
+        } else {
+            request.getSession().setAttribute(SessionConstant.CLIENT_TYPE, ClientType.PC);
+            sessionKey = userDTO.getUsername() + "-" + ClientType.PC;
+        }
+
+        //踢出同类型客户端的session
+        String oldSessionId = redisTemplate.opsForValue().get(sessionKey);
+        if (oldSessionId != null && !oldSessionId.equals(request.getSession().getId())) {
+            redisOperationsSessionRepository.deleteById(oldSessionId);
+            log.info("踢出session：{}", oldSessionId);
+        }
+        redisTemplate.opsForValue().set(sessionKey, request.getSession().getId());
+        log.info("redis缓存设置：{} = {}", sessionKey, request.getSession().getId());
+        // 如果用户有所属机构，则把有效机构设置为用户所属机构
+        if (userDTO.getOrg() != null) {
+            request.getSession().setAttribute(SessionConstant.ORG, userDTO.getOrg());
+            log.info("设置ORG session:{}", userDTO.getOrg().toString());
+        }
+        request.getSession().setAttribute(SessionConstant.LOGIN_USER, userDTO);
+        log.info("设置LOGIN_USER session:{}", userDTO.toString());
+        // 登陆成功 level +2
+        Integer level = request.getSession().getAttribute(SessionConstant.LEVEL) == null ? 0 : (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
+
+        if (level < 2) {
+            level += 2;
+        }
+        // 如果是已认证用户，level + 4
+        if (level < 4 && userDTO.isValidated()) {
+            level += 4;
+        }
+        request.getSession().setAttribute(SessionConstant.LEVEL, level);
+        log.info("设置LEVEL session:{}", level);
+    }
+
     /**
      * 调用fs-server上传照片
      *
@@ -297,14 +346,15 @@ public class UserServiceImpl implements UserService {
 
     /**
      * user 转换 UserDTO
+     *
      * @param user
      * @param includes
      * @return
      */
     private UserDTO convertUserToDTO(User user, String... includes) {
         UserDTO userDTO = BeanUtil.toBean(user, UserDTO.class);
-        if(user.getDepartmentId() != null && StrUtil.isNotBlank(user.getOrgFlag())){
-            Optional<Department> optionalDepartment = departmentRepository.findByOrgFlagAndId(user.getOrgFlag(),user.getDepartmentId());
+        if (user.getDepartmentId() != null && StrUtil.isNotBlank(user.getOrgFlag())) {
+            Optional<Department> optionalDepartment = departmentRepository.findByOrgFlagAndId(user.getOrgFlag(), user.getDepartmentId());
             userDTO.setDepartmentName(optionalDepartment.map(Department::getName).orElse(null));
         }
         for (String include : includes) {
@@ -321,6 +371,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 检查用户名或邮箱是否已存在
+     *
      * @param username
      * @param email
      */

@@ -52,6 +52,7 @@ public class TicketFilter extends AbstractCasFilter {
         ParameterRequestWrapper requestWrapper = new ParameterRequestWrapper(request);
         String cookieStr = HttpUtil.getCookieStr(requestWrapper);
         Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);
+        isOut = isOut == null ? true : isOut;
         if (cookieStr.contains("TGC=")) {
             String clientUrl = this.constructServiceUrl(request, response);
             log.info("clientUrl = {}", clientUrl);
