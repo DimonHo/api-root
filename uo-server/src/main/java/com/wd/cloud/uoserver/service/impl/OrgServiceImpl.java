@@ -275,7 +275,7 @@ public class OrgServiceImpl implements OrgService {
             String beginIp = ips.get(0);
             String endIp = ips.get(1);
             // 检查IP格式是否合法
-            if (Validator.isIpv4(beginIp) || Validator.isIpv4(endIp)) {
+            if (!Validator.isIpv4(beginIp) || !Validator.isIpv4(endIp)) {
                 throw IPValidException.validNotIp(ipRangeStr);
             }
             long beginNum = NetUtil.ipv4ToLong(beginIp);
@@ -290,7 +290,7 @@ public class OrgServiceImpl implements OrgService {
             }
             // 查询IP是否已存在
             List<IpRange> overlayIpRanges = ipRangeRepository.findExists(beginNum, endNum);
-            if (overlayIpRanges != null) {
+            if (CollectionUtil.isNotEmpty(overlayIpRanges)) {
                 throw IPValidException.existsIp(beginIp, endIp, overlayIpRanges);
             }
             // 通过检查
@@ -314,14 +314,14 @@ public class OrgServiceImpl implements OrgService {
         List<IpRange> ipRangeList = new ArrayList<>();
         for (OrgIpVO ipModel : orgIpVOS) {
             // 如果是删除
-            if (ipModel.getDel() && ipModel.getId() != null) {
+            if (ipModel.isDel() && ipModel.getId() != null) {
                 ipRangeRepository.deleteByOrgFlagAndId(orgFlag, ipModel.getId());
                 continue;
             }
             String beginIp = ipModel.getBegin();
             String endIp = ipModel.getEnd();
             //校验IP格式
-            if (Validator.isIpv4(beginIp) || Validator.isIpv4(endIp)) {
+            if (!Validator.isIpv4(beginIp) || !Validator.isIpv4(endIp)) {
                 throw IPValidException.validNotIp(beginIp + "---" + endIp);
             }
             long beginNum = NetUtil.ipv4ToLong(beginIp);
@@ -336,7 +336,7 @@ public class OrgServiceImpl implements OrgService {
             }
             // 查询IP是否已存在
             List<IpRange> overlayIpRanges = ipRangeRepository.findExists(beginNum, endNum);
-            if (overlayIpRanges != null) {
+            if (CollectionUtil.isNotEmpty(overlayIpRanges)) {
                 throw IPValidException.existsIp(beginIp, endIp, overlayIpRanges);
             }
             // 通过检查，如果有id,则更新，否则就新增
@@ -380,62 +380,78 @@ public class OrgServiceImpl implements OrgService {
     private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus,Boolean isExp,boolean isFilter, List<String> includes) {
         OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
         for (String include : includes) {
-            if ("ipRangs".equals(include)) {
-                List<IpRange> ipRanges = ipRangeRepository.findByOrgFlag(org.getFlag());
-                List<IpRangeDTO> ipRangeDTOS = new ArrayList<>();
-                ipRanges.forEach(ipRange -> {
-                    IpRangeDTO ipRangeDTO = new IpRangeDTO();
-                    ipRangeDTO.setBegin(ipRange.getBegin()).setEnd(ipRange.getEnd());
-                    ipRangeDTOS.add(ipRangeDTO);
-                });
-                orgDTO.setIpRanges(ipRangeDTOS);
+            if ("ipRanges".equals(include)) {
+                includeIpRanges(org, orgDTO);
             }
             if ("products".equals(include)) {
-                // 如果isFilter为false,表示返回结果中不过产品状态和是否过期
+                // 如果isFilter为false,表示返回结果中不过滤产品状态和是否过期
                 if (!isFilter){
                     prodStatus = null;
                     isExp = null;
                 }
-                // 如果isExp!=null且isExp==true?查询机构过期产品, isExp==false？查询机构未过期产品, isExp==null?查询机构所有产品
-                List<OrgProduct> orgProducts = isExp!=null?
-                        isExp?orgProductRepository.findByOrgFlagAndExpDateBefore(org.getFlag(), DateUtil.date())
-                                :orgProductRepository.findByOrgFlagAndEffDateBeforeAndExpDateAfter(org.getFlag(),DateUtil.date(),DateUtil.date())
-                        :orgProductRepository.findByOrgFlag(org.getFlag());
-                List<ProductDTO> productDTOS = new ArrayList<>();
-                List<Integer> finalProdStatus = prodStatus;
-                orgProducts.stream()
-                        //prodStatus为空？返回所有结果，否则返回prodStatus状态列表中的结果
-                        .filter(orgProduct -> CollectionUtil.isEmpty(finalProdStatus) || finalProdStatus.contains(orgProduct.getStatus()))
-                        .forEach(orgProduct -> {
-                            ProductDTO productDTO = BeanUtil.toBean(orgProduct, ProductDTO.class);
-                            Optional<Product> optionalProduct = productRepository.findById(orgProduct.getProductId());
-                            optionalProduct.ifPresent(product -> {
-                                BeanUtil.copyProperties(product, productDTO);
-                                productDTOS.add(productDTO);
-                            });
-                        });
-                orgDTO.setProducts(productDTOS);
+                includeProducts(org, prodStatus, isExp, orgDTO);
             }
             if ("linkmans".equals(include)) {
-                List<Linkman> linkmanList = linkmanRepository.findByOrgFlag(org.getFlag());
-                List<LinkmanDTO> linkmanDTOS = new ArrayList<>();
-                linkmanList.forEach(linkman -> {
-                    LinkmanDTO linkmanDTO = BeanUtil.toBean(linkman, LinkmanDTO.class);
-                    linkmanDTOS.add(linkmanDTO);
-                });
-                orgDTO.setLinkmans(linkmanDTOS);
+                includeLinkmans(org, orgDTO);
             }
-            if ("department".equals(include)) {
-                List<Department> departmentList = departmentRepository.findByOrgFlag(org.getFlag());
-                List<DepartmentDTO> departmentDTOS = new ArrayList<>();
-                departmentList.forEach(department -> {
-                    DepartmentDTO departmentDTO = BeanUtil.toBean(department, DepartmentDTO.class);
-                    departmentDTOS.add(departmentDTO);
-                });
-                orgDTO.setDepartments(departmentDTOS);
+            if ("departments".equals(include)) {
+                includeDepartments(org, orgDTO);
             }
         }
         return orgDTO;
+    }
+
+    private void includeDepartments(Org org, OrgDTO orgDTO) {
+        List<Department> departmentList = departmentRepository.findByOrgFlag(org.getFlag());
+        List<DepartmentDTO> departmentDTOS = new ArrayList<>();
+        departmentList.forEach(department -> {
+            DepartmentDTO departmentDTO = BeanUtil.toBean(department, DepartmentDTO.class);
+            departmentDTOS.add(departmentDTO);
+        });
+        orgDTO.setDepartments(departmentDTOS);
+    }
+
+    private void includeLinkmans(Org org, OrgDTO orgDTO) {
+        List<Linkman> linkmanList = linkmanRepository.findByOrgFlag(org.getFlag());
+        List<LinkmanDTO> linkmanDTOS = new ArrayList<>();
+        linkmanList.forEach(linkman -> {
+            LinkmanDTO linkmanDTO = BeanUtil.toBean(linkman, LinkmanDTO.class);
+            linkmanDTOS.add(linkmanDTO);
+        });
+        orgDTO.setLinkmans(linkmanDTOS);
+    }
+
+    private void includeProducts(Org org, List<Integer> prodStatus, Boolean isExp, OrgDTO orgDTO) {
+        // 如果isExp!=null且isExp==true?查询机构过期产品, isExp==false？查询机构未过期产品, isExp==null?查询机构所有产品
+        List<OrgProduct> orgProducts = isExp!=null?
+                isExp?orgProductRepository.findByOrgFlagAndExpDateBefore(org.getFlag(), DateUtil.date())
+                        :orgProductRepository.findByOrgFlagAndEffDateBeforeAndExpDateAfter(org.getFlag(),DateUtil.date(),DateUtil.date())
+                :orgProductRepository.findByOrgFlag(org.getFlag());
+        List<ProductDTO> productDTOS = new ArrayList<>();
+        List<Integer> finalProdStatus = prodStatus;
+        orgProducts.stream()
+                //prodStatus为空？返回所有结果，否则返回prodStatus状态列表中的结果
+                .filter(orgProduct -> CollectionUtil.isEmpty(finalProdStatus) || finalProdStatus.contains(orgProduct.getStatus()))
+                .forEach(orgProduct -> {
+                    ProductDTO productDTO = BeanUtil.toBean(orgProduct, ProductDTO.class);
+                    Optional<Product> optionalProduct = productRepository.findById(orgProduct.getProductId());
+                    optionalProduct.ifPresent(product -> {
+                        BeanUtil.copyProperties(product, productDTO);
+                        productDTOS.add(productDTO);
+                    });
+                });
+        orgDTO.setProducts(productDTOS);
+    }
+
+    private void includeIpRanges(Org org, OrgDTO orgDTO) {
+        List<IpRange> ipRanges = ipRangeRepository.findByOrgFlag(org.getFlag());
+        List<IpRangeDTO> ipRangeDTOS = new ArrayList<>();
+        ipRanges.forEach(ipRange -> {
+            IpRangeDTO ipRangeDTO = new IpRangeDTO();
+            ipRangeDTO.setBegin(ipRange.getBegin()).setEnd(ipRange.getEnd());
+            ipRangeDTOS.add(ipRangeDTO);
+        });
+        orgDTO.setIpRanges(ipRangeDTOS);
     }
 
 }
