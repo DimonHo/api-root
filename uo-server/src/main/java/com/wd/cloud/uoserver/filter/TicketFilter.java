@@ -20,6 +20,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * @author He Zhigang
@@ -66,6 +67,7 @@ public class TicketFilter extends AbstractCasFilter {
         if (!clientUrl.contains("/login/info")){
             send(request,response);
         }
+        return;
     }
 
 
@@ -74,6 +76,7 @@ public class TicketFilter extends AbstractCasFilter {
         isOut = isOut == null ? true : isOut;
         request.getSession().setAttribute(SessionConstant.LEVEL, isOut ? 0 : 1);
         request.getSession().removeAttribute(SessionConstant.LOGIN_USER);
-        response.getWriter().write(JSONUtil.toJsonStr(ResponseModel.fail(StatusEnum.UNAUTHORIZED)));
+        PrintWriter pw = response.getWriter();
+        pw.write(JSONUtil.toJsonStr(ResponseModel.fail(StatusEnum.UNAUTHORIZED)));
     }
 }

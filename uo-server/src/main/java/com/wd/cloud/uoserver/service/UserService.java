@@ -67,7 +67,7 @@ public interface UserService {
      * @param username
      * @param file
      */
-    void uploadHeadImg(String username, MultipartFile file);
+    String uploadHeadImg(String username, MultipartFile file);
 
     /**
      * 上传证件照
@@ -75,7 +75,7 @@ public interface UserService {
      * @param username
      * @param file
      */
-    void uploadIdPhoto(String username, MultipartFile file);
+    String uploadIdPhoto(String username, MultipartFile file);
 
     /**
      * 审核验证证件照

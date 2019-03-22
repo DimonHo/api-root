@@ -15,6 +15,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 public class ApiException extends RuntimeException {
+    static final long serialVersionUID = 1L;
 
     protected Integer status;
 

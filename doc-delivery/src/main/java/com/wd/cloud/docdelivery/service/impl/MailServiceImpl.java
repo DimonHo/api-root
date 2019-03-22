@@ -47,7 +47,8 @@ public class MailServiceImpl implements MailService {
         String mailTitle = mailTemplateModel.getMailTitle();
         String mailContent = buildContent(mailTemplateModel);
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getId());
-        optionalHelpRecord.ifPresent(helpRecord -> {
+        if (optionalHelpRecord.isPresent()){
+            HelpRecord helpRecord = optionalHelpRecord.get();
             try {
                 if (HelpStatusEnum.WAIT_HELP.value() == helpRecord.getStatus()) {
                     MailUtil.send(global.getNotifyMail(), null, CollectionUtil.newArrayList(vHelpRecord.getBccs()), mailTitle, mailContent, true);
@@ -55,12 +56,20 @@ public class MailServiceImpl implements MailService {
                     MailUtil.send(CollectionUtil.newArrayList(helpRecord.getHelperEmail()), null, CollectionUtil.newArrayList(vHelpRecord.getBccs()), mailTitle, mailContent, true);
                 }
                 helpRecord.setSend(true);
-            } catch (Exception e) {
-                helpRecord.setSend(false);
-                log.error("发送邮件至{}失败：", helpRecord.getHelperEmail(), e);
+            } catch (MailException e) {
+                if ("550 Mailbox not found or access denied".equals(e.getCause().getCause().getMessage())){
+                    helpRecord.setSend(true);
+                    log.error("邮件地址{}不可达！", helpRecord.getHelperEmail(), e);
+                }else{
+                    helpRecord.setSend(false);
+                    log.error("发送邮件至{}失败！", helpRecord.getHelperEmail(), e);
+                }
             } finally {
                 helpRecordRepository.save(helpRecord);
             }
+        }
+        optionalHelpRecord.ifPresent(helpRecord -> {
+
         });
     }
 

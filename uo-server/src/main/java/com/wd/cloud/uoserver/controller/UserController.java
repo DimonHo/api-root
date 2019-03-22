@@ -106,8 +106,7 @@ public class UserController {
         if (userDTO == null) {
             throw new AuthException();
         }
-        userService.uploadHeadImg(userDTO.getUsername(), file);
-        return ResponseModel.ok();
+        return ResponseModel.ok().setBody(userService.uploadHeadImg(userDTO.getUsername(), file));
     }
 
     /**
@@ -124,7 +123,6 @@ public class UserController {
         if (userDTO == null) {
             throw new AuthException();
         }
-        userService.uploadIdPhoto(userDTO.getUsername(), file);
-        return ResponseModel.ok();
+        return ResponseModel.ok().setBody(userService.uploadIdPhoto(userDTO.getUsername(), file));
     }
 }

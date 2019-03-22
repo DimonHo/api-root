@@ -203,11 +203,12 @@ public class UserServiceImpl implements UserService {
      * @param file
      */
     @Override
-    public void uploadHeadImg(String username, MultipartFile file) {
+    public String uploadHeadImg(String username, MultipartFile file) {
         String headImg = uploadImage(file);
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         user.setHeadImg(headImg);
         userRepository.save(user);
+        return headImg;
     }
 
     /**
@@ -217,7 +218,7 @@ public class UserServiceImpl implements UserService {
      * @param file
      */
     @Override
-    public void uploadIdPhoto(String username, MultipartFile file) {
+    public String uploadIdPhoto(String username, MultipartFile file) {
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         String idPhoto = uploadImage(file);
         user.setIdPhoto(idPhoto);
@@ -228,6 +229,7 @@ public class UserServiceImpl implements UserService {
         auditLog.setStatus(AuditEnum.WAITE.value()).setIdPhoto(idPhoto).setUsername(username);
         auditLogRepository.save(auditLog);
         userRepository.save(user);
+        return idPhoto;
     }
 
     /**
