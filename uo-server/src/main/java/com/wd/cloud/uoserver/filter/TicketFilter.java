@@ -1,6 +1,10 @@
 package com.wd.cloud.uoserver.filter;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.wd.cloud.commons.constant.SessionConstant;
+import com.wd.cloud.commons.enums.StatusEnum;
+import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.CasUtil;
 import com.wd.cloud.commons.util.HttpUtil;
 import com.wd.cloud.uoserver.config.ParameterRequestWrapper;
@@ -47,8 +51,8 @@ public class TicketFilter extends AbstractCasFilter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         ParameterRequestWrapper requestWrapper = new ParameterRequestWrapper(request);
         String cookieStr = HttpUtil.getCookieStr(requestWrapper);
+        String clientUrl = this.constructServiceUrl(request, response);
         if (cookieStr.contains("TGC=")) {
-            String clientUrl = this.constructServiceUrl(request, response);
             log.info("clientUrl = {}", clientUrl);
             // 获取一个ST
             String st = CasUtil.getSt(requestWrapper, casServerLoginUrl, clientUrl, cookieStr);
@@ -59,6 +63,17 @@ public class TicketFilter extends AbstractCasFilter {
                 filterChain.doFilter(requestWrapper, response);
             }
         }
+        if (!clientUrl.contains("/login/info")){
+            send(request,response);
+        }
+    }
 
+
+    public void send(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);
+        isOut = isOut == null ? true : isOut;
+        request.getSession().setAttribute(SessionConstant.LEVEL, isOut ? 0 : 1);
+        request.getSession().removeAttribute(SessionConstant.LOGIN_USER);
+        response.getWriter().write(JSONUtil.toJsonStr(ResponseModel.fail(StatusEnum.UNAUTHORIZED)));
     }
 }
