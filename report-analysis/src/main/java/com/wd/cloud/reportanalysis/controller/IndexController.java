@@ -41,7 +41,53 @@ public class IndexController {
     @Autowired
     private CxfWebServiceI cxfWebService;
 
-    @ApiOperation(value = "发文量、分区、被引频次对比分析（非esi）")
+//    @ApiOperation(value = "发文量、分区、被引频次对比分析（非esi）")
+//    @ApiImplicitParams({
+//    	@ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
+//    	@ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "act", value = "分析类型;amount：发文量;partition：分区;cited：被引频次", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "table", value = "表名", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "scid", value = "学校scid", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "compareScids", value = "对比 学校", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "category_type", value = "esi(领域)", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "time", value = "时间段", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "source", value = "数据类型", dataType = "String", paramType = "query"),
+//            @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query")
+//    })
+//    @RequestMapping("/compare")
+//    public ResponseModel compare(HttpServletRequest request) {
+//        ResourceLabel resource = new ResourceLabel(request);
+//        Map<String, Object> scidMap = new HashMap<>();
+//        String type = resource.getType();
+//        resource.getScids().forEach(scid -> {
+//            School school = schoolService.findByScid(Integer.parseInt(scid));
+////            if(type.equals("analysis")) {
+////            	scidMap.put(scid, analysisByDBService.compareAnalysis(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
+////            } else 
+//            if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
+//                List<QueryCondition> list = resource.getQueryList();
+//                list.add(new QueryCondition("scid", scid));
+//                if (resource.getSignature() != null) {
+//                    list.add(new QueryCondition("signature", scid, resource.getSignature()));
+//                }
+////                scidMap.put(scid, analysisByESService.amount(list, resource.getFiled(), type,resource.getFacetMap()));
+//                scidMap.put(scid, analysisByESService.amount(list, resource.getFacetField(), type));
+//            } else {
+//                scidMap.put(scid, cxfWebService.amount(resource.toXML(scid)));
+//            }
+//        });
+//        Map<String, Object> explain = analysisByESService.explain(type);
+//        Map<String, Object> result = new HashMap<String, Object>();
+//        result.put("explain", explain);
+//        result.put("content", scidMap);
+//        if(resource.getBlock().equals("ourschool")) {
+//        	result.put("content", scidMap.get(resource.getScid()));
+//        }
+//        System.out.println(result);
+//        return ResponseModel.ok().setBody(result);
+//    }
+    
+    @ApiOperation(value = "发文量、分区、被引频次对比分析（esi）")
     @ApiImplicitParams({
     	@ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
     	@ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
@@ -52,48 +98,55 @@ public class IndexController {
             @ApiImplicitParam(name = "category_type", value = "esi(领域)", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "time", value = "时间段", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "source", value = "数据类型", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query"),
+    		@ApiImplicitParam(name = "issue", value = "期", dataType = "String", paramType = "query")
     })
     @RequestMapping("/compare")
     public ResponseModel compare(HttpServletRequest request) {
-        ResourceLabel resource = new ResourceLabel(request);
-        Map<String, Object> scidMap = new HashMap<>();
-        String type = resource.getType();
-        resource.getScids().forEach(scid -> {
-            School school = schoolService.findByScid(Integer.parseInt(scid));
-//            if(type.equals("analysis")) {
-//            	scidMap.put(scid, analysisByDBService.compareAnalysis(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
-//            } else 
-            if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
-                List<QueryCondition> list = resource.getQueryList();
-                list.add(new QueryCondition("scid", scid));
-                if (resource.getSignature() != null) {
-                    list.add(new QueryCondition("signature", scid, resource.getSignature()));
-                }
-//                scidMap.put(scid, analysisByESService.amount(list, resource.getFiled(), type,resource.getFacetMap()));
-                scidMap.put(scid, analysisByESService.amount(list, resource.getFacetField(), type));
-            } else {
-                scidMap.put(scid, cxfWebService.amount(resource.toXML(scid)));
-            }
-        });
-        Map<String, Object> explain = analysisByESService.explain(type);
-        Map<String, Object> result = new HashMap<String, Object>();
-        result.put("explain", explain);
-        result.put("content", scidMap);
-        if(resource.getBlock().equals("ourschool")) {
-        	result.put("content", scidMap.get(resource.getScid()));
+    	Map<String, Object> result = new HashMap<String, Object>();
+    	ResourceLabel resource = new ResourceLabel(request);
+    	String type = resource.getType();
+        String esiType = resource.getEsiType();
+        
+    	if(resource.getAct().equals("issue")){
+    		List<Map<String, Object>> list = analysisByDBService.getIssue(0, 1);
+            result.put("content", list);
+    	} else
+    	
+        
+        if(esiType.equals("analysis")) {
+        	Map<String, Object> scidMap = new HashMap<>();
+        	String scid = resource.getScid();
+        	result = analysisByDBService.analysisEsiPaper(Integer.parseInt(scid), resource.getCategory(), resource.getAct(),resource.getIssue(), 0);
+//        	result.put("content", scidMap.get("content"));
+        } else {
+        	Map<String, Object> scidMap = new HashMap<>();
+	        resource.getScids().forEach(scid -> {
+	            School school = schoolService.findByScid(Integer.parseInt(scid));
+	            if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
+	                List<QueryCondition> list = resource.getQueryList();
+	                list.add(new QueryCondition("scid", scid));
+	                if (resource.getSignature() != null) {
+	                    list.add(new QueryCondition("signature", scid, resource.getSignature()));
+	                }
+	                scidMap.put(scid, analysisByESService.amount(list, resource.getFacetField(), type));
+	            } else {
+	                scidMap.put(scid, cxfWebService.amount(resource.toXML(scid)));
+	            }
+	        });
+	        result.put("content", scidMap);
+	        if(resource.getBlock().equals("ourschool")) {
+	        	result.put("content", scidMap.get(resource.getScid()));
+	        }
         }
+        Map<String, Object> explain = analysisByESService.explain(type);
+        result.put("explain", explain);
         System.out.println(result);
         return ResponseModel.ok().setBody(result);
     }
     
     
-    /**
-     * 本校ESI学科论文分析
-     * @param request
-     * @return
-     */
-    @ApiOperation(value = "发文量、分区、被引频次对比分析（非esi）")
+    @ApiOperation(value = "发文量、分区、被引频次对比分析（esi）")
     @ApiImplicitParams({
     	@ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
     	@ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
@@ -104,34 +157,46 @@ public class IndexController {
             @ApiImplicitParam(name = "category_type", value = "esi(领域)", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "time", value = "时间段", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "source", value = "数据类型", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "signature", value = "机构署名", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "issue", value = "期", dataType = "String", paramType = "query")
     })
     @RequestMapping("/compareEsiPaper")
-    public ResponseModel compareOurSchool(HttpServletRequest request) {
+    public ResponseModel compareEsiPaper(HttpServletRequest request) {
         ResourceLabel resource = new ResourceLabel(request);
-        Map<String, Object> scidMap = new HashMap<>();
-        
-        String scid = resource.getScid();
-        
-        String type = resource.getEsiType();
-        if(type.equals("analysis")) {
-        	scidMap.put(scid, analysisByDBService.analysisEsiPaper(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
-        } else {
-        	List<QueryCondition> list = resource.getQueryList();
-            list.add(new QueryCondition("scid", scid));
-            if (resource.getSignature() != null) {
-                list.add(new QueryCondition("signature", scid, resource.getSignature()));
-            }
-            scidMap.put(scid, analysisByESService.amount(list, resource.getFacetField(), type));
-        }
-        
-        Map<String, Object> explain = analysisByESService.explain(type);
+        String type = resource.getType();
+        String esiType = resource.getEsiType();
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("explain", explain);
-        result.put("content", scidMap);
-        if(resource.getBlock().equals("ourschool")) {
-        	result.put("content", scidMap.get(resource.getScid()));
+        if(esiType.equals("analysis")) {
+        	Map<String, Object> scidMap = new HashMap<>();
+        	String scid = resource.getScid();
+        	scidMap = analysisByDBService.analysisEsiPaper(Integer.parseInt(scid), resource.getCategory(), resource.getAct(),resource.getIssue(), 0);
+        	result.put("content", scidMap.get("content"));
+        } else {
+        	Map<String, Object> scidMap = new HashMap<>();
+	        resource.getScids().forEach(scid -> {
+	            School school = schoolService.findByScid(Integer.parseInt(scid));
+	//            if(type.equals("analysis")) {
+	//            	scidMap.put(scid, analysisByDBService.compareAnalysis(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
+	//            } else 
+	            if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
+	                List<QueryCondition> list = resource.getQueryList();
+	                list.add(new QueryCondition("scid", scid));
+	                if (resource.getSignature() != null) {
+	                    list.add(new QueryCondition("signature", scid, resource.getSignature()));
+	                }
+	//                scidMap.put(scid, analysisByESService.amount(list, resource.getFiled(), type,resource.getFacetMap()));
+	                scidMap.put(scid, analysisByESService.amount(list, resource.getFacetField(), type));
+	            } else {
+	                scidMap.put(scid, cxfWebService.amount(resource.toXML(scid)));
+	            }
+	        });
+	        result.put("content", scidMap);
+	        if(resource.getBlock().equals("ourschool")) {
+	        	result.put("content", scidMap.get(resource.getScid()));
+	        }
         }
+        Map<String, Object> explain = analysisByESService.explain(type);
+        result.put("explain", explain);
         System.out.println(result);
         return ResponseModel.ok().setBody(result);
     }
@@ -213,9 +278,10 @@ public class IndexController {
             default:
                 break;
         }
-
+        System.out.println(result);
         return ResponseModel.ok().setBody(result);
     }
+    
     
 
 }

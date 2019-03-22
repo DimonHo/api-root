@@ -41,6 +41,8 @@ public class ResourceLabel {
 
     private String signature;
     
+    private String issue;
+    
     /**
      * 0为按最新年，1为按文章年
      */
@@ -54,12 +56,13 @@ public class ResourceLabel {
         scid = request.getParameter("scid");
         category = request.getParameter("category_type");
         type = request.getParameter("type");
+        issue = request.getParameter("issue");
         if(org.apache.commons.lang3.StringUtils.isEmpty(type)) {
         	type = "0";
         }
 //		compareScids = request.getParameterValues("compare_scids");
 //		time = request.getParameterValues("time");
-        String compare = request.getParameter("compareScids");
+        String compare = request.getParameter("compare_scids");
         String t = request.getParameter("time");
         if (StringUtils.isNotEmpty(compare)) {
             compareScids = compare.replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -323,6 +326,11 @@ public class ResourceLabel {
 
 	public String getBlock() {
 		return block;
+	}
+
+
+	public String getIssue() {
+		return issue;
 	}
 
 }

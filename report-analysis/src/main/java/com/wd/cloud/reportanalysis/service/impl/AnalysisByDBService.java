@@ -126,21 +126,31 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
     
     
     @Override
-    public Map<String, Object> analysisEsiPaper(int scid, String category , String act, int type_c) {
+    public Map<String, Object> analysisEsiPaper(int scid, String category, String act,String issue, int type_c) {
     	Map<String, Object> result = new HashMap<>();
     	List<Map<String, Object>> list = analysisRepository.getIssue(0, 1);
     	if(list == null) return null;
-    	String issue = list.get(0).get("esi_issue").toString();
+//    	String issue = list.get(0).get("esi_issue").toString();
     	String classify = "thesis";
-    	if("potential".equals(act)) {		//分区对比
-    		classify = "competitive";
-    	}
-    	if(act.equals("amount") || act.equals("cited")) {			//发文趋势||被引频次对比
-    		result = analysisRepository.searchEsi(scid, issue, category, classify, "scale", type_c);
+    	if(act.equals("selected") || act.equals("potential") || act.equals("panorama")) {
+    		classify = "subject";
+    		result.put("content", analysisRepository.searchEsiSubject(scid, issue, category, classify, act, type_c));
     	} else {
+    		if(issue == null) {
+    			issue = list.get(0).get("esi_issue").toString();
+    		}
     		result = analysisRepository.searchEsi(scid, issue, category, classify, act, type_c);
     	}
         return result;
+//    	if("potential".equals(act)) {		//分区对比
+//    		classify = "competitive";
+//    	}
+//    	if(act.equals("amount") || act.equals("cited")) {			//发文趋势||被引频次对比
+//    		result = analysisRepository.searchEsi(scid, issue, category, classify, "scale", type_c);
+//    	} else {
+//    		result = analysisRepository.searchEsi(scid, issue, category, classify, act, type_c);
+//    	}
+    	
     }
     
     

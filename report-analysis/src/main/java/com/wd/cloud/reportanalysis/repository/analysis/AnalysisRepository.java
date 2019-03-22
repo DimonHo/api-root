@@ -40,5 +40,7 @@ public interface AnalysisRepository<T, Long extends Serializable> {
      * @return
      */
     public Map<String, Object> searchEsi(int scid, String issue, String category, String classify, String column, int type_c);
+    
+    public List<Map<String, Object>> searchEsiSubject(int scid, String issue, String category, String classify, String column, int type_c);
 
 }

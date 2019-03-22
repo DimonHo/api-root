@@ -30,6 +30,6 @@ public interface AnalysisByDBServiceI {
      * @param type_c
      * @return
      */
-    public Map<String, Object> analysisEsiPaper(int scid, String category , String act, int type_c);
+    public Map<String, Object> analysisEsiPaper(int scid, String category , String act,String issue, int type_c);
 
 }
