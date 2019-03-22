@@ -46,6 +46,20 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     Optional<User> findByUsername(String username);
 
     /**
+     * 用户名是否存在
+     * @param username
+     * @return
+     */
+    boolean existsByUsername(String username);
+
+    /**
+     * 邮箱是否存在
+     * @param email
+     * @return
+     */
+    boolean existsByEmail(String email);
+
+    /**
      * 查询邮箱
      * @param email
      * @return

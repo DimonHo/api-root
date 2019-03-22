@@ -276,6 +276,26 @@ public class UserServiceImpl implements UserService {
         return vUserAuditRepository.findAll(VUserAuditRepository.SpecBuilder.like(status, keyword), pageable);
     }
 
+    /**
+     * 检查用户名是否存在
+     * @param username
+     * @return
+     */
+    @Override
+    public boolean checkUsernameExists(String username){
+        return userRepository.existsByUsername(username);
+    }
+
+    /**
+     * 检查邮箱是否存在
+     * @param email
+     * @return
+     */
+    @Override
+    public boolean checkEmailExists(String email){
+        return userRepository.existsByEmail(email);
+    }
+
     @Override
     public void buildSession(UserDTO userDTO, HttpServletRequest request, RedisTemplate<String, String> redisTemplate, RedisOperationsSessionRepository redisOperationsSessionRepository) {
         // session Key
@@ -384,8 +404,7 @@ public class UserServiceImpl implements UserService {
      * @param username
      * @param email
      */
-    private void checkUserExists(String username, String email) {
-
+    public void checkUserExists(String username, String email) {
         if (StrUtil.isNotBlank(username)){
             // 检查username是否已存在
             userRepository.findByUsername(username).ifPresent(user -> UserExistsException.userExists(user.getUsername()));
@@ -394,6 +413,7 @@ public class UserServiceImpl implements UserService {
             // 检查email是否已存在
             userRepository.findByEmail(email).ifPresent(user -> UserExistsException.emailExists(user.getEmail()));
         }
-
     }
+
+
 }

@@ -110,6 +110,29 @@ public class UserController {
     }
 
     /**
+     * 检查用户名是否存在
+     * @param username
+     * @return
+     */
+    @ApiOperation(value = "检查用户名",tags = {"用户查询"})
+    @GetMapping("/user/check/username")
+    public ResponseModel checkUsername(@RequestParam String username){
+        boolean isExists = userService.checkUsernameExists(username);
+        return ResponseModel.ok().setMessage(isExists?"用户名已存在":"用户名不存在").setBody(isExists);
+    }
+    /**
+     * 检查邮箱是否存在
+     * @param email
+     * @return
+     */
+    @ApiOperation(value = "检查邮箱",tags = {"用户查询"})
+    @GetMapping("/user/check/email")
+    public ResponseModel checkEmail(@RequestParam String email){
+        boolean isExists = userService.checkEmailExists(email);
+        return ResponseModel.ok().setMessage(isExists?"邮箱已存在":"邮箱不存在").setBody(isExists);
+    }
+
+    /**
      * 上传证件照
      *
      * @param file

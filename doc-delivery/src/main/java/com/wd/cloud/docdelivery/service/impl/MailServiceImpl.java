@@ -1,9 +1,11 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailException;
 import cn.hutool.extra.mail.MailUtil;
+import com.sun.mail.smtp.SMTPAddressFailedException;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.entity.HelpRecord;
 import com.wd.cloud.docdelivery.entity.VHelpRecord;
@@ -47,7 +49,7 @@ public class MailServiceImpl implements MailService {
         String mailTitle = mailTemplateModel.getMailTitle();
         String mailContent = buildContent(mailTemplateModel);
         Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(vHelpRecord.getId());
-        if (optionalHelpRecord.isPresent()){
+        if (optionalHelpRecord.isPresent()) {
             HelpRecord helpRecord = optionalHelpRecord.get();
             try {
                 if (HelpStatusEnum.WAIT_HELP.value() == helpRecord.getStatus()) {
@@ -57,10 +59,10 @@ public class MailServiceImpl implements MailService {
                 }
                 helpRecord.setSend(true);
             } catch (MailException e) {
-                if ("550 Mailbox not found or access denied".equals(e.getCause().getCause().getMessage())){
+                if (ExceptionUtil.isCausedBy(e, SMTPAddressFailedException.class)) {
                     helpRecord.setSend(true);
                     log.error("邮件地址{}不可达！", helpRecord.getHelperEmail(), e);
-                }else{
+                } else {
                     helpRecord.setSend(false);
                     log.error("发送邮件至{}失败！", helpRecord.getHelperEmail(), e);
                 }

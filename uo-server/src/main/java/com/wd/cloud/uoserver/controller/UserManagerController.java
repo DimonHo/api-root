@@ -35,7 +35,7 @@ public class UserManagerController {
         return ResponseModel.ok().setBody(userService.addUser(backUserVO));
     }
 
-    @ApiOperation(value = "后台新增用户", tags = {"用户管理"})
+    @ApiOperation(value = "后台更新用户", tags = {"用户管理"})
     @PutMapping("/manager/user")
     public ResponseModel modifyUser(@RequestBody BackUserVO backUserVO){
         return ResponseModel.ok().setBody(userService.saveUser(backUserVO));

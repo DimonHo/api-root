@@ -66,14 +66,15 @@ public interface UserService {
      *
      * @param username
      * @param file
+     * @return
      */
     String uploadHeadImg(String username, MultipartFile file);
 
     /**
      * 上传证件照
-     *
      * @param username
      * @param file
+     * @return
      */
     String uploadIdPhoto(String username, MultipartFile file);
 
@@ -122,7 +123,26 @@ public interface UserService {
      */
     Page<VUserAudit> validList(Integer status, String keyword, Pageable pageable);
 
+    /**
+     * 检查邮箱是否存在
+     * @param username
+     * @return
+     */
+    boolean checkUsernameExists(String username);
 
-    public void buildSession(UserDTO userDTO, HttpServletRequest request, RedisTemplate<String, String> redisTemplate, RedisOperationsSessionRepository redisOperationsSessionRepository);
+    /**
+     * 检查用户名是否已存在
+     * @param email
+     * @return
+     */
+    boolean checkEmailExists(String email);
+    /**
+     * 构建用户session
+     * @param userDTO
+     * @param request
+     * @param redisTemplate
+     * @param redisOperationsSessionRepository
+     */
+    void buildSession(UserDTO userDTO, HttpServletRequest request, RedisTemplate<String, String> redisTemplate, RedisOperationsSessionRepository redisOperationsSessionRepository);
 
 }
