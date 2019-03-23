@@ -30,6 +30,10 @@ public class OrgCdbDTO implements Serializable {
     /**馆藏url*/
     private String url;
 
+    /**
+     * 类型 1：馆藏，2：筛选
+     */
+    private Integer type;
     /**机构标示*/
     private String orgFlag;
 

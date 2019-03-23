@@ -15,11 +15,11 @@ public interface OrgCdbService {
      *
      * @param pageable
      * @param orgFlag
-     * @param collection 是否是馆藏资源
+     * @param type 资源类型 1馆藏，2筛选
      * @return
      * @Param local 是否有localUrl
      */
-    Page<OrgCdbDTO> findOrgCdbs(String orgFlag, Boolean collection, Boolean local, String keyword, Pageable pageable);
+    Page<OrgCdbDTO> findOrgCdbs(String orgFlag, Integer type, Boolean local, String keyword, Pageable pageable);
 
 
     /**

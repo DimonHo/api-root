@@ -16,7 +16,7 @@ import java.sql.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "org_product")
+@Table(name = "org_product",uniqueConstraints = {@UniqueConstraint(columnNames={"org_flag", "product_id"})})
 public class OrgProduct extends AbstractEntity {
 
     @Column(name = "org_flag")

@@ -20,9 +20,9 @@ public class OrgCdbVO {
 
     private String localUrl;
 
-    private boolean display;
+    private Integer type;
 
-    private boolean collection;
+    private boolean display;
 
     private boolean del;
 }

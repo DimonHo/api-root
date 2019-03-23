@@ -33,9 +33,9 @@ public class OrgCdbServiceImpl implements OrgCdbService {
 
 
     @Override
-    public Page<OrgCdbDTO> findOrgCdbs(String orgFlag, Boolean collection, Boolean local, String keyword, Pageable pageable) {
+    public Page<OrgCdbDTO> findOrgCdbs(String orgFlag, Integer type, Boolean local, String keyword, Pageable pageable) {
         Org org = orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
-        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecBuilder.query(orgFlag, collection, local, keyword), pageable);
+        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecBuilder.query(orgFlag, type, local, keyword), pageable);
         return orgCdbs.map(orgCdb -> convertOrgCdbToOrgCdbDTO(org, orgCdb));
     }
 

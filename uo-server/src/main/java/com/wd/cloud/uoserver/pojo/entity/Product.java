@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "product")
+@Table(name = "product",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "url"})})
 public class Product extends AbstractEntity{
 
     /**

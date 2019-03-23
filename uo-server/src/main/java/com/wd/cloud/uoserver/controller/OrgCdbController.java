@@ -25,11 +25,11 @@ public class OrgCdbController {
     @ApiOperation(value = "机构馆藏资源")
     @GetMapping("/org/cdb")
     public ResponseModel<Page<OrgCdbDTO>> findByOrgFlagAndCollection(@RequestParam String orgFlag,
-                                                                     @RequestParam(required = false) Boolean collection,
+                                                                     @RequestParam(required = false) Integer type,
                                                                      @RequestParam(required = false) Boolean local,
                                                                      @RequestParam(required = false) String keyword,
                                                                      @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<OrgCdbDTO> byOrgFlagAndDisplay = orgCdbService.findOrgCdbs(orgFlag, collection, local, keyword, pageable);
+        Page<OrgCdbDTO> byOrgFlagAndDisplay = orgCdbService.findOrgCdbs(orgFlag, type, local, keyword, pageable);
         return ResponseModel.ok().setBody(byOrgFlagAndDisplay);
     }
 

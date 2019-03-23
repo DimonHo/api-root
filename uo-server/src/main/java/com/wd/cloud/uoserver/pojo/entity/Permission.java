@@ -17,7 +17,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "permission")
+@Table(name = "permission",uniqueConstraints = {@UniqueConstraint(columnNames={"username", "type","value"})})
 public class Permission extends AbstractEntity {
 
     /**

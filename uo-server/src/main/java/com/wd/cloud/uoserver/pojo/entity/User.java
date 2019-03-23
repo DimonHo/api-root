@@ -47,6 +47,7 @@ public class User extends AbstractEntity {
     /**
      * 手机号码
      */
+    @Column(unique = true)
     private String phone;
 
     /**
@@ -78,17 +79,17 @@ public class User extends AbstractEntity {
     /**
      * qqID
      */
-    @Column(name = "qq_openid")
+    @Column(name = "qq_openid",unique = true)
     private String qqOpenid;
     /**
      * 微信ID
      */
-    @Column(name = "wechat_openid")
+    @Column(name = "wechat_openid",unique = true)
     private String wechatOpenid;
     /**
      * 微博ID
      */
-    @Column(name = "weibo_openid")
+    @Column(name = "weibo_openid",unique = true)
     private String weiboOpenid;
     /**
      * 证件照
