@@ -2,11 +2,11 @@ package com.wd.cloud.uoserver.service.impl;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.pojo.dto.OrgCdbDTO;
-import com.wd.cloud.uoserver.pojo.entity.Cdb;
 import com.wd.cloud.uoserver.pojo.entity.Org;
 import com.wd.cloud.uoserver.pojo.entity.OrgCdb;
-import com.wd.cloud.uoserver.repository.CdbRepository;
+import com.wd.cloud.uoserver.pojo.vo.OrgCdbVO;
 import com.wd.cloud.uoserver.repository.OrgCdbRepository;
 import com.wd.cloud.uoserver.repository.OrgRepository;
 import com.wd.cloud.uoserver.service.OrgCdbService;
@@ -17,130 +17,59 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service("orgCdbService")
 @Transactional(rollbackFor = Exception.class)
 public class OrgCdbServiceImpl implements OrgCdbService {
-    
+
     @Autowired
     OrgCdbRepository orgCdbRepository;
 
     @Autowired
     OrgRepository orgRepository;
 
-    @Autowired
-    CdbRepository cdbRepository;
-
 
     @Override
-    public Page<OrgCdbDTO> findByOrgFlagAndCollection(Pageable pageable, String orgFlag, Boolean collection) {
+    public Page<OrgCdbDTO> findOrgCdbs(String orgFlag, Boolean collection, Boolean local, String keyword, Pageable pageable) {
+        Org org = orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
+        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecBuilder.query(orgFlag, collection, local, keyword), pageable);
+        return orgCdbs.map(orgCdb -> convertOrgCdbToOrgCdbDTO(org, orgCdb));
+    }
 
-        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgFlagAndCollection(orgFlag, collection), pageable);
-        Org org = orgRepository.findByFlag(orgFlag).orElse(null);
-        Page<OrgCdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
-            Cdb cdb = cdbRepository.findById(orgCdb.getCdbId()).orElse(null);
-            OrgCdbDTO orgCdbDTO = new OrgCdbDTO();
-            orgCdbDTO.setOrgFlag(org.getFlag());
-            orgCdbDTO.setName(cdb.getName());
-            orgCdbDTO.setUrl(cdb.getUrl());
-            BeanUtil.copyProperties(orgCdb, orgCdbDTO);
-            return orgCdbDTO;
-        });
-        return cdbDTOS;
+    private OrgCdbDTO convertOrgCdbToOrgCdbDTO(Org org, OrgCdb orgCdb) {
+        OrgCdbDTO orgCdbDTO = BeanUtil.toBean(orgCdb, OrgCdbDTO.class);
+        orgCdbDTO.setOrgName(org.getName());
+        return orgCdbDTO;
     }
 
     @Override
-    public Page<OrgCdbDTO> findByOrgFlagAndLocalUrlIsNotNull(Pageable pageable, String orgFlag) {
-        Page<OrgCdb> orgCdbs = orgCdbRepository.findAll(OrgCdbRepository.SpecificationBuilder.findByOrgFlagAndLocalUrlIsNotNull(orgFlag), pageable);
-        Page<OrgCdbDTO> cdbDTOS = orgCdbs.map(orgCdb -> {
-            Cdb byId = cdbRepository.findById(orgCdb.getCdbId()).orElse(null);
-            OrgCdbDTO orgCdbDTO = new OrgCdbDTO();
-            orgCdbDTO.setName(byId.getName());
-            orgCdbDTO.setUrl(byId.getUrl());
-            BeanUtil.copyProperties(orgCdb, orgCdbDTO);
-            return orgCdbDTO;
-        });
-        return cdbDTOS;
+    public void saveOrgCdb(String orgFlag, OrgCdbVO orgCdbVO) {
+        if (orgCdbVO.isDel() && orgCdbVO.getId() != null) {
+            orgCdbRepository.deleteByOrgFlagAndId(orgFlag, orgCdbVO.getId());
+        } else {
+            OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
+            BeanUtil.copyProperties(orgCdbVO, orgCdb);
+            orgCdbRepository.save(orgCdb);
+        }
+
     }
 
     @Override
-    public Page<OrgCdbDTO> findByNameAndUrl(Pageable pageable, String keyword) {
-        Page<Cdb> cdbs = cdbRepository.findAll(CdbRepository.SpecificationBuilder.findByNameAndUrl(keyword), pageable);
-        Page<OrgCdbDTO> cdbDTOS = cdbs.map(cdb -> {
-            List<OrgCdb> byCdbId = orgCdbRepository.findByCdbId(cdb.getId());
-            for (OrgCdb orgCdb : byCdbId){
-                 OrgCdbDTO orgCdbDTO = new OrgCdbDTO();
-                 Org org = orgRepository.findByFlag(orgCdb.getOrgFlag()).orElse(null);
-                 orgCdbDTO.setOrgName(org.getName());
-                 orgCdbDTO.setName(cdb.getName());
-                 orgCdbDTO.setUrl(cdb.getUrl());
-                 return orgCdbDTO;
+    public void saveOrgCdb(String orgFlag, List<OrgCdbVO> orgCdbVOS) {
+        List<OrgCdb> orgCdbList = new ArrayList<>();
+        for (OrgCdbVO orgCdbVO : orgCdbVOS) {
+            if (orgCdbVO.isDel() && orgCdbVO.getId() != null) {
+                orgCdbRepository.deleteByOrgFlagAndId(orgFlag, orgCdbVO.getId());
+                continue;
             }
-            return null;
-        });
-        return cdbDTOS;
+            OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
+            BeanUtil.copyProperties(orgCdbVO, orgCdb);
+            orgCdbList.add(orgCdb);
+        }
+        orgCdbRepository.saveAll(orgCdbList);
     }
-
-    @Override
-    public void updateOrgCdb(Long id, String name, String url, Boolean display) {
-        OrgCdb orgCdb = new OrgCdb();
-        Cdb cdb = new Cdb();
-        OrgCdb byId = orgCdbRepository.findById(id).orElse(null);
-        orgCdb.setId(id);
-        orgCdb.setLocalUrl(byId.getLocalUrl());
-        orgCdb.setCdbId(byId.getCdbId());
-        orgCdb.setOrgFlag(byId.getOrgFlag());
-        orgCdb.setGmtCreate(byId.getGmtCreate());
-        orgCdb.setDisplay(display);
-
-        cdb.setId(byId.getCdbId());
-        Cdb cdbId = cdbRepository.findById(cdb.getId()).orElse(null);
-        cdb.setName(name);
-        cdb.setUrl(url);
-        cdb.setGmtCreate(cdbId.getGmtCreate());
-        orgCdbRepository.save(orgCdb);
-        cdbRepository.save(cdb);
-    }
-
-    @Override
-    public void insertOrgCdb(String name, String url, String orgFlag, Boolean display) {
-        OrgCdb orgCdb = new OrgCdb();
-        Cdb cdb = new Cdb();
-        cdb.setName(name);
-        cdb.setUrl(url);
-        cdbRepository.save(cdb);
-
-        Cdb cdbNameUrl = cdbRepository.findByNameAndUrl(name, url);
-        orgCdb.setDisplay(display);
-        orgCdb.setOrgFlag(orgFlag);
-        orgCdb.setCdbId(cdbNameUrl.getId());
-        orgCdbRepository.save(orgCdb);
-    }
-
-    @Override
-    public void deleteOrgCdb(Long id) {
-        OrgCdb byId = orgCdbRepository.findById(id).orElse(null);
-        Long cdbId = byId.getCdbId();
-        cdbRepository.deleteById(cdbId);
-        orgCdbRepository.deleteById(id);
-    }
-
-    @Override
-    public void insertCdbUrl(String name, String url, String orgFlag, String localUrl) {
-        OrgCdb orgCdb = new OrgCdb();
-        Cdb cdb = new Cdb();
-        cdb.setName(name);
-        cdb.setUrl(url);
-        cdbRepository.save(cdb);
-
-        Cdb cdbNameUrl = cdbRepository.findByNameAndUrl(name, url);
-        orgCdb.setOrgFlag(orgFlag);
-        orgCdb.setCdbId(cdbNameUrl.getId());
-        orgCdb.setLocalUrl(localUrl);
-        orgCdbRepository.save(orgCdb);
-    }
-
 
 }

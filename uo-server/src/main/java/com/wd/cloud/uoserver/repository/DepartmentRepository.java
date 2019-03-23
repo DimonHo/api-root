@@ -23,18 +23,27 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     /**
      * 查找院系
      * @param orgFlag
+     * @param name
+     * @return
+     */
+    Optional<Department> findByOrgFlagAndName(String orgFlag, String name);
+
+    /**
+     * 查找院系
+     * @param orgFlag
      * @param id
      * @return
      */
     Optional<Department> findByOrgFlagAndId(String orgFlag,Long id);
 
     /**
-     * 查找院系
+     * 删除指定院系
      * @param orgFlag
-     * @param name
-     * @return
+     * @param id
      */
-    Optional<Department> findByOrgFlagAndName(String orgFlag, String name);
+    void deleteByOrgFlagAndId(String orgFlag,Long id);
+
+
 
 
 

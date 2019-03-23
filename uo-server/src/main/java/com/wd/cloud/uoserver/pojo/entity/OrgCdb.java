@@ -15,16 +15,15 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "org_cdb")
+@Table(name = "org_cdb",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
 public class OrgCdb extends AbstractEntity {
 
     @Column(name = "org_flag")
     private String orgFlag;
-    /**
-     * 馆藏数据库
-     */
-    @Column(name = "cdb_id")
-    private Long cdbId;
+
+    private String name;
+
+    private String url;
     /**
      * 资源本地地址
      */

@@ -38,4 +38,6 @@ public class OrgVO {
     List<OrgProductVO> product;
 
     List<OrgIpVO> ip;
+
+    List<OrgCdbVO> cdbs;
 }

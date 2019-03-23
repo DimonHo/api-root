@@ -4,13 +4,11 @@ package com.wd.cloud.uoserver.service;
 import com.wd.cloud.uoserver.pojo.dto.DepartmentDTO;
 import com.wd.cloud.uoserver.pojo.dto.IpRangeDTO;
 import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
+import com.wd.cloud.uoserver.pojo.entity.Department;
 import com.wd.cloud.uoserver.pojo.entity.IpRange;
 import com.wd.cloud.uoserver.pojo.entity.Linkman;
 import com.wd.cloud.uoserver.pojo.entity.OrgProduct;
-import com.wd.cloud.uoserver.pojo.vo.OrgIpVO;
-import com.wd.cloud.uoserver.pojo.vo.OrgLinkmanVO;
-import com.wd.cloud.uoserver.pojo.vo.OrgProductVO;
-import com.wd.cloud.uoserver.pojo.vo.OrgVO;
+import com.wd.cloud.uoserver.pojo.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -55,6 +53,7 @@ public interface OrgService {
 
     /**
      * 保存机构信息
+     *
      * @param org
      */
     void saveOrg(OrgVO org);
@@ -76,14 +75,15 @@ public interface OrgService {
      * @param flag
      * @param ip
      * @param prodStatus 产品状态
-     * @param isExp 产品是否过期
+     * @param isExp      产品是否过期
      * @param pageable
      * @return
      */
-    Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp, boolean isFilter,List<String> result, Pageable pageable);
+    Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp, boolean isFilter, List<String> result, Pageable pageable);
 
     /**
      * 新增，更新，删除订购产品的状态
+     *
      * @param orgFlag
      * @param productVOS
      * @return
@@ -92,6 +92,7 @@ public interface OrgService {
 
     /**
      * 新增,更新，刪除机构联系人
+     *
      * @param orgFlag
      * @param linkmanVOS
      * @return
@@ -126,19 +127,26 @@ public interface OrgService {
 
     /**
      * 查询机构院系列表
+     *
      * @param orgFlag
      * @return
      */
     List<DepartmentDTO> findOrgDepartment(String orgFlag);
 
     /**
+     * 新增、修改、删除院系
+     * @param orgFlag
+     * @param deptLit
+     * @return
+     */
+    List<Department> saveDept(String orgFlag, List<DeptVO> deptLit);
+
+    /**
      * 删除院系
+     *
      * @param id
      */
     void deleteDepartmentId(Long id);
-
-
-
 
 
 }

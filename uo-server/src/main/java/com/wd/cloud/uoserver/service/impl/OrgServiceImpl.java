@@ -10,10 +10,7 @@ import com.wd.cloud.uoserver.exception.IPValidException;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.pojo.dto.*;
 import com.wd.cloud.uoserver.pojo.entity.*;
-import com.wd.cloud.uoserver.pojo.vo.OrgIpVO;
-import com.wd.cloud.uoserver.pojo.vo.OrgLinkmanVO;
-import com.wd.cloud.uoserver.pojo.vo.OrgProductVO;
-import com.wd.cloud.uoserver.pojo.vo.OrgVO;
+import com.wd.cloud.uoserver.pojo.vo.*;
 import com.wd.cloud.uoserver.repository.*;
 import com.wd.cloud.uoserver.service.OrgService;
 import lombok.extern.slf4j.Slf4j;
@@ -164,14 +161,17 @@ public class OrgServiceImpl implements OrgService {
     public void saveOrg(OrgVO orgVO) {
         Org org = orgRepository.findByFlag(orgVO.getFlag()).orElse(new Org());
         BeanUtil.copyProperties(orgVO, org);
-        if (orgVO.getIp() != null) {
+        if (CollectionUtil.isNotEmpty(orgVO.getIp())) {
             saveOrgIp(orgVO.getFlag(),orgVO.getIp());
         }
-        if (orgVO.getProduct() != null){
+        if (CollectionUtil.isNotEmpty(orgVO.getProduct())){
             saveOrgProduct(orgVO.getFlag(),orgVO.getProduct());
         }
-        if (orgVO.getLinkman() != null){
+        if (CollectionUtil.isNotEmpty(orgVO.getLinkman())){
             saveLinkman(orgVO.getFlag(),orgVO.getLinkman());
+        }
+        if (CollectionUtil.isNotEmpty(orgVO.getCdbs())){
+
         }
         orgRepository.save(org);
     }
@@ -248,6 +248,19 @@ public class OrgServiceImpl implements OrgService {
         return linkmanRepository.saveAll(linkmanList);
     }
 
+    public List<OrgCdb> saveOrgCdb(String orgFlag, List<OrgCdbVO> orgCdbVOS){
+        List<OrgCdb> orgCdbList = new ArrayList<>();
+        for (OrgCdbVO orgCdbVo : orgCdbVOS){
+            if (orgCdbVo.isDel()){
+                orgCdbRepository.deleteByOrgFlagAndId(orgFlag,orgCdbVo.getId());
+                continue;
+            }
+            OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag,orgCdbVo.getId()).orElse(new OrgCdb());
+            BeanUtil.copyProperties(orgCdbVo,orgCdb);
+            orgCdbList.add(orgCdb);
+        }
+        return orgCdbRepository.saveAll(orgCdbList);
+    }
     /**
      * 取消某产品订购
      *
@@ -361,6 +374,27 @@ public class OrgServiceImpl implements OrgService {
         return departmentList.stream().map(this::convertDepartmentToDepartmentDTO).collect(Collectors.toList());
     }
 
+    /**
+     * 新增、修改、删除院系
+     * @param orgFlag
+     * @param deptLit
+     * @return
+     */
+    @Override
+    public List<Department> saveDept(String orgFlag,List<DeptVO> deptLit) {
+        List<Department> departmentList = new ArrayList<>();
+        for (DeptVO deptVo : deptLit){
+            if (deptVo.isDel() && deptVo.getId() != null){
+                departmentRepository.deleteByOrgFlagAndId(orgFlag,deptVo.getId());
+                continue;
+            }
+            Department department = departmentRepository.findByOrgFlagAndId(orgFlag,deptVo.getId()).orElse(new Department());
+            BeanUtil.copyProperties(deptVo,department);
+            departmentList.add(department);
+        }
+        return departmentRepository.saveAll(departmentList);
+    }
+
 
     @Override
     public void deleteDepartmentId(Long id) {
@@ -406,9 +440,22 @@ public class OrgServiceImpl implements OrgService {
                 if ("departments".equals(include)) {
                     includeDepartments(org, orgDTO);
                 }
+                if ("cdbs".equals(include)){
+                    includeCdbs(org,orgDTO);
+                }
             }
         }
         return orgDTO;
+    }
+
+    private void includeCdbs(Org org, OrgDTO orgDTO){
+        List<OrgCdb> orgCdbList = orgCdbRepository.findByOrgFlag(org.getFlag());
+        List<OrgCdbDTO> orgCdbDTOS = new ArrayList<>();
+        orgCdbList.forEach(orgCdb -> {
+            OrgCdbDTO orgCdbDTO = BeanUtil.toBean(orgCdb,OrgCdbDTO.class);
+            orgCdbDTOS.add(orgCdbDTO);
+        });
+        orgDTO.setCdbs(orgCdbDTOS);
     }
 
     private void includeDepartments(Org org, OrgDTO orgDTO) {

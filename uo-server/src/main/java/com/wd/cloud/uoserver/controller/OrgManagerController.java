@@ -1,7 +1,9 @@
 package com.wd.cloud.uoserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.uoserver.pojo.entity.Department;
 import com.wd.cloud.uoserver.pojo.entity.IpRange;
+import com.wd.cloud.uoserver.pojo.vo.DeptVO;
 import com.wd.cloud.uoserver.pojo.vo.OrgIpVO;
 import com.wd.cloud.uoserver.pojo.vo.OrgProductVO;
 import com.wd.cloud.uoserver.pojo.vo.OrgVO;
@@ -60,6 +62,15 @@ public class OrgManagerController {
                                   @RequestBody List<OrgIpVO> ip){
         List<IpRange> ipRangeList = orgService.saveOrgIp(orgFlag,ip);
         return ResponseModel.ok().setBody(ipRangeList);
+    }
+
+
+    @ApiOperation(value = "新增，修改，删除院系",tags = {"机构管理"})
+    @PostMapping("/manager/org/department")
+    public ResponseModel saveDepartmentId(@RequestParam String orgFlag,
+                                          @RequestBody List<DeptVO> deptVo) {
+        List<Department> departmentList = orgService.saveDept(orgFlag,deptVo);
+        return ResponseModel.ok().setBody(departmentList);
     }
 
     @ApiOperation(value = "删除院系",tags = {"机构管理"})
