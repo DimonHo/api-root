@@ -45,17 +45,6 @@ public class OrgCdbServiceImpl implements OrgCdbService {
         return orgCdbDTO;
     }
 
-    @Override
-    public void saveOrgCdb(String orgFlag, OrgCdbVO orgCdbVO) {
-        if (orgCdbVO.isDel() && orgCdbVO.getId() != null) {
-            orgCdbRepository.deleteByOrgFlagAndId(orgFlag, orgCdbVO.getId());
-        } else {
-            OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
-            BeanUtil.copyProperties(orgCdbVO, orgCdb);
-            orgCdbRepository.save(orgCdb);
-        }
-
-    }
 
     @Override
     public void saveOrgCdb(String orgFlag, List<OrgCdbVO> orgCdbVOS) {
@@ -67,6 +56,7 @@ public class OrgCdbServiceImpl implements OrgCdbService {
             }
             OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
             BeanUtil.copyProperties(orgCdbVO, orgCdb);
+            orgCdb.setOrgFlag(orgFlag);
             orgCdbList.add(orgCdb);
         }
         orgCdbRepository.saveAll(orgCdbList);

@@ -21,14 +21,6 @@ public interface OrgCdbService {
      */
     Page<OrgCdbDTO> findOrgCdbs(String orgFlag, Boolean collection, Boolean local, String keyword, Pageable pageable);
 
-    /**
-     * 添加，修改，删除
-     *
-     * @param orgFlag
-     * @return
-     */
-    void saveOrgCdb(String orgFlag, OrgCdbVO orgCdbVO);
-
 
     /**
      * 批量添加，修改，删除

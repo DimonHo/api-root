@@ -171,7 +171,7 @@ public class OrgServiceImpl implements OrgService {
             saveLinkman(orgVO.getFlag(),orgVO.getLinkman());
         }
         if (CollectionUtil.isNotEmpty(orgVO.getCdbs())){
-
+            saveOrgCdb(orgVO.getFlag(),orgVO.getCdbs());
         }
         orgRepository.save(org);
     }
@@ -257,6 +257,7 @@ public class OrgServiceImpl implements OrgService {
             }
             OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag,orgCdbVo.getId()).orElse(new OrgCdb());
             BeanUtil.copyProperties(orgCdbVo,orgCdb);
+            orgCdb.setOrgFlag(orgFlag);
             orgCdbList.add(orgCdb);
         }
         return orgCdbRepository.saveAll(orgCdbList);
@@ -390,6 +391,7 @@ public class OrgServiceImpl implements OrgService {
             }
             Department department = departmentRepository.findByOrgFlagAndId(orgFlag,deptVo.getId()).orElse(new Department());
             BeanUtil.copyProperties(deptVo,department);
+            department.setOrgFlag(orgFlag);
             departmentList.add(department);
         }
         return departmentRepository.saveAll(departmentList);

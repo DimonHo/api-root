@@ -49,7 +49,7 @@ public class OrgManagerController {
         return ResponseModel.ok();
     }
 
-    @ApiOperation(value = "新增机构", tags = {"机构管理"})
+    @ApiOperation(value = "新增,修改机构", tags = {"机构管理"})
     @PostMapping("/manager/org")
     public ResponseModel addOrg(@RequestBody OrgVO org) {
         orgService.saveOrg(org);
