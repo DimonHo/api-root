@@ -33,18 +33,10 @@ public class OrgCdbController {
         return ResponseModel.ok().setBody(byOrgFlagAndDisplay);
     }
 
-    @ApiOperation(value = "添加，修改，新增馆藏资源")
-    @PostMapping("/org/cdb")
-    public ResponseModel<Page<OrgCdbDTO>> saveOrgCdb(@RequestParam String orgFlag,
-                                                     @RequestBody OrgCdbVO orgCdbVO) {
-        orgCdbService.saveOrgCdb(orgFlag, orgCdbVO);
-        return ResponseModel.ok().setMessage("保存成功");
-    }
-
     @ApiOperation(value = "批量添加，修改，新增馆藏资源")
     @PostMapping("/org/cdb")
-    public ResponseModel<Page<OrgCdbDTO>> saveOrgCdb(@RequestParam String orgFlag,
-                                                     @RequestBody List<OrgCdbVO> orgCdbVO) {
+    public ResponseModel saveOrgCdb(@RequestParam String orgFlag,
+                                    @RequestBody List<OrgCdbVO> orgCdbVO) {
         orgCdbService.saveOrgCdb(orgFlag, orgCdbVO);
         return ResponseModel.ok().setMessage("保存成功");
     }
