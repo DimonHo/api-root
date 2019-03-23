@@ -1,9 +1,9 @@
 package com.wd.cloud.docdelivery.service.impl;
 
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.pojo.entity.DocFile;
+import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.Literature;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;

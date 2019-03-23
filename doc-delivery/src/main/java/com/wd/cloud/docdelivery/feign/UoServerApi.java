@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.feign;
 
 
 import cn.hutool.json.JSONObject;
-import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -24,7 +23,7 @@ public interface UoServerApi {
      * @return
      */
     @GetMapping("/user")
-    ResponseModel<UserDTO> user(@RequestParam(value = "id") String id);
+    ResponseModel<JSONObject> user(@RequestParam(value = "id") String id);
 
     @Component("uoServerApi")
     class Fallback implements UoServerApi {
@@ -35,7 +34,7 @@ public interface UoServerApi {
         }
 
         @Override
-        public ResponseModel<UserDTO> user(String id) {
+        public ResponseModel<JSONObject> user(String id) {
             return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:uo-server调用失败！");
         }
     }

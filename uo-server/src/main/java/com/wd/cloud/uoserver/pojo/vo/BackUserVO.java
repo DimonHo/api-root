@@ -44,4 +44,14 @@ public class BackUserVO {
     /**入学年份*/
     private String entranceYear;
 
+    /**
+     * 是否禁用
+     */
+    private Boolean forbidden;
+
+    /**
+     * 是否允许校外登陆
+     */
+    private Boolean outside;
+
 }

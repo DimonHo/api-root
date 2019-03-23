@@ -3,22 +3,21 @@ package com.wd.cloud.docdelivery.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import com.wd.cloud.commons.annotation.ValidateLogin;
 import com.wd.cloud.commons.annotation.ValidateUser;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.StatusEnum;
-import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
-import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
-import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
-import com.wd.cloud.docdelivery.entity.Permission;
 import com.wd.cloud.docdelivery.exception.AppException;
 import com.wd.cloud.docdelivery.exception.ExceptionEnum;
 import com.wd.cloud.docdelivery.model.HelpRequestModel;
+import com.wd.cloud.docdelivery.pojo.dto.GiveRecordDTO;
+import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.Literature;
+import com.wd.cloud.docdelivery.pojo.entity.Permission;
 import com.wd.cloud.docdelivery.service.FrontService;
 import com.wd.cloud.docdelivery.service.MailService;
 import io.swagger.annotations.Api;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -67,8 +65,8 @@ public class FrontendController {
     @ValidateUser
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
+        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
 
         String ip = HttpUtil.getClientIP(request);
         HelpRecord helpRecord = new HelpRecord();
@@ -76,11 +74,11 @@ public class FrontendController {
         BeanUtil.copyProperties(helpRequestModel, helpRecord);
         BeanUtil.copyProperties(helpRequestModel, literature);
 
-        if (userDTO != null) {
-            helpRecord.setHelperName(userDTO.getUsername());
+        if (StrUtil.isNotBlank(username)) {
+            helpRecord.setHelperName(username);
         }
-        if (orgDTO != null) {
-            helpRecord.setOrgFlag(orgDTO.getFlag()).setOrgName(orgDTO.getName());
+        if (org != null) {
+            helpRecord.setOrgFlag(org.getStr("flag")).setOrgName(org.getStr("name"));
         } else {
             helpRecord.setOrgFlag(helpRequestModel.getOrgFlag()).setOrgName(helpRequestModel.getOrgName());
         }
@@ -111,12 +109,8 @@ public class FrontendController {
                                      @RequestParam(required = false) Boolean isDifficult,
                                      @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                      @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        String orgFlag = null;
-        if (isOrg) {
-            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
-        }
-        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, isDifficult, orgFlag, pageable);
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+        Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, isDifficult, org.getStr("flag"), pageable);
         return ResponseModel.ok().setBody(helpRecordDTOS);
     }
 
@@ -131,12 +125,8 @@ public class FrontendController {
                                       @RequestParam(required = false) Boolean isDifficult,
                                       @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        String orgFlag = null;
-        if (isOrg) {
-            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
-        }
-        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, isDifficult, orgFlag, pageable);
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+        Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, isDifficult, org.getStr("flag"), pageable);
 
         return ResponseModel.ok().setBody(waitHelpRecords);
     }
@@ -151,12 +141,8 @@ public class FrontendController {
     public ResponseModel helpFinishList(@RequestParam(required = false) List<Integer> channel,
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        String orgFlag = null;
-        if (isOrg) {
-            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
-        }
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, orgFlag, pageable);
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, org.getStr("flag"), pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
@@ -171,12 +157,8 @@ public class FrontendController {
     public ResponseModel helpSuccessList(@RequestParam(required = false) List<Integer> channel,
                                          @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        String orgFlag = null;
-        if (isOrg) {
-            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
-        }
-        Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgFlag, pageable);
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+        Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, org.getStr("flag"), pageable);
         return ResponseModel.ok().setBody(successHelpRecords);
     }
 
@@ -190,12 +172,8 @@ public class FrontendController {
                                         @RequestParam(required = false) List<Integer> status,
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        String orgFlag = null;
-        if (isOrg) {
-            OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-            orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
-        }
-        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgFlag, pageable);
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+        Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, org.getStr("flag"), pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
     }
@@ -203,50 +181,36 @@ public class FrontendController {
 
     @ApiOperation(value = "我的求助记录")
     @ApiImplicitParam(name = "status", value = "状态", dataType = "List", paramType = "query")
-    @ValidateUser
+    @ValidateLogin
     @GetMapping("/help/records/my")
-    public ResponseModel myHelpRecords(@RequestParam(required = false) String username,
-                                       @RequestParam(required = false) List<Integer> status,
+    public ResponseModel myHelpRecords(@RequestParam(required = false) List<Integer> status,
                                        @RequestParam(required = false) Boolean isDifficult,
                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        HttpSession session = request.getSession();
-        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
-        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(userDTO.getUsername(), status, isDifficult, pageable);
+        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(sessionUser, status, isDifficult, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
     @ApiOperation(value = "我的应助记录")
     @ApiImplicitParam(name = "status", value = "状态", dataType = "List", paramType = "query")
-    @ValidateUser
+    @ValidateLogin
     @GetMapping("/give/records/my")
-    public ResponseModel myGiveRecords(@RequestParam(required = false) String username,
-                                       @RequestParam(required = false) List<Integer> status,
+    public ResponseModel myGiveRecords(@RequestParam(required = false) List<Integer> status,
                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        HttpSession session = request.getSession();
-        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
-        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(userDTO.getUsername(), status, pageable);
+        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(sessionUser, status, pageable);
         return ResponseModel.ok().setBody(myGiveRecords);
     }
 
 
     @ApiOperation(value = "应助认领")
     @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path")
-    @ValidateUser
+    @ValidateLogin
     @PatchMapping("/help/records/{helpRecordId}/giving")
-    public ResponseModel giving(@PathVariable Long helpRecordId,
-                                @RequestParam(required = false) String username) {
+    public ResponseModel giving(@PathVariable Long helpRecordId) {
         String ip = HttpUtil.getClientIP(request);
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
-        frontService.give(helpRecordId, userDTO.getUsername(), ip);
+        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        frontService.give(helpRecordId, sessionUser, ip);
         return ResponseModel.ok().setMessage("应助认领成功");
     }
 
@@ -256,15 +220,11 @@ public class FrontendController {
             @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "username", value = "应助者用户名称", dataType = "String", paramType = "query")
     })
-    @ValidateUser
+    @ValidateLogin
     @PatchMapping("/help/records/{helpRecordId}/giving/cancel")
-    public ResponseModel cancelGiving(@PathVariable Long helpRecordId,
-                                      @RequestParam(required = false) String username) {
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
-        if (frontService.cancelGivingHelp(helpRecordId, userDTO.getUsername())) {
+    public ResponseModel cancelGiving(@PathVariable Long helpRecordId) {
+        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (frontService.cancelGivingHelp(helpRecordId, sessionUser)) {
             return ResponseModel.ok();
         } else {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
@@ -276,15 +236,11 @@ public class FrontendController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "helpRecordId", value = "求助记录ID", dataType = "Long", paramType = "path")
     })
-    @ValidateUser
+    @ValidateLogin
     @PostMapping("/give/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
-                                @RequestParam(required = false) String username,
                                 @NotNull MultipartFile file) {
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
+        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);
@@ -296,7 +252,7 @@ public class FrontendController {
         if (helpRecord == null) {
             return ResponseModel.fail(StatusEnum.DOC_HELP_NOT_FOUND);
         }
-        frontService.uploadFile(helpRecord, userDTO.getUsername(), file, ip);
+        frontService.uploadFile(helpRecord, username, file, ip);
         return ResponseModel.ok().setMessage("应助成功，感谢您的帮助");
     }
 
@@ -310,12 +266,11 @@ public class FrontendController {
     }
 
     @ApiOperation(value = "下一个级别的求助上限")
-    @ValidateUser
     @GetMapping("/level/next")
-    public ResponseModel nextLevel(@RequestParam(required = false) String username) {
+    public ResponseModel nextLevel() {
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
-        OrgDTO orgDTO = (OrgDTO) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+        String orgFlag = org != null ? org.getStr("flag") : null;
         Permission permission = frontService.nextPermission(orgFlag, level);
         Map<String, Long> resp = new HashMap<>();
         if (permission == null) {

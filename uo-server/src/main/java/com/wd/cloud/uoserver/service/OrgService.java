@@ -1,8 +1,9 @@
 package com.wd.cloud.uoserver.service;
 
-import com.wd.cloud.commons.dto.DepartmentDTO;
-import com.wd.cloud.commons.dto.IpRangeDTO;
-import com.wd.cloud.commons.dto.OrgDTO;
+
+import com.wd.cloud.uoserver.pojo.dto.DepartmentDTO;
+import com.wd.cloud.uoserver.pojo.dto.IpRangeDTO;
+import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
 import com.wd.cloud.uoserver.pojo.entity.IpRange;
 import com.wd.cloud.uoserver.pojo.entity.Linkman;
 import com.wd.cloud.uoserver.pojo.entity.OrgProduct;
@@ -66,7 +67,7 @@ public interface OrgService {
      * @param ip
      * @return
      */
-    OrgDTO findOrg(String orgName, String flag, String ip,List<String> includes);
+    OrgDTO findOrg(String orgName, String flag, String ip, List<String> includes);
 
     /**
      * 查询机构列表
@@ -123,14 +124,18 @@ public interface OrgService {
      */
     List<IpRange> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels);
 
-
-    void deleteDepartmentId(Long id);
+    /**
+     * 查询机构院系列表
+     * @param orgFlag
+     * @return
+     */
+    List<DepartmentDTO> findOrgDepartment(String orgFlag);
 
     /**
-     * 查询部门
-     * @param orgFlag
+     * 删除院系
+     * @param id
      */
-    List<DepartmentDTO> queryDepartments(String orgFlag);
+    void deleteDepartmentId(Long id);
 
 
 

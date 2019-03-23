@@ -1,15 +1,14 @@
 package com.wd.cloud.docdelivery.service.impl;
 
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.util.DateUtil;
-import com.wd.cloud.docdelivery.dto.MyTjDTO;
-import com.wd.cloud.docdelivery.entity.Permission;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.UoServerApi;
 import com.wd.cloud.docdelivery.model.AvgResponseTimeModel;
+import com.wd.cloud.docdelivery.pojo.dto.MyTjDTO;
+import com.wd.cloud.docdelivery.pojo.entity.Permission;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.PermissionRepository;
@@ -99,16 +98,16 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public MyTjDTO tjUser(UserDTO userDTO) {
+    public MyTjDTO tjUser(String username) {
         Permission permission = getPermission();
         //今日已求助数量
-        long myTodayHelpCount = helpRecordRepository.countByHelperNameToday(userDTO.getUsername());
+        long myTodayHelpCount = helpRecordRepository.countByHelperNameToday(username);
         //我的总求助数量
-        long myHelpCount = helpRecordRepository.countByHelperName(userDTO.getUsername());
+        long myHelpCount = helpRecordRepository.countByHelperName(username);
         //我的求助成功数量
-        long successHelpCount = helpRecordRepository.countByHelperNameAndStatus(userDTO.getUsername(), HelpStatusEnum.HELP_SUCCESSED.value());
+        long successHelpCount = helpRecordRepository.countByHelperNameAndStatus(username, HelpStatusEnum.HELP_SUCCESSED.value());
 
-        long giveCount = giveRecordRepository.countByGiverName(userDTO.getUsername());
+        long giveCount = giveRecordRepository.countByGiverName(username);
         //总上限
         Long total = permission.getTotal();
         //每日上限
@@ -141,9 +140,9 @@ public class TjServiceImpl implements TjService {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         HttpSession session = request.getSession();
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
-        OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
+        JSONObject org = (JSONObject) session.getAttribute(SessionConstant.ORG);
         //如果用户信息中没有机构信息则去IP_ORG中取，都没有则为0（公共配置）
-        String orgFlag = orgDTO != null ? orgDTO.getFlag() : null;
+        String orgFlag = org != null ? org.getStr("flag") : null;
         Permission permission = frontService.getPermission(orgFlag, level);
         if (permission == null) {
             throw new NotFoundException("未找到匹配orgFlag=" + orgFlag + ",level=" + level + "的配置");

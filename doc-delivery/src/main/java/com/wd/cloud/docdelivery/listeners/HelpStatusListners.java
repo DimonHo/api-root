@@ -1,8 +1,8 @@
 package com.wd.cloud.docdelivery.listeners;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.VHelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.repository.VHelpRecordRepository;
 import com.wd.cloud.docdelivery.service.MailService;
 import lombok.extern.slf4j.Slf4j;

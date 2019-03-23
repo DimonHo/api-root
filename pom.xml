@@ -14,6 +14,7 @@
     <modules>
         <module>commons</module><!--提取的公共方法和类-->
         <module>service-spring-boot-starter</module><!--微服务基础包-->
+        <module>cas-spring-boot-starter</module>
         <module>config-server</module><!--配置中心-->
         <module>eureka-server</module><!--服务注册中心-->
         <module>zipkin-server</module><!--链路追踪服务-->
@@ -64,26 +65,27 @@
         <cas.wdclient.version>3.5.2-SNAPSHOT</cas.wdclient.version>
         <cas.starter.version>2.0.0-GA</cas.starter.version>
         <jsoup.version>1.7.3</jsoup.version>
+        <servlet.version>2.5</servlet.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!--<dependency>-->
-            <!--<groupId>com.wdkj</groupId>-->
-            <!--<artifactId>cas-client-core</artifactId>-->
-            <!--<version>${cas.wdclient.version}</version>-->
-            <!--</dependency>-->
+
             <dependency>
                 <groupId>org.jasig.cas.client</groupId>
                 <artifactId>cas-client-core</artifactId>
                 <version>${cas.client.version}</version>
             </dependency>
-
-            <!--<dependency>-->
-            <!--<groupId>net.unicon.cas</groupId>-->
-            <!--<artifactId>cas-client-autoconfig-support</artifactId>-->
-            <!--<version>${cas.starter.version}</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>${servlet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.wd.cloud</groupId>
+                <artifactId>cas-spring-boot-starter</artifactId>
+                <version>${version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>

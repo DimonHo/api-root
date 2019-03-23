@@ -1,7 +1,7 @@
 package com.wd.cloud.docdelivery.repository;
 
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
+import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

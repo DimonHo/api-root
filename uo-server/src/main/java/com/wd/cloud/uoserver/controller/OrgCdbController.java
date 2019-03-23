@@ -1,7 +1,7 @@
 package com.wd.cloud.uoserver.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.commons.dto.OrgCdbDTO;
+import com.wd.cloud.uoserver.pojo.dto.OrgCdbDTO;
 import com.wd.cloud.uoserver.service.OrgCdbService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +22,8 @@ public class OrgCdbController {
     @ApiOperation(value = "根据学校查询馆藏资源")
     @GetMapping("/findByOrgIdAndCollection")
     public ResponseModel<Page<OrgCdbDTO>> findByOrgFlagAndCollection(@RequestParam(required = false) String orgFlag,
-                                                                   @RequestParam(required = false) Boolean collection,
-                                                                   @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
+                                                                     @RequestParam(required = false) Boolean collection,
+                                                                     @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.ASC) Pageable pageable){
         Page<OrgCdbDTO> byOrgFlagAndDisplay = orgCdbService.findByOrgFlagAndCollection(pageable, orgFlag, collection);
         return ResponseModel.ok().setBody(byOrgFlagAndDisplay);
     }

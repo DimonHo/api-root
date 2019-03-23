@@ -1,10 +1,8 @@
 package com.wd.cloud.docdelivery.repository;
 
-import com.wd.cloud.docdelivery.entity.DocFile;
+import com.wd.cloud.docdelivery.pojo.entity.DocFile;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 

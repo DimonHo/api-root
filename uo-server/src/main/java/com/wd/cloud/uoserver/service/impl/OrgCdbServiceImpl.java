@@ -2,8 +2,10 @@ package com.wd.cloud.uoserver.service.impl;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.wd.cloud.commons.dto.OrgCdbDTO;
-import com.wd.cloud.uoserver.pojo.entity.*;
+import com.wd.cloud.uoserver.pojo.dto.OrgCdbDTO;
+import com.wd.cloud.uoserver.pojo.entity.Cdb;
+import com.wd.cloud.uoserver.pojo.entity.Org;
+import com.wd.cloud.uoserver.pojo.entity.OrgCdb;
 import com.wd.cloud.uoserver.repository.CdbRepository;
 import com.wd.cloud.uoserver.repository.OrgCdbRepository;
 import com.wd.cloud.uoserver.repository.OrgRepository;

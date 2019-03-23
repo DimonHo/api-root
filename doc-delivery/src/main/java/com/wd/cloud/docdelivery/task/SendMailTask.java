@@ -1,10 +1,7 @@
 package com.wd.cloud.docdelivery.task;
 
-import com.wd.cloud.docdelivery.entity.VHelpRecord;
-import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
-import com.wd.cloud.docdelivery.repository.LiteratureRepository;
+import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.repository.VHelpRecordRepository;
-import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

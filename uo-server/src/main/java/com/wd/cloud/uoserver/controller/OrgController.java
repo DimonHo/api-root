@@ -1,9 +1,9 @@
 package com.wd.cloud.uoserver.controller;
 
-import com.wd.cloud.commons.dto.DepartmentDTO;
-import com.wd.cloud.commons.dto.OrgDTO;
 import com.wd.cloud.commons.exception.ParamException;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.uoserver.pojo.dto.DepartmentDTO;
+import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
 import com.wd.cloud.uoserver.service.OrgService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -102,8 +102,8 @@ public class OrgController {
 
     @ApiOperation(value = "根据学校查询学院", tags = {"机构查询"})
     @GetMapping("/org/department")
-    public ResponseModel<DepartmentDTO> findByOrgFlag(@RequestParam(required = false) String orgFlag) {
-        List<DepartmentDTO> byOrgFlag = orgService.queryDepartments(orgFlag);
+    public ResponseModel<DepartmentDTO> findByOrgFlag(@RequestParam String orgFlag) {
+        List<DepartmentDTO> byOrgFlag = orgService.findOrgDepartment(orgFlag);
         return ResponseModel.ok().setBody(byOrgFlag);
     }
 

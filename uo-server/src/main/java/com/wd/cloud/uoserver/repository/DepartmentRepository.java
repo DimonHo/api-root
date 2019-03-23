@@ -14,12 +14,26 @@ import java.util.Optional;
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
     /**
-     * 查询机构所属院系
+     * 查询机构院系列表
+     * @param orgFlag
+     * @return
      */
     List<Department> findByOrgFlag(String orgFlag);
 
+    /**
+     * 查找院系
+     * @param orgFlag
+     * @param id
+     * @return
+     */
     Optional<Department> findByOrgFlagAndId(String orgFlag,Long id);
 
+    /**
+     * 查找院系
+     * @param orgFlag
+     * @param name
+     * @return
+     */
     Optional<Department> findByOrgFlagAndName(String orgFlag, String name);
 
 

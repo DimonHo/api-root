@@ -1,7 +1,7 @@
 package com.wd.cloud.docdelivery.task;
 
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;

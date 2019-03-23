@@ -1,6 +1,6 @@
 package com.wd.cloud.docdelivery.repository;
 
-import com.wd.cloud.docdelivery.entity.Permission;
+import com.wd.cloud.docdelivery.pojo.entity.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

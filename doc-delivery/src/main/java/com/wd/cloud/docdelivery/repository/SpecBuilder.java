@@ -3,8 +3,8 @@ package com.wd.cloud.docdelivery.repository;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.commons.util.DateUtil;
-import com.wd.cloud.docdelivery.dto.TjDTO;
-import com.wd.cloud.docdelivery.entity.VHelpRecord;
+import com.wd.cloud.docdelivery.pojo.dto.TjDTO;
+import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;

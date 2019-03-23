@@ -1,6 +1,6 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.docdelivery.entity.VHelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 
 /**
  * @author He Zhigang

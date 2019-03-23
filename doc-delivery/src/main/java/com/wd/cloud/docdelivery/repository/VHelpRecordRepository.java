@@ -2,7 +2,7 @@ package com.wd.cloud.docdelivery.repository;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.docdelivery.entity.VHelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

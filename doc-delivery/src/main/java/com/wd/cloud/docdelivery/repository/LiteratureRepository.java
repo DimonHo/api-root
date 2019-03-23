@@ -1,8 +1,8 @@
 package com.wd.cloud.docdelivery.repository;
 
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.pojo.entity.DocFile;
+import com.wd.cloud.docdelivery.pojo.entity.Literature;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

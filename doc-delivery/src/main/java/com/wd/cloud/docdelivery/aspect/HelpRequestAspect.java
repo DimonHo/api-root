@@ -1,13 +1,13 @@
 package com.wd.cloud.docdelivery.aspect;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.commons.exception.ApiException;
 import com.wd.cloud.commons.exception.AuthException;
-import com.wd.cloud.docdelivery.entity.Permission;
 import com.wd.cloud.docdelivery.exception.AppException;
 import com.wd.cloud.docdelivery.exception.ExceptionEnum;
+import com.wd.cloud.docdelivery.pojo.entity.Permission;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.PermissionRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -49,27 +49,30 @@ public class HelpRequestAspect {
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
-        if (validateParam(request)) {
-            throw new AppException(ExceptionEnum.HELP_PARAM);
-        }
-        HttpSession session = request.getSession();
-        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
-        OrgDTO orgDTO = (OrgDTO) session.getAttribute(SessionConstant.ORG);
+        HttpSession session  =request.getSession();
+        String username = (String) session.getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject org = (JSONObject) session.getAttribute(SessionConstant.ORG);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
         Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
         log.info("当前等级：[{}],isOut=[{}]", level, isOut);
-        level = level == null ? 0 : level;
-        isOut = isOut == null ? false : isOut;
-        if (isOut && userDTO == null) {
+        if (level == null || isOut == null){
+            throw new ApiException(403,"非法请求");
+        }
+        // 如果是校外，且未登錄
+        if (isOut && StrUtil.isBlank(username)){
             throw new AuthException("校外必须先登录才能求助");
         }
-        long helpTotal = 0;
-        long helpTotalToday = 0;
-        if (userDTO != null) {
+        // 校验请求参数
+        if (validateParam(request)) {
+            throw new AppException(ExceptionEnum.HELP_PARAM);
+        }
+        long helpTotal;
+        long helpTotalToday;
+        if (StrUtil.isNotBlank(username)) {
             //用户总求助量
-            helpTotal = helpRecordRepository.countByHelperName(userDTO.getUsername());
-            helpTotalToday = helpRecordRepository.countByHelperNameToday(userDTO.getUsername());
-            log.info("登陆用户【{}】正在求助", userDTO.getUsername());
+            helpTotal = helpRecordRepository.countByHelperName(username);
+            helpTotalToday = helpRecordRepository.countByHelperNameToday(username);
+            log.info("登陆用户【{}】正在求助", username);
         } else {
             String email = request.getParameter("helperEmail");
             helpTotal = helpRecordRepository.countByHelperEmail(email);
@@ -77,8 +80,8 @@ public class HelpRequestAspect {
             log.info("邮箱【{}】正在求助", email);
         }
         Permission permission = null;
-        if (orgDTO != null) {
-            permission = permissionRepository.findByOrgFlagAndLevel(orgDTO.getFlag(), level);
+        if (org != null) {
+            permission = permissionRepository.findByOrgFlagAndLevel(org.getStr("flag"), level);
         }
         if (permission == null) {
             permission = permissionRepository.findByOrgFlagIsNullAndLevel(level);

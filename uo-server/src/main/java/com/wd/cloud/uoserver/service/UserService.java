@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.service;
 
-import com.wd.cloud.commons.dto.UserDTO;
+import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.User;
 import com.wd.cloud.uoserver.pojo.entity.VUserAudit;
 import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
@@ -8,11 +8,8 @@ import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
 import com.wd.cloud.uoserver.pojo.vo.UserVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -136,13 +133,4 @@ public interface UserService {
      * @return
      */
     boolean checkEmailExists(String email);
-    /**
-     * 构建用户session
-     * @param userDTO
-     * @param request
-     * @param redisTemplate
-     * @param redisOperationsSessionRepository
-     */
-    void buildSession(UserDTO userDTO, HttpServletRequest request, RedisTemplate<String, String> redisTemplate, RedisOperationsSessionRepository redisOperationsSessionRepository);
-
 }

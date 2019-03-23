@@ -7,9 +7,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.Header;
 import cn.hutool.http.useragent.UserAgentUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.enums.ClientType;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.exception.NotFoundException;
@@ -22,6 +21,8 @@ import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.exception.NotFoundUserException;
 import com.wd.cloud.uoserver.exception.UserExistsException;
 import com.wd.cloud.uoserver.feign.FsServerApi;
+import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
+import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.*;
 import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
 import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
@@ -120,7 +121,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(BackUserVO backUserVO) {
-        User user = BeanUtil.toBean(backUserVO, User.class);
+        User user = userRepository.findByUsername(backUserVO.getUsername()).orElse(new User());
+        BeanUtil.copyProperties(backUserVO, user);
+        if (backUserVO.getOutside() != null){
+            setOutsidePermission(backUserVO.getUsername(),OutsideEnum.FOREVER);
+        }
         return userRepository.save(user);
     }
 
@@ -135,8 +140,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(perfectUserVO.getUsername()).orElseThrow(NotFoundUserException::new);
         BeanUtil.copyProperties(perfectUserVO, user);
         // 完善信息自动获得6个月校外权限
-        Permission permission = setOutsidePermission(user.getUsername(), OutsideEnum.HALF_YEAR, 6);
-        permissionRepository.save(permission);
+        setOutsidePermission(user.getUsername(), OutsideEnum.HALF_YEAR);
         user = userRepository.save(user);
         return user;
     }
@@ -163,6 +167,7 @@ public class UserServiceImpl implements UserService {
                 optionalDepartment.ifPresent(department -> userDTO.setDepartmentName(department.getName()));
             }
         }
+
 
         return userDTO;
     }
@@ -244,8 +249,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         if (validated) {
             // 验证通过后获得永久访问权限
-            Permission permission = setOutsidePermission(username, OutsideEnum.FOREVER, 9999);
-            permissionRepository.save(permission);
+            setOutsidePermission(username, OutsideEnum.FOREVER);
         }
         // 记录审核日志
         AuditLog auditLog = auditLogRepository.findByUsernameAndStatus(username, AuditEnum.WAITE.value()).orElseThrow(NotFoundException::new);
@@ -260,7 +264,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String username) {
-        userRepository.deleteById(username);
+        userRepository.deleteByUsername(username);
     }
 
     /**
@@ -296,48 +300,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmail(email);
     }
 
-    @Override
-    public void buildSession(UserDTO userDTO, HttpServletRequest request, RedisTemplate<String, String> redisTemplate, RedisOperationsSessionRepository redisOperationsSessionRepository) {
-        // session Key
-        String sessionKey = null;
-        //如果是移动端
-        if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
-            request.getSession().setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);
-            sessionKey = userDTO.getUsername() + "-" + ClientType.MOBILE;
-        } else {
-            request.getSession().setAttribute(SessionConstant.CLIENT_TYPE, ClientType.PC);
-            sessionKey = userDTO.getUsername() + "-" + ClientType.PC;
-        }
-
-        //踢出同类型客户端的session
-        String oldSessionId = redisTemplate.opsForValue().get(sessionKey);
-        if (oldSessionId != null && !oldSessionId.equals(request.getSession().getId())) {
-            redisOperationsSessionRepository.deleteById(oldSessionId);
-            log.info("踢出session：{}", oldSessionId);
-        }
-        redisTemplate.opsForValue().set(sessionKey, request.getSession().getId());
-        log.info("redis缓存设置：{} = {}", sessionKey, request.getSession().getId());
-        // 如果用户有所属机构，则把有效机构设置为用户所属机构
-        if (userDTO.getOrg() != null) {
-            request.getSession().setAttribute(SessionConstant.ORG, userDTO.getOrg());
-            log.info("设置ORG session:{}", userDTO.getOrg().toString());
-        }
-        request.getSession().setAttribute(SessionConstant.LOGIN_USER, userDTO);
-        log.info("设置LOGIN_USER session:{}", userDTO.toString());
-        // 登陆成功 level +2
-        Integer level = request.getSession().getAttribute(SessionConstant.LEVEL) == null ? 0 : (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
-
-        if (level < 2) {
-            level += 2;
-        }
-        // 如果是已认证用户，level + 4
-        if (level < 4 && userDTO.isValidated()) {
-            level += 4;
-        }
-        request.getSession().setAttribute(SessionConstant.LEVEL, level);
-        log.info("设置LEVEL session:{}", level);
-    }
-
     /**
      * 调用fs-server上传照片
      *
@@ -358,10 +320,9 @@ public class UserServiceImpl implements UserService {
      *
      * @param username
      * @param outsideEnum
-     * @param offsetMonth
      * @return
      */
-    private Permission setOutsidePermission(String username, OutsideEnum outsideEnum, Integer offsetMonth) {
+    private Permission setOutsidePermission(String username, OutsideEnum outsideEnum) {
         Permission permission = permissionRepository
                 .findByUsernameAndType(username, PermissionTypeEnum.OUTSIDE.value())
                 .orElse(new Permission());
@@ -369,8 +330,8 @@ public class UserServiceImpl implements UserService {
                 .setType(PermissionTypeEnum.OUTSIDE.value())
                 .setValue(outsideEnum.value())
                 .setEffDate(new Date())
-                .setExpDate(DateUtil.offsetMonth(new Date(), offsetMonth));
-        return permission;
+                .setExpDate(OutsideEnum.HALF_YEAR.equals(outsideEnum)?DateUtil.offsetMonth(new Date(), 6):DateUtil.offsetMonth(new Date(), 9999));
+        return permissionRepository.save(permission);
     }
 
     /**

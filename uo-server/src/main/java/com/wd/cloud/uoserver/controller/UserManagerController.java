@@ -1,7 +1,7 @@
 package com.wd.cloud.uoserver.controller;
 
-import com.wd.cloud.commons.dto.UserDTO;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
 import com.wd.cloud.uoserver.service.UserService;
 import io.swagger.annotations.ApiImplicitParam;

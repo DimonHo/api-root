@@ -1,8 +1,7 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.dto.LiteratureDTO;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.pojo.dto.LiteratureDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;

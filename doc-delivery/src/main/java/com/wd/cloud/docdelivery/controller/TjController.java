@@ -2,13 +2,12 @@ package com.wd.cloud.docdelivery.controller;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
+import com.wd.cloud.commons.annotation.ValidateLogin;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.dto.UserDTO;
-import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.DateUtil;
-import com.wd.cloud.docdelivery.dto.MyTjDTO;
-import com.wd.cloud.docdelivery.dto.TjDTO;
+import com.wd.cloud.docdelivery.pojo.dto.MyTjDTO;
+import com.wd.cloud.docdelivery.pojo.dto.TjDTO;
 import com.wd.cloud.docdelivery.service.TjService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -55,14 +54,12 @@ public class TjController {
     }
 
     @ApiOperation(value = "我的统计")
+    @ValidateLogin
     @GetMapping("/tj/my")
     public ResponseModel getUserHelpCountToDay() {
         try {
-            UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-            if (userDTO == null) {
-                throw new AuthException();
-            }
-            MyTjDTO myTotalModel = tjService.tjUser(userDTO);
+            String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            MyTjDTO myTotalModel = tjService.tjUser(username);
             return ResponseModel.ok().setBody(myTotalModel);
         } catch (Exception e) {
             e.printStackTrace();

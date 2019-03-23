@@ -1,11 +1,11 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.docdelivery.dto.GiveRecordDTO;
-import com.wd.cloud.docdelivery.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
-import com.wd.cloud.docdelivery.entity.Permission;
+import com.wd.cloud.docdelivery.pojo.dto.GiveRecordDTO;
+import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.pojo.entity.DocFile;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.Literature;
+import com.wd.cloud.docdelivery.pojo.entity.Permission;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

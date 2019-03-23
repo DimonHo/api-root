@@ -1,17 +1,17 @@
 package com.wd.cloud.uoserver.controller;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.annotation.ValidateLogin;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.dto.UserDTO;
-import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.User;
 import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
 import com.wd.cloud.uoserver.pojo.vo.UserVO;
 import com.wd.cloud.uoserver.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -45,21 +43,11 @@ public class UserController {
     UserService userService;
 
     @ApiOperation(value = "登陆用户的信息",tags = {"用户查询"})
+    @ValidateLogin
     @GetMapping("/login/info")
-    public ResponseModel<UserDTO> getLogin() {
-        HttpSession session = request.getSession();
-        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
-        if (principal == null) {
-            return null;
-        }
-        log.info("用户[{}]已登录", principal.getName());
-        UserDTO userDTO = (UserDTO) session.getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null || !userDTO.getUsername().equals(principal.getName()) ){
-            Map<String, Object> authInfo = principal.getAttributes();
-            userDTO = userService.buildUserInfo(authInfo);
-            userService.buildSession(userDTO,request,redisTemplate,redisOperationsSessionRepository);
-        }
-        return ResponseModel.ok().setBody(userDTO);
+    public ResponseModel getLogin() {
+        String username  = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        return ResponseModel.ok().setBody(userService.getUserDTO(username));
     }
 
     @ApiOperation(value = "新增用户",tags = {"用户注册"})
@@ -75,12 +63,9 @@ public class UserController {
     }
 
     @ApiOperation(value = "完善用户信息",tags = {"用户修改资料"})
+    @ValidateLogin
     @PutMapping("/user")
     public ResponseModel updateUser(@RequestBody PerfectUserVO perfectUserVO) {
-        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
-        if (principal == null) {
-            throw new AuthException();
-        }
         return ResponseModel.ok().setBody(userService.perfectUser(perfectUserVO));
     }
 
@@ -102,10 +87,8 @@ public class UserController {
     @ValidateLogin
     @PostMapping("/user/head-img")
     public ResponseModel uploadHeadImg(MultipartFile file) {
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        UserDTO userDTO = JSONUtil.toBean(loginUser,UserDTO.class,true);
         return ResponseModel.ok().setBody(userService.uploadHeadImg(userDTO.getUsername(), file));
     }
 
@@ -142,10 +125,8 @@ public class UserController {
     @ValidateLogin
     @PostMapping("/user/id-photo")
     public ResponseModel uploadIdPhoto(MultipartFile file) {
-        UserDTO userDTO = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (userDTO == null) {
-            throw new AuthException();
-        }
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        UserDTO userDTO = JSONUtil.toBean(loginUser,UserDTO.class,true);
         return ResponseModel.ok().setBody(userService.uploadIdPhoto(userDTO.getUsername(), file));
     }
 }

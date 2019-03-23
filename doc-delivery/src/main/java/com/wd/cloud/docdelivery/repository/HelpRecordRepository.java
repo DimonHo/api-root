@@ -1,17 +1,10 @@
 package com.wd.cloud.docdelivery.repository;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import org.springframework.data.jpa.domain.Specification;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 

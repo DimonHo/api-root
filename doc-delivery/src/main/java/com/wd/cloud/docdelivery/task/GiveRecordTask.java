@@ -1,7 +1,7 @@
 package com.wd.cloud.docdelivery.task;
 
 import com.wd.cloud.commons.util.DateUtil;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
+import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;

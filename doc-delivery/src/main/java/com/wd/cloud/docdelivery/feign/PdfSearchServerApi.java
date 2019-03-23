@@ -2,7 +2,7 @@ package com.wd.cloud.docdelivery.feign;
 
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.pojo.entity.Literature;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;

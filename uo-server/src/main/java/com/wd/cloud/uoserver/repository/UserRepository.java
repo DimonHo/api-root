@@ -19,7 +19,7 @@ import java.util.Optional;
  * @date 2019/3/4
  * @Description:
  */
-public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     /**
      * 用户名或郵箱
@@ -45,6 +45,8 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
      */
     Optional<User> findByUsername(String username);
 
+    void deleteByUsername(String username);
+
     /**
      * 用户名是否存在
      * @param username
@@ -65,6 +67,14 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
      * @return
      */
     Optional<User> findByEmail(String email);
+
+
+    /**
+     * 统计院系用户数量
+     * @param departmentId
+     * @return
+     */
+    Long countByDepartmentId(Long departmentId);
 
     /**
      * 统计机构院系用户

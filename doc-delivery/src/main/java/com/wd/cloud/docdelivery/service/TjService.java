@@ -1,8 +1,6 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.commons.dto.OrgDTO;
-import com.wd.cloud.commons.dto.UserDTO;
-import com.wd.cloud.docdelivery.dto.MyTjDTO;
+import com.wd.cloud.docdelivery.pojo.dto.MyTjDTO;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -47,7 +45,7 @@ public interface TjService {
      *
      * @return
      */
-    MyTjDTO tjUser(UserDTO userDTO);
+    MyTjDTO tjUser(String username);
 
 
     MyTjDTO tjEmail(String email, String ip);
