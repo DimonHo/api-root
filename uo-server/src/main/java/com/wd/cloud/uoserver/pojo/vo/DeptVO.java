@@ -23,7 +23,5 @@ public class DeptVO {
      */
     private String name;
 
-    private String orgFlag;
-
     boolean del;
 }

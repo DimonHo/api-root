@@ -14,8 +14,6 @@ public class OrgCdbVO {
 
     private Long id;
 
-    private String orgFlag;
-
     private String name;
 
     private String url;
