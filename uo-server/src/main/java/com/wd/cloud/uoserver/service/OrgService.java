@@ -4,6 +4,7 @@ package com.wd.cloud.uoserver.service;
 import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
 import com.wd.cloud.uoserver.pojo.dto.OrgDeptDTO;
 import com.wd.cloud.uoserver.pojo.dto.OrgIpDTO;
+import com.wd.cloud.uoserver.pojo.entity.Org;
 import com.wd.cloud.uoserver.pojo.entity.OrgDept;
 import com.wd.cloud.uoserver.pojo.entity.OrgIp;
 import com.wd.cloud.uoserver.pojo.vo.*;
@@ -66,6 +67,8 @@ public interface OrgService {
      */
     OrgDTO findOrg(String orgName, String flag, String ip, List<String> includes);
 
+
+    List<Org> getOrgList();
     /**
      * 查询机构列表
      *

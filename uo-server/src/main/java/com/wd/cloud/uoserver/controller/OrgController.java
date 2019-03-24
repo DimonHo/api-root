@@ -2,8 +2,8 @@ package com.wd.cloud.uoserver.controller;
 
 import com.wd.cloud.commons.exception.ParamException;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.uoserver.pojo.dto.OrgDeptDTO;
 import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
+import com.wd.cloud.uoserver.pojo.dto.OrgDeptDTO;
 import com.wd.cloud.uoserver.service.OrgService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -69,6 +69,11 @@ public class OrgController {
                                 @RequestParam(required = false) List<String> include) {
         OrgDTO orgDTO = orgService.findOrg(name, flag, ip,include);
         return ResponseModel.ok().setBody(orgDTO);
+    }
+
+    @GetMapping("/org/list")
+    public ResponseModel getOrgList() {
+        return ResponseModel.ok().setBody(orgService.getOrgList());
     }
 
     /**

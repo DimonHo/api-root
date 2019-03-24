@@ -189,6 +189,11 @@ public class OrgServiceImpl implements OrgService {
         return convertOrgToDTO(org, null,null,false, includes);
     }
 
+    @Override
+    public List<Org> getOrgList() {
+        return orgRepository.findAll();
+    }
+
     /**
      * 模糊查询机构列表
      *
