@@ -110,7 +110,7 @@ public class FrontendController {
                                      @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                      @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null ? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg ? org.getStr("flag") : null;
         Page<HelpRecordDTO> helpRecordDTOS = frontService.getHelpRecords(channel, status, email, keyword, isDifficult, orgFlag, pageable);
         return ResponseModel.ok().setBody(helpRecordDTOS);
     }
@@ -127,7 +127,7 @@ public class FrontendController {
                                       @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null ? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg ? org.getStr("flag") : null;
         Page<HelpRecordDTO> waitHelpRecords = frontService.getWaitHelpRecords(channel, isDifficult, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(waitHelpRecords);
@@ -144,7 +144,7 @@ public class FrontendController {
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null ? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg ? org.getStr("flag") : null;
         Page<HelpRecordDTO> finishHelpRecords = frontService.getFinishHelpRecords(channel, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
@@ -161,7 +161,7 @@ public class FrontendController {
                                          @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null ? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg? org.getStr("flag") : null;
         Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgFlag, pageable);
         return ResponseModel.ok().setBody(successHelpRecords);
     }
@@ -177,7 +177,7 @@ public class FrontendController {
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null ? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg? org.getStr("flag") : null;
         Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);
