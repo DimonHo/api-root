@@ -48,10 +48,11 @@ public class ClientIpFilter extends ZuulFilter {
         // 如果用户已登录
         if (principal != null) {
             String casUser = principal.getPrincipal().getName();
-            String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            String username = loginUser != null ? loginUser.getStr("username") : null;
             JSONObject sessionOrg = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
             // session中已存在用户信息，则跳过
-            if (casUser.equals(sessionUser) && sessionOrg != null) {
+            if (casUser.equals(username) && sessionOrg != null) {
                 return null;
             }
             // session Key
@@ -88,11 +89,7 @@ public class ClientIpFilter extends ZuulFilter {
                     ResponseModel<JSONObject> orgFlagResponse = uoServerApi.org(null, orgFlag, null, null);
                     log.info("调用uo-server获取【{}】用户的机构信息【{}】", casUser, orgFlagResponse);
                     if (!orgFlagResponse.isError()) {
-                        String orgName = orgFlagResponse.getBody().getStr("name");
-                        sessionOrg = new JSONObject();
-                        sessionOrg.put("flag", orgFlag);
-                        sessionOrg.put("name", orgName);
-                        request.getSession().setAttribute(SessionConstant.ORG, sessionOrg);
+                        request.getSession().setAttribute(SessionConstant.ORG, orgFlagResponse.getBody());
                     }
                 }
                 // 获取最后用户最后登陆IP的机构信息
@@ -106,7 +103,7 @@ public class ClientIpFilter extends ZuulFilter {
                     request.getSession().setAttribute(SessionConstant.IS_OUT, false);
                     request.getSession().setAttribute(SessionConstant.LEVEL, validStatus!=null && validStatus == 2 ? 7 : 3);
                 }
-                request.getSession().setAttribute(SessionConstant.LOGIN_USER, casUser);
+                request.getSession().setAttribute(SessionConstant.LOGIN_USER, userResponse.getBody());
             }
 
         } else {

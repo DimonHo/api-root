@@ -65,7 +65,8 @@ public class FrontendController {
     @ValidateUser
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
-        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
 
         String ip = HttpUtil.getClientIP(request);
@@ -186,8 +187,9 @@ public class FrontendController {
     public ResponseModel myHelpRecords(@RequestParam(required = false) List<Integer> status,
                                        @RequestParam(required = false) Boolean isDifficult,
                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(sessionUser, status, isDifficult, pageable);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
+        Page<HelpRecordDTO> myHelpRecords = frontService.myHelpRecords(username, status, isDifficult, pageable);
         return ResponseModel.ok().setBody(myHelpRecords);
     }
 
@@ -197,8 +199,9 @@ public class FrontendController {
     @GetMapping("/give/records/my")
     public ResponseModel myGiveRecords(@RequestParam(required = false) List<Integer> status,
                                        @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(sessionUser, status, pageable);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
+        Page<GiveRecordDTO> myGiveRecords = frontService.myGiveRecords(username, status, pageable);
         return ResponseModel.ok().setBody(myGiveRecords);
     }
 
@@ -209,8 +212,9 @@ public class FrontendController {
     @PatchMapping("/help/records/{helpRecordId}/giving")
     public ResponseModel giving(@PathVariable Long helpRecordId) {
         String ip = HttpUtil.getClientIP(request);
-        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        frontService.give(helpRecordId, sessionUser, ip);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
+        frontService.give(helpRecordId, username, ip);
         return ResponseModel.ok().setMessage("应助认领成功");
     }
 
@@ -223,8 +227,9 @@ public class FrontendController {
     @ValidateLogin
     @PatchMapping("/help/records/{helpRecordId}/giving/cancel")
     public ResponseModel cancelGiving(@PathVariable Long helpRecordId) {
-        String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (frontService.cancelGivingHelp(helpRecordId, sessionUser)) {
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
+        if (frontService.cancelGivingHelp(helpRecordId, username)) {
             return ResponseModel.ok();
         } else {
             return ResponseModel.fail(StatusEnum.NOT_FOUND);
@@ -240,7 +245,8 @@ public class FrontendController {
     @PostMapping("/give/upload/{helpRecordId}")
     public ResponseModel upload(@PathVariable Long helpRecordId,
                                 @NotNull MultipartFile file) {
-        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
         String ip = HttpUtil.getClientIP(request);
         if (file == null) {
             return ResponseModel.fail(StatusEnum.DOC_FILE_EMPTY);

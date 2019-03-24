@@ -1,5 +1,6 @@
 package com.wd.cloud.uoserver.controller;
 
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.annotation.ValidateLogin;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -45,7 +46,8 @@ public class UserController {
     @ValidateLogin
     @GetMapping("/login/info")
     public ResponseModel getLogin() {
-        String username  = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
         if (StrUtil.isBlank(username)){
             return ResponseModel.fail();
         }
@@ -66,7 +68,7 @@ public class UserController {
 
     @ApiOperation(value = "完善用户信息",tags = {"用户修改资料"})
     @ValidateLogin
-    @PutMapping(value = "/user", consumes = "application/json")
+    @PutMapping("/user")
     public ResponseModel updateUser(@RequestBody PerfectUserVO perfectUserVO) {
         return ResponseModel.ok().setBody(userService.perfectUser(perfectUserVO));
     }
@@ -89,7 +91,8 @@ public class UserController {
     @ValidateLogin
     @PostMapping("/user/head-img")
     public ResponseModel uploadHeadImg(MultipartFile file) {
-        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
         return ResponseModel.ok().setBody(userService.uploadHeadImg(username, file));
     }
 
@@ -126,7 +129,8 @@ public class UserController {
     @ValidateLogin
     @PostMapping("/user/id-photo")
     public ResponseModel uploadIdPhoto(MultipartFile file) {
-        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
         return ResponseModel.ok().setBody(userService.uploadIdPhoto(username, file));
     }
 }

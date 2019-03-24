@@ -17,6 +17,7 @@ import java.util.List;
 public class OrgDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private Long id;
     private Date gmtCreate;
     private Date gmtModified;
     private String name;

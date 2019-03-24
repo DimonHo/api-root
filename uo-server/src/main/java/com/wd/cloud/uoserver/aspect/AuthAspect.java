@@ -1,6 +1,7 @@
 package com.wd.cloud.uoserver.aspect;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.exception.AuthException;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,8 @@ public class AuthAspect {
 
     @Before(value = "@annotation(com.wd.cloud.commons.annotation.ValidateLogin)")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
-        log.info("======{}==========",request.getSession().getId());
-        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
         if (StrUtil.isBlank(username)) {
             throw new AuthException();
         }

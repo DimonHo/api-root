@@ -58,7 +58,8 @@ public class TjController {
     @GetMapping("/tj/my")
     public ResponseModel getUserHelpCountToDay() {
         try {
-            String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            String username = loginUser != null ? loginUser.getStr("username") : null;
             MyTjDTO myTotalModel = tjService.tjUser(username);
             return ResponseModel.ok().setBody(myTotalModel);
         } catch (Exception e) {
