@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -95,7 +96,7 @@ public class UserDTO implements Serializable {
     /**
      * 是否有校外访问权限
      */
-    private List<Permission> permissions;
+    private List<Permission> permissions = new ArrayList<>();
 
     /**
      * 用户消息列表
