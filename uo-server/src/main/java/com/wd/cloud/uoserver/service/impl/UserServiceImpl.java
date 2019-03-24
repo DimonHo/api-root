@@ -1,7 +1,9 @@
 package com.wd.cloud.uoserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.exception.FeignException;
@@ -19,13 +21,16 @@ import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.*;
 import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
 import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
+import com.wd.cloud.uoserver.pojo.vo.PermissionVO;
 import com.wd.cloud.uoserver.pojo.vo.UserVO;
 import com.wd.cloud.uoserver.repository.*;
 import com.wd.cloud.uoserver.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -140,8 +145,17 @@ public class UserServiceImpl implements UserService {
                 optionalOrgDept.ifPresent(orgDept -> userDTO.setOrgDeptName(orgDept.getName()));
             }
         }
-
-
+        // 加载用户权限
+        List<Permission> permissionList = permissionRepository.findByUsername(userDTO.getUsername());
+        if (CollectionUtil.isNotEmpty(permissionList)){
+            userDTO.setPermissions(permissionList);
+        }
+        // 加载用户消息
+        Pageable pageable = PageRequest.of(0,10, Sort.by("read").ascending());
+        Page<UserMsg> userMsgPage = userMsgRepository.findByUsername(userDTO.getUsername(),pageable);
+        if (userMsgPage.getTotalElements()>0){
+            userDTO.setMsgs(userMsgPage);
+        }
         return userDTO;
     }
 
@@ -199,9 +213,7 @@ public class UserServiceImpl implements UserService {
     public String uploadIdPhoto(String username, MultipartFile file) {
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         String idPhoto = uploadImage(file);
-        user.setIdPhoto(idPhoto);
-        // 待审核
-        user.setValidStatus(1);
+        user.setIdPhoto(idPhoto).setValidStatus(1);
         userRepository.save(user);
         return idPhoto;
     }
@@ -233,6 +245,38 @@ public class UserServiceImpl implements UserService {
         user.setValidStatus(validated ? 2 : 0).setHandlerName(handlerName);
         userRepository.save(user);
 
+    }
+
+
+    @Override
+    public void savePermission(PermissionVO permissionVO, String handlerName) {
+        Permission permission = permissionRepository.findByUsernameAndType(permissionVO.getUsername(),permissionVO.getType()).orElse(new Permission());
+        String remark;
+        // 删除
+        if (BooleanUtil.isTrue(permissionVO.getDel())){
+            remark = StrUtil.format("{} 取消了用户：{} 的 {} 权限", handlerName, permissionVO.getUsername(),PermissionTypeEnum.name(permissionVO.getType()));
+            permissionRepository.delete(permission);
+        }else{
+            // 修改
+            if (permission.getId() != null){
+                remark = StrUtil.format("{} 修改了用户：{} 的 {} 权限，值：{} -> {}",
+                        handlerName, permissionVO.getUsername(),
+                        PermissionTypeEnum.name(permissionVO.getType()),
+                        permission.getValue(),permissionVO.getValue());
+            }else{
+                //新增
+                remark = StrUtil.format("{} 新增了用户：{} 的 {} 权限，值：{}",
+                        handlerName, permissionVO.getUsername(),
+                        PermissionTypeEnum.name(permissionVO.getType()),
+                        permissionVO.getValue());
+            }
+            BeanUtil.copyProperties(permissionVO,permission);
+            permissionRepository.save(permission);
+        }
+        // 记录日志
+        HandlerLog handlerLog = new HandlerLog();
+        handlerLog.setHandlerName(handlerName).setType(1).setUsername(permissionVO.getUsername()).setRemark(remark);
+        handlerLogRepository.save(handlerLog);
     }
 
 

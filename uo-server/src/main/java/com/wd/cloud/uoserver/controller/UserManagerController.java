@@ -3,6 +3,7 @@ package com.wd.cloud.uoserver.controller;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
+import com.wd.cloud.uoserver.pojo.vo.PermissionVO;
 import com.wd.cloud.uoserver.service.UserService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -91,5 +92,13 @@ public class UserManagerController {
         return ResponseModel.ok().setMessage("审核成功");
     }
 
+    @ApiOperation(value = "修改用户权限",tags = {"用户管理"})
+    @ApiImplicitParam(name = "handlerName", value = "操作人", paramType = "String", type = "query")
+    @PostMapping("/manager/user/permission")
+    public ResponseModel updateUserPermission(@RequestBody PermissionVO permissionVo,
+                                              @RequestParam(required = false) String handlerName){
+        userService.savePermission(permissionVo,handlerName);
+        return ResponseModel.ok();
+    }
 
 }

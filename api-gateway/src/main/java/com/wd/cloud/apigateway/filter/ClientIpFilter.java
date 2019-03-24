@@ -130,8 +130,6 @@ public class ClientIpFilter extends ZuulFilter {
                 }
             }
         }
-        ctx.setRequest(request);
-        ctx.addZuulRequestHeader("aaa","nnnn");
         return null;
     }
 

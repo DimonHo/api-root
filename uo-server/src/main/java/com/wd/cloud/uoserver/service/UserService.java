@@ -4,6 +4,7 @@ import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.User;
 import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
 import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
+import com.wd.cloud.uoserver.pojo.vo.PermissionVO;
 import com.wd.cloud.uoserver.pojo.vo.UserVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -74,6 +75,13 @@ public interface UserService {
      * @param remark 审核失败原因
      */
     void auditIdPhoto(String username, Boolean validated, String handlerName, String remark);
+
+    /**
+     * 新增修改删除权限
+     * @param permissionVO
+     * @param handlerName
+     */
+    void savePermission(PermissionVO permissionVO, String handlerName);
 
     /**
      * 查询用户信息

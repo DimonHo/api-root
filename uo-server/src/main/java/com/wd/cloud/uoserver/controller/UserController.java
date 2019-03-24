@@ -1,7 +1,5 @@
 package com.wd.cloud.uoserver.controller;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.annotation.ValidateLogin;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -91,9 +89,8 @@ public class UserController {
     @ValidateLogin
     @PostMapping("/user/head-img")
     public ResponseModel uploadHeadImg(MultipartFile file) {
-        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        UserDTO userDTO = JSONUtil.toBean(loginUser,UserDTO.class,true);
-        return ResponseModel.ok().setBody(userService.uploadHeadImg(userDTO.getUsername(), file));
+        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        return ResponseModel.ok().setBody(userService.uploadHeadImg(username, file));
     }
 
     /**
@@ -129,8 +126,7 @@ public class UserController {
     @ValidateLogin
     @PostMapping("/user/id-photo")
     public ResponseModel uploadIdPhoto(MultipartFile file) {
-        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        UserDTO userDTO = JSONUtil.toBean(loginUser,UserDTO.class,true);
-        return ResponseModel.ok().setBody(userService.uploadIdPhoto(userDTO.getUsername(), file));
+        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        return ResponseModel.ok().setBody(userService.uploadIdPhoto(username, file));
     }
 }

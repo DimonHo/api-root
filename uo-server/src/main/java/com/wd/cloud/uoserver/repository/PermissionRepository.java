@@ -4,6 +4,7 @@ import com.wd.cloud.uoserver.pojo.entity.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Optional;
  */
 public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
 
-    Optional<Permission> findByUsername(String username);
+    List<Permission> findByUsername(String username);
 
     Optional<Permission> findByUsernameAndType(String username,Integer type);
 

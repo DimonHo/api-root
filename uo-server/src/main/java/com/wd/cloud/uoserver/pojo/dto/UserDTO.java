@@ -1,8 +1,10 @@
 package com.wd.cloud.uoserver.pojo.dto;
 
+import com.wd.cloud.uoserver.pojo.entity.Permission;
 import com.wd.cloud.uoserver.pojo.entity.UserMsg;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -93,12 +95,12 @@ public class UserDTO implements Serializable {
     /**
      * 是否有校外访问权限
      */
-    private List<PermissionDTO> permissions;
+    private List<Permission> permissions;
 
     /**
      * 用户消息列表
      */
-    private List<UserMsg> userMsgs;
+    private Page<UserMsg> msgs;
 
     private OrgDTO org;
 
