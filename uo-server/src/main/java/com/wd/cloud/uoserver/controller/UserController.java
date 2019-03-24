@@ -66,7 +66,7 @@ public class UserController {
 
     @ApiOperation(value = "完善用户信息",tags = {"用户修改资料"})
     @ValidateLogin
-    @PutMapping("/user")
+    @PutMapping(value = "/user", consumes = "application/json")
     public ResponseModel updateUser(@RequestBody PerfectUserVO perfectUserVO) {
         return ResponseModel.ok().setBody(userService.perfectUser(perfectUserVO));
     }

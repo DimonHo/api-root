@@ -131,6 +131,7 @@ public class ClientIpFilter extends ZuulFilter {
                 }
             }
         }
+        log.info("======{}==========",request.getSession().getId());
         return null;
     }
 

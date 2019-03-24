@@ -26,6 +26,7 @@ public class AuthAspect {
 
     @Before(value = "@annotation(com.wd.cloud.commons.annotation.ValidateLogin)")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
+        log.info("======{}==========",request.getSession().getId());
         String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (StrUtil.isBlank(username)) {
             throw new AuthException();

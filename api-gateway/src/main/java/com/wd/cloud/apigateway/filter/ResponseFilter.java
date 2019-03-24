@@ -1,5 +1,6 @@
 package com.wd.cloud.apigateway.filter;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONObject;
 import com.netflix.zuul.ZuulFilter;
@@ -39,19 +40,15 @@ public class ResponseFilter extends ZuulFilter {
         //如果是文件下载，此处会读取文件流导致客户端读取的文件流不完整而出现下载文件损坏。
         //InputStream bodyStream = RequestContext.getCurrentContext().getResponseDataStream();
         Integer level = (Integer) ctx.getRequest().getSession().getAttribute(SessionConstant.LEVEL);
-        log.info("响应头中加入用户level信息:{}", level);
-        String username = (String) ctx.getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
-        JSONObject org = (JSONObject) ctx.getRequest().getSession().getAttribute(SessionConstant.ORG);
-        JSONObject user = new JSONObject();
-        if (org!=null){
-            user.putAll(org);
-        }
-        if (username != null) {
-            user.put("username",username);
-            log.info("响应头中加入登陆用户信息:{}", username);
-        }
         ctx.getResponse().setHeader("level", level + "");
-        ctx.getResponse().setHeader("user", URLUtil.encode(user.toString()));
+        JSONObject org = (JSONObject) ctx.getRequest().getSession().getAttribute(SessionConstant.ORG);
+        if (org != null){
+            ctx.getResponse().setHeader("org",URLUtil.encode(org.toString()));
+        }
+        String username = (String) ctx.getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (StrUtil.isNotBlank(username)){
+            ctx.getResponse().setHeader("user", URLUtil.encode(username));
+        }
         return null;
     }
 
