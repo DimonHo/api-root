@@ -14,12 +14,12 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-public class OrgProductVO {
+public class OrgProdVO {
 
     /**
      * 产品ID
      */
-    private Long productId;
+    private Long prodId;
 
     /**
      * 产品状态

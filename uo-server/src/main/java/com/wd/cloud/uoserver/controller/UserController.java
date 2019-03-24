@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.annotation.ValidateLogin;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
+import com.wd.cloud.commons.util.StrUtil;
 import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.User;
 import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
@@ -47,6 +48,9 @@ public class UserController {
     @GetMapping("/login/info")
     public ResponseModel getLogin() {
         String username  = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        if (StrUtil.isBlank(username)){
+            return ResponseModel.fail();
+        }
         return ResponseModel.ok().setBody(userService.getUserDTO(username));
     }
 

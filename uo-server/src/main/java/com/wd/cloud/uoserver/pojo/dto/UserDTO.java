@@ -1,5 +1,6 @@
 package com.wd.cloud.uoserver.pojo.dto;
 
+import com.wd.cloud.uoserver.pojo.entity.UserMsg;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -22,12 +23,18 @@ public class UserDTO implements Serializable {
     private Date gmtCreate;
     private Date gmtModified;
     private String email;
+    /**
+     * 昵称
+     */
     private String nickname;
+    /**
+     * 真实姓名
+     */
     private String realname;
     private String orgFlag;
     private String orgName;
-    private Long departmentId;
-    private String departmentName;
+    private Long orgDeptId;
+    private String orgDeptName;
     private String phone;
     private String qq;
     private Integer sex;
@@ -63,22 +70,35 @@ public class UserDTO implements Serializable {
 
     private String registerIp;
     private String lastLoginIp;
+    /**
+     * 登陆次数
+     */
     private Integer loginCount;
     /**
-     * 是否在线
+     * 是否在线？0：离线，1：在线
      */
     private boolean online;
 
+    /**
+     * 是否禁用？ 0：未禁用，1：已禁用
+     */
     private boolean forbidden;
     /**
-     * 认证狀態
+     * 认证狀態 0:未认证，1：待认证，2：已认证
      */
     private Integer validStatus;
+
+    private String handlerName;
 
     /**
      * 是否有校外访问权限
      */
     private List<PermissionDTO> permissions;
+
+    /**
+     * 用户消息列表
+     */
+    private List<UserMsg> userMsgs;
 
     private OrgDTO org;
 

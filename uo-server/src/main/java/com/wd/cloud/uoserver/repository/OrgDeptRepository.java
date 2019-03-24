@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.repository;
 
-import com.wd.cloud.uoserver.pojo.entity.Department;
+import com.wd.cloud.uoserver.pojo.entity.OrgDept;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,14 +11,14 @@ import java.util.Optional;
  * @date 2019/3/4
  * @Description:
  */
-public interface DepartmentRepository extends JpaRepository<Department, Long> {
+public interface OrgDeptRepository extends JpaRepository<OrgDept, Long> {
 
     /**
      * 查询机构院系列表
      * @param orgFlag
      * @return
      */
-    List<Department> findByOrgFlag(String orgFlag);
+    List<OrgDept> findByOrgFlag(String orgFlag);
 
     /**
      * 查找院系
@@ -26,7 +26,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
      * @param name
      * @return
      */
-    Optional<Department> findByOrgFlagAndName(String orgFlag, String name);
+    Optional<OrgDept> findByOrgFlagAndName(String orgFlag, String name);
 
     /**
      * 查找院系
@@ -34,7 +34,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
      * @param id
      * @return
      */
-    Optional<Department> findByOrgFlagAndId(String orgFlag,Long id);
+    Optional<OrgDept> findByOrgFlagAndId(String orgFlag,Long id);
 
     /**
      * 删除指定院系

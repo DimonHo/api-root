@@ -1,6 +1,6 @@
 package com.wd.cloud.uoserver.repository;
 
-import com.wd.cloud.uoserver.pojo.entity.OrgProduct;
+import com.wd.cloud.uoserver.pojo.entity.OrgProd;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,14 +13,14 @@ import java.util.Optional;
  * @date 2019/3/4
  * @Description:
  */
-public interface OrgProductRepository extends JpaRepository<OrgProduct, Long> {
+public interface OrgProdRepository extends JpaRepository<OrgProd, Long> {
 
     /**
      * 机构所有产品
      * @param orgFlag
      * @return
      */
-    List<OrgProduct> findByOrgFlag(String orgFlag);
+    List<OrgProd> findByOrgFlag(String orgFlag);
 
     /**
      * 查询机构过期产品
@@ -28,7 +28,7 @@ public interface OrgProductRepository extends JpaRepository<OrgProduct, Long> {
      * @param effDate
      * @return
      */
-    List<OrgProduct> findByOrgFlagAndExpDateBefore(String orgFlag, Date effDate);
+    List<OrgProd> findByOrgFlagAndExpDateBefore(String orgFlag, Date effDate);
 
     /**
      * 查询机构未过期产品
@@ -37,15 +37,15 @@ public interface OrgProductRepository extends JpaRepository<OrgProduct, Long> {
      * @param expDate
      * @return
      */
-    List<OrgProduct> findByOrgFlagAndEffDateBeforeAndExpDateAfter(String orgFlag,Date effDate, Date expDate);
+    List<OrgProd> findByOrgFlagAndEffDateBeforeAndExpDateAfter(String orgFlag, Date effDate, Date expDate);
 
     /**
      * 查询机构产品
      * @param orgFlag
-     * @param productId
+     * @param prodId
      * @return
      */
-    Optional<OrgProduct> findByOrgFlagAndProductId(String orgFlag, Long productId);
+    Optional<OrgProd> findByOrgFlagAndProdId(String orgFlag, Long prodId);
 
 
     /**
@@ -54,22 +54,22 @@ public interface OrgProductRepository extends JpaRepository<OrgProduct, Long> {
      * @param status
      * @return
      */
-    @Query(value = "select * from org_product where org_flag =?1 and status =?2 and to_days(end_date) > to_days(now())",nativeQuery = true)
-    List<OrgProduct> findByOrgFlagAndStatus(String orgFlag,Integer status);
+    @Query(value = "select * from org_prod where org_flag =?1 and status =?2 and to_days(end_date) > to_days(now())",nativeQuery = true)
+    List<OrgProd> findByOrgFlagAndStatus(String orgFlag, Integer status);
 
     /**
      * 过期产品
      * @param orgFlag
      * @return
      */
-    @Query(value = "select * from org_product where org_flag =?1 and to_days(end_date) < to_days(now())",nativeQuery = true)
-    List<OrgProduct> expByOrgFlag(String orgFlag);
+    @Query(value = "select * from org_prod where org_flag =?1 and to_days(end_date) < to_days(now())",nativeQuery = true)
+    List<OrgProd> expByOrgFlag(String orgFlag);
 
     /**
      * 取消订购某产品
      * @param orgFlag
      */
-    void deleteByOrgFlagAndProductIdIn(String orgFlag,List<Long> productIds);
+    void deleteByOrgFlagAndProdIdIn(String orgFlag,List<Long> prodIds);
 
     /**
      * 取消订购所有产品
@@ -77,7 +77,12 @@ public interface OrgProductRepository extends JpaRepository<OrgProduct, Long> {
      */
     void deleteByOrgFlag(String orgFlag);
 
-    void deleteByOrgFlagAndProductId(String orgFlag,Long productId);
+    /**
+     *
+     * @param orgFlag
+     * @param prodId
+     */
+    void deleteByOrgFlagAndProdId(String orgFlag,Long prodId);
 
 
 }

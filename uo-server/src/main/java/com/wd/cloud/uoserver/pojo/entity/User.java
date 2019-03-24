@@ -104,7 +104,8 @@ public class User extends AbstractEntity {
     private Integer validStatus;
 
     /**院系*/
-    private Long departmentId;
+    @Column(name = "org_dept_id")
+    private Long orgDeptId;
 
     /**身份类型 1:学生，2：老师*/
     private Integer identityType;
@@ -130,5 +131,7 @@ public class User extends AbstractEntity {
     /**账号是否被禁用*/
     @Column(name = "is_forbidden",columnDefinition = "tinyint(1) default 0 COMMENT '0:未禁用，1：禁用'")
     private boolean forbidden;
+
+    private String handlerName;
 
 }

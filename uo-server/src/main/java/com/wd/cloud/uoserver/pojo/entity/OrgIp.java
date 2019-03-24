@@ -15,8 +15,8 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "ip_range")
-public class IpRange extends AbstractEntity {
+@Table(name = "org_ip")
+public class OrgIp extends AbstractEntity {
 
     private String orgFlag;
 

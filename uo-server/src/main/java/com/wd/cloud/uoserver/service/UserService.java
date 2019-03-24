@@ -2,7 +2,6 @@ package com.wd.cloud.uoserver.service;
 
 import com.wd.cloud.uoserver.pojo.dto.UserDTO;
 import com.wd.cloud.uoserver.pojo.entity.User;
-import com.wd.cloud.uoserver.pojo.entity.VUserAudit;
 import com.wd.cloud.uoserver.pojo.vo.BackUserVO;
 import com.wd.cloud.uoserver.pojo.vo.PerfectUserVO;
 import com.wd.cloud.uoserver.pojo.vo.UserVO;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author He Zhigang
@@ -19,14 +17,6 @@ import java.util.Map;
  * @Description:
  */
 public interface UserService {
-
-    /**
-     * 构建sso已认证的用户信息
-     *
-     * @param authInfo
-     * @return
-     */
-    UserDTO buildUserInfo(Map<String, Object> authInfo);
 
     /**
      * 注册新用户
@@ -81,8 +71,9 @@ public interface UserService {
      * @param username 被审核用户名
      * @param validated 审核通过or不通过
      * @param handlerName 审核人
+     * @param remark 审核失败原因
      */
-    void auditIdPhoto(String username, Boolean validated,String handlerName);
+    void auditIdPhoto(String username, Boolean validated, String handlerName, String remark);
 
     /**
      * 查询用户信息
@@ -93,32 +84,25 @@ public interface UserService {
     UserDTO getUserDTO(String id);
 
     /**
-     * 用户查询
+     * 返回用户列表
      * @param orgFlag
      * @param orgName
-     * @param departmentId
-     * @param department
+     * @param orgDeptId
+     * @param orgDept
      * @param userType
+     * @param valid
+     * @param validStatus
      * @param keyword
      * @param pageable
      * @return
      */
-    Page<UserDTO> queryUsers(String orgFlag, String orgName, Long departmentId, String department, List<Integer> userType, String keyword, Pageable pageable);
+    Page<UserDTO> queryUsers(String orgFlag, String orgName, Long orgDeptId, String orgDept, List<Integer> userType,Boolean valid,List<Integer> validStatus, String keyword, Pageable pageable);
 
     /**
      * 删除用户
      * @param username
      */
     void deleteUser(String username);
-
-    /**
-     * 审核列表
-     * @param status
-     * @param keyword
-     * @param pageable
-     * @return
-     */
-    Page<VUserAudit> validList(Integer status, String keyword, Pageable pageable);
 
     /**
      * 检查邮箱是否存在

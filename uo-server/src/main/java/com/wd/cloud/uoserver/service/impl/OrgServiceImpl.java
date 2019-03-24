@@ -3,7 +3,8 @@ package com.wd.cloud.uoserver.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Validator;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.BooleanUtil;
+import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.commons.util.NetUtil;
 import com.wd.cloud.uoserver.exception.IPValidException;
@@ -36,7 +37,7 @@ public class OrgServiceImpl implements OrgService {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    IpRangeRepository ipRangeRepository;
+    OrgIpRepository orgIpRepository;
 
     @Autowired
     OrgRepository orgRepository;
@@ -45,16 +46,16 @@ public class OrgServiceImpl implements OrgService {
     OrgCdbRepository orgCdbRepository;
 
     @Autowired
-    DepartmentRepository departmentRepository;
+    OrgDeptRepository orgDeptRepository;
 
     @Autowired
     ProductRepository productRepository;
 
     @Autowired
-    OrgProductRepository orgProductRepository;
+    OrgProdRepository orgProdRepository;
 
     @Autowired
-    LinkmanRepository linkmanRepository;
+    OrgLinkmanRepository orgLinkmanRepository;
 
     /**
      * 校验IP是否是正确的格式，返回错误IP列表
@@ -62,13 +63,13 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public List<IpRange> validatorIp() {
-        List<IpRange> errorIps = new ArrayList<>();
+    public List<OrgIp> validatorIp() {
+        List<OrgIp> errorIps = new ArrayList<>();
         //查询所有数据
-        List<IpRange> ipRanges = ipRangeRepository.findAll();
-        for (IpRange ipRange : ipRanges) {
-            if (!Validator.isIpv4(ipRange.getBegin()) || !Validator.isIpv4(ipRange.getEnd())) {
-                errorIps.add(ipRange);
+        List<OrgIp> orgIps = orgIpRepository.findAll();
+        for (OrgIp orgIp : orgIps) {
+            if (!Validator.isIpv4(orgIp.getBegin()) || !Validator.isIpv4(orgIp.getEnd())) {
+                errorIps.add(orgIp);
             }
         }
         return errorIps;
@@ -81,20 +82,20 @@ public class OrgServiceImpl implements OrgService {
     @Override
     public void reverse() {
         //查询所有数据
-        List<IpRange> ipRanges = ipRangeRepository.findAll();
+        List<OrgIp> orgIps = orgIpRepository.findAll();
         //根据Id查询开始IP跟结束IP
-        for (IpRange ipRange : ipRanges) {
-            String begin = ipRange.getBegin();
-            String end = ipRange.getEnd();
+        for (OrgIp orgIp : orgIps) {
+            String begin = orgIp.getBegin();
+            String end = orgIp.getEnd();
             long beginNumber = NetUtil.ipv4ToLong(begin);
             long endNumber = NetUtil.ipv4ToLong(end);
             //如果开始IP比结束IP大则翻转他们的起始和结束
             if (beginNumber > endNumber) {
-                ipRange.setBegin(end).setEnd(begin).setBeginNumber(endNumber).setEndNumber(beginNumber);
+                orgIp.setBegin(end).setEnd(begin).setBeginNumber(endNumber).setEndNumber(beginNumber);
             } else {
-                ipRange.setBegin(begin).setEnd(end).setBeginNumber(beginNumber).setEndNumber(endNumber);
+                orgIp.setBegin(begin).setEnd(end).setBeginNumber(beginNumber).setEndNumber(endNumber);
             }
-            ipRangeRepository.save(ipRange);
+            orgIpRepository.save(orgIp);
         }
     }
 
@@ -104,17 +105,17 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public Map<IpRangeDTO, Set<IpRange>> overlay() {
-        List<IpRange> ipRanges = ipRangeRepository.findAll();
-        Map<IpRangeDTO, Set<IpRange>> orgIpMap = new HashMap<>();
-        for (int i = 0; i < ipRanges.size(); i++) {
-            IpRange ipRange1 = ipRanges.get(i);
-            long beginIp1 = NetUtil.ipToLong(ipRange1.getBegin());
-            long endIp1 = NetUtil.ipToLong(ipRange1.getEnd());
-            for (int j = i + 1; j < ipRanges.size(); j++) {
-                IpRange ipRange2 = ipRanges.get(j);
-                long beginIp2 = NetUtil.ipToLong(ipRange2.getBegin());
-                long endIp2 = NetUtil.ipToLong(ipRange2.getEnd());
+    public Map<OrgIpDTO, Set<OrgIp>> overlay() {
+        List<OrgIp> orgIps = orgIpRepository.findAll();
+        Map<OrgIpDTO, Set<OrgIp>> orgIpMap = new HashMap<>();
+        for (int i = 0; i < orgIps.size(); i++) {
+            OrgIp orgIp1 = orgIps.get(i);
+            long beginIp1 = NetUtil.ipToLong(orgIp1.getBegin());
+            long endIp1 = NetUtil.ipToLong(orgIp1.getEnd());
+            for (int j = i + 1; j < orgIps.size(); j++) {
+                OrgIp orgIp2 = orgIps.get(j);
+                long beginIp2 = NetUtil.ipToLong(orgIp2.getBegin());
+                long endIp2 = NetUtil.ipToLong(orgIp2.getEnd());
                 if (beginIp1 > beginIp2) {
                     beginIp2 = beginIp1;
                 }
@@ -122,16 +123,16 @@ public class OrgServiceImpl implements OrgService {
                     endIp2 = endIp1;
                 }
                 if (beginIp2 < endIp2) {
-                    IpRangeDTO ipRangDTOKey = new IpRangeDTO();
-                    ipRangDTOKey.setBegin(NetUtil.longToIp(beginIp2)).setEnd(NetUtil.longToIp(endIp2));
-                    if (orgIpMap.get(ipRangDTOKey) != null) {
-                        orgIpMap.get(ipRangDTOKey).add(ipRange1);
-                        orgIpMap.get(ipRangDTOKey).add(ipRange2);
+                    OrgIpDTO orgIpDTOKey = new OrgIpDTO();
+                    orgIpDTOKey.setBegin(NetUtil.longToIp(beginIp2)).setEnd(NetUtil.longToIp(endIp2));
+                    if (orgIpMap.get(orgIpDTOKey) != null) {
+                        orgIpMap.get(orgIpDTOKey).add(orgIp1);
+                        orgIpMap.get(orgIpDTOKey).add(orgIp2);
                     } else {
-                        Set<IpRange> ips = new HashSet<>();
-                        ips.add(ipRange1);
-                        ips.add(ipRange2);
-                        orgIpMap.put(ipRangDTOKey, ips);
+                        Set<OrgIp> ips = new HashSet<>();
+                        ips.add(orgIp1);
+                        ips.add(orgIp2);
+                        orgIpMap.put(orgIpDTOKey, ips);
                     }
                 }
             }
@@ -164,14 +165,11 @@ public class OrgServiceImpl implements OrgService {
         if (CollectionUtil.isNotEmpty(orgVO.getIp())) {
             saveOrgIp(orgVO.getFlag(),orgVO.getIp());
         }
-        if (CollectionUtil.isNotEmpty(orgVO.getProduct())){
-            saveOrgProduct(orgVO.getFlag(),orgVO.getProduct());
+        if (CollectionUtil.isNotEmpty(orgVO.getProd())){
+            saveOrgProd(orgVO.getFlag(),orgVO.getProd());
         }
         if (CollectionUtil.isNotEmpty(orgVO.getLinkman())){
             saveLinkman(orgVO.getFlag(),orgVO.getLinkman());
-        }
-        if (CollectionUtil.isNotEmpty(orgVO.getCdbs())){
-            saveOrgCdb(orgVO.getFlag(),orgVO.getCdbs());
         }
         orgRepository.save(org);
     }
@@ -210,133 +208,81 @@ public class OrgServiceImpl implements OrgService {
      * 新增、更新、删除产品
      *
      * @param orgFlag
-     * @param orgProductVOS
+     * @param orgProdVOS
      */
     @Override
-    public List<OrgProduct> saveOrgProduct(String orgFlag, List<OrgProductVO> orgProductVOS) {
-        List<OrgProduct> orgProducts = new ArrayList<>();
-        for (OrgProductVO orgProductVO : orgProductVOS) {
+    public void saveOrgProd(String orgFlag, List<OrgProdVO> orgProdVOS) {
+        List<OrgProd> orgProds = new ArrayList<>();
+        for (OrgProdVO orgProdVO : orgProdVOS) {
             // 如果是删除
-            if (orgProductVO.getDel()) {
-                orgProductRepository.deleteByOrgFlagAndProductId(orgFlag, orgProductVO.getProductId());
-                continue;
+            if (BooleanUtil.isTrue(orgProdVO.getDel()) && orgProdVO.getProdId() != null) {
+                orgProdRepository.deleteByOrgFlagAndProdId(orgFlag, orgProdVO.getProdId());
+            } else {
+                // 新增或修改
+                OrgProd orgProd = orgProdRepository.findByOrgFlagAndProdId(orgFlag, orgProdVO.getProdId()).orElse(new OrgProd());
+                BeanUtil.copyProperties(orgProdVO, orgProd);
+                orgProd.setOrgFlag(orgFlag);
+                orgProds.add(orgProd);
             }
-            // 新增或修改
-            OrgProduct orgProduct = orgProductRepository.findByOrgFlagAndProductId(orgFlag, orgProductVO.getProductId()).orElse(new OrgProduct());
-            BeanUtil.copyProperties(orgProductVO, orgProduct);
-            orgProduct.setOrgFlag(orgFlag);
-            orgProducts.add(orgProduct);
         }
-        return orgProductRepository.saveAll(orgProducts);
+        orgProdRepository.saveAll(orgProds);
     }
 
     @Override
-    public List<Linkman> saveLinkman(String orgFlag, List<OrgLinkmanVO> linkmanVOS) {
-        List<Linkman> linkmanList = new ArrayList<>();
+    public void saveLinkman(String orgFlag, List<OrgLinkmanVO> linkmanVOS) {
+        List<OrgLinkman> orgLinkmanList = new ArrayList<>();
         for (OrgLinkmanVO linkmanVO : linkmanVOS) {
-            // 如果是删除
-            if (linkmanVO.getDel()) {
-                linkmanRepository.deleteByOrgFlagAndId(orgFlag, linkmanVO.getId());
-                continue;
+            // 如果有id
+            if (linkmanVO.getId() != null) {
+                // 删除
+                if (BooleanUtil.isTrue(linkmanVO.getDel())) {
+                    orgLinkmanRepository.deleteByOrgFlagAndId(orgFlag, linkmanVO.getId());
+                    // 更新
+                } else {
+                    OrgLinkman orgLinkman = orgLinkmanRepository.findByOrgFlagAndId(orgFlag, linkmanVO.getId()).orElseThrow(NotFoundException::new);
+                    BeanUtil.copyProperties(linkmanVO, orgLinkman);
+                    orgLinkman.setOrgFlag(orgFlag);
+                    orgLinkmanList.add(orgLinkman);
+                }
+            } else {
+                // 新增
+                OrgLinkman orgLinkman = new OrgLinkman();
+                BeanUtil.copyProperties(linkmanVO, orgLinkman);
+                orgLinkman.setOrgFlag(orgFlag);
+                orgLinkmanList.add(orgLinkman);
             }
-            // 新增或修改
-            Linkman linkman = linkmanRepository.findByOrgFlagAndId(orgFlag, linkmanVO.getId()).orElse(new Linkman());
-            BeanUtil.copyProperties(linkmanVO, linkman);
-            linkman.setOrgFlag(orgFlag);
-            linkmanList.add(linkman);
         }
-        return linkmanRepository.saveAll(linkmanList);
+        orgLinkmanRepository.saveAll(orgLinkmanList);
     }
 
-    public List<OrgCdb> saveOrgCdb(String orgFlag, List<OrgCdbVO> orgCdbVOS){
-        List<OrgCdb> orgCdbList = new ArrayList<>();
-        for (OrgCdbVO orgCdbVo : orgCdbVOS){
-            if (orgCdbVo.isDel()){
-                orgCdbRepository.deleteByOrgFlagAndId(orgFlag,orgCdbVo.getId());
-                continue;
-            }
-            OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag,orgCdbVo.getId()).orElse(new OrgCdb());
-            BeanUtil.copyProperties(orgCdbVo,orgCdb);
-            orgCdb.setOrgFlag(orgFlag);
-            orgCdbList.add(orgCdb);
-        }
-        return orgCdbRepository.saveAll(orgCdbList);
-    }
     /**
      * 取消某产品订购
      *
      * @param orgFlag
-     * @param productIds
+     * @param prodIds
      */
     @Override
-    public void cancelProduct(String orgFlag, List<Long> productIds) {
-        //如果productIds为空，则取消订购所有产品
-        if (productIds == null) {
-            orgProductRepository.deleteByOrgFlag(orgFlag);
+    public void cancelProd(String orgFlag, List<Long> prodIds) {
+        //如果prodIds为空，则取消订购所有产品
+        if (CollectionUtil.isEmpty(prodIds)) {
+            orgProdRepository.deleteByOrgFlag(orgFlag);
         }
-        orgProductRepository.deleteByOrgFlagAndProductIdIn(orgFlag, productIds);
+        orgProdRepository.deleteByOrgFlagAndProdIdIn(orgFlag, prodIds);
     }
 
     /**
-     * 添加机构IP
-     *
-     * @param orgFlag
-     * @param ipRange ex: “127.0.0.1---127.0.0.10;192.168.1.1---192.168.1.10”
-     */
-    @Override
-    public List<IpRange> addOrgIp(String orgFlag, String ipRange) {
-        List<IpRange> ipRangeList = new ArrayList<>();
-        List<String> ipRanges = StrUtil.splitTrim(ipRange, ";");
-        for (String ipRangeStr : ipRanges) {
-            List<String> ips = StrUtil.splitTrim(ipRangeStr, "---");
-            String beginIp = ips.get(0);
-            String endIp = ips.get(1);
-            // 检查IP格式是否合法
-            if (!Validator.isIpv4(beginIp) || !Validator.isIpv4(endIp)) {
-                throw IPValidException.validNotIp(ipRangeStr);
-            }
-            long beginNum = NetUtil.ipv4ToLong(beginIp);
-            long endNum = NetUtil.ipv4ToLong(endIp);
-            // 如果开始IP大于结束IP，将位置互换
-            if (beginNum > endNum) {
-                long temp = beginNum;
-                beginNum = endNum;
-                beginIp = ips.get(1);
-                endNum = temp;
-                endIp = ips.get(0);
-            }
-            // 查询IP是否已存在
-            List<IpRange> overlayIpRanges = ipRangeRepository.findExists(beginNum, endNum);
-            if (CollectionUtil.isNotEmpty(overlayIpRanges)) {
-                throw IPValidException.existsIp(beginIp, endIp, overlayIpRanges);
-            }
-            // 通过检查
-            IpRange ipRangeEntity = new IpRange();
-            ipRangeEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
-            ipRangeList.add(ipRangeEntity);
-        }
-        return ipRangeRepository.saveAll(ipRangeList);
-    }
-
-
-    /**
-     * 新增、修改或删除orgIpRange
+     * 新增、修改或删除orgIp
      *
      * @param orgFlag
      * @param orgIpVOS
      * @return
      */
     @Override
-    public List<IpRange> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) {
-        List<IpRange> ipRangeList = new ArrayList<>();
-        for (OrgIpVO ipModel : orgIpVOS) {
-            // 如果是删除
-            if (ipModel.isDel() && ipModel.getId() != null) {
-                ipRangeRepository.deleteByOrgFlagAndId(orgFlag, ipModel.getId());
-                continue;
-            }
-            String beginIp = ipModel.getBegin();
-            String endIp = ipModel.getEnd();
+    public List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) {
+        List<OrgIp> orgIpList = new ArrayList<>();
+        for (OrgIpVO orgIpVO : orgIpVOS) {
+            String beginIp = orgIpVO.getBegin();
+            String endIp = orgIpVO.getEnd();
             //校验IP格式
             if (!Validator.isIpv4(beginIp) || !Validator.isIpv4(endIp)) {
                 throw IPValidException.validNotIp(beginIp + "---" + endIp);
@@ -347,21 +293,48 @@ public class OrgServiceImpl implements OrgService {
             if (beginNum > endNum) {
                 long temp = beginNum;
                 beginNum = endNum;
-                beginIp = ipModel.getEnd();
+                beginIp = orgIpVO.getEnd();
                 endNum = temp;
-                endIp = ipModel.getBegin();
+                endIp = orgIpVO.getBegin();
             }
-            // 查询IP是否已存在
-            List<IpRange> overlayIpRanges = ipRangeRepository.findExists(beginNum, endNum);
-            if (CollectionUtil.isNotEmpty(overlayIpRanges)) {
-                throw IPValidException.existsIp(beginIp, endIp, overlayIpRanges);
+
+            if (orgIpVO.getId() != null) {
+                // 如果是删除
+                if (BooleanUtil.isTrue(orgIpVO.isDel())) {
+                    orgIpRepository.deleteByOrgFlagAndId(orgFlag, orgIpVO.getId());
+                } else {
+                    // 更新
+                    OrgIp orgIpEntity = orgIpRepository.findByOrgFlagAndId(orgFlag, orgIpVO.getId()).orElseThrow(NotFoundException::new);
+                    if (beginNum < orgIpEntity.getBeginNumber()) {
+                        Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(beginNum);
+                        if (optionOrgIp.isPresent()) {
+                            throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
+                        }
+                    }
+                    if (endNum > orgIpEntity.getEndNumber() && orgIpRepository.findExists(endNum).isPresent()) {
+                        Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(endNum);
+                        if (optionOrgIp.isPresent()) {
+                            throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
+                        }
+                    }
+                    // 通过检查，更新
+                    orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
+                    orgIpList.add(orgIpEntity);
+                }
+            } else {
+                // 新增
+                List<OrgIp> overlayOrgIps = orgIpRepository.findExists(beginNum, endNum);
+                if (CollectionUtil.isEmpty(overlayOrgIps)) {
+                    // 通过检查，如果有id,则更新，否则就新增
+                    OrgIp orgIpEntity = new OrgIp();
+                    orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
+                    orgIpList.add(orgIpEntity);
+                } else {
+                    throw IPValidException.existsIp(beginIp, endIp, overlayOrgIps);
+                }
             }
-            // 通过检查，如果有id,则更新，否则就新增
-            IpRange ipRangeEntity = ipRangeRepository.findByOrgFlagAndId(orgFlag, ipModel.getId()).orElse(new IpRange());
-            ipRangeEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
-            ipRangeList.add(ipRangeEntity);
         }
-        return ipRangeRepository.saveAll(ipRangeList);
+        return orgIpRepository.saveAll(orgIpList);
     }
 
     /**
@@ -370,9 +343,9 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public List<DepartmentDTO> findOrgDepartment(String orgFlag) {
-        List<Department> departmentList = departmentRepository.findByOrgFlag(orgFlag);
-        return departmentList.stream().map(this::convertDepartmentToDepartmentDTO).collect(Collectors.toList());
+    public List<OrgDeptDTO> findOrgDept(String orgFlag) {
+        List<OrgDept> orgDeptList = orgDeptRepository.findByOrgFlag(orgFlag);
+        return orgDeptList.stream().map(this::convertOrgDeptToOrgDeptDTO).collect(Collectors.toList());
     }
 
     /**
@@ -382,135 +355,145 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public List<Department> saveDept(String orgFlag,List<DeptVO> deptLit) {
-        List<Department> departmentList = new ArrayList<>();
+    public List<OrgDept> saveDept(String orgFlag,List<DeptVO> deptLit) {
+        List<OrgDept> orgDeptList = new ArrayList<>();
         for (DeptVO deptVo : deptLit){
-            if (deptVo.isDel() && deptVo.getId() != null){
-                departmentRepository.deleteByOrgFlagAndId(orgFlag,deptVo.getId());
-                continue;
+            if (deptVo.getId() != null) {
+                //删除
+                if (BooleanUtil.isTrue(deptVo.isDel())) {
+                    orgDeptRepository.deleteByOrgFlagAndId(orgFlag, deptVo.getId());
+                } else {
+                    // 修改
+                    OrgDept orgDept = orgDeptRepository.findByOrgFlagAndId(orgFlag, deptVo.getId()).orElseThrow(NotFoundException::new);
+                    BeanUtil.copyProperties(deptVo, orgDept);
+                    orgDept.setOrgFlag(orgFlag);
+                    orgDeptList.add(orgDept);
+                }
+            } else {
+                //新增
+                OrgDept orgDept = new OrgDept();
+                BeanUtil.copyProperties(deptVo, orgDept);
+                orgDept.setOrgFlag(orgFlag);
+                orgDeptList.add(orgDept);
             }
-            Department department = departmentRepository.findByOrgFlagAndId(orgFlag,deptVo.getId()).orElse(new Department());
-            BeanUtil.copyProperties(deptVo,department);
-            department.setOrgFlag(orgFlag);
-            departmentList.add(department);
         }
-        return departmentRepository.saveAll(departmentList);
+        return orgDeptRepository.saveAll(orgDeptList);
     }
 
 
     @Override
-    public void deleteDepartmentId(Long id) {
-        departmentRepository.deleteById(id);
+    public void deleteOrgDeptId(Long id) {
+        orgDeptRepository.deleteById(id);
     }
 
     /**
-     * department 转换 DTO
-     * @param department
+     * orgDept 转换 DTO
+     * @param orgDept
      * @return
      */
-    private DepartmentDTO convertDepartmentToDepartmentDTO(Department department) {
-        DepartmentDTO departmentDTO = BeanUtil.toBean(department,DepartmentDTO.class);
-        departmentDTO.setUserCount(userRepository.countByDepartmentId(department.getId()));
-        return departmentDTO;
+    private OrgDeptDTO convertOrgDeptToOrgDeptDTO(OrgDept orgDept) {
+        OrgDeptDTO orgDeptDTO = BeanUtil.toBean(orgDept,OrgDeptDTO.class);
+        orgDeptDTO.setUserCount(userRepository.countByOrgDeptId(orgDept.getId()));
+        return orgDeptDTO;
     }
     /**
      * org转换OrgDTO
      *
      * @param org
      * @param prodStatus 产品状态列表
-     * @param includes   需要包含的关联对象 （"ip" or "product" or "linkman" or "department"）
+     * @param includes   需要包含的关联对象 （"ip" or "linkman" or "dept" or "cdb"）
      * @return
      */
     private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus,Boolean isExp,boolean isFilter, List<String> includes) {
         OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
         if (CollectionUtil.isNotEmpty(includes)){
             for (String include : includes) {
-                if ("ipRanges".equals(include)) {
-                    includeIpRanges(org, orgDTO);
+                if ("ip".equals(include)) {
+                    includeIpList(org, orgDTO);
                 }
-                if ("products".equals(include)) {
+                if ("prod".equals(include)) {
                     // 如果isFilter为false,表示返回结果中不过滤产品状态和是否过期
                     if (!isFilter){
                         prodStatus = null;
                         isExp = null;
                     }
-                    includeProducts(org, prodStatus, isExp, orgDTO);
+                    includeProdList(org, prodStatus, isExp, orgDTO);
                 }
-                if ("linkmans".equals(include)) {
-                    includeLinkmans(org, orgDTO);
+                if ("linkman".equals(include)) {
+                    includeLinkmanList(org, orgDTO);
                 }
-                if ("departments".equals(include)) {
-                    includeDepartments(org, orgDTO);
+                if ("dept".equals(include)) {
+                    includeOrgDeptList(org, orgDTO);
                 }
-                if ("cdbs".equals(include)){
-                    includeCdbs(org,orgDTO);
+                if ("cdb".equals(include)){
+                    includeCdbList(org,orgDTO);
                 }
             }
         }
         return orgDTO;
     }
 
-    private void includeCdbs(Org org, OrgDTO orgDTO){
+    private void includeCdbList(Org org, OrgDTO orgDTO){
         List<OrgCdb> orgCdbList = orgCdbRepository.findByOrgFlag(org.getFlag());
         List<OrgCdbDTO> orgCdbDTOS = new ArrayList<>();
         orgCdbList.forEach(orgCdb -> {
             OrgCdbDTO orgCdbDTO = BeanUtil.toBean(orgCdb,OrgCdbDTO.class);
             orgCdbDTOS.add(orgCdbDTO);
         });
-        orgDTO.setCdbs(orgCdbDTOS);
+        orgDTO.setCdbList(orgCdbDTOS);
     }
 
-    private void includeDepartments(Org org, OrgDTO orgDTO) {
-        List<Department> departmentList = departmentRepository.findByOrgFlag(org.getFlag());
-        List<DepartmentDTO> departmentDTOS = new ArrayList<>();
-        departmentList.forEach(department -> {
-            DepartmentDTO departmentDTO = BeanUtil.toBean(department, DepartmentDTO.class);
-            departmentDTOS.add(departmentDTO);
+    private void includeOrgDeptList(Org org, OrgDTO orgDTO) {
+        List<OrgDept> orgDeptList = orgDeptRepository.findByOrgFlag(org.getFlag());
+        List<OrgDeptDTO> orgDeptDTOS = new ArrayList<>();
+        orgDeptList.forEach(orgDept -> {
+            OrgDeptDTO orgDeptDTO = BeanUtil.toBean(orgDept, OrgDeptDTO.class);
+            orgDeptDTOS.add(orgDeptDTO);
         });
-        orgDTO.setDepartments(departmentDTOS);
+        orgDTO.setDeptList(orgDeptDTOS);
     }
 
-    private void includeLinkmans(Org org, OrgDTO orgDTO) {
-        List<Linkman> linkmanList = linkmanRepository.findByOrgFlag(org.getFlag());
-        List<LinkmanDTO> linkmanDTOS = new ArrayList<>();
-        linkmanList.forEach(linkman -> {
-            LinkmanDTO linkmanDTO = BeanUtil.toBean(linkman, LinkmanDTO.class);
-            linkmanDTOS.add(linkmanDTO);
+    private void includeLinkmanList(Org org, OrgDTO orgDTO) {
+        List<OrgLinkman> orgLinkmanList = orgLinkmanRepository.findByOrgFlag(org.getFlag());
+        List<OrgLinkmanDTO> orgLinkmanDTOS = new ArrayList<>();
+        orgLinkmanList.forEach(orgLinkman -> {
+            OrgLinkmanDTO orgLinkmanDTO = BeanUtil.toBean(orgLinkman, OrgLinkmanDTO.class);
+            orgLinkmanDTOS.add(orgLinkmanDTO);
         });
-        orgDTO.setLinkmans(linkmanDTOS);
+        orgDTO.setLinkmanList(orgLinkmanDTOS);
     }
 
-    private void includeProducts(Org org, List<Integer> prodStatus, Boolean isExp, OrgDTO orgDTO) {
+    private void includeProdList(Org org, List<Integer> prodStatus, Boolean isExp, OrgDTO orgDTO) {
         // 如果isExp!=null且isExp==true?查询机构过期产品, isExp==false？查询机构未过期产品, isExp==null?查询机构所有产品
-        List<OrgProduct> orgProducts = isExp!=null?
-                isExp?orgProductRepository.findByOrgFlagAndExpDateBefore(org.getFlag(), DateUtil.date())
-                        :orgProductRepository.findByOrgFlagAndEffDateBeforeAndExpDateAfter(org.getFlag(),DateUtil.date(),DateUtil.date())
-                :orgProductRepository.findByOrgFlag(org.getFlag());
-        List<ProductDTO> productDTOS = new ArrayList<>();
+        List<OrgProd> orgProds = isExp!=null?
+                isExp? orgProdRepository.findByOrgFlagAndExpDateBefore(org.getFlag(), DateUtil.date())
+                        : orgProdRepository.findByOrgFlagAndEffDateBeforeAndExpDateAfter(org.getFlag(),DateUtil.date(),DateUtil.date())
+                : orgProdRepository.findByOrgFlag(org.getFlag());
+        List<OrgProdDTO> orgProdDTOS = new ArrayList<>();
         List<Integer> finalProdStatus = prodStatus;
-        orgProducts.stream()
+        orgProds.stream()
                 //prodStatus为空？返回所有结果，否则返回prodStatus状态列表中的结果
-                .filter(orgProduct -> CollectionUtil.isEmpty(finalProdStatus) || finalProdStatus.contains(orgProduct.getStatus()))
-                .forEach(orgProduct -> {
-                    ProductDTO productDTO = BeanUtil.toBean(orgProduct, ProductDTO.class);
-                    Optional<Product> optionalProduct = productRepository.findById(orgProduct.getProductId());
+                .filter(orgProd -> CollectionUtil.isEmpty(finalProdStatus) || finalProdStatus.contains(orgProd.getStatus()))
+                .forEach(orgProd -> {
+                    OrgProdDTO orgProdDTO = BeanUtil.toBean(orgProd, OrgProdDTO.class);
+                    Optional<Product> optionalProduct = productRepository.findById(orgProd.getProdId());
                     optionalProduct.ifPresent(product -> {
-                        BeanUtil.copyProperties(product, productDTO);
-                        productDTOS.add(productDTO);
+                        BeanUtil.copyProperties(product, orgProdDTO);
+                        orgProdDTOS.add(orgProdDTO);
                     });
                 });
-        orgDTO.setProducts(productDTOS);
+        orgDTO.setProdList(orgProdDTOS);
     }
 
-    private void includeIpRanges(Org org, OrgDTO orgDTO) {
-        List<IpRange> ipRanges = ipRangeRepository.findByOrgFlag(org.getFlag());
-        List<IpRangeDTO> ipRangeDTOS = new ArrayList<>();
-        ipRanges.forEach(ipRange -> {
-            IpRangeDTO ipRangeDTO = new IpRangeDTO();
-            ipRangeDTO.setBegin(ipRange.getBegin()).setEnd(ipRange.getEnd());
-            ipRangeDTOS.add(ipRangeDTO);
+    private void includeIpList(Org org, OrgDTO orgDTO) {
+        List<OrgIp> orgIps = orgIpRepository.findByOrgFlag(org.getFlag());
+        List<OrgIpDTO> orgIpDTOS = new ArrayList<>();
+        orgIps.forEach(orgIp -> {
+            OrgIpDTO orgIpDTO = new OrgIpDTO();
+            orgIpDTO.setBegin(orgIp.getBegin()).setEnd(orgIp.getEnd());
+            orgIpDTOS.add(orgIpDTO);
         });
-        orgDTO.setIpRanges(ipRangeDTOS);
+        orgDTO.setIpList(orgIpDTOS);
     }
 
 }

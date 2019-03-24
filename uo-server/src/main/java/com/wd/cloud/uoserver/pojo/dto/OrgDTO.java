@@ -38,25 +38,25 @@ public class OrgDTO implements Serializable {
     /**
      * Ip范围
      */
-    private List<IpRangeDTO> ipRanges;
+    private List<OrgIpDTO> ipList;
     /**
      * 机构产品
      */
-    private List<ProductDTO> products;
+    private List<OrgProdDTO> prodList;
     /**
      * 机构院系
      */
-    private List<DepartmentDTO> departments;
+    private List<OrgDeptDTO> deptList;
     /**
      * 机构馆藏
      */
-    private List<OrgCdbDTO> cdbs;
+    private List<OrgCdbDTO> cdbList;
     /**
      * 机构联系人
      */
-    private List<LinkmanDTO> linkmans;
+    private List<OrgLinkmanDTO> linkmanList;
     /**
      * 是否激活
      */
-    private Boolean enabled;
+    private Boolean disable;
 }

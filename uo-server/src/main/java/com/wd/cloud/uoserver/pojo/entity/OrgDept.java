@@ -15,8 +15,8 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "department",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
-public class Department extends AbstractEntity {
+@Table(name = "org_dept",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
+public class OrgDept extends AbstractEntity {
 
     /**
      * 所属上级院系

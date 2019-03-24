@@ -71,10 +71,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     /**
      * 统计院系用户数量
-     * @param departmentId
+     * @param orgDeptId
      * @return
      */
-    Long countByDepartmentId(Long departmentId);
+    Long countByOrgDeptId(Long orgDeptId);
 
     /**
      * 统计机构院系用户
@@ -86,16 +86,16 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
             "\tSUM( IF ( ( user.user_type = 1 ), 1, 0 ) ) AS normalCount,\n" +
             "\tsum( IF ( ( user.user_type = 2 ), 1, 0 ) ) AS orgAdminCount,\n" +
             "\tsum( IF ( ( user.is_online = 1 ), 1, 0 ) ) AS onlineCount,\n" +
-            "\tsum( IF ( ( user.department_id = department.id AND user.username IN ( SELECT username FROM permission WHERE type = 1 ) ), 1, 0 ) ) outsideCount,\n" +
-            "\tdepartment.name \n" +
+            "\tsum( IF ( ( user.orgDept_id = orgDept.id AND user.username IN ( SELECT username FROM permission WHERE type = 1 ) ), 1, 0 ) ) outsideCount,\n" +
+            "\torgDept.name \n" +
             "FROM\n" +
             "\tuser,\n" +
-            "\tdepartment \n" +
+            "\torgDept \n" +
             "WHERE\n" +
             "\tuser.org_flag = ?1\n" +
-            "\tAND user.department_id = department.id \n" +
+            "\tAND user.orgDept_id = orgDept.id \n" +
             "GROUP BY\n" +
-            "\tuser.department_id \n" +
+            "\tuser.orgDept_id \n" +
             "ORDER BY\n" +
             "\tuserCount DESC",nativeQuery = true)
     List<Map<String,Object>> tjOrgDepartUser(String orgFlag);
@@ -124,17 +124,24 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     class SpecBuilder {
 
-        public static Specification<User> query(String orgFlag, Long departmentId,List<Integer> userType, String keyword) {
+        public static Specification<User> query(String orgFlag, Long orgDeptId, List<Integer> userType, Boolean valid, List<Integer> validStatus, String keyword) {
             return (Specification<User>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (StrUtil.isNotBlank(orgFlag)) {
                     list.add(cb.equal(root.get("orgFlag"), orgFlag));
                 }
-                if (departmentId != null) {
-                    list.add(cb.equal(root.get("departmentId").as(String.class), departmentId));
+                if (orgDeptId != null) {
+                    list.add(cb.equal(root.get("orgDeptId").as(String.class), orgDeptId));
                 }
                 if (CollectionUtil.isNotEmpty(userType)){
                     list.add(cb.in(root.get("userType")).value(userType));
+                }
+                if (valid != null) {
+                    // 如果valid==true? 查询审核记录，否则查询idPhoto未null的
+                    list.add(valid ? cb.isNotNull(root.get("idPhoto")) : cb.isNull(root.get("idPhoto")));
+                }
+                if (CollectionUtil.isNotEmpty(validStatus)){
+                    list.add(cb.in(root.get("validStatus")).value(validStatus));
                 }
                 if (StrUtil.isNotBlank(keyword)) {
                     String likeKey = "%" + keyword.replaceAll("\\\\", "\\\\\\\\").trim() + "%";

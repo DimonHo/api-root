@@ -27,7 +27,7 @@ public class BackUserVO {
     private String phone;
 
     /**院系ID*/
-    private String departmentId;
+    private String orgDeptId;
 
     /**身份类型 1:学生，2：老师*/
     private Integer identityType;

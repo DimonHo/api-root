@@ -2,7 +2,7 @@ package com.wd.cloud.uoserver.controller;
 
 import com.wd.cloud.commons.exception.ParamException;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.uoserver.pojo.dto.DepartmentDTO;
+import com.wd.cloud.uoserver.pojo.dto.OrgDeptDTO;
 import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
 import com.wd.cloud.uoserver.service.OrgService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -60,7 +60,7 @@ public class OrgController {
             @ApiImplicitParam(name = "name", value = "机构全称", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "flag", value = "机构标识", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "include", value = "返回中包含哪些数据（ipRanges,products,cdbs,linkmans,departments）", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "include", value = "返回中包含哪些数据（ip,prod,cdb,linkman,dept）", dataType = "String", paramType = "query")
     })
     @GetMapping("/org")
     public ResponseModel getOrg(@RequestParam(required = false) String name,
@@ -84,7 +84,7 @@ public class OrgController {
             @ApiImplicitParam(name = "ip", value = "ip地址", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "prodStatus", value = "产品状态（0：停用，1：试用，2：购买）", dataType = "List", paramType = "query"),
             @ApiImplicitParam(name = "isExp", value = "产品是否过期", dataType = "Boolean", paramType = "query"),
-            @ApiImplicitParam(name = "include", value = "返回中包含哪些数据（ipRanges,products,cdbs,linkmans,departments）", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "include", value = "返回中包含哪些数据（ip,prod,cdb,linkman,dept）", dataType = "String", paramType = "query")
     })
     @GetMapping("/org/query")
     public ResponseModel<Page> queryOrg(@RequestParam(required = false) String name,
@@ -101,9 +101,9 @@ public class OrgController {
 
 
     @ApiOperation(value = "根据学校查询学院", tags = {"机构查询"})
-    @GetMapping("/org/department")
-    public ResponseModel<DepartmentDTO> findByOrgFlag(@RequestParam String orgFlag) {
-        List<DepartmentDTO> byOrgFlag = orgService.findOrgDepartment(orgFlag);
+    @GetMapping("/org/dept")
+    public ResponseModel<OrgDeptDTO> findByOrgFlag(@RequestParam String orgFlag) {
+        List<OrgDeptDTO> byOrgFlag = orgService.findOrgDept(orgFlag);
         return ResponseModel.ok().setBody(byOrgFlag);
     }
 

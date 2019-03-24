@@ -1,13 +1,11 @@
 package com.wd.cloud.uoserver.service;
 
 
-import com.wd.cloud.uoserver.pojo.dto.DepartmentDTO;
-import com.wd.cloud.uoserver.pojo.dto.IpRangeDTO;
 import com.wd.cloud.uoserver.pojo.dto.OrgDTO;
-import com.wd.cloud.uoserver.pojo.entity.Department;
-import com.wd.cloud.uoserver.pojo.entity.IpRange;
-import com.wd.cloud.uoserver.pojo.entity.Linkman;
-import com.wd.cloud.uoserver.pojo.entity.OrgProduct;
+import com.wd.cloud.uoserver.pojo.dto.OrgDeptDTO;
+import com.wd.cloud.uoserver.pojo.dto.OrgIpDTO;
+import com.wd.cloud.uoserver.pojo.entity.OrgDept;
+import com.wd.cloud.uoserver.pojo.entity.OrgIp;
 import com.wd.cloud.uoserver.pojo.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +26,7 @@ public interface OrgService {
      *
      * @return
      */
-    List<IpRange> validatorIp();
+    List<OrgIp> validatorIp();
 
     /**
      * 翻转起始IP大于结束IP的记录
@@ -40,7 +38,7 @@ public interface OrgService {
      *
      * @return
      */
-    Map<IpRangeDTO, Set<IpRange>> overlay();
+    Map<OrgIpDTO, Set<OrgIp>> overlay();
 
     /**
      * 检查机构名称或标识是否已存在
@@ -85,10 +83,10 @@ public interface OrgService {
      * 新增，更新，删除订购产品的状态
      *
      * @param orgFlag
-     * @param productVOS
+     * @param orgProdVOS
      * @return
      */
-    List<OrgProduct> saveOrgProduct(String orgFlag, List<OrgProductVO> productVOS);
+    void saveOrgProd(String orgFlag, List<OrgProdVO> orgProdVOS);
 
     /**
      * 新增,更新，刪除机构联系人
@@ -97,24 +95,15 @@ public interface OrgService {
      * @param linkmanVOS
      * @return
      */
-    List<Linkman> saveLinkman(String orgFlag, List<OrgLinkmanVO> linkmanVOS);
+    void saveLinkman(String orgFlag, List<OrgLinkmanVO> linkmanVOS);
 
     /**
      * 取消订购产品
      *
      * @param orgFlag
-     * @param productIds 取消的产品ID列表
+     * @param prodIds 取消的产品ID列表
      */
-    void cancelProduct(String orgFlag, List<Long> productIds);
-
-    /**
-     * 添加机构IP
-     *
-     * @param orgFlag
-     * @param ipRanges
-     * @return
-     */
-    List<IpRange> addOrgIp(String orgFlag, String ipRanges);
+    void cancelProd(String orgFlag, List<Long> prodIds);
 
     /**
      * 添加或修改机构IP
@@ -123,7 +112,7 @@ public interface OrgService {
      * @param ipModels
      * @return
      */
-    List<IpRange> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels);
+    List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels);
 
     /**
      * 查询机构院系列表
@@ -131,7 +120,7 @@ public interface OrgService {
      * @param orgFlag
      * @return
      */
-    List<DepartmentDTO> findOrgDepartment(String orgFlag);
+    List<OrgDeptDTO> findOrgDept(String orgFlag);
 
     /**
      * 新增、修改、删除院系
@@ -139,14 +128,14 @@ public interface OrgService {
      * @param deptLit
      * @return
      */
-    List<Department> saveDept(String orgFlag, List<DeptVO> deptLit);
+    List<OrgDept> saveDept(String orgFlag, List<DeptVO> deptLit);
 
     /**
      * 删除院系
      *
      * @param id
      */
-    void deleteDepartmentId(Long id);
+    void deleteOrgDeptId(Long id);
 
 
 }

@@ -4,9 +4,9 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NetUtil;
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.uoserver.pojo.entity.IpRange;
+import com.wd.cloud.uoserver.pojo.entity.OrgIp;
 import com.wd.cloud.uoserver.pojo.entity.Org;
-import com.wd.cloud.uoserver.pojo.entity.OrgProduct;
+import com.wd.cloud.uoserver.pojo.entity.OrgProd;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -79,8 +79,8 @@ public interface OrgRepository extends JpaRepository<Org, String>, JpaSpecificat
                     list.add(cb.equal(root.get("flag").as(String.class), flag));
                 }
                 if (CollectionUtil.isNotEmpty(prodStatus) || isExp != null) {
-                    Subquery<OrgProduct> prodQuery = query.subquery(OrgProduct.class);
-                    Root<OrgProduct> prodRoot = prodQuery.from(OrgProduct.class);
+                    Subquery<OrgProd> prodQuery = query.subquery(OrgProd.class);
+                    Root<OrgProd> prodRoot = prodQuery.from(OrgProd.class);
                     List<Predicate> prodWhere = new ArrayList<>();
                     // 产品状态过滤
                     if (CollectionUtil.isNotEmpty(prodStatus)) {
@@ -97,8 +97,8 @@ public interface OrgRepository extends JpaRepository<Org, String>, JpaSpecificat
                 }
                 if (StrUtil.isNotBlank(ip)) {
                     long ipNumber = NetUtil.ipv4ToLong(ip);
-                    Subquery<IpRange> subQuery = query.subquery(IpRange.class);
-                    Root<IpRange> subRoot = subQuery.from(IpRange.class);
+                    Subquery<OrgIp> subQuery = query.subquery(OrgIp.class);
+                    Root<OrgIp> subRoot = subQuery.from(OrgIp.class);
                     subQuery.select(subRoot.get("orgFlag")).where(cb.lessThanOrEqualTo(subRoot.get("beginNumber"), ipNumber), cb.greaterThanOrEqualTo(subRoot.get("endNumber"), ipNumber));
                     list.add(cb.equal(root.get("flag"), subQuery));
                 }

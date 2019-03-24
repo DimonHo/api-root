@@ -9,11 +9,11 @@ import java.util.Date;
 /**
  * @author He Zhigang
  * @date 2019/3/4
- * @Description:
+ * @Description: 机构产品
  */
 @Data
 @Accessors(chain = true)
-public class ProductDTO implements Serializable {
+public class OrgProdDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;

@@ -2,19 +2,12 @@ package com.wd.cloud.uoserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.Header;
-import cn.hutool.http.useragent.UserAgentUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.enums.ClientType;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.uoserver.constants.GlobalConstants;
-import com.wd.cloud.uoserver.enums.AuditEnum;
 import com.wd.cloud.uoserver.enums.OutsideEnum;
 import com.wd.cloud.uoserver.enums.PermissionTypeEnum;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
@@ -33,16 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -59,38 +48,22 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
 
     @Autowired
+    UserMsgRepository userMsgRepository;
+
+    @Autowired
     PermissionRepository permissionRepository;
 
     @Autowired
     OrgRepository orgRepository;
 
     @Autowired
-    DepartmentRepository departmentRepository;
+    OrgDeptRepository orgDeptRepository;
+
     @Autowired
     FsServerApi fsServerApi;
 
     @Autowired
-    AuditLogRepository auditLogRepository;
-
-    @Autowired
-    VUserAuditRepository vUserAuditRepository;
-
-    @Override
-    public UserDTO buildUserInfo(Map<String, Object> authInfo) {
-        log.info("SSO认证中心用户对象： {}", MapUtil.join(authInfo, ";", "="));
-        UserDTO userDTO = BeanUtil.mapToBean(authInfo, UserDTO.class, true);
-        User user = userRepository.findByUsername(userDTO.getUsername()).orElseThrow(NotFoundUserException::new);
-        log.info("用户信息:{}", user);
-        if (user.getOrgFlag() != null) {
-            Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundOrgException::new);
-            OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
-            userDTO.setOrg(orgDTO);
-        }
-        BeanUtil.copyProperties(user, userDTO);
-        log.info("用户DTO信息:{}", userDTO);
-        return userDTO;
-    }
-
+    HandlerLogRepository handlerLogRepository;
 
     /**
      * 注册新用户
@@ -162,9 +135,9 @@ public class UserServiceImpl implements UserService {
             BeanUtil.copyProperties(org, orgDTO);
             userDTO.setOrg(orgDTO).setOrgName(org.getName());
             //如果有部門ID，則返回部門名稱
-            if (user.getDepartmentId() != null){
-                Optional<Department> optionalDepartment = departmentRepository.findByOrgFlagAndId(user.getOrgFlag(),user.getDepartmentId());
-                optionalDepartment.ifPresent(department -> userDTO.setDepartmentName(department.getName()));
+            if (user.getOrgDeptId() != null){
+                Optional<OrgDept> optionalOrgDept = orgDeptRepository.findByOrgFlagAndId(user.getOrgFlag(),user.getOrgDeptId());
+                optionalOrgDept.ifPresent(orgDept -> userDTO.setOrgDeptName(orgDept.getName()));
             }
         }
 
@@ -176,27 +149,27 @@ public class UserServiceImpl implements UserService {
      * 查询用户列表
      *
      * @param orgFlag
-     * @param orgName
-     * @param departmentId
-     * @param department
+     * @param orgName 机构名称
+     * @param orgDeptId
+     * @param orgDept 部门名称
      * @param userType
      * @param keyword
      * @param pageable
      * @return
      */
     @Override
-    public Page<UserDTO> queryUsers(String orgFlag, String orgName, Long departmentId, String department, List<Integer> userType, String keyword, Pageable pageable) {
-
+    public Page<UserDTO> queryUsers(String orgFlag, String orgName, Long orgDeptId, String orgDept, List<Integer> userType,Boolean valid,List<Integer> validStatus, String keyword, Pageable pageable) {
+        // 如果根据机构名称查询
         if (StrUtil.isBlank(orgFlag) && StrUtil.isNotBlank(orgName)) {
             Org org = orgRepository.findByName(orgName).orElseThrow(NotFoundOrgException::new);
             orgFlag = org.getFlag();
         }
 
-        if (departmentId == null && StrUtil.isNotBlank(department) && StrUtil.isNotBlank(orgFlag)) {
-            Department departmentObj = departmentRepository.findByOrgFlagAndName(orgFlag, department).orElseThrow(NotFoundOrgException::new);
-            departmentId = departmentObj.getId();
+        if (orgDeptId == null && StrUtil.isNotBlank(orgDept) && StrUtil.isNotBlank(orgFlag)) {
+            OrgDept orgDeptObj = orgDeptRepository.findByOrgFlagAndName(orgFlag, orgDept).orElseThrow(NotFoundOrgException::new);
+            orgDeptId = orgDeptObj.getId();
         }
-        Page<User> userPage = userRepository.findAll(UserRepository.SpecBuilder.query(orgFlag, departmentId, userType, keyword), pageable);
+        Page<User> userPage = userRepository.findAll(UserRepository.SpecBuilder.query(orgFlag, orgDeptId, userType,valid,validStatus, keyword), pageable);
         return userPage.map(user -> convertUserToDTO(user, "org"));
     }
 
@@ -217,7 +190,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 上传证件照，添加待审核记录
+     * 上传证件照
      *
      * @param username
      * @param file
@@ -229,55 +202,43 @@ public class UserServiceImpl implements UserService {
         user.setIdPhoto(idPhoto);
         // 待审核
         user.setValidStatus(1);
-        // 添加待审核记录
-        AuditLog auditLog = auditLogRepository.findByUsernameAndStatus(username, AuditEnum.WAITE.value()).orElse(new AuditLog());
-        auditLog.setStatus(AuditEnum.WAITE.value()).setIdPhoto(idPhoto).setUsername(username);
-        auditLogRepository.save(auditLog);
         userRepository.save(user);
         return idPhoto;
     }
 
     /**
-     * 审核证件照
+     * 审核验证证件照
      *
-     * @param username
-     * @param validated
-     * @param handlerName
+     * @param username 被审核用户名
+     * @param validated 审核通过or不通过
+     * @param handlerName 审核人
+     * @param remark 审核失败原因
      */
     @Override
-    public void auditIdPhoto(String username, Boolean validated, String handlerName) {
+    public void auditIdPhoto(String username, Boolean validated, String handlerName, String remark) {
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         if (validated) {
             // 验证通过后获得永久访问权限
             setOutsidePermission(username, OutsideEnum.FOREVER);
         }
         // 记录审核日志
-        AuditLog auditLog = auditLogRepository.findByUsernameAndStatus(username, AuditEnum.WAITE.value()).orElseThrow(NotFoundException::new);
-        auditLog.setStatus(validated ? AuditEnum.PASS.value() : AuditEnum.NO_PASS.value())
-                .setHandlerName(handlerName);
-        auditLogRepository.save(auditLog);
+        HandlerLog handlerLog = new HandlerLog();
+        remark = StrUtil.format("用户：{} 证件照审核{}", username, validated ? "通过" : "不通过, 原因：" + remark);
+        handlerLog.setHandlerName(handlerName).setType(1).setRemark(remark);
+        handlerLogRepository.save(handlerLog);
+        UserMsg userMsg = new UserMsg();
+        String msg = StrUtil.format("{}您好，您的证件照审核{}", username, validated ? "已通过" : "未通过, 原因：" + remark);
+        userMsg.setUsername(username).setMsg(msg);
         // 已认证or未认证
-        user.setValidStatus(validated ? 2 : 0);
+        user.setValidStatus(validated ? 2 : 0).setHandlerName(handlerName);
         userRepository.save(user);
+
     }
 
 
     @Override
     public void deleteUser(String username) {
         userRepository.deleteByUsername(username);
-    }
-
-    /**
-     * 审核记录视图返回
-     *
-     * @param status
-     * @param keyword
-     * @param pageable
-     * @return
-     */
-    @Override
-    public Page<VUserAudit> validList(Integer status, String keyword, Pageable pageable) {
-        return vUserAuditRepository.findAll(VUserAuditRepository.SpecBuilder.like(status, keyword), pageable);
     }
 
     /**
@@ -322,7 +283,7 @@ public class UserServiceImpl implements UserService {
      * @param outsideEnum
      * @return
      */
-    private Permission setOutsidePermission(String username, OutsideEnum outsideEnum) {
+    private void setOutsidePermission(String username, OutsideEnum outsideEnum) {
         Permission permission = permissionRepository
                 .findByUsernameAndType(username, PermissionTypeEnum.OUTSIDE.value())
                 .orElse(new Permission());
@@ -331,7 +292,7 @@ public class UserServiceImpl implements UserService {
                 .setValue(outsideEnum.value())
                 .setEffDate(new Date())
                 .setExpDate(OutsideEnum.HALF_YEAR.equals(outsideEnum)?DateUtil.offsetMonth(new Date(), 6):DateUtil.offsetMonth(new Date(), 9999));
-        return permissionRepository.save(permission);
+        permissionRepository.save(permission);
     }
 
     /**
@@ -343,9 +304,9 @@ public class UserServiceImpl implements UserService {
      */
     private UserDTO convertUserToDTO(User user, String... includes) {
         UserDTO userDTO = BeanUtil.toBean(user, UserDTO.class);
-        if (user.getDepartmentId() != null && StrUtil.isNotBlank(user.getOrgFlag())) {
-            Optional<Department> optionalDepartment = departmentRepository.findByOrgFlagAndId(user.getOrgFlag(), user.getDepartmentId());
-            userDTO.setDepartmentName(optionalDepartment.map(Department::getName).orElse(null));
+        if (user.getOrgDeptId() != null && StrUtil.isNotBlank(user.getOrgFlag())) {
+            Optional<OrgDept> optionalOrgDept = orgDeptRepository.findByOrgFlagAndId(user.getOrgFlag(), user.getOrgDeptId());
+            userDTO.setOrgDeptName(optionalOrgDept.map(OrgDept::getName).orElse(null));
         }
         for (String include : includes) {
             if ("org".equals(include) && StrUtil.isNotBlank(user.getOrgFlag())) {

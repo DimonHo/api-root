@@ -2,6 +2,7 @@ package com.wd.cloud.uoserver.service.impl;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.pojo.dto.OrgCdbDTO;
 import com.wd.cloud.uoserver.pojo.entity.Org;
@@ -31,7 +32,16 @@ public class OrgCdbServiceImpl implements OrgCdbService {
     @Autowired
     OrgRepository orgRepository;
 
-
+    /**
+     * 查询机构馆藏数据库
+     *
+     * @param pageable
+     * @param orgFlag
+     * @param type 资源类型 1馆藏，2筛选
+     * @param keyword 模糊查询关键字
+     * @return
+     * @Param local 是否有localUrl
+     */
     @Override
     public Page<OrgCdbDTO> findOrgCdbs(String orgFlag, Integer type, Boolean local, String keyword, Pageable pageable) {
         Org org = orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
@@ -39,27 +49,44 @@ public class OrgCdbServiceImpl implements OrgCdbService {
         return orgCdbs.map(orgCdb -> convertOrgCdbToOrgCdbDTO(org, orgCdb));
     }
 
-    private OrgCdbDTO convertOrgCdbToOrgCdbDTO(Org org, OrgCdb orgCdb) {
-        OrgCdbDTO orgCdbDTO = BeanUtil.toBean(orgCdb, OrgCdbDTO.class);
-        orgCdbDTO.setOrgName(org.getName());
-        return orgCdbDTO;
-    }
 
-
+    /**
+     * 批量添加，修改，删除
+     *
+     * @param orgFlag
+     * @param orgCdbVOS
+     * @return
+     */
     @Override
     public void saveOrgCdb(String orgFlag, List<OrgCdbVO> orgCdbVOS) {
         List<OrgCdb> orgCdbList = new ArrayList<>();
         for (OrgCdbVO orgCdbVO : orgCdbVOS) {
-            if (orgCdbVO.isDel() && orgCdbVO.getId() != null) {
-                orgCdbRepository.deleteByOrgFlagAndId(orgFlag, orgCdbVO.getId());
-                continue;
+            if (orgCdbVO.getId() != null){
+                // 删除
+                if (BooleanUtil.isTrue(orgCdbVO.isDel())){
+                    orgCdbRepository.deleteByOrgFlagAndId(orgFlag, orgCdbVO.getId());
+                }else{
+                    // 更新
+                    OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
+                    BeanUtil.copyProperties(orgCdbVO, orgCdb);
+                    orgCdb.setOrgFlag(orgFlag);
+                    orgCdbList.add(orgCdb);
+                }
+            }else{
+                // 新增
+                OrgCdb orgCdb = new OrgCdb();
+                BeanUtil.copyProperties(orgCdbVO, orgCdb);
+                orgCdb.setOrgFlag(orgFlag);
+                orgCdbList.add(orgCdb);
             }
-            OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
-            BeanUtil.copyProperties(orgCdbVO, orgCdb);
-            orgCdb.setOrgFlag(orgFlag);
-            orgCdbList.add(orgCdb);
         }
         orgCdbRepository.saveAll(orgCdbList);
+    }
+
+    private OrgCdbDTO convertOrgCdbToOrgCdbDTO(Org org, OrgCdb orgCdb) {
+        OrgCdbDTO orgCdbDTO = BeanUtil.toBean(orgCdb, OrgCdbDTO.class);
+        orgCdbDTO.setOrgName(org.getName());
+        return orgCdbDTO;
     }
 
 }

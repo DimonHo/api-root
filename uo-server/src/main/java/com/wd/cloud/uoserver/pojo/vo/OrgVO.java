@@ -35,9 +35,9 @@ public class OrgVO {
 
     List<OrgLinkmanVO> linkman;
 
-    List<OrgProductVO> product;
+    List<OrgProdVO> prod;
 
     List<OrgIpVO> ip;
 
-    List<OrgCdbVO> cdbs;
+    List<OrgCdbVO> cdb;
 }

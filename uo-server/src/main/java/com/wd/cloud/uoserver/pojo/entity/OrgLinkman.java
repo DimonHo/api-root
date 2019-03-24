@@ -15,8 +15,8 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "linkman")
-public class Linkman extends AbstractEntity {
+@Table(name = "org_linkman")
+public class OrgLinkman extends AbstractEntity {
 
     @Column(name = "org_flag")
     private String orgFlag;

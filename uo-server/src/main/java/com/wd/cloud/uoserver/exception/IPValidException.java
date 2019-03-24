@@ -1,7 +1,7 @@
 package com.wd.cloud.uoserver.exception;
 
 import com.wd.cloud.commons.exception.ApiException;
-import com.wd.cloud.uoserver.pojo.entity.IpRange;
+import com.wd.cloud.uoserver.pojo.entity.OrgIp;
 
 import java.util.List;
 
@@ -16,8 +16,12 @@ public class IPValidException extends ApiException {
         super(status, message);
     }
 
-    public IPValidException(Integer status, String message, List<IpRange> overlayIpRanges) {
-        super(status, message,overlayIpRanges);
+    public IPValidException(Integer status, String message, List<OrgIp> overlayOrgIps) {
+        super(status, message,overlayOrgIps);
+    }
+
+    public IPValidException(Integer status, String message, OrgIp overlayOrgIp) {
+        super(status, message, overlayOrgIp);
     }
 
     /**
@@ -33,11 +37,15 @@ public class IPValidException extends ApiException {
      * IP衝突
      * @param beginIp 开始IP
      * @param endIp 结束IP
-     * @param overlayIpRanges 重叠的IP列表
+     * @param overlayOrgIps 重叠的IP列表
      * @return
      */
-    public static IPValidException existsIp(String beginIp,String endIp,List<IpRange> overlayIpRanges){
-        return new IPValidException(ExceptionStatus.EXISTS_IP,"["+beginIp+"-"+endIp+"]范围已存在",overlayIpRanges);
+    public static IPValidException existsIp(String beginIp,String endIp,List<OrgIp> overlayOrgIps){
+        return new IPValidException(ExceptionStatus.EXISTS_IP,"["+beginIp+"-"+endIp+"]范围已存在",overlayOrgIps);
+    }
+
+    public static IPValidException existsIp(String beginIp, String endIp, OrgIp overlayOrgIp) {
+        return new IPValidException(ExceptionStatus.EXISTS_IP, "[" + beginIp + "-" + endIp + "]范围已存在", overlayOrgIp);
     }
 
 }

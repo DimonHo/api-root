@@ -16,8 +16,8 @@ import java.sql.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "org_product",uniqueConstraints = {@UniqueConstraint(columnNames={"org_flag", "product_id"})})
-public class OrgProduct extends AbstractEntity {
+@Table(name = "org_prod",uniqueConstraints = {@UniqueConstraint(columnNames={"org_flag", "prod_id"})})
+public class OrgProd extends AbstractEntity {
 
     @Column(name = "org_flag")
     private String orgFlag;
@@ -25,8 +25,8 @@ public class OrgProduct extends AbstractEntity {
     /**
      * 产品
      */
-    @Column(name = "product_id")
-    private Long productId;
+    @Column(name = "prod_id")
+    private Long prodId;
 
     /**
      * 开始时间
