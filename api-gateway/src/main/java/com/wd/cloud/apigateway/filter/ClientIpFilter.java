@@ -101,10 +101,10 @@ public class ClientIpFilter extends ZuulFilter {
                 // 用户最后登陆IP未找到对应机构信息，表示校外登陆
                 if (orgIpResponse.isError() && orgIpResponse.getStatus() == 404) {
                     request.getSession().setAttribute(SessionConstant.IS_OUT, true);
-                    request.getSession().setAttribute(SessionConstant.LEVEL, validStatus == 2 ? 6 : 2);
+                    request.getSession().setAttribute(SessionConstant.LEVEL, validStatus!=null && validStatus == 2 ? 6 : 2);
                 } else {
                     request.getSession().setAttribute(SessionConstant.IS_OUT, false);
-                    request.getSession().setAttribute(SessionConstant.LEVEL, validStatus == 2 ? 7 : 3);
+                    request.getSession().setAttribute(SessionConstant.LEVEL, validStatus!=null && validStatus == 2 ? 7 : 3);
                 }
                 request.getSession().setAttribute(SessionConstant.LOGIN_USER, casUser);
             }
