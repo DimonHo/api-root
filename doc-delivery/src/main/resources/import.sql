@@ -38,6 +38,7 @@
 -- insert into channel (id,name,url,template) values (1,"QQ","http://paper.hnlat.com","qq/%s.ftl"),(2,"Spischolar学术资源在线","http://www.spischolar.com","spis/%s.ftl"),(3,"智汇云","http://www.yunscholar.com","zhy/%s.ftl"),(4,"crscholar核心论文库","http://www.crscholar.com","crs/%s.ftl"),(0,"paper","http://paper.hnlat.com","paper/%s.ftl");
 
 
+
 -- CREATE
 -- 	OR REPLACE VIEW v_help_record (
 -- 		`id`,
@@ -46,6 +47,8 @@
 -- 		`helper_email`,
 -- 		`helper_ip`,
 -- 		`helper_name`,
+-- 		`helper_scid`,
+-- 		`helper_scname`,
 -- 		`org_flag`,
 -- 		`org_name`,
 -- 		`help_channel`,
@@ -74,6 +77,8 @@
 -- 		`t1`.`helper_email` AS `helper_email`,
 -- 		`t1`.`helper_ip` AS `helper_ip`,
 -- 		`t1`.`helper_name` AS `helper_name`,
+-- 		`t1`.`helper_scid` as `helper_scid`,
+-- 		`t1`.`helper_scname` as `helper_scname`,
 -- 		`t1`.`org_flag` AS `org_flag`,
 -- 		`t1`.`org_name` AS `org_name`,
 -- 		`t1`.`help_channel` AS `help_channel`,

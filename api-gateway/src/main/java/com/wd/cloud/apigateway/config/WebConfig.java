@@ -1,5 +1,7 @@
 package com.wd.cloud.apigateway.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.web.http.DefaultCookieSerializer;
@@ -13,8 +15,10 @@ import org.springframework.web.filter.CorsFilter;
  * @Description:
  */
 @Configuration
-public class CorsConfig {
-
+@EnableConfigurationProperties(GlobalProperties.class)
+public class WebConfig {
+    @Autowired
+    GlobalProperties globalProperties;
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -32,7 +36,7 @@ public class CorsConfig {
     @Bean
     public DefaultCookieSerializer defaultCookieSerializer(){
         DefaultCookieSerializer defaultCookieSerializer = new DefaultCookieSerializer();
-        defaultCookieSerializer.setDomainName("hnlat.cc");
+        defaultCookieSerializer.setDomainName(globalProperties.getCookieDomain());
         return defaultCookieSerializer;
     }
 }
