@@ -50,7 +50,8 @@ public class HelpRequestAspect {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
         HttpSession session  =request.getSession();
-        String username = (String) session.getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = (JSONObject) session.getAttribute(SessionConstant.LOGIN_USER);
+        String username = loginUser != null ? loginUser.getStr("username") : null;
         JSONObject org = (JSONObject) session.getAttribute(SessionConstant.ORG);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
         Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
