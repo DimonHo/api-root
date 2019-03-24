@@ -71,6 +71,7 @@ public class OrgController {
         return ResponseModel.ok().setBody(orgDTO);
     }
 
+    @ApiOperation(value = "获取机构列表", tags = {"机构查询"})
     @GetMapping("/org/list")
     public ResponseModel getOrgList() {
         return ResponseModel.ok().setBody(orgService.getOrgList());
