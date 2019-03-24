@@ -42,7 +42,6 @@ public class UserManagerController {
         return ResponseModel.ok().setBody(userService.saveUser(backUserVO));
     }
 
-
     @ApiOperation(value = "查询用户列表", tags = {"用户管理","用户查询"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orgFlag", value = "机构标识", paramType = "String", type = "query"),

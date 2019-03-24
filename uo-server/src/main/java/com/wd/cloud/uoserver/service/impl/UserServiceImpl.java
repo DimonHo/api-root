@@ -1,7 +1,6 @@
 package com.wd.cloud.uoserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -138,28 +137,39 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = new UserDTO();
         BeanUtil.copyProperties(user, userDTO);
         if (StrUtil.isNotBlank(user.getOrgFlag())) {
-            Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundException::new);
-            OrgDTO orgDTO = new OrgDTO();
-            BeanUtil.copyProperties(org, orgDTO);
-            userDTO.setOrg(orgDTO).setOrgName(org.getName());
-            //如果有部門ID，則返回部門名稱
-            if (user.getOrgDeptId() != null){
-                Optional<OrgDept> optionalOrgDept = orgDeptRepository.findByOrgFlagAndId(user.getOrgFlag(),user.getOrgDeptId());
-                optionalOrgDept.ifPresent(orgDept -> userDTO.setOrgDeptName(orgDept.getName()));
-            }
+            addUserOrg(user, userDTO);
         }
         // 加载用户权限
-        List<Permission> permissionList = permissionRepository.findByUsername(userDTO.getUsername());
-        if (CollectionUtil.isNotEmpty(permissionList)){
-            userDTO.setPermissions(permissionList);
-        }
+        userDTO.setPermissions(userPpermissions(userDTO.getUsername()));
         // 加载用户消息
-        Pageable pageable = PageRequest.of(0,10, Sort.by("read").ascending());
-        Page<UserMsg> userMsgPage = userMsgRepository.findByUsername(userDTO.getUsername(),pageable);
-        if (userMsgPage.getTotalElements()>0){
-            userDTO.setMsgs(userMsgPage);
-        }
+        userDTO.setMsgs(userMsgs(userDTO.getUsername()));
         return userDTO;
+    }
+
+    private void addUserOrg(User user, UserDTO userDTO) {
+        Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundException::new);
+        OrgDTO orgDTO = new OrgDTO();
+        BeanUtil.copyProperties(org, orgDTO);
+        userDTO.setOrg(orgDTO).setOrgName(org.getName());
+        //如果有部門ID，則返回部門名稱
+        if (user.getOrgDeptId() != null){
+            Optional<OrgDept> optionalOrgDept = orgDeptRepository.findByOrgFlagAndId(user.getOrgFlag(),user.getOrgDeptId());
+            optionalOrgDept.ifPresent(orgDept -> userDTO.setOrgDeptName(orgDept.getName()));
+        }
+    }
+
+    private Page<UserMsg>  userMsgs(String username) {
+        Pageable pageable = PageRequest.of(0,10, Sort.by("read").ascending());
+        Page<UserMsg> userMsgPage = userMsgRepository.findByUsername(username,pageable);
+        if (userMsgPage.getTotalElements()>0){
+            return userMsgPage;
+        }
+        return null;
+    }
+
+    private List<Permission> userPpermissions(String username) {
+        List<Permission> permissionList = permissionRepository.findByUsername(username);
+        return permissionList;
     }
 
     /**
