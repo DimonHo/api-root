@@ -18,4 +18,6 @@ public interface PermissionRepository extends JpaRepository<Permission, Long>, J
 
     Optional<Permission> findByUsernameAndType(String username,Integer type);
 
+    void deleteByUsernameAndType(String username,Integer type);
+
 }

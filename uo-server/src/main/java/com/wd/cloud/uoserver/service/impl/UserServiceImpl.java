@@ -9,7 +9,7 @@ import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.uoserver.constants.GlobalConstants;
+import com.wd.cloud.uoserver.constants.GlobalProperties;
 import com.wd.cloud.uoserver.enums.OutsideEnum;
 import com.wd.cloud.uoserver.enums.PermissionTypeEnum;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
@@ -69,6 +69,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     HandlerLogRepository handlerLogRepository;
+
+    @Autowired
+    GlobalProperties globalProperties;
 
     /**
      * 注册新用户
@@ -198,7 +201,8 @@ public class UserServiceImpl implements UserService {
     public String uploadHeadImg(String username, MultipartFile file) {
         String headImg = uploadImage(file);
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
-        user.setHeadImg(headImg);
+        String resourceUrl = globalProperties.getGatewayUrl() + "/fs-server/load/" + headImg;
+        user.setHeadImg(resourceUrl);
         userRepository.save(user);
         return headImg;
     }
@@ -213,7 +217,8 @@ public class UserServiceImpl implements UserService {
     public String uploadIdPhoto(String username, MultipartFile file) {
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         String idPhoto = uploadImage(file);
-        user.setIdPhoto(idPhoto).setValidStatus(1);
+        String resourceUrl = globalProperties.getGatewayUrl() + "/fs-server/load/" + idPhoto;
+        user.setIdPhoto(resourceUrl).setValidStatus(1);
         userRepository.save(user);
         return idPhoto;
     }
@@ -312,7 +317,7 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     private String uploadImage(MultipartFile file) {
-        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(GlobalConstants.UPLOAD_IMAGE_PATH, file);
+        ResponseModel<JSONObject> responseModel = fsServerApi.uploadFile(globalProperties.getImgUploadPath(), file);
         if (responseModel.isError()) {
             log.error("文件服务调用失败：{}", responseModel.getMessage());
             throw new FeignException("fsServer.uploadFile");
