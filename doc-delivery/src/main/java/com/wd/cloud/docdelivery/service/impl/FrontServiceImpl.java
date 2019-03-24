@@ -243,6 +243,12 @@ public class FrontServiceImpl implements FrontService {
     }
 
 
+    /**
+     * 主动取消应助，删除应助记录
+     * @param helpRecordId
+     * @param giverName
+     * @return
+     */
     @Override
     public boolean cancelGivingHelp(long helpRecordId, String giverName) {
         //检查用户是否已经认领了应助
@@ -252,10 +258,10 @@ public class FrontServiceImpl implements FrontService {
             HelpRecord helpRecord = helpRecordRepository.findByIdAndStatus(helpRecordId, HelpStatusEnum.HELPING.value());
             if (helpRecord != null) {
                 GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverName(helpRecordId, GiveStatusEnum.WAIT_UPLOAD.value(), giverName);
-                giveRecord.setStatus(GiveStatusEnum.CANCEL.value());
+                // 直接删除应助记录
+                giveRecordRepository.delete(giveRecord);
                 //更新求助记录状态
                 helpRecord.setStatus(helpRecord.isDifficult() ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
-                giveRecordRepository.save(giveRecord);
                 helpRecordRepository.save(helpRecord);
                 flag = true;
             }

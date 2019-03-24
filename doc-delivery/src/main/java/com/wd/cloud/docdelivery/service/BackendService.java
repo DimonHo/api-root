@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.service;
 
 import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.pojo.entity.DocFile;
-import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
 import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
 import com.wd.cloud.docdelivery.pojo.entity.Literature;
 import org.springframework.data.domain.Page;
@@ -58,21 +57,6 @@ public interface BackendService {
      * @return
      */
     HelpRecord getWaitAuditHelpRecord(Long id);
-
-    /**
-     * 查询待审核的
-     *
-     * @param giveRecordId
-     * @return
-     */
-    GiveRecord getWaitAudit(Long giveRecordId);
-
-    /**
-     * 根据helpRecord获取giverRecord
-     *
-     * @param helpRecordId
-     */
-    GiveRecord getGiverRecord(Long helpRecordId, int auditStatus, int giverType);
 
     /**
      * 复用、取消复用

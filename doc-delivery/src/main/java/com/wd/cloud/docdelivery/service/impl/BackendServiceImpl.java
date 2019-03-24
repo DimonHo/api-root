@@ -7,12 +7,12 @@ import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
-import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.pojo.entity.*;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.pojo.entity.*;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
@@ -155,8 +155,6 @@ public class BackendServiceImpl implements BackendService {
         helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
@@ -174,8 +172,6 @@ public class BackendServiceImpl implements BackendService {
                 .setHelpRecordId(helpRecord.getId());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
@@ -194,17 +190,15 @@ public class BackendServiceImpl implements BackendService {
                 .setHelpRecordId(helpRecordId);
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
     public void auditPass(Long helpRecordId, String handlerName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value(), GiveTypeEnum.USER.value());
-        if (giveRecord == null) {
-            throw new NotFoundException("未找到待审核的应助记录");
-        }
+        // 查询待审核，且应助者为平台用户的应助记录
+        GiveRecord giveRecord = giveRecordRepository
+                .findByHelpRecordIdAndStatusAndType(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value(), GiveTypeEnum.USER.value())
+                .orElseThrow(NotFoundException::new);
 
         giveRecord.setStatus(GiveStatusEnum.SUCCESS.value());
         giveRecord.setHandlerName(handlerName);
@@ -217,17 +211,14 @@ public class BackendServiceImpl implements BackendService {
         docFileRepository.save(docFile);
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
-//        Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecordId);
-//        optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
     }
 
     @Override
     public void auditNoPass(Long helpRecordId, String handlerName) {
         HelpRecord helpRecord = getWaitAuditHelpRecord(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value(), GiveTypeEnum.USER.value());
-        if (giveRecord == null) {
-            throw new NotFoundException("未找到待审核的应助记录");
-        }
+        GiveRecord giveRecord = giveRecordRepository
+                .findByHelpRecordIdAndStatusAndType(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value(), GiveTypeEnum.USER.value())
+                .orElseThrow(NotFoundException::new);
         giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.value()).setHandlerName(handlerName);
         helpRecord.setStatus(helpRecord.isDifficult() ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
         giveRecordRepository.save(giveRecord);
@@ -246,31 +237,18 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
-    public GiveRecord getWaitAudit(Long id) {
-        return giveRecordRepository.findByIdAndStatus(id, GiveStatusEnum.WAIT_AUDIT.value());
-    }
-
-
-    @Override
-    public GiveRecord getGiverRecord(Long helpRecordId, int auditStatus, int giverType) {
-        return giveRecordRepository.findByHelpRecordIdAndStatusAndType(helpRecordId, auditStatus, giverType);
-    }
-
-
-    @Override
     public void reusing(Long literatureId, Long docFileId, Boolean reusing, String handlerName) {
-
         Literature literature = literatureRepository.findById(literatureId).orElseThrow(NotFoundException::new);
-        literature.setReusing(reusing).setLastHandlerName(handlerName);
-        literatureRepository.save(literature);
-        List<DocFile> docFiles = docFileRepository.findByLiteratureIdAndBigDbFalse(literatureId);
+        List<DocFile> docFiles = docFileRepository.findByLiteratureId(literatureId);
         docFiles.forEach(docFile -> {
             docFile.setReusing(false);
             if (docFile.getId().equals(docFileId)) {
                 docFile.setReusing(reusing).setHandlerName(handlerName);
             }
-            docFileRepository.save(docFile);
         });
+        docFileRepository.saveAll(docFiles);
+        literature.setReusing(reusing).setLastHandlerName(handlerName);
+        literatureRepository.save(literature);
     }
 
 

@@ -162,6 +162,7 @@ public class OrgServiceImpl implements OrgService {
     public void saveOrg(OrgVO orgVO) {
         Org org = orgRepository.findByFlag(orgVO.getFlag()).orElse(new Org());
         BeanUtil.copyProperties(orgVO, org);
+        orgRepository.save(org);
         if (CollectionUtil.isNotEmpty(orgVO.getIp())) {
             saveOrgIp(orgVO.getFlag(),orgVO.getIp());
         }
@@ -171,7 +172,7 @@ public class OrgServiceImpl implements OrgService {
         if (CollectionUtil.isNotEmpty(orgVO.getLinkman())){
             saveLinkman(orgVO.getFlag(),orgVO.getLinkman());
         }
-        orgRepository.save(org);
+
     }
 
     /**
@@ -284,6 +285,8 @@ public class OrgServiceImpl implements OrgService {
      */
     @Override
     public List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) {
+        // 检查orgFlag是否存在，不存在则抛出异常
+        orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
         List<OrgIp> orgIpList = new ArrayList<>();
         for (OrgIpVO orgIpVO : orgIpVOS) {
             String beginIp = orgIpVO.getBegin();
@@ -361,6 +364,8 @@ public class OrgServiceImpl implements OrgService {
      */
     @Override
     public List<OrgDept> saveDept(String orgFlag,List<DeptVO> deptLit) {
+        // 检查orgFlag是否存在，不存在则抛出异常
+        orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
         List<OrgDept> orgDeptList = new ArrayList<>();
         for (DeptVO deptVo : deptLit){
             if (deptVo.getId() != null) {
