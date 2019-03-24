@@ -83,7 +83,7 @@ public class UserManagerController {
             @ApiImplicitParam(name = "handlerName", value = "审核人", paramType = "String", type = "query"),
             @ApiImplicitParam(name = "remark", value = "审核失败信息", paramType = "String", type = "query")
     })
-    @PatchMapping("/manager/user/id-photo")
+    @PutMapping("/manager/user/id-photo")
     public ResponseModel validateIdPhoto(@RequestParam String username,
                                          @RequestParam(defaultValue = "false") Boolean pass,
                                          @RequestParam String handlerName,
