@@ -12,7 +12,8 @@ import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.ClientType;
 import com.wd.cloud.commons.model.ResponseModel;
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.jasig.cas.client.util.AbstractCasFilter;
+import org.jasig.cas.client.validation.Assertion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,18 +44,18 @@ public class ClientIpFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
-        AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
+        Assertion principal = (Assertion) request.getSession().getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
         // 如果用户已登录
         if (principal != null) {
+            String casUser = principal.getPrincipal().getName();
             String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
             JSONObject sessionOrg = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-            String casUser = principal.getName();
             // session中已存在用户信息，则跳过
             if (casUser.equals(sessionUser) && sessionOrg != null) {
                 return null;
             }
             // session Key
-            String sessionKey = null;
+            String sessionKey;
             //如果是移动端
             if (UserAgentUtil.parse(request.getHeader(Header.USER_AGENT.name())).getBrowser().isMobile()) {
                 request.getSession().setAttribute(SessionConstant.CLIENT_TYPE, ClientType.MOBILE);

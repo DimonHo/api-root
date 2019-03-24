@@ -47,15 +47,19 @@ public class TicketFilter extends AbstractCasFilter {
         ParameterRequestWrapper requestWrapper = new ParameterRequestWrapper(request);
         String cookieStr = HttpUtil.getCookieStr(requestWrapper);
         String clientUrl = this.constructServiceUrl(request, response);
-        if (cookieStr.contains("TGC=") && request.getUserPrincipal() == null) {
-            log.info("clientUrl = {}", clientUrl);
-            // 获取一个ST
-            String st = CasUtil.getSt(requestWrapper, casServerLoginUrl, clientUrl, cookieStr);
-            log.info("获取ST=====================[{}]", st);
-            if (StrUtil.isNotBlank(st)) {
-                //将ST加入到请求地址后面
-                requestWrapper.addQueryString("ticket=" + st);
+        if (cookieStr.contains("TGC=")) {
+            if (request.getUserPrincipal() == null){
+                log.info("clientUrl = {}", clientUrl);
+                // 获取一个ST
+                String st = CasUtil.getSt(requestWrapper, casServerLoginUrl, clientUrl, cookieStr);
+                log.info("获取ST=====================[{}]", st);
+                if (StrUtil.isNotBlank(st)) {
+                    //将ST加入到请求地址后面
+                    requestWrapper.addQueryString("ticket=" + st);
+                }
             }
+        }else{
+            request.getSession().removeAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
         }
         filterChain.doFilter(requestWrapper, response);
     }
