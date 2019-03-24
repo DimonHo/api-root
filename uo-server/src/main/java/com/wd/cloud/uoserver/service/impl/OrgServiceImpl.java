@@ -489,8 +489,7 @@ public class OrgServiceImpl implements OrgService {
         List<OrgIp> orgIps = orgIpRepository.findByOrgFlag(org.getFlag());
         List<OrgIpDTO> orgIpDTOS = new ArrayList<>();
         orgIps.forEach(orgIp -> {
-            OrgIpDTO orgIpDTO = new OrgIpDTO();
-            orgIpDTO.setBegin(orgIp.getBegin()).setEnd(orgIp.getEnd());
+            OrgIpDTO orgIpDTO = BeanUtil.toBean(orgIp,OrgIpDTO.class);
             orgIpDTOS.add(orgIpDTO);
         });
         orgDTO.setIpList(orgIpDTOS);

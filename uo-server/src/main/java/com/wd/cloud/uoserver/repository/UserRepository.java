@@ -81,45 +81,14 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
      * @param orgFlag
      * @return
      */
-    @Query(value = "SELECT\n" +
-            "\tsum( 1 ) AS userCount,\n" +
-            "\tSUM( IF ( ( user.user_type = 1 ), 1, 0 ) ) AS normalCount,\n" +
-            "\tsum( IF ( ( user.user_type = 2 ), 1, 0 ) ) AS orgAdminCount,\n" +
-            "\tsum( IF ( ( user.is_online = 1 ), 1, 0 ) ) AS onlineCount,\n" +
-            "\tsum( IF ( ( user.orgDept_id = orgDept.id AND user.username IN ( SELECT username FROM permission WHERE type = 1 ) ), 1, 0 ) ) outsideCount,\n" +
-            "\torgDept.name \n" +
-            "FROM\n" +
-            "\tuser,\n" +
-            "\torgDept \n" +
-            "WHERE\n" +
-            "\tuser.org_flag = ?1\n" +
-            "\tAND user.orgDept_id = orgDept.id \n" +
-            "GROUP BY\n" +
-            "\tuser.orgDept_id \n" +
-            "ORDER BY\n" +
-            "\tuserCount DESC",nativeQuery = true)
+    @Query(value = "SELECT sum(1) AS userCount,SUM(IF ((USER.user_type=1),1,0)) AS normalCount,sum(IF ((USER.user_type=2),1,0)) AS orgAdminCount,sum(IF ((USER.is_online=1),1,0)) AS onlineCount,sum(IF ((USER.org_dept_id=org_dept.id AND USER.username IN (SELECT username FROM permission WHERE type=1)),1,0)) outsideCount,org_dept.NAME FROM USER,org_dept WHERE USER.org_flag= ?1 AND USER.org_dept_id=org_dept.id GROUP BY USER.org_dept_id ORDER BY userCount DESC",nativeQuery = true)
     List<Map<String,Object>> tjOrgDepartUser(String orgFlag);
 
     /**
      * 统计机构用户
      * @return userCount：机构总用户数，normalCount 普通用户数 orgAdminCount 机构管理员用户数，onlineCount 在线用户数，outsideCount 有校外权限用户数
      */
-    @Query(value = "SELECT\n" +
-            "\tsum( 1 ) AS userCount,\n" +
-            "\tSUM( IF ( ( user.user_type = 1 ), 1, 0 ) ) AS normalCount,\n" +
-            "\tsum( IF ( ( user.user_type = 2 ), 1, 0 ) ) AS orgAdminCount,\n" +
-            "\tsum( IF ( ( user.is_online = 1 ), 1, 0 ) ) AS onlineCount,\n" +
-            "\tsum( IF ( ( user.org_flag = org.flag AND user.username IN ( SELECT username FROM permission WHERE type = 1 ) ), 1, 0 ) ) AS outsideCount,\n" +
-            "\tuser.org_flag,\n" +
-            "\torg.name\n" +
-            "FROM\n" +
-            "\tuser, org \n" +
-            "WHERE \n" +
-            "\tuser.org_flag = org.flag\n" +
-            "GROUP BY\n" +
-            "\tuser.org_flag\n" +
-            "ORDER BY\n" +
-            "\tuserCount DESC",nativeQuery = true)
+    @Query(value = "SELECT sum(1) AS userCount,SUM(IF ((USER.user_type=1),1,0)) AS normalCount,sum(IF ((USER.user_type=2),1,0)) AS orgAdminCount,sum(IF ((USER.is_online=1),1,0)) AS onlineCount,sum(IF ((USER.org_flag=org.flag AND USER.username IN (SELECT username FROM permission WHERE type=1)),1,0)) AS outsideCount,USER.org_flag,org.NAME FROM USER,org WHERE USER.org_flag=org.flag GROUP BY USER.org_flag,org.NAME ORDER BY userCount DESC", nativeQuery = true)
     List<Map<String,Object>> tjOrgUser();
 
     class SpecBuilder {
