@@ -41,4 +41,11 @@ public class OrgCdbController {
         return ResponseModel.ok().setMessage("保存成功");
     }
 
+    @ApiOperation(value = "删除IP跟产品")
+    @DeleteMapping("/org/cdb")
+    public ResponseModel deleteIpAndProd(@RequestParam String orgFlag) {
+        orgCdbService.deleteIpAndProd(orgFlag);
+        return ResponseModel.ok().setMessage("删除成功");
+    }
+
 }

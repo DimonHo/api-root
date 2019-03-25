@@ -7,8 +7,12 @@ import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.pojo.dto.OrgCdbDTO;
 import com.wd.cloud.uoserver.pojo.entity.Org;
 import com.wd.cloud.uoserver.pojo.entity.OrgCdb;
+import com.wd.cloud.uoserver.pojo.entity.OrgIp;
+import com.wd.cloud.uoserver.pojo.entity.OrgProd;
 import com.wd.cloud.uoserver.pojo.vo.OrgCdbVO;
 import com.wd.cloud.uoserver.repository.OrgCdbRepository;
+import com.wd.cloud.uoserver.repository.OrgIpRepository;
+import com.wd.cloud.uoserver.repository.OrgProdRepository;
 import com.wd.cloud.uoserver.repository.OrgRepository;
 import com.wd.cloud.uoserver.service.OrgCdbService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,12 @@ public class OrgCdbServiceImpl implements OrgCdbService {
 
     @Autowired
     OrgRepository orgRepository;
+    
+    @Autowired
+    OrgIpRepository orgIpRepository;
+    
+    @Autowired
+    OrgProdRepository orgProdRepository;
 
     /**
      * 查询机构馆藏数据库
@@ -81,6 +91,21 @@ public class OrgCdbServiceImpl implements OrgCdbService {
             }
         }
         orgCdbRepository.saveAll(orgCdbList);
+    }
+
+    @Override
+    public void deleteIpAndProd(String orgFlag) {
+        List<OrgIp> orgIpList = orgIpRepository.findByOrgFlag(orgFlag);
+        for (OrgIp orgIp : orgIpList){
+            Long id = orgIp.getId();
+            orgIpRepository.deleteById(id);
+        }
+        List<OrgProd> orgProdList = orgProdRepository.findByOrgFlag(orgFlag);
+        for (OrgProd orgProd :orgProdList){
+            Long id = orgProd.getId();
+            orgProdRepository.deleteById(id);
+        }
+
     }
 
     private OrgCdbDTO convertOrgCdbToOrgCdbDTO(Org org, OrgCdb orgCdb) {
