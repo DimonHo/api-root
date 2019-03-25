@@ -116,6 +116,7 @@ public class ClientIpFilter extends ZuulFilter {
                 String clientIp = HttpUtil.getClientIP(request);
                 log.info("客户端访问IP = {}", clientIp);
                 ResponseModel<JSONObject> orgResponse = uoServerApi.org(null, null, clientIp, null);
+                log.info("客户端IP所属机构：【{}】",orgResponse.toString());
                 if (orgResponse.isError()) {
                     //校外访问
                     request.getSession().setAttribute(SessionConstant.IS_OUT, true);

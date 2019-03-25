@@ -48,10 +48,11 @@ public class ResponseFilter extends ZuulFilter {
         }
         JSONObject loginUser = (JSONObject) ctx.getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
         if (loginUser != null){
-            ctx.getResponse().setHeader("user", URLUtil.encode(loginUser.toString()));
+            ctx.getResponse().setHeader("user", URLUtil.encode(loginUser.getStr("username")));
         }else{
             ctx.getResponse().setHeader("user",null);
         }
+        log.info("level={},user = {} ,org = {}", level, loginUser, org);
         return null;
     }
 
