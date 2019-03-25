@@ -3,7 +3,6 @@ package com.wd.cloud.docdelivery.aspect;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
-import com.wd.cloud.commons.exception.ApiException;
 import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.docdelivery.exception.AppException;
 import com.wd.cloud.docdelivery.exception.ExceptionEnum;
@@ -55,11 +54,10 @@ public class HelpRequestAspect {
         String username = loginUser != null ? loginUser.getStr("username") : null;
         JSONObject org = (JSONObject) session.getAttribute(SessionConstant.ORG);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
+        level = level == null ? 0 : 1;
         Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
+        isOut = level == 0 || isOut == null;
         log.info("当前等级：[{}],isOut=[{}]", level, isOut);
-        if (level == null || isOut == null){
-            throw new ApiException(403,"非法请求");
-        }
         // 如果是校外，且未登錄
         if (isOut && StrUtil.isBlank(username)){
             throw new AuthException("校外必须先登录才能求助");
