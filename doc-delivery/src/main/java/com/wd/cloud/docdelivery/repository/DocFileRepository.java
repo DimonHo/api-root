@@ -19,6 +19,13 @@ public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
     Optional<DocFile> findByLiteratureIdAndFileId(long literatureId, String fileId);
 
+    /**
+     * 查询文献所有的文档
+     * @param literatureId
+     * @return
+     */
+    List<DocFile> findByLiteratureId(Long literatureId);
+
     List<DocFile> findByLiteratureIdAndBigDbFalse(Long literatureId);
 
     List<DocFile> findByLiteratureIdIn(List ids);

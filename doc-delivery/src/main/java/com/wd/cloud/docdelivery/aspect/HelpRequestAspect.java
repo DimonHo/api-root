@@ -49,17 +49,16 @@ public class HelpRequestAspect {
         JSONObject loginUser = (JSONObject) session.getAttribute(SessionConstant.LOGIN_USER);
         String username = loginUser != null ? loginUser.getStr("username") : null;
         JSONObject org = (JSONObject) session.getAttribute(SessionConstant.ORG);
-        Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
-        Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
-        log.info("当前等级：[{}],isOut=[{}]", level, isOut);
-//        if (level == null || isOut == null){
-//            throw new ApiException(403,"非法请求");
-//        }
-//        // 如果是校外，且未登錄
+//        Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
+//        level = level == null ? 1 : 1;
+//        Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
+//        isOut = level == 0 || isOut == null;
+//        log.info("当前等级：[{}],isOut=[{}]", level, isOut);
+        // 如果是校外，且未登錄
 //        if (isOut && StrUtil.isBlank(username)){
 //            throw new AuthException("校外必须先登录才能求助");
 //        }
-        // 校验请求参数
+        //校验请求参数
 //        if (validateParam(request)) {
 //            throw new AppException(ExceptionEnum.HELP_PARAM);
 //        }

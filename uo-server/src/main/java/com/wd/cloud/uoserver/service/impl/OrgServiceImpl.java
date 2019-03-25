@@ -162,6 +162,7 @@ public class OrgServiceImpl implements OrgService {
     public void saveOrg(OrgVO orgVO) {
         Org org = orgRepository.findByFlag(orgVO.getFlag()).orElse(new Org());
         BeanUtil.copyProperties(orgVO, org);
+        orgRepository.save(org);
         if (CollectionUtil.isNotEmpty(orgVO.getIp())) {
             saveOrgIp(orgVO.getFlag(),orgVO.getIp());
         }
@@ -171,7 +172,7 @@ public class OrgServiceImpl implements OrgService {
         if (CollectionUtil.isNotEmpty(orgVO.getLinkman())){
             saveLinkman(orgVO.getFlag(),orgVO.getLinkman());
         }
-        orgRepository.save(org);
+
     }
 
     /**
@@ -284,8 +285,14 @@ public class OrgServiceImpl implements OrgService {
      */
     @Override
     public List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) {
+        // 检查orgFlag是否存在，不存在则抛出异常
+        orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
         List<OrgIp> orgIpList = new ArrayList<>();
         for (OrgIpVO orgIpVO : orgIpVOS) {
+            if (orgIpVO.getId() != null && BooleanUtil.isTrue(orgIpVO.isDel())) {
+                orgIpRepository.deleteByOrgFlagAndId(orgFlag, orgIpVO.getId());
+                continue;
+            }
             String beginIp = orgIpVO.getBegin();
             String endIp = orgIpVO.getEnd();
             //校验IP格式
@@ -302,30 +309,25 @@ public class OrgServiceImpl implements OrgService {
                 endNum = temp;
                 endIp = orgIpVO.getBegin();
             }
-
             if (orgIpVO.getId() != null) {
-                // 如果是删除
-                if (BooleanUtil.isTrue(orgIpVO.isDel())) {
-                    orgIpRepository.deleteByOrgFlagAndId(orgFlag, orgIpVO.getId());
-                } else {
-                    // 更新
-                    OrgIp orgIpEntity = orgIpRepository.findByOrgFlagAndId(orgFlag, orgIpVO.getId()).orElseThrow(NotFoundException::new);
-                    if (beginNum < orgIpEntity.getBeginNumber()) {
-                        Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(beginNum);
-                        if (optionOrgIp.isPresent()) {
-                            throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
-                        }
+                // 更新
+                OrgIp orgIpEntity = orgIpRepository.findByOrgFlagAndId(orgFlag, orgIpVO.getId()).orElseThrow(NotFoundException::new);
+                if (beginNum < orgIpEntity.getBeginNumber()) {
+                    Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(beginNum);
+                    if (optionOrgIp.isPresent()) {
+                        throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
                     }
-                    if (endNum > orgIpEntity.getEndNumber() && orgIpRepository.findExists(endNum).isPresent()) {
-                        Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(endNum);
-                        if (optionOrgIp.isPresent()) {
-                            throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
-                        }
-                    }
-                    // 通过检查，更新
-                    orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
-                    orgIpList.add(orgIpEntity);
                 }
+                if (endNum > orgIpEntity.getEndNumber() && orgIpRepository.findExists(endNum).isPresent()) {
+                    Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(endNum);
+                    if (optionOrgIp.isPresent()) {
+                        throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
+                    }
+                }
+                // 通过检查，更新
+                orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
+                orgIpList.add(orgIpEntity);
+
             } else {
                 // 新增
                 List<OrgIp> overlayOrgIps = orgIpRepository.findExists(beginNum, endNum);
@@ -361,6 +363,8 @@ public class OrgServiceImpl implements OrgService {
      */
     @Override
     public List<OrgDept> saveDept(String orgFlag,List<DeptVO> deptLit) {
+        // 检查orgFlag是否存在，不存在则抛出异常
+        orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
         List<OrgDept> orgDeptList = new ArrayList<>();
         for (DeptVO deptVo : deptLit){
             if (deptVo.getId() != null) {
