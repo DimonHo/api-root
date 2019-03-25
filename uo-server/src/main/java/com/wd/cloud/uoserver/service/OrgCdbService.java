@@ -31,4 +31,6 @@ public interface OrgCdbService {
      * @return
      */
     void saveOrgCdb(String orgFlag, List<OrgCdbVO> orgCdbVOS);
+
+    void deleteIpAndProd(String orgFlag);
 }
