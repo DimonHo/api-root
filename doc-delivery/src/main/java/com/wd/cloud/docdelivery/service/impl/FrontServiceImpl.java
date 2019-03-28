@@ -2,7 +2,6 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.exception.FeignException;
@@ -12,9 +11,6 @@ import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.commons.util.StrUtil;
 import com.wd.cloud.docdelivery.config.Global;
-import com.wd.cloud.docdelivery.pojo.dto.GiveRecordDTO;
-import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.pojo.entity.*;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
@@ -22,15 +18,16 @@ import com.wd.cloud.docdelivery.exception.AppException;
 import com.wd.cloud.docdelivery.exception.ExceptionEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
 import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
+import com.wd.cloud.docdelivery.pojo.dto.GiveRecordDTO;
+import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.pojo.entity.*;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,13 +76,6 @@ public class FrontServiceImpl implements FrontService {
     @Autowired
     VHelpRecordRepository vHelpRecordRepository;
 
-
-    @Override
-    public boolean checkExists(String email, Long literatureId) {
-        HelpRecord helpRecord = helpRecordRepository.findByHelperEmailAndLiteratureId(email, literatureId);
-        return helpRecord != null;
-    }
-
     @Override
     public DocFile saveDocFile(Long literatureId, String fileId, String filaName) {
         DocFile docFile = docFileRepository.findByLiteratureIdAndFileId(literatureId, fileId).orElse(new DocFile());
@@ -94,87 +84,6 @@ public class FrontServiceImpl implements FrontService {
         return docFileRepository.save(docFile);
     }
 
-    @Override
-    public String help(HelpRecord helpRecord, Literature literature) throws ConstraintViolationException {
-        // 防止调用者传过来的docTitle包含HTML标签，在这里将标签去掉
-        String docTitle = literature.getDocTitle();
-        String docHref = literature.getDocHref();
-        String unid = SecureUtil.md5(docTitle + docHref);
-        log.info("用户:[{}]正在求助文献:[{}]", helpRecord.getHelperEmail(), docTitle);
-
-        // 如果元数据已存在，则更新
-        if (literatureRepository.existsByUnid(unid)) {
-            Literature oldLiterature = literatureRepository.findByUnid(unid);
-            literature.setId(oldLiterature.getId());
-        }
-        literature = literatureRepository.save(literature);
-        helpRecord.setLiteratureId(literature.getId());
-        // 15天内不能重复求助相同的文献
-        if (checkExists(helpRecord.getHelperEmail(), literature.getId())) {
-            throw new AppException(ExceptionEnum.HELP_CHONGFU);
-        }
-        DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(literature.getId());
-        // 如果有复用文件，自动应助成功
-        if (null != reusingDocFile) {
-            autoGive(reusingDocFile, helpRecord);
-            return "复用自动应助成功！";
-        }
-        bigDbGive(literature, helpRecord);
-        helpRecordRepository.save(helpRecord);
-        return "求助已发送成功，请等待";
-
-    }
-
-    /**
-     * 自动应助
-     *
-     * @param reusingDocFile
-     * @param helpRecord
-     */
-    public void autoGive(DocFile reusingDocFile, HelpRecord helpRecord) {
-        //先保存求助记录，得到求助ID，再关联应助记录
-        helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
-        helpRecord = helpRecordRepository.save(helpRecord);
-        GiveRecord giveRecord = new GiveRecord();
-        giveRecord.setFileId(reusingDocFile.getFileId())
-                .setType(GiveTypeEnum.AUTO.value())
-                .setGiverName(GiveTypeEnum.AUTO.name())
-                .setStatus(GiveStatusEnum.SUCCESS.value())
-                .setHelpRecordId(helpRecord.getId());
-        giveRecordRepository.save(giveRecord);
-    }
-
-    /**
-     * 数据平台应助
-     *
-     * @param literature
-     * @param helpRecord
-     */
-    @Async
-    public void bigDbGive(Literature literature, HelpRecord helpRecord) {
-        try {
-            ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
-            if (!pdfResponse.isError()) {
-                //先保存求助记录，得到求助ID，再关联应助记录
-                helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
-                helpRecord = helpRecordRepository.save(helpRecord);
-                String fileId = pdfResponse.getBody();
-                DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
-                docFile.setFileId(fileId).setLiteratureId(literature.getId()).setBigDb(true);
-                docFileRepository.save(docFile);
-                GiveRecord giveRecord = new GiveRecord();
-                giveRecord.setFileId(fileId)
-                        .setType(GiveTypeEnum.BIG_DB.value())
-                        .setGiverName(GiveTypeEnum.BIG_DB.name())
-                        .setStatus(GiveStatusEnum.SUCCESS.value());
-                giveRecord.setHelpRecordId(helpRecord.getId());
-                giveRecordRepository.save(giveRecord);
-            }
-        } catch (Exception e) {
-            log.warn("pdfsearch-server调用失败");
-        }
-
-    }
 
     @Override
     public void give(Long helpRecordId, String giverName, String ip) {

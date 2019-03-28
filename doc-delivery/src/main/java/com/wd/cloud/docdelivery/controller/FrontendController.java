@@ -19,6 +19,7 @@ import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
 import com.wd.cloud.docdelivery.pojo.entity.Literature;
 import com.wd.cloud.docdelivery.pojo.entity.Permission;
 import com.wd.cloud.docdelivery.service.FrontService;
+import com.wd.cloud.docdelivery.service.HelpRequestService;
 import com.wd.cloud.docdelivery.service.MailService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -58,6 +59,8 @@ public class FrontendController {
     @Autowired
     FrontService frontService;
 
+    HelpRequestService helpRequestService;
+
     @Autowired
     HttpServletRequest request;
 
@@ -69,10 +72,8 @@ public class FrontendController {
         String username = loginUser != null ? loginUser.getStr("username") : null;
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
         String ip = HttpUtil.getClientIP(request);
-        HelpRecord helpRecord = new HelpRecord();
-        Literature literature = new Literature();
-        BeanUtil.copyProperties(helpRequestModel, helpRecord);
-        BeanUtil.copyProperties(helpRequestModel, literature);
+        HelpRecord helpRecord = BeanUtil.toBean(helpRequestModel, HelpRecord.class);
+        Literature literature = BeanUtil.toBean(helpRequestModel, Literature.class);
 
         if (StrUtil.isNotBlank(username)) {
             helpRecord.setHelperName(username);
@@ -82,13 +83,12 @@ public class FrontendController {
         } else {
             helpRecord.setOrgFlag(helpRequestModel.getOrgFlag()).setOrgName(helpRequestModel.getOrgName());
         }
-        helpRecord.setHelperIp(ip);
-        helpRecord.setSend(true);
+        helpRecord.setHelperIp(ip).setSend(true);
         try {
-            String msg = frontService.help(helpRecord, literature);
-            return ResponseModel.ok().setMessage(msg);
+            helpRequestService.helpRequest(literature,helpRecord);
+            return ResponseModel.ok().setMessage("求助成功");
         } catch (ConstraintViolationException e) {
-            throw new AppException(ExceptionEnum.HELP_CHONGFU);
+            throw new AppException(ExceptionEnum.HELP_REPEAT);
         }
     }
 

@@ -85,6 +85,16 @@ public class TjServiceImpl implements TjService {
         return helpRecordRepository.countToday();
     }
 
+    /**
+     * 今日求助成功的数量
+     *
+     * @return
+     */
+    @Override
+    public long successTodayTotalForHelp() {
+        return helpRecordRepository.successCountToday();
+    }
+
     @Override
     public long avgResponseTime(String startDate) {
         return avgResponseTimeModel.getAvgResponseTime();
