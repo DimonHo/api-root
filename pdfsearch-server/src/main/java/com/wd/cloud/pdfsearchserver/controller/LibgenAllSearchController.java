@@ -19,10 +19,11 @@ public class LibgenAllSearchController {
     @ApiOperation(value = "根据标题或doi检索libgen_all获取数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "文章标题", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "doi", value = "doi", dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "doi", value = "doi", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "url", value = "url", dataType = "String", paramType = "query")
     })
     @PostMapping(value = "/searchPaper")
-    public ResponseModel<List<JSON>> getRowKey(@RequestParam String title, @RequestParam String doi){
-        return libgenSearchService.getResult(title,doi);
+    public ResponseModel<List<JSON>> getRowKey(@RequestParam String title, @RequestParam String doi, @RequestParam String url){
+        return libgenSearchService.getResult(title,doi,url);
     }
 }

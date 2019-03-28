@@ -24,17 +24,18 @@ public class LibgenAllSearchServiceImp implements LibgenAllSearchServiceI {
     private static final Log log = LogFactory.get(LibgenAllSearchServiceImp.class);
     @Autowired
     ElasticRepository elasticRepository;
-//    @Value("${datasource.indexName}")
-//    private String indexName;
+    @Value("${datasource.indexNameAll}")
+    private String indexName;
     @Value("${datasource.type}")
     private String type;
-    private String indexName = "libgen_all";
+    @Value("${datasource.bookType}")
+    private String bookType;
     @Override
-    public ResponseModel<List<JSON>> getResult(String title,String doi) {
+    public ResponseModel<List<JSON>> getResult(String title,String doi,String url) {
         ResponseModel<List<JSON>> responseModel =ResponseModel.fail();
-        if(StringUtils.isBlank(title) && StringUtils.isBlank(doi)){
-            log.error("标题和doi都为空");
-            return responseModel.setMessage("标题和doi不能都为空");
+        if(StringUtils.isBlank(title) && StringUtils.isBlank(doi) && StringUtils.isBlank(url)){
+            log.error("标题,doi和url都为空");
+            return responseModel.setMessage("标题、doi、url不能都为空");
         }
         List<JSON> list = new ArrayList<>();
         BoolQueryBuilder queryBuilder =QueryBuilders.boolQuery();
@@ -44,8 +45,11 @@ public class LibgenAllSearchServiceImp implements LibgenAllSearchServiceI {
         if(StringUtils.isNotBlank(doi)){
             queryBuilder.must(QueryBuilders.termQuery("doi",doi));
         }
+        if(StringUtils.isNotBlank(url)){
+            queryBuilder.must(QueryBuilders.termQuery("abstracturl",url));
+        }
         try {
-            SearchResponse searchResponse =elasticRepository.queryByName(indexName,type,queryBuilder);
+            SearchResponse searchResponse =elasticRepository.queryAllTypeByQueryBuilder(indexName,queryBuilder);
             SearchHits hits =searchResponse.getHits();
             if(hits.getTotalHits()>0){
                 Iterator<SearchHit> iterator = hits.iterator();
