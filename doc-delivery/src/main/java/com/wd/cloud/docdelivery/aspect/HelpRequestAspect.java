@@ -54,12 +54,12 @@ public class HelpRequestAspect {
         String username = loginUser != null ? loginUser.getStr("username") : null;
         JSONObject org = (JSONObject) session.getAttribute(SessionConstant.ORG);
         Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
-        level = level == null ? 1 : 1;
+        level = level == null ? 1 : level;
         Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
         isOut = level == 0 || isOut == null;
         log.info("当前等级：[{}],isOut=[{}]", level, isOut);
          //如果是校外，且未登錄
-        if (isOut && StrUtil.isBlank(username)){
+        if (level < 1) {
             throw new AuthException("校外必须先登录才能求助");
         }
         // 校验请求参数
