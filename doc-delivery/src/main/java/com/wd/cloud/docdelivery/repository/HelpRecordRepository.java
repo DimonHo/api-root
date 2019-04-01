@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -52,7 +53,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      * @return
      */
     @Query(value = "select * FROM Help_record where helper_email = ?1 AND literature_id = ?2 AND 15 > TIMESTAMPDIFF(DAY, gmt_create, now())", nativeQuery = true)
-    HelpRecord findByHelperEmailAndLiteratureId(String helperEmail, Long literatureId);
+    Optional<HelpRecord> findByHelperEmailAndLiteratureId(String helperEmail, Long literatureId);
 
 
     /**
@@ -70,6 +71,16 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      */
     @Query(value = "select count(*) from help_record where TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
     long countToday();
+
+    /**
+     * 今日成功数量
+     * @return
+     */
+    @Query(value = "select count(*) from help_record where status = 4 and TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
+    long successCountToday();
+
+    @Query(value = "select count(*) as sumCount, sum(if (status=4,1,0)) as successCount from help_record where TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
+    Map<String,Object> totayTj();
 
     /**
      * 今日用户求助量

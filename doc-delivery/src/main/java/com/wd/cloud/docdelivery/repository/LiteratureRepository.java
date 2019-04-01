@@ -14,6 +14,7 @@ import javax.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -30,7 +31,7 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
      * @param unid
      * @return
      */
-    Literature findByUnid(String unid);
+    Optional<Literature> findByUnid(String unid);
 
     List<Literature> findByUnidIsNull();
 

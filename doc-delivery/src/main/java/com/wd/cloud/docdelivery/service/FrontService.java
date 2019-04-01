@@ -4,9 +4,7 @@ import com.wd.cloud.docdelivery.pojo.dto.GiveRecordDTO;
 import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.pojo.entity.DocFile;
 import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
-import com.wd.cloud.docdelivery.pojo.entity.Literature;
 import com.wd.cloud.docdelivery.pojo.entity.Permission;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,11 +18,7 @@ import java.util.List;
  */
 public interface FrontService {
 
-    boolean checkExists(String email, Long literatureId);
-
     DocFile saveDocFile(Long literatureId, String fileId, String filaName);
-
-    String help(HelpRecord helpRecord, Literature literature) throws ConstraintViolationException;
 
     void give(Long helpRecordId, String giverName, String ip);
 
