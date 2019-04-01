@@ -64,7 +64,7 @@ public class IndexController {
 //            if(type.equals("analysis")) {
 //            	scidMap.put(scid, analysisByDBService.compareAnalysis(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
 //            } else 
-            if (school == null || school.getIndexName() == null || !type.equals("resourcelabel")) {
+            if (school == null || school.getIndexName() == null || !"resourcelabel".equals(type)) {
                 List<QueryCondition> list = resource.getQueryList();
                 list.add(new QueryCondition("scid", scid));
                 if (resource.getSignature() != null) {
@@ -80,7 +80,7 @@ public class IndexController {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("explain", explain);
         result.put("content", scidMap);
-        if(resource.getBlock().equals("ourschool")) {
+        if("ourschool".equals(resource.getBlock())) {
         	result.put("content", scidMap.get(resource.getScid()));
         }
         System.out.println(result);
@@ -114,7 +114,7 @@ public class IndexController {
         String scid = resource.getScid();
         
         String type = resource.getEsiType();
-        if(type.equals("analysis")) {
+        if("analysis".equals(type)) {
         	scidMap.put(scid, analysisByDBService.analysisEsiPaper(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
         } else {
         	List<QueryCondition> list = resource.getQueryList();
@@ -129,7 +129,7 @@ public class IndexController {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("explain", explain);
         result.put("content", scidMap);
-        if(resource.getBlock().equals("ourschool")) {
+        if("ourschool".equals(resource.getBlock())) {
         	result.put("content", scidMap.get(resource.getScid()));
         }
         System.out.println(result);

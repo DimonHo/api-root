@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface TjTaskDataRepository extends JpaRepository<TjTaskData, TjDataPk> {
 
-    TjTaskData findByIdOrgId(long orgId);
+    TjTaskData findByIdOrgFlag(String orgFlag);
 
     /**
      * 获取当前这一分钟的task数据

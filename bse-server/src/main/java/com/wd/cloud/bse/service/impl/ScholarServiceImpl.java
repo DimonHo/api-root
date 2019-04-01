@@ -12,7 +12,8 @@ public class ScholarServiceImpl implements ScholarService {
 	@Autowired
 	ScholarRepository scholarRepository;
 	
-	public Scholar findById(Integer id) {
+	@Override
+    public Scholar findById(Integer id) {
 		return scholarRepository.findById(id);
 	}
 

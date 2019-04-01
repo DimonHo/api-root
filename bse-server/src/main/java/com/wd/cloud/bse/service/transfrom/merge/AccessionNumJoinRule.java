@@ -29,7 +29,7 @@ public class AccessionNumJoinRule extends MergeRule <String> {
 			if(data.contains("WOS:WOS:")) {
 				data = data.replaceFirst("WOS:", "");
 			}
-			if (!needSplite.equals("0")) {
+			if (!"0".equals(needSplite)) {
 				items = split(data);
 				for (String item : items) {
 					if(!list.contains(item)){
@@ -46,9 +46,15 @@ public class AccessionNumJoinRule extends MergeRule <String> {
 		Collections.sort(list, new Comparator<String>(){
 			
 			int getWeight(String value){
-				if(value.startsWith("WOS")) return 3;
-				if(value.startsWith("EI")) return 2;
-				if(value.startsWith("Medline")) return 1;
+				if(value.startsWith("WOS")) {
+                    return 3;
+                }
+				if(value.startsWith("EI")) {
+                    return 2;
+                }
+				if(value.startsWith("Medline")) {
+                    return 1;
+                }
 				return 0;
 			}
 

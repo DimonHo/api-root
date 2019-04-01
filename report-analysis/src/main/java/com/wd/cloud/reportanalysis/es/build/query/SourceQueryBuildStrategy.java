@@ -20,7 +20,7 @@ public class SourceQueryBuildStrategy implements QueryBuilderStrategyI {
     @Override
     public QueryBuilder execute(QueryCondition queryCondition) {
         String value = queryCondition.getValue();
-        if (value.equals("WOS")) {
+        if ("WOS".equals(value)) {
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             boolQueryBuilder.should(QueryBuilders.termQuery("shoulu", "SCI-E"));
             boolQueryBuilder.should(QueryBuilders.termQuery("shoulu", "SSCI"));

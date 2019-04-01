@@ -1,0 +1,47 @@
+-- CREATE OR REPLACE VIEW v_user_audit (
+-- 	id,
+-- 	gmt_create,
+-- 	gmt_modified,
+-- 	username,
+-- 	email,
+-- 	nickname,
+-- 	orgFlag,
+-- 	orgName,
+-- 	departmentName,
+-- 	identityType,
+-- 	studentId,
+-- 	eduLevel,
+-- 	sex,
+-- 	entranceYear,
+-- 	idPhoto,
+-- 	STATUS,
+-- 	handlerName,
+-- 	remark
+-- ) AS SELECT
+-- t1.id,
+-- t1.gmt_create,
+-- t1.gmt_modified,
+-- t2.username,
+-- t2.email,
+-- t2.nickname,
+-- t2.org_flag,
+-- t3.NAME,
+-- t4.NAME,
+-- t2.identity_type,
+-- t2.student_id,
+-- t2.edu_level,
+-- t2.sex,
+-- t2.entrance_year,
+-- t1.id_photo,
+-- t1.STATUS,
+-- t1.handler_name,
+-- t1.remark
+-- FROM
+-- 	audit_log t1,
+-- 	USER t2,
+-- 	org t3,
+-- 	department t4
+-- WHERE
+-- 	t1.username = t2.username
+-- 	AND t2.org_flag = t3.org_flag
+-- 	AND t2.department_id = t4.id;

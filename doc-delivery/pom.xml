@@ -31,10 +31,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- feign接口 -->
+        <!-- 自定义微服务启动器 -->
         <dependency>
             <groupId>com.wd.cloud</groupId>
-            <artifactId>api-feign</artifactId>
+            <artifactId>service-spring-boot-starter</artifactId>
         </dependency>
         <!-- ========================= public end ============================= -->
 
@@ -57,6 +57,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
         </dependency>
     </dependencies>
 

@@ -16,26 +16,26 @@ public interface TjQuotaRepository extends JpaRepository<TjQuota, Long>, JpaSpec
     /**
      * 查询机构日基数有效设置,一个机构有且只有一个有效设置
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    TjQuota findByOrgIdAndHistoryIsFalse(long orgId);
+    TjQuota findByOrgFlagAndHistoryIsFalse(String orgFlag);
 
     /**
      * 查询机构日基数所有数据
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    Page<TjQuota> findByOrgId(long orgId, Pageable pageable);
+    Page<TjQuota> findByOrgFlag(String orgFlag, Pageable pageable);
 
     /**
      * 查询机构日基数历史数据
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    Page<TjQuota> findByOrgIdAndHistoryIsTrue(long orgId, Pageable pageable);
+    Page<TjQuota> findByOrgFlagAndHistoryIsTrue(String orgFlag, Pageable pageable);
 
     /**
      * 查询有效日基数列表
@@ -46,6 +46,6 @@ public interface TjQuotaRepository extends JpaRepository<TjQuota, Long>, JpaSpec
 
     Page<TjQuota> findByHistory(Boolean history, Pageable pageable);
 
-    Page<TjQuota> findByOrgIdAndHistory(Long orgId, Boolean history, Pageable pageable);
+    Page<TjQuota> findByOrgFlagAndHistory(String orgFlag, Boolean history, Pageable pageable);
 
 }

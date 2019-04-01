@@ -6,7 +6,7 @@ import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableSwagger2Doc
-@EnableFeignClients(basePackages = {"com.wd.cloud.apifeign"})
+@EnableFeignClients
 @SpringCloudApplication
 public class BseServerApplication {
 

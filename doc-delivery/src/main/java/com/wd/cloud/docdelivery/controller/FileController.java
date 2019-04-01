@@ -4,8 +4,7 @@ import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.Header;
-import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.service.FileService;
 import io.swagger.annotations.Api;
@@ -37,7 +36,7 @@ public class FileController {
     FileService fileService;
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     /**
      * 文献下载
@@ -50,7 +49,7 @@ public class FileController {
     public void download(@PathVariable Long helpRecodeId, HttpServletRequest request, HttpServletResponse response) throws IOException {
         DownloadFileModel downloadFileModel = fileService.getDownloadFile(helpRecodeId);
         if (downloadFileModel == null) {
-            response.sendRedirect(globalConfig.getCloudDomain() + "/doc-delivery/404FileNotFind.html");
+            response.sendRedirect(global.getCloudDomain() + "/doc-delivery/fileNotFind.html");
             return;
         }
         String filename = null;

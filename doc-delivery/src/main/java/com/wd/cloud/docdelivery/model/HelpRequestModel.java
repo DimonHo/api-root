@@ -1,8 +1,13 @@
 package com.wd.cloud.docdelivery.model;
 
+import cn.hutool.http.HtmlUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -10,21 +15,16 @@ import javax.validation.constraints.NotNull;
  * @date 2018/5/16
  * @Description:
  */
+@Data
+@Accessors(chain = true)
 @ApiModel(value = "文献求助post对象")
 public class HelpRequestModel {
 
-    /**
-     * 求助用户ID
-     */
-    @ApiModelProperty(value = "求助用户ID", example = "1000")
-    private Long helperId;
+    private String username;
 
-    /**
-     * 求助用户名称
-     */
-    @ApiModelProperty(value = "求助用户名称", example = "dimon")
-    private String helperName;
+    private String orgFlag;
 
+    private String orgName;
     /**
      * 求助渠道
      */
@@ -33,22 +33,10 @@ public class HelpRequestModel {
     private Integer helpChannel;
 
     /**
-     * 求助用户所属机构id
-     */
-    @ApiModelProperty(value = "求助者所属机构ID", example = "60")
-    private Long helperScid;
-
-    /**
-     * 求助用户所属机构名
-     */
-    @ApiModelProperty(value = "求助者所属机构名称", example = "中南大学")
-    private String helperScname;
-
-    /**
      * 求助文件标题
      */
     @ApiModelProperty(value = "求助文献标题", example = "关于xxx可行性研究")
-    @NotNull
+    @NotBlank
     private String docTitle;
 
     /**
@@ -57,11 +45,24 @@ public class HelpRequestModel {
     @ApiModelProperty(value = "求助文献链接", example = "http://www.xxx.com")
     private String docHref;
 
+    private String doi;
+
+    private String issn;
+
+    private String issue;
+
+    private String volume;
+
+    private String year;
+
+    private String author;
+
     /**
      * 求助用户邮箱
      */
     @ApiModelProperty(value = "求助用户邮箱", example = "hezhigang@qq.com")
-    @NotNull
+    @NotBlank
+    @Email
     private String helperEmail;
 
     @ApiModelProperty(value = "补充信息", example = "doi:01923959101,xxx:102030104")
@@ -70,85 +71,14 @@ public class HelpRequestModel {
     @ApiModelProperty(value = "是否匿名,默认false", example = "false")
     private boolean anonymous = false;
 
-    public Long getHelperId() {
-        return helperId;
-    }
-
-    public void setHelperId(Long helperId) {
-        this.helperId = helperId;
-    }
-
-    public Integer getHelpChannel() {
-        return helpChannel;
-    }
-
-    public void setHelpChannel(Integer helpChannel) {
-        this.helpChannel = helpChannel;
-    }
-
-    public Long getHelperScid() {
-        return helperScid;
-    }
-
-    public void setHelperScid(Long helperScid) {
-        this.helperScid = helperScid;
-    }
-
     public String getDocTitle() {
-        return docTitle;
-    }
-
-    public void setDocTitle(String docTitle) {
-        this.docTitle = docTitle;
+        return HtmlUtil.unescape(HtmlUtil.cleanHtmlTag(this.docTitle.trim()));
     }
 
     public String getDocHref() {
-        return docHref;
-    }
-
-    public void setDocHref(String docHref) {
-        this.docHref = docHref;
-    }
-
-    public String getHelperEmail() {
-        return helperEmail;
-    }
-
-    public void setHelperEmail(String helperEmail) {
-        this.helperEmail = helperEmail;
-    }
-
-    public String getHelperName() {
-        return helperName;
-    }
-
-    public void setHelperName(String helperName) {
-        this.helperName = helperName;
-    }
-
-    public String getHelperScname() {
-        return helperScname;
-    }
-
-    public void setHelperScname(String helperScname) {
-        this.helperScname = helperScname;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public HelpRequestModel setRemark(String remark) {
-        this.remark = remark;
-        return this;
-    }
-
-    public boolean isAnonymous() {
-        return anonymous;
-    }
-
-    public HelpRequestModel setAnonymous(boolean anonymous) {
-        this.anonymous = anonymous;
-        return this;
+        if (this.docHref != null) {
+            return this.docHref.trim();
+        }
+        return null;
     }
 }

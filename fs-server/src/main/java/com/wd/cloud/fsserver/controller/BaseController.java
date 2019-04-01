@@ -1,11 +1,11 @@
 package com.wd.cloud.fsserver.controller;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.fsserver.entity.UploadRecord;
-import com.wd.cloud.fsserver.model.FileModel;
 import com.wd.cloud.fsserver.service.FileService;
 import com.wd.cloud.fsserver.service.UploadRecordService;
 import com.wd.cloud.fsserver.util.HttpHeaderUtil;
@@ -141,13 +141,18 @@ public class BaseController {
     })
     @GetMapping("/load/{unid}")
     public ResponseEntity<FileSystemResource> downloadFile(@PathVariable String unid,
+                                                           @RequestParam(required = false) String fileName,
                                                            HttpServletRequest request)
             throws UnsupportedEncodingException {
         File file = fileService.getFile(unid);
         if (file != null) {
+            String downloadFileName = file.getName();
+            if (fileName != null) {
+                downloadFileName = StrUtil.replace(file.getName(), StrUtil.subBefore(file.getName(), ".", true), fileName);
+            }
             return ResponseEntity
                     .ok()
-                    .headers(HttpHeaderUtil.buildBroserFileHttpHeaders(file.getName(), request))
+                    .headers(HttpHeaderUtil.buildBroserFileHttpHeaders(downloadFileName, request))
                     .contentLength(file.length())
                     .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
                     .body(new FileSystemResource(file));

@@ -1,17 +1,17 @@
 package com.wd.cloud.bse.es.facet;
 
-import java.util.Collection;
-import java.util.Iterator;
-
+import com.wd.cloud.bse.es.FacetConverter;
+import com.wd.cloud.bse.vo.FacetResult;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 
-import com.wd.cloud.bse.es.FacetConverter;
-import com.wd.cloud.bse.vo.FacetResult;
+import java.util.Collection;
+import java.util.Iterator;
 
 public abstract class AbstractFacetConverter implements FacetConverter{
 
+	@Override
 	public FacetResult convert(Aggregation facet){
 		FacetResult result = new FacetResult();
 		FacetResult.Entry entry;

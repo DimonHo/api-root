@@ -1,13 +1,17 @@
 package com.wd.cloud.docdelivery.service;
 
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.entity.Literature;
+import com.wd.cloud.docdelivery.pojo.dto.GiveRecordDTO;
+import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.pojo.entity.DocFile;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.Literature;
+import com.wd.cloud.docdelivery.pojo.entity.Permission;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * @author He Zhigang
@@ -16,20 +20,17 @@ import java.util.Date;
  */
 public interface FrontService {
 
-    boolean checkExists(String email, Literature literature);
+    boolean checkExists(String email, Long literatureId);
 
-    DocFile saveDocFile(Literature literature, String fileId,String filaName);
+    DocFile saveDocFile(Long literatureId, String fileId, String filaName);
 
-    /**
-     * 我要应助
-     *
-     * @param helpRecordId
-     * @param giverId
-     * @param giverName
-     */
-    HelpRecord givingHelp(long helpRecordId, long giverId, String giverName, String giverIp);
+    String help(HelpRecord helpRecord, Literature literature) throws ConstraintViolationException;
 
-    boolean cancelGivingHelp(long helpRecordId, long giverId);
+    void give(Long helpRecordId, String giverName, String ip);
+
+    void uploadFile(HelpRecord helpRecord, String giverName, MultipartFile file, String ip);
+
+    boolean cancelGivingHelp(long helpRecordId, String giverName);
 
     /**
      * 得到应种中状态的应助记录
@@ -45,7 +46,7 @@ public interface FrontService {
      * @param email
      * @return
      */
-    int getCountHelpRecordToDay(String email);
+    Long getCountHelpRecordToDay(String email);
 
     /**
      * 获取单条可应助的记录
@@ -72,98 +73,61 @@ public interface FrontService {
     String clearHtml(String docTitle);
 
     /**
-     * 保存元数据
-     *
-     * @param literature
-     * @return
-     */
-    Literature saveLiterature(Literature literature);
-
-    /**
-     * 保存应助记录
-     *
-     * @param giveRecord
-     * @return
-     */
-    GiveRecord saveGiveRecord(GiveRecord giveRecord);
-
-    /**
      * 创建应助记录
      */
-    void createGiveRecord(HelpRecord helpRecord, long giveUserId, DocFile docFile, String giviIp);
-
-    /**
-     * 保存求助记录
-     *
-     * @param helpRecord
-     * @return
-     */
-    HelpRecord saveHelpRecord(HelpRecord helpRecord);
-
-    HelpRecord getHelpRecord(long helpRecordId);
-
-    /**
-     * 查询元数据
-     *
-     * @param literature
-     * @return
-     */
-    Literature queryLiterature(Literature literature);
+    void createGiveRecord(HelpRecord helpRecord, String giverName, DocFile docFile, String giviIp);
 
     /**
      * 获取用户的求助记录
      *
-     * @param helpUserId
+     * @param status
      * @return
      */
-    Page<HelpRecord> getHelpRecordsForUser(long helpUserId, Pageable pageable);
+    Page<HelpRecordDTO> myHelpRecords(String helperName, List<Integer> status, Boolean isDifficult, Pageable pageable);
 
-    /**
-     * 获取用户的求助记录
-     *
-     * @param helpEmail
-     * @return
-     */
-    Page<HelpRecord> getHelpRecordsForEmail(String helpEmail, Pageable pageable);
+    Page<GiveRecordDTO> myGiveRecords(String giverName, List<Integer> status, Pageable pageable);
+
+
+    Page<HelpRecordDTO> getHelpRecords(List<Integer> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, String orgFlag, Pageable pageable);
 
     /**
      * 获取待应助的求助记录
      *
      * @return
      */
-    Page<HelpRecord> getWaitHelpRecords(int helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getWaitHelpRecords(List<Integer> channel, Boolean isDifficult, String orgFlag, Pageable pageable);
 
     /**
      * 求助完成列表
+     *
+     * @param channel
+     * @param pageable
+     * @return
+     */
+    Page<HelpRecordDTO> getFinishHelpRecords(List<Integer> channel, String orgFlag, Pageable pageable);
+
+    /**
+     * 求助成功列表
      *
      * @param helpChannel
      * @param pageable
      * @return
      */
-    Page<HelpRecord> getFinishHelpRecords(int helpChannel, Pageable pageable);
-
-    /**
-     * 求助成功列表
-     * @param helpChannel
-     * @param pageable
-     * @return
-     */
-    Page<HelpRecord> getSuccessHelpRecords(int helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getSuccessHelpRecords(List<Integer> helpChannel, String orgFlag, Pageable pageable);
 
     /**
      * 疑难文献（无结果，求助失败）列表
+     *
      * @param helpChannel
      * @param pageable
      * @return
      */
-    Page<HelpRecord> getFailedHelpRecords(int helpChannel, Pageable pageable);
+    Page<HelpRecordDTO> getFailedHelpRecords(List<Integer> helpChannel, List<Integer> status, String orgFlag, Pageable pageable);
 
-    Page<HelpRecord> getAllHelpRecord(Pageable pageable);
+    DocFile getReusingFile(Long literatureId);
 
-    DocFile getReusingFile(Literature literature);
+    Permission getPermission(String orgFlag, Integer level);
 
-    Page<HelpRecord> search(String keyword, Pageable pageable);
-
-    String checkExistsGiveing(long giverId);
+    Permission nextPermission(String orgFlag, Integer level);
 
 }

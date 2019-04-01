@@ -16,7 +16,8 @@ import org.springframework.util.StringUtils;
 @Component("subjectQuery")
 public class SubjectQueryBuildStrategy implements QueryBuilderStrategyI {
 
-	public QueryBuilder execute(QueryCondition queryCondition) {
+	@Override
+    public QueryBuilder execute(QueryCondition queryCondition) {
 		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 		String field = queryCondition.getFieldFlag();
 		String author = queryCondition.getValue();

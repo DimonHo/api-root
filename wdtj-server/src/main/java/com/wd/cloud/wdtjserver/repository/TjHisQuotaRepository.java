@@ -18,25 +18,25 @@ public interface TjHisQuotaRepository extends JpaRepository<TjHisQuota, Long>, J
     /**
      * 机构历史所有数据
      *
-     * @param orgId
+     * @param orgFlag
      * @return
      */
-    Page<TjHisQuota> findByOrgId(long orgId, Pageable pageable);
+    Page<TjHisQuota> findByOrgFlag(String orgFlag, Pageable pageable);
 
-    List<TjHisQuota> findByOrgId(long orgId);
+    List<TjHisQuota> findByOrgFlag(String orgFlag);
 
     /**
-     * @param orgId
+     * @param orgFlag
      * @param locked
      * @return
      */
-    Page<TjHisQuota> findByOrgIdAndLocked(Long orgId, boolean locked, Pageable pageable);
+    Page<TjHisQuota> findByOrgFlagAndLocked(String orgFlag, boolean locked, Pageable pageable);
 
     /**
-     * @param orgId
+     * @param orgFlag
      * @param history
      * @return
      */
-    Page<TjHisQuota> findByOrgIdAndHistory(Long orgId, boolean history, Pageable pageable);
+    Page<TjHisQuota> findByOrgFlagAndHistory(String orgFlag, boolean history, Pageable pageable);
 
 }

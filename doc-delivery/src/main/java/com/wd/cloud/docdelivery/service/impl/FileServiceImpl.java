@@ -2,31 +2,28 @@ package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
-import com.wd.cloud.docdelivery.entity.DocFile;
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
-import com.wd.cloud.docdelivery.enums.AuditEnum;
+import com.wd.cloud.docdelivery.config.Global;
+import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.Literature;
+import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
+import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
 import com.wd.cloud.docdelivery.model.DownloadFileModel;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
+import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
@@ -39,7 +36,7 @@ public class FileServiceImpl implements FileService {
     private static final Log log = LogFactory.get();
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
 
     @Autowired
     DocFileRepository docFileRepository;
@@ -51,7 +48,13 @@ public class FileServiceImpl implements FileService {
     GiveRecordRepository giveRecordRepository;
 
     @Autowired
+    LiteratureRepository literatureRepository;
+
+    @Autowired
     FsServerApi fsServerApi;
+
+    @Autowired
+    PdfSearchServerApi pdfSearchServerApi;
 
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
@@ -65,7 +68,7 @@ public class FileServiceImpl implements FileService {
             log.error("未找到id为{}的数据", helpRecordId);
             return null;
         }
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecord(helpRecord);
+        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusSuccess(helpRecordId);
         DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         return downloadFileModel;
     }
@@ -73,19 +76,23 @@ public class FileServiceImpl implements FileService {
     @Override
     public DownloadFileModel getWaitAuditFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordAndAuditStatusEquals(helpRecord, AuditEnum.WAIT.getCode());
-        DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
-        return downloadFileModel;
+        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value());
+        if (optionalGiveRecord.isPresent()) {
+            DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, optionalGiveRecord.get());
+            return downloadFileModel;
+        }
+        return null;
     }
 
     private DownloadFileModel buildDownloadModel(HelpRecord helpRecord, GiveRecord giveRecord) {
-        String fileId = giveRecord.getDocFile().getFileId();
-        String fileName = giveRecord.getDocFile().getFileName();
-        String docTitle = helpRecord.getLiterature().getDocTitle();
+        String fileId = giveRecord.getFileId();
+        Literature literature = literatureRepository.findById(helpRecord.getLiteratureId()).orElse(null);
+        String docTitle = literature != null ? literature.getDocTitle() : null;
         //以文献标题作为文件名，标题中可能存在不符合系统文件命名规范，在这里规范一下。
         docTitle = FileUtil.cleanInvalid(docTitle);
         DownloadFileModel downloadFileModel = new DownloadFileModel();
-        ResponseModel<byte[]> responseModel = fsServerApi.getFileByte(fileId);
+        ResponseModel<byte[]> responseModel = giveRecord.getType() == GiveTypeEnum.BIG_DB.value() ?
+                pdfSearchServerApi.getFileByte(fileId) : fsServerApi.getFileByte(fileId);
         if (responseModel.isError()) {
             log.error("文件服务调用失败：{}", responseModel.getMessage());
             return null;
@@ -98,39 +105,12 @@ public class FileServiceImpl implements FileService {
 
 
     private boolean checkTimeOut(Date startDate) {
-        if (15 < DateUtil.betweenDay(startDate, new Date(), true)) {
-            return true;
-        }
-        return false;
+        return 15 < DateUtil.betweenDay(startDate, new Date(), true);
     }
 
     @Override
     public String getDownloadUrl(Long helpRecordId) {
-        return globalConfig.getCloudDomain() + "/doc-delivery/file/download/" + helpRecordId;
+        return global.getCloudDomain() + "/doc-delivery/file/download/" + helpRecordId;
     }
 
-    @Override
-    public int buildFileId() {
-        AtomicInteger count = new AtomicInteger();
-        Pageable pageable = PageRequest.of(0, 1000);
-        Page<DocFile> docFiles = docFileRepository.findAll(pageable);
-        count = updateFileId(docFiles, count);
-        while (docFiles.hasNext()) {
-            docFiles = docFileRepository.findAll(docFiles.nextPageable());
-            count = updateFileId(docFiles, count);
-        }
-        log.info("共更新{}条数据", count.get());
-        return count.get();
-    }
-
-    private AtomicInteger updateFileId(Page<DocFile> docFiles, AtomicInteger count) {
-        docFiles.forEach(docFile -> {
-            String md5 = StrUtil.subBefore(docFile.getFileName(), ".", true);
-            String path = "doc-delivery";
-            docFile.setFileId(SecureUtil.md5(docFile.getFileName() + path));
-            docFileRepository.save(docFile);
-            count.getAndIncrement();
-        });
-        return count;
-    }
 }

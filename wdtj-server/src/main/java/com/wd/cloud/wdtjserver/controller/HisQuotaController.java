@@ -42,15 +42,15 @@ public class HisQuotaController {
 
     @ApiOperation(value = "设置历史基数", tags = {"后台设置"})
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path"),
+            @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "createUser", value = "创建人名称", dataType = "String", paramType = "query")
     })
-    @PostMapping("/his/{orgId}")
-    public ResponseModel add(@PathVariable Long orgId,
+    @PostMapping("/his/{orgFlag}")
+    public ResponseModel add(@PathVariable String orgFlag,
                              @RequestParam String createUser,
                              @Valid @RequestBody List<HisQuotaModel> hisQuotaModels) {
         // 检查时间区间是否允许修改
-        Map<String, DateIntervalModel> overlapsMap = hisQuotaService.checkInterval(orgId, hisQuotaModels);
+        Map<String, DateIntervalModel> overlapsMap = hisQuotaService.checkInterval(orgFlag, hisQuotaModels);
         if (overlapsMap.size() > 0) {
             return ResponseModel.fail().setBody(overlapsMap);
         }
@@ -58,13 +58,10 @@ public class HisQuotaController {
         hisQuotaModels.forEach(hisQuotaModel -> {
             TjHisQuota tjHisQuota = ModelUtil.build(hisQuotaModel);
             if (tjHisQuota != null){
-                tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgId(orgId).setCreateUser(createUser));
+                tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgFlag(orgFlag).setCreateUser(createUser));
             }
         });
         List<TjHisQuota> body = hisQuotaService.save(tjHisQuotas);
-        if (body == null) {
-            return ResponseModel.fail().setMessage("数据保存失败");
-        }
         log.info("开始生成历史数据");
         // 数据保存成功，自动生成历史数据
         body.forEach(tjHisQuota -> {
@@ -77,11 +74,11 @@ public class HisQuotaController {
     }
 
     @ApiOperation(value = "机构历史指标记录", tags = {"后台设置"})
-    @ApiImplicitParam(name = "orgId", value = "机构Id", dataType = "Long", paramType = "path")
-    @GetMapping("/his/{orgId}")
-    public ResponseModel findHisByOrg(@PathVariable Long orgId,
+    @ApiImplicitParam(name = "orgFlag", value = "机构Id", dataType = "String", paramType = "path")
+    @GetMapping("/his/{orgFlag}")
+    public ResponseModel findHisByOrg(@PathVariable String orgFlag,
                                       @PageableDefault(sort = {"gmtModified"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<TjHisQuota> tjHisQuotas = hisQuotaService.getHisQuotaByOrg(orgId, pageable);
+        Page<TjHisQuota> tjHisQuotas = hisQuotaService.getHisQuotaByOrg(orgFlag, pageable);
         return ResponseModel.ok().setBody(tjHisQuotas);
     }
 

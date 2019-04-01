@@ -1,7 +1,7 @@
 package com.wd.cloud.docdelivery.controller;
 
 import com.wd.cloud.commons.model.ResponseModel;
-import com.wd.cloud.docdelivery.config.GlobalConfig;
+import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.model.AnalysisModel;
 import com.wd.cloud.docdelivery.repository.DocFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecordController {
 
     @Autowired
-    GlobalConfig globalConfig;
+    Global global;
     @Autowired
     DocFileRepository docFileRepository;
 

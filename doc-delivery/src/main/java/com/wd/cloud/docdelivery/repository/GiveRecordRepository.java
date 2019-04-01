@@ -1,87 +1,141 @@
 package com.wd.cloud.docdelivery.repository;
 
-import com.wd.cloud.docdelivery.entity.GiveRecord;
-import com.wd.cloud.docdelivery.entity.HelpRecord;
+import cn.hutool.core.util.StrUtil;
+import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author He Zhigang
  * @date 2018/5/22
  * @Description:
  */
-public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long> {
+public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, JpaSpecificationExecutor<GiveRecord> {
+
+    GiveRecord deleteByHelpRecordId(Long helpRecordId);
+
+    List<GiveRecord> findByHelpRecordIdAndStatusNot(Long helpRecordId, Integer auditStatus);
 
     /**
      * 查询待审核记录
      *
      * @param id
-     * @param auditStatus
+     * @param status
      * @return
      */
-    GiveRecord findByIdAndAuditStatus(Long id, int auditStatus);
+    GiveRecord findByIdAndStatus(Long id, int status);
 
     /**
-     * 审核记录
+     * 应助者的应助记录
      *
-     * @param giverId
-     * @param auditStatus
+     * @param giverName
+     * @param status
      * @return
      */
-    GiveRecord findByGiverIdAndAuditStatus(Long giverId, int auditStatus);
+    List<GiveRecord> findByGiverNameAndStatus(String giverName, int status);
+
+    /**
+     * 用户应助中
+     *
+     * @param giverName
+     * @return
+     */
+    @Query(value = "select * from give_record where giver_name = ?1 and status = 0", nativeQuery = true)
+    GiveRecord findByGiverNameGiving(String giverName);
+
+    List<GiveRecord> findByGiverName(String giverName);
+
 
     /**
      * 特定状态的应助记录
      *
-     * @param helpRecord
-     * @param auditStatus
-     * @param giverId
+     * @param helpRecordId
+     * @param status
+     * @param giverName
      * @return
      */
-    GiveRecord findByHelpRecordAndAuditStatusAndGiverId(HelpRecord helpRecord, int auditStatus, long giverId);
+    GiveRecord findByHelpRecordIdAndStatusAndGiverName(Long helpRecordId, int status, String giverName);
 
     /**
      * 取消应助，删除应助记录
      *
-     * @param helpRecord
-     * @param auditStatus
-     * @param giverId
+     * @param helpRecordId
+     * @param status
+     * @param giverName
      * @return
      */
-    int deleteByHelpRecordAndAuditStatusAndGiverId(HelpRecord helpRecord, int auditStatus, long giverId);
+    void deleteByHelpRecordIdAndStatusAndGiverName(Long helpRecordId, int status, String giverName);
 
     /**
      * 特定应助类型的应助记录
      *
-     * @param helpRecord
-     * @param auditStatus
+     * @param helpRecordId
+     * @param status
      * @param giverType
      * @return
      */
-    GiveRecord findByHelpRecordAndAuditStatusAndGiverType(HelpRecord helpRecord, int auditStatus, int giverType);
+
+    Optional<GiveRecord> findByHelpRecordIdAndStatusAndType(Long helpRecordId, int status, int giverType);
 
     /**
      * 已审核通过的 或 非用户应助的应助记录
      *
-     * @param helpRecord
+     * @param helpRecordId
      * @return
      */
-    @Query("FROM GiveRecord WHERE helpRecord = :helpRecord AND (auditStatus = 1 OR giverType <> 2)")
-    GiveRecord findByHelpRecord(@Param("helpRecord") HelpRecord helpRecord);
+    @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND status = 6", nativeQuery = true)
+    GiveRecord findByHelpRecordIdAndStatusSuccess(Long helpRecordId);
 
-    GiveRecord findByHelpRecordAndAuditStatusEquals(HelpRecord helpRecord, Integer status);
+    List<GiveRecord> findByHelpRecordId(Long helpRecordId);
 
-    @Query("FROM GiveRecord WHERE giverType = 2 AND docFile IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmtCreate, now())")
+    /**
+     * 查询指定状态的记录
+     *
+     * @param helpRecordId
+     * @param status
+     * @return
+     */
+    Optional<GiveRecord> findByHelpRecordIdAndStatus(Long helpRecordId, Integer status);
+
+    List<GiveRecord> findByTypeAndStatus(Integer type, Integer status);
+
+    @Query(value = "select * FROM give_record WHERE status = 0 AND file_id IS NULL or file_id = \"\" AND 15 < TIMESTAMPDIFF(MINUTE, gmt_create, now())", nativeQuery = true)
     List<GiveRecord> findTimeOutRecord();
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM GiveRecord WHERE giverType = 2 AND docFile IS NULL AND 15 < TIMESTAMPDIFF(MINUTE, gmtCreate, now())")
-    List<GiveRecord> deleteTimeOutRecord();
+    /**
+     * 我的应助
+     *
+     * @param giverName
+     * @return
+     */
+    long countByGiverName(String giverName);
 
+    List<GiveRecord> findByFileId(String fileId);
+
+    class SpecBuilder {
+        public static Specification<GiveRecord> buildGiveRecord(List<Integer> status, String giverName) {
+            return (Specification<GiveRecord>) (root, query, cb) -> {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (StrUtil.isNotBlank(giverName)) {
+                    list.add(cb.equal(root.get("giverName"), giverName));
+                }
+                // 状态过滤
+                if (status != null && status.size() > 0) {
+                    CriteriaBuilder.In<Integer> inStatus = cb.in(root.get("status"));
+                    status.forEach(inStatus::value);
+                    list.add(inStatus);
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return cb.and(list.toArray(p));
+            };
+        }
+    }
 }

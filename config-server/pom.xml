@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>com.wd.cloud</groupId>
-            <artifactId>api-feign</artifactId>
+            <artifactId>service-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,15 +1,14 @@
 package com.wd.cloud.bse.es.facet;
 
 
-import java.util.Collection;
-
+import com.wd.cloud.bse.es.FacetConverter;
+import com.wd.cloud.bse.vo.FacetResult;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.springframework.stereotype.Component;
 
-import com.wd.cloud.bse.es.FacetConverter;
-import com.wd.cloud.bse.vo.FacetResult;
+import java.util.Collection;
 
 @Component("yearRange")
 public class YearRangeConverter implements FacetConverter{
@@ -25,7 +24,7 @@ public class YearRangeConverter implements FacetConverter{
 			if(maxYear == null || year.compareTo(maxYear)>0){
 				maxYear = year;
 			}
-			if((minYear == null || year.compareTo(minYear)<0) && !year.equals("0")){
+			if((minYear == null || year.compareTo(minYear)<0) && !"0".equals(year)){
 				minYear = year;
 			}
 		}

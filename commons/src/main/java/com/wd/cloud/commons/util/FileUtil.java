@@ -31,4 +31,12 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         IoUtil.close(fileStream);
         return fileMd5;
     }
+
+    public static String getSysUserHome(){
+        return System.getProperty("user.home");
+    }
+
+    public static String getTempDir(){
+        return getSysUserHome() + "/temp";
+    }
 }

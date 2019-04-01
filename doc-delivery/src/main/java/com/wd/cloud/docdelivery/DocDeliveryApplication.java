@@ -8,6 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * DocDeliveryApplication class
@@ -19,8 +20,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableJpaAuditing
 @EnableSwagger2Doc
-@SpringCloudApplication
+@EnableRedisHttpSession
 @EnableFeignClients
+@SpringCloudApplication
 public class DocDeliveryApplication {
 
     public static void main(String[] args) {
