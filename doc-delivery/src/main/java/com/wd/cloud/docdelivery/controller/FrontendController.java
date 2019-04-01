@@ -59,6 +59,7 @@ public class FrontendController {
     @Autowired
     FrontService frontService;
 
+    @Autowired
     HelpRequestService helpRequestService;
 
     @Autowired
