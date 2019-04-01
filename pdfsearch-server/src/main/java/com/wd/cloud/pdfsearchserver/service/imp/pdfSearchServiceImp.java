@@ -103,32 +103,17 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
         String rowKey=null;
         String title = literatureModel.getDocTitle();
         QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("title",title);
-        log.info("精确查询："+queryBuilder.toString());
+        log.info("短语匹配："+queryBuilder.toString());
         SearchResponse searchResponse =elasticRepository.queryByName(indexName,type,queryBuilder);
         SearchHits hits =searchResponse.getHits();
-        if(hits.getTotalHits()==1){//标题精确匹配只有一条
-            rowKey =hits.getHits()[0].getSource().get("md5").toString();
-        }else if(hits.getTotalHits()>1){//标题精确匹配多条
+        if(hits.getTotalHits()>=1){
             rowKey =getOneRowKey(Arrays.asList(hits.getHits()),literatureModel);
         }else{
             //标题模糊匹配
             queryBuilder = QueryBuilders.matchQuery("title",title);
             log.info("模糊查询："+queryBuilder.toString());
             hits=elasticRepository.queryByName(indexName,type,queryBuilder).getHits();
-            SearchHit[] searchHits=hits.getHits();
-            List<SearchHit> list = new ArrayList<>();
-            for(SearchHit hit:searchHits){
-                String title_es = StringUtil.repalceSymbol(JSON.parseObject(hit.getSourceAsString()).getString("title"));
-                String title_map = StringUtil.repalceSymbol(literatureModel.getDocTitle());
-                if(title_es.equals(title_map)){
-                    list.add(hit);
-                }
-            }
-            if(list.size()==1){
-                rowKey =list.get(0).getSource().get("md5").toString();
-            }else if(list.size()>1){
-                rowKey =getOneRowKey(list,literatureModel);
-            }
+            rowKey =getOneRowKey(Arrays.asList(hits.getHits()),literatureModel);
         }
         return rowKey;
     }
@@ -136,8 +121,15 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
     private String getOneRowKey(List<SearchHit> searchHits, LiteratureModel literatureModel){
         String result = null;
         int matchNum = 0;
+        String title_map = StringUtil.repalceSymbol(literatureModel.getDocTitle());
         for(SearchHit hit:searchHits){
             int num = 0;
+            String title_es = StringUtil.repalceSymbol(hit.getSource().get("title").toString());
+            if(!title_es.equals(title_map)){
+               break;
+            }else{
+                num++;
+            }
             String json = hit.getSourceAsString();
             JSONObject jsonObject = JSON.parseObject(json);
             String author = jsonObject.getString("author");
