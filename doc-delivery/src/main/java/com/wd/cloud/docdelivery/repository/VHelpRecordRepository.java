@@ -48,7 +48,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
         }
 
 
-        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, String orgFlag) {
+        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, String orgFlag, Date beginDate,Date endDate) {
             return (Specification<VHelpRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<>();
                 if (orgFlag != null) {
@@ -76,6 +76,11 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                 // 是否是疑难文献
                 if (isDifficult != null) {
                     list.add(cb.equal(root.get("difficult").as(boolean.class), isDifficult));
+                }
+                if (beginDate != null || endDate != null){
+                    Date begin = beginDate == null?new Date():beginDate;
+                    Date end = endDate == null?new Date():endDate;
+                    list.add(cb.between(root.get("gmtCreate").as(Date.class),begin,end));
                 }
 
                 Predicate[] p = new Predicate[list.size()];

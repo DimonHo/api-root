@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
-import java.text.NumberFormat;
 import java.util.Map;
 
 /**
@@ -86,23 +85,8 @@ public class TjController {
 
     @ApiOperation(value = "获取平台总求助量、成功量、成功率、今日求助量")
     @GetMapping("/tj/total")
-    public ResponseModel<TjDTO> getHeadTotalFor() {
-        TjDTO body = new TjDTO();
-        NumberFormat numberFormat = NumberFormat.getPercentInstance();
-        numberFormat.setMinimumFractionDigits(2);
-
-        // 求助总数量
-        long totalForHelp = tjService.totalForHelp();
-        body.setTotalForHlep(totalForHelp);
-        //求助成功的数量
-        long successTotal = tjService.successTotal();
-        body.setSuccessTotal(successTotal);
-        //求助成功率
-        String successRate = numberFormat.format((float) successTotal / (float) totalForHelp);
-        body.setSuccessRate(successRate);
-        //今天求助数量
-        body.setTodayTotalForHelp(tjService.todayTotalForHelp());
-
+    public ResponseModel getHeadTotalFor() {
+        TjDTO body = tjService.tjForHelp();
         return ResponseModel.ok().setBody(body);
     }
 

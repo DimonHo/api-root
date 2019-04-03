@@ -1,6 +1,7 @@
 package com.wd.cloud.docdelivery.service;
 
 import com.wd.cloud.docdelivery.pojo.dto.MyTjDTO;
+import com.wd.cloud.docdelivery.pojo.dto.TjDTO;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -21,33 +22,12 @@ public interface TjService {
      */
     Map<String, BigInteger> ddcCount(String orgName, String date, int type);
 
-
     /**
-     * 平台中求助总量
-     *
+     * 求助统计
      * @return
      */
-    long totalForHelp();
+    TjDTO tjForHelp();
 
-    /**
-     * 平台传递成功数量
-     *
-     * @return
-     */
-    long successTotal();
-
-    /**
-     * 平台今日已求助量
-     *
-     * @return
-     */
-    long todayTotalForHelp();
-
-    /**
-     * 今日求助成功的数量
-     * @return
-     */
-    long successTodayTotalForHelp();
 
     /**
      * 平均响应时间

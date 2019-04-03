@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.exception.NotFoundException;
@@ -8,6 +9,7 @@ import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.UoServerApi;
 import com.wd.cloud.docdelivery.model.AvgResponseTimeModel;
 import com.wd.cloud.docdelivery.pojo.dto.MyTjDTO;
+import com.wd.cloud.docdelivery.pojo.dto.TjDTO;
 import com.wd.cloud.docdelivery.pojo.entity.Permission;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
@@ -70,41 +72,28 @@ public class TjServiceImpl implements TjService {
         return ddcCountMap;
     }
 
-    @Override
-    public long totalForHelp() {
-        return helpRecordRepository.count();
-    }
-
-    @Override
-    public long successTotal() {
-        return helpRecordRepository.countByStatus(HelpStatusEnum.HELP_SUCCESSED.value());
-    }
-
-    @Override
-    public long todayTotalForHelp() {
-        return helpRecordRepository.countToday();
-    }
-
-    /**
-     * 今日求助成功的数量
-     *
-     * @return
-     */
-    @Override
-    public long successTodayTotalForHelp() {
-        return helpRecordRepository.successCountToday();
-    }
 
     @Override
     public long avgResponseTime(String startDate) {
+        // 使用假数据
         return avgResponseTimeModel.getAvgResponseTime();
+        // 真实数据
         //return helpRecordRepository.avgResponseDate(startDate);
     }
 
     @Override
     public long avgSuccessResponseTime(String startDate) {
+        // 使用假数据
         return avgResponseTimeModel.getAvgSuccessResponseTime();
+        // 真实数据
         //return helpRecordRepository.avgSuccessResponseDate(startDate);
+    }
+
+    @Override
+    public TjDTO tjForHelp(){
+        Map<String,Long> tjResult = helpRecordRepository.tj();
+        TjDTO tjDTO = BeanUtil.mapToBean(tjResult,TjDTO.class,true);
+        return tjDTO;
     }
 
     @Override

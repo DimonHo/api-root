@@ -64,6 +64,14 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      */
     long countByStatus(Integer status);
 
+
+    /**
+     * 求助统计
+     * @return
+     */
+    @Query(value = "SELECT count(*) AS total,sum(IF (STATUS=4,1,0)) AS successTotal,sum(IF (TO_DAYS(gmt_create)=TO_DAYS(now()),1,0)) AS todayTotal,sum(IF (TO_DAYS(gmt_create)=TO_DAYS(now()) AND STATUS=4,1,0)) AS todaySuccessTotal FROM help_record",nativeQuery = true)
+    Map<String,Long> tj();
+
     /**
      * 今日求助总量
      *
