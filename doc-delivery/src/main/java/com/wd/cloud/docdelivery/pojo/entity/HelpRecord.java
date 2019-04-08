@@ -5,6 +5,7 @@ import com.wd.cloud.commons.util.DateUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 
@@ -17,6 +18,7 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@DynamicInsert
 @Table(name = "help_record", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
 public class HelpRecord extends AbstractEntity {
 
@@ -66,25 +68,25 @@ public class HelpRecord extends AbstractEntity {
      * 4：应助成功（审核通过或管理员应助），
      * 5：应助失败（超过15天无结果）
      */
-    @Column(name = "status", columnDefinition = "tinyint default 0 COMMENT '0：待应助， 1：应助中（用户已认领，15分钟内上传文件）， 2: 待审核（用户已应助）， 3：求助第三方（第三方应助）， 4：应助成功（审核通过或管理员应助）， 5：应助失败（超过15天无结果）'")
-    private int status;
+    @Column(name = "status", nullable = false, columnDefinition = "tinyint default 0 COMMENT '0：待应助， 1：应助中（用户已认领，15分钟内上传文件）， 2: 待审核（用户已应助）， 3：求助第三方（第三方应助）， 4：应助成功（审核通过或管理员应助）， 5：应助失败（超过15天无结果）'")
+    private Integer status;
 
     /**
      * 是否是疑难文献
      */
-    @Column(name = "is_difficult", columnDefinition = "bit default 0 COMMENT '1：疑难文献'")
+    @Column(name = "is_difficult", nullable = false, columnDefinition = "bit(1) default 0 COMMENT '1：疑难文献'")
     private Boolean difficult;
 
     /**
      * 是否成功发送邮件
      */
-    @Column(name = "is_send", columnDefinition = "bit default 1 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
+    @Column(name = "is_send", columnDefinition = "bit(1) default 1 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
     private Boolean send;
 
     /**
      * 是否匿名
      */
-    @Column(name = "is_anonymous", columnDefinition = "bit default 0 COMMENT '0：未匿名， 1：已匿名'")
+    @Column(name = "is_anonymous", nullable = false, columnDefinition = "bit(1) default 0 COMMENT '0：未匿名， 1：已匿名'")
     private Boolean anonymous;
 
     private String unid;

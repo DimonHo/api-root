@@ -1,6 +1,5 @@
 package com.wd.cloud.docdelivery.pojo.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,7 +20,6 @@ import java.util.Date;
 @Accessors
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"})
 public abstract class AbstractEntity implements Serializable {
 
     @Id

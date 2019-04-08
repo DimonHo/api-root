@@ -4,6 +4,7 @@ import cn.hutool.crypto.SecureUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -17,6 +18,7 @@ import javax.validation.constraints.NotNull;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@DynamicInsert
 @Table(name = "literature", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
 public class Literature extends AbstractEntity {
 
@@ -64,7 +66,7 @@ public class Literature extends AbstractEntity {
     /**
      * 复用
      */
-    @Column(name = "is_reusing", columnDefinition = "tinyint(1) default 0 COMMENT '0:未复用，1：已复用'")
+    @Column(name = "is_reusing", nullable = false, columnDefinition = "bit(1) default 0 COMMENT '0:未复用，1：已复用'")
     private Boolean reusing;
     /**
      * 最后处理人

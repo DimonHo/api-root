@@ -3,6 +3,7 @@ package com.wd.cloud.docdelivery.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +19,7 @@ import javax.persistence.UniqueConstraint;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@DynamicInsert
 @Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_flag", "level"})})
 public class Permission extends AbstractEntity {
 

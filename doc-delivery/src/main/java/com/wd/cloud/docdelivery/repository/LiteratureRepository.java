@@ -65,25 +65,13 @@ public interface LiteratureRepository extends JpaRepository<Literature, Long>, J
     List<Literature> deleteByIdIn(List ids);
 
     class SpecBuilder {
-        public static Specification<Literature> buildBackLiteraList(Boolean reusing, String keyword) {
-            return (Specification<Literature>) (root, query, cb) -> {
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (reusing != null) {
-                    list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
-                }
-                if (StrUtil.isNotBlank(keyword)) {
-                    list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));
-                }
-                Predicate[] p = new Predicate[list.size()];
-                return cb.and(list.toArray(p));
-            };
-        }
+
 
         public static Specification<Literature> buildWaitResuing(Boolean reusing, String keyword) {
             return (Specification<Literature>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (reusing != null) {
-                    list.add(cb.equal(root.get("reusing").as(boolean.class), reusing));
+                    list.add(cb.equal(root.get("reusing").as(Boolean.class), reusing));
                 }
                 if (StrUtil.isNotBlank(keyword)) {
                     list.add(cb.like(root.get("docTitle").as(String.class), "%" + keyword + "%"));

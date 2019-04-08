@@ -27,7 +27,7 @@ public class Channel extends AbstractEntity {
      * 下载链接有效期
      */
     @Column(columnDefinition = "bigint(11) default 1296000000 COMMENT '全文下载过期时间'")
-    private long exp;
+    private Long exp;
     /**
      * 密送邮箱
      */
