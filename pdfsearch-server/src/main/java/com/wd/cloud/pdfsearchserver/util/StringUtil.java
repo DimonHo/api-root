@@ -24,10 +24,4 @@ public class StringUtil {
                 .replaceAll("\r","")
                 .toLowerCase();
     }
-
-    public static void main(String[] args) {
-        String ss = "RopGEF2 is involved in ABA-suppression of seed germination and post-germination growth of\n" +
-                " <i>Arabidopsis</i>";
-        System.out.println(repalceSymbol(ss));
-    }
 }
