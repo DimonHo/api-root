@@ -14,6 +14,10 @@ public class StringUtil {
                 .replaceAll(";","")
                 .replaceAll("   ","")
                 .replaceAll(",","")
+                .replaceAll(":","")
+                .replaceAll("^","")
+                .replaceAll("#","")
+                .replaceAll("@","")
                 .toLowerCase();
 
     }
