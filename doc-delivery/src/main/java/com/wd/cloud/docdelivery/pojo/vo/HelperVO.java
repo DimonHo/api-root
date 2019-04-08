@@ -28,7 +28,7 @@ public class HelperVO {
 
     @ApiModelProperty(value = "求助渠道", example = "1：qq,2:spis,3:zhy,4:crs,5:paper")
     @NotNull
-    private Long helperChannel;
+    private Long helpChannel;
 
     /**
      * 求助用户邮箱
