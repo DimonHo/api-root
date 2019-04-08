@@ -1,5 +1,6 @@
 package com.wd.cloud.uoserver.controller;
 
+import com.wd.cloud.commons.exception.AuthException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.uoserver.pojo.entity.OrgDept;
 import com.wd.cloud.uoserver.pojo.entity.OrgIp;
@@ -30,24 +31,37 @@ public class OrgManagerController {
 
     @ApiOperation(value = "检查错误IP", tags = {"IP维护"})
     @GetMapping("/manager/ip/validator-ip")
-    public ResponseModel validatorIp() {
-        List<OrgIp> errorOrgIps = orgService.validatorIp();
-        return ResponseModel.ok().setBody(errorOrgIps);
+    public ResponseModel validatorIp(@RequestParam String username,@RequestParam String password) {
+        if ("hezhigang".equals(username) && "hzg123".equals(password)){
+            List<OrgIp> errorOrgIps = orgService.validatorIp();
+            return ResponseModel.ok().setBody(errorOrgIps);
+        }else{
+            throw new AuthException("用户名或密码不正确");
+        }
     }
 
     @ApiOperation(value = "翻转Ip起始和结束顺序", tags = {"IP维护"})
     @PatchMapping("/manager/ip/reverse")
-    public ResponseModel reverse() throws UnknownHostException {
-        orgService.reverse();
-        return ResponseModel.ok();
+    public ResponseModel reverse(@RequestParam String username,@RequestParam String password) throws UnknownHostException {
+        if ("hezhigang".equals(username) && "hzg123".equals(password)){
+            orgService.reverse();
+            return ResponseModel.ok();
+        }else{
+            throw new AuthException("用户名或密码不正确");
+        }
+
     }
 
 
     @ApiOperation(value = "查询重叠IP段", tags = {"IP维护"})
     @GetMapping("/manager/ip/overlay")
-    public ResponseModel overlay() throws UnknownHostException {
-        orgService.overlay();
-        return ResponseModel.ok();
+    public ResponseModel overlay(@RequestParam String username,@RequestParam String password) throws UnknownHostException {
+        if ("hezhigang".equals(username) && "hzg123".equals(password)){
+            orgService.overlay();
+            return ResponseModel.ok();
+        }else{
+            throw new AuthException("用户名或密码不正确");
+        }
     }
 
     @ApiOperation(value = "新增,修改机构", tags = {"机构管理"})

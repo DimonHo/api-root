@@ -299,10 +299,13 @@ public class OrgServiceImpl implements OrgService {
             }
             String beginIp = orgIpVO.getBegin();
             String endIp = orgIpVO.getEnd();
+
             //校验IP格式
             if (!NetUtil.isIp(beginIp) || !NetUtil.isIp(endIp)) {
                 throw IPValidException.validNotIp(beginIp + "---" + endIp);
             }
+            //是否是V6地址
+            boolean isV6 = IPAddressUtil.isIPv6LiteralAddress(beginIp) || IPAddressUtil.isIPv6LiteralAddress(endIp);
             BigInteger beginNum = NetUtil.ipToBigInteger(beginIp);
             BigInteger endNum = NetUtil.ipToBigInteger(endIp);
             // 如果开始IP大于结束IP，将位置互换
@@ -329,7 +332,7 @@ public class OrgServiceImpl implements OrgService {
                     }
                 }
                 // 通过检查，更新
-                orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
+                orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum).setV6(isV6);
                 orgIpList.add(orgIpEntity);
 
             } else {
@@ -338,7 +341,7 @@ public class OrgServiceImpl implements OrgService {
                 if (CollectionUtil.isEmpty(overlayOrgIps)) {
                     // 通过检查，如果有id,则更新，否则就新增
                     OrgIp orgIpEntity = new OrgIp();
-                    orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum);
+                    orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum).setV6(isV6);
                     orgIpList.add(orgIpEntity);
                 } else {
                     throw IPValidException.existsIp(beginIp, endIp, overlayOrgIps);
