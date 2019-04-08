@@ -4,6 +4,8 @@ public class StringUtil {
     public static String repalceSymbol(String str){
         return str.replaceAll("\\.","")
                 .replaceAll("-","")
+                .replaceAll("<[.[^>]]*>","")
+                //.replaceAll("\\<.*?>","")
                 .replaceAll("<","")
                 .replaceAll(">","")
                 .replaceAll("《","")
@@ -14,7 +16,12 @@ public class StringUtil {
                 .replaceAll(";","")
                 .replaceAll("   ","")
                 .replaceAll(",","")
+                .replaceAll(":","")
+                .replaceAll("^","")
+                .replaceAll("#","")
+                .replaceAll("@","")
+                .replaceAll("\n","")
+                .replaceAll("\r","")
                 .toLowerCase();
-
     }
 }
