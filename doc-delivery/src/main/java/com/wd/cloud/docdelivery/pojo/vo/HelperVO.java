@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 public class HelperVO {
 
     @ApiModelProperty(value = "机构flag", example = "wdkj")
+    @NotBlank
     private String orgFlag;
 
     @ApiModelProperty(value = "机构名称", example = "纬度科技")
@@ -27,7 +28,7 @@ public class HelperVO {
 
     @ApiModelProperty(value = "求助渠道", example = "1：qq,2:spis,3:zhy,4:crs,5:paper")
     @NotNull
-    private Integer helperChannel;
+    private Long helperChannel;
 
     /**
      * 求助用户邮箱
@@ -41,5 +42,5 @@ public class HelperVO {
     private String remark;
 
     @ApiModelProperty(value = "是否匿名,默认false", example = "false")
-    private boolean anonymous;
+    private Boolean anonymous;
 }
