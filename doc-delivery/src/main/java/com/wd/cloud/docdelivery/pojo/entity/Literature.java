@@ -65,7 +65,7 @@ public class Literature extends AbstractEntity {
      * 复用
      */
     @Column(name = "is_reusing", columnDefinition = "tinyint(1) default 0 COMMENT '0:未复用，1：已复用'")
-    private boolean reusing;
+    private Boolean reusing;
     /**
      * 最后处理人
      */

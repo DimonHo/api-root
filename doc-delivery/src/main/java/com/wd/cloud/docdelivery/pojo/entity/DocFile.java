@@ -32,12 +32,12 @@ public class DocFile extends AbstractEntity {
      * 仓库类型，1：fs-server,2：大数据平台全文仓库
      */
     @Column(name = "is_big_db", columnDefinition = "bit(1) default 0 COMMENT '0:文件上传，1：数据平台'")
-    private boolean bigDb;
+    private Boolean bigDb;
     /**
      * 复用
      */
     @Column(name = "is_reusing", columnDefinition = "tinyint(1) default 0 COMMENT '0:未复用，1：已复用'")
-    private boolean reusing;
+    private Boolean reusing;
 
     private String handlerName;
 

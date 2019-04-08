@@ -103,7 +103,7 @@ public class FrontendController {
             @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query"),
     })
     @GetMapping("/help/records")
-    public ResponseModel helpRecords(@RequestParam(required = false) List<Integer> channel,
+    public ResponseModel helpRecords(@RequestParam(required = false) List<Long> channel,
                                      @RequestParam(required = false) List<Integer> status,
                                      @RequestParam(required = false) String keyword,
                                      @RequestParam(required = false) String email,
@@ -123,7 +123,7 @@ public class FrontendController {
             @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/help/records/wait")
-    public ResponseModel helpWaitList(@RequestParam(required = false) List<Integer> channel,
+    public ResponseModel helpWaitList(@RequestParam(required = false) List<Long> channel,
                                       @RequestParam(required = false) Boolean isDifficult,
                                       @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                       @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
@@ -141,7 +141,7 @@ public class FrontendController {
             @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/help/records/finish")
-    public ResponseModel helpFinishList(@RequestParam(required = false) List<Integer> channel,
+    public ResponseModel helpFinishList(@RequestParam(required = false) List<Long> channel,
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
@@ -158,7 +158,7 @@ public class FrontendController {
             @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/help/records/success")
-    public ResponseModel helpSuccessList(@RequestParam(required = false) List<Integer> channel,
+    public ResponseModel helpSuccessList(@RequestParam(required = false) List<Long> channel,
                                          @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
@@ -173,7 +173,7 @@ public class FrontendController {
             @ApiImplicitParam(name = "isOrg", value = "只显示本校(默认false,查询所有)", dataType = "Boolean", paramType = "query")
     })
     @GetMapping("/help/records/failed")
-    public ResponseModel helpFailedList(@RequestParam(required = false) List<Integer> channel,
+    public ResponseModel helpFailedList(@RequestParam(required = false) List<Long> channel,
                                         @RequestParam(required = false) List<Integer> status,
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {

@@ -48,7 +48,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
         }
 
 
-        public static Specification<VHelpRecord> buildVhelpRecord(List<Integer> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, String orgFlag, Date beginDate,Date endDate) {
+        public static Specification<VHelpRecord> buildVhelpRecord(List<Long> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, String orgFlag, Date beginDate,Date endDate) {
             return (Specification<VHelpRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<>();
                 if (orgFlag != null) {

@@ -1,5 +1,7 @@
 package com.wd.cloud.docdelivery.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
@@ -51,15 +53,17 @@ public class HelpRequestServiceImpl implements HelpRequestService {
     public void helpRequest(Literature literature, HelpRecord helpRecord) {
         literature.createUnid();
         Optional<Literature> optionalLiterature = literatureRepository.findByUnid(literature.getUnid());
-        optionalLiterature.ifPresent(lt -> {
+        if (optionalLiterature.isPresent()){
+            Literature lt = optionalLiterature.get();
             // 最近15天是否求助过相同的文献
             helpRecordRepository
                     .findByHelperEmailAndLiteratureId(helpRecord.getHelperEmail(), lt.getId())
                     .ifPresent(h -> {
                         throw new RepeatHelpRequestException();
                     });
-            literature.setId(lt.getId());
-        });
+            BeanUtil.copyProperties(literature, lt, CopyOptions.create().setIgnoreNullValue(true));
+            literature = lt;
+        }
         Literature literatureEntity = literatureRepository.save(literature);
         helpRecord.setLiteratureId(literatureEntity.getId());
         DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(literatureEntity.getId());
