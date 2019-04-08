@@ -169,7 +169,7 @@ public class FrontServiceImpl implements FrontService {
                 // 直接删除应助记录
                 giveRecordRepository.delete(giveRecord);
                 //更新求助记录状态
-                helpRecord.setStatus(helpRecord.isDifficult() ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
+                helpRecord.setStatus(BooleanUtil.isTrue(helpRecord.getDifficult()) ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
                 helpRecordRepository.save(helpRecord);
                 flag = true;
             }
@@ -361,7 +361,7 @@ public class FrontServiceImpl implements FrontService {
             BeanUtil.copyProperties(giveRecord, giveRecordDTO);
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
             optionalHelpRecord.ifPresent(helpRecord -> {
-                giveRecordDTO.setHelperEmail(helpRecord.isAnonymous() ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()))
+                giveRecordDTO.setHelperEmail(BooleanUtil.isTrue(helpRecord.getAnonymous()) ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()))
                         .setRemark(helpRecord.getRemark()).setOrgName(helpRecord.getOrgName());
                 Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
                 optionalLiterature.ifPresent(literature -> {

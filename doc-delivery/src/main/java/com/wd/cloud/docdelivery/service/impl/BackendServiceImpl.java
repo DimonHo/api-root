@@ -1,6 +1,7 @@
 package com.wd.cloud.docdelivery.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.exception.FeignException;
 import com.wd.cloud.commons.exception.NotFoundException;
@@ -220,7 +221,7 @@ public class BackendServiceImpl implements BackendService {
                 .findByHelpRecordIdAndStatusAndType(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value(), GiveTypeEnum.USER.value())
                 .orElseThrow(NotFoundException::new);
         giveRecord.setStatus(GiveStatusEnum.AUDIT_NO_PASS.value()).setHandlerName(handlerName);
-        helpRecord.setStatus(helpRecord.isDifficult() ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
+        helpRecord.setStatus(BooleanUtil.isTrue(helpRecord.getDifficult()) ? HelpStatusEnum.HELP_FAILED.value() : HelpStatusEnum.WAIT_HELP.value());
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
     }
