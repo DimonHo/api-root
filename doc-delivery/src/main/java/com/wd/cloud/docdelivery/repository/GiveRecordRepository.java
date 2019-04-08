@@ -97,6 +97,15 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
     List<GiveRecord> findByHelpRecordId(Long helpRecordId);
 
     /**
+     * 查询
+     * @param helpRecordId
+     * @param giverName
+     * @param status
+     * @return
+     */
+    Optional<GiveRecord> findByHelpRecordIdAndGiverNameAndStatus(Long helpRecordId,String giverName,Integer status);
+
+    /**
      * 查询指定状态的记录
      *
      * @param helpRecordId

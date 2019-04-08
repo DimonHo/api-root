@@ -69,7 +69,7 @@ public interface FrontService {
     /**
      * 创建应助记录
      */
-    void createGiveRecord(HelpRecord helpRecord, String giverName, DocFile docFile, String giviIp);
+    void createGiveRecord(HelpRecord helpRecord, String giverName, String fileId, String giviIp);
 
     /**
      * 获取用户的求助记录

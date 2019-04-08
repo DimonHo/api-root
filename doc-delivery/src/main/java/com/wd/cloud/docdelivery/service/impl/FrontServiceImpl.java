@@ -143,13 +143,9 @@ public class FrontServiceImpl implements FrontService {
             }
             fileId = responseModel.getBody().getStr("fileId");
         }
-        String fileName = file.getOriginalFilename();
-        Optional<Literature> optionalLiterature = literatureRepository.findById(helpRecord.getLiteratureId());
-        if (optionalLiterature.isPresent()) {
-            DocFile docFile = saveDocFile(optionalLiterature.get().getId(), fileId, fileName);
-            //更新记录
-            createGiveRecord(helpRecord, giverName, docFile, ip);
-        }
+        //更新记录
+        createGiveRecord(helpRecord, giverName, fileId, ip);
+
 
     }
 
@@ -207,12 +203,12 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public void createGiveRecord(HelpRecord helpRecord, String giverName, DocFile docFile, String giveIp) {
+    public void createGiveRecord(HelpRecord helpRecord, String giverName, String fileId, String giveIp) {
         //更新求助状态为待审核
         helpRecord.setStatus(HelpStatusEnum.WAIT_AUDIT.value());
         GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusAndGiverName(helpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.value(), giverName);
         //关联应助记录
-        giveRecord.setFileId(docFile.getFileId())
+        giveRecord.setFileId(fileId)
                 .setGiverName(giverName)
                 .setGiverIp(giveIp)
                 .setHelpRecordId(helpRecord.getId());
