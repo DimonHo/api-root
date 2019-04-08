@@ -73,19 +73,19 @@ public class HelpRecord extends AbstractEntity {
      * 是否是疑难文献
      */
     @Column(name = "is_difficult", columnDefinition = "bit default 0 COMMENT '1：疑难文献'")
-    private boolean difficult;
+    private Boolean difficult;
 
     /**
      * 是否成功发送邮件
      */
     @Column(name = "is_send", columnDefinition = "bit default 1 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
-    private boolean send;
+    private Boolean send;
 
     /**
      * 是否匿名
      */
     @Column(name = "is_anonymous", columnDefinition = "bit default 0 COMMENT '0：未匿名， 1：已匿名'")
-    private boolean anonymous;
+    private Boolean anonymous;
 
     private String unid;
     /**
