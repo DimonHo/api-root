@@ -4,6 +4,7 @@ import com.wd.cloud.uoserver.pojo.entity.OrgIp;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +44,7 @@ public interface OrgIpRepository extends JpaRepository<OrgIp, Long> {
      * @return
      */
     @Query(value = "from OrgIp where (beginNumber <= ?1 and endNumber >=?1) or (beginNumber <= ?2 and endNumber >=?2)")
-    List<OrgIp> findExists(Long beginNum, Long endNum);
+    List<OrgIp> findExists(BigInteger beginNum, BigInteger endNum);
 
     /**
      * 查找某个IP
@@ -51,5 +52,5 @@ public interface OrgIpRepository extends JpaRepository<OrgIp, Long> {
      * @return
      */
     @Query(value = "from OrgIp where beginNumber <= ?1 and endNumber >=?1")
-    Optional<OrgIp> findExists(long ipNum);
+    Optional<OrgIp> findExists(BigInteger ipNum);
 }

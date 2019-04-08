@@ -34,5 +34,5 @@ public class UserMsg extends AbstractEntity{
      * 是否已读
      */
     @Column(name = "is_read",columnDefinition = "bit(1) default 0 COMMENT '0:未读，1：已读'")
-    private boolean read;
+    private Boolean read;
 }

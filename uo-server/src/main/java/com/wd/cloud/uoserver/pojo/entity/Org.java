@@ -41,7 +41,7 @@ public class Org extends AbstractEntity {
      * 是否停止使用0：否，1：是
      */
     @Column(name = "is_disable",columnDefinition = "bit(1) default 0")
-    private boolean disable;
+    private Boolean disable;
 
 
 }

@@ -20,7 +20,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.net.util.IPAddressUtil;
 
+import java.math.BigInteger;
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,17 +83,17 @@ public class OrgServiceImpl implements OrgService {
      * 翻转起始IP大于结束IP的记录
      */
     @Override
-    public void reverse() {
+    public void reverse() throws UnknownHostException {
         //查询所有数据
         List<OrgIp> orgIps = orgIpRepository.findAll();
         //根据Id查询开始IP跟结束IP
         for (OrgIp orgIp : orgIps) {
             String begin = orgIp.getBegin();
             String end = orgIp.getEnd();
-            long beginNumber = NetUtil.ipv4ToLong(begin);
-            long endNumber = NetUtil.ipv4ToLong(end);
+            BigInteger beginNumber = NetUtil.ipToBigInteger(begin);
+            BigInteger endNumber = NetUtil.ipToBigInteger(end);
             //如果开始IP比结束IP大则翻转他们的起始和结束
-            if (beginNumber > endNumber) {
+            if (beginNumber.compareTo(endNumber) > 0) {
                 orgIp.setBegin(end).setEnd(begin).setBeginNumber(endNumber).setEndNumber(beginNumber);
             } else {
                 orgIp.setBegin(begin).setEnd(end).setBeginNumber(beginNumber).setEndNumber(endNumber);
@@ -105,26 +108,27 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public Map<OrgIpDTO, Set<OrgIp>> overlay() {
+    public Map<OrgIpDTO, Set<OrgIp>> overlay() throws UnknownHostException {
         List<OrgIp> orgIps = orgIpRepository.findAll();
         Map<OrgIpDTO, Set<OrgIp>> orgIpMap = new HashMap<>();
         for (int i = 0; i < orgIps.size(); i++) {
             OrgIp orgIp1 = orgIps.get(i);
-            long beginIp1 = NetUtil.ipToLong(orgIp1.getBegin());
-            long endIp1 = NetUtil.ipToLong(orgIp1.getEnd());
+            boolean isV6 = IPAddressUtil.isIPv6LiteralAddress(orgIp1.getBegin());
+            BigInteger beginIp1 = NetUtil.ipToBigInteger(orgIp1.getBegin());
+            BigInteger endIp1 = NetUtil.ipToBigInteger(orgIp1.getEnd());
             for (int j = i + 1; j < orgIps.size(); j++) {
                 OrgIp orgIp2 = orgIps.get(j);
-                long beginIp2 = NetUtil.ipToLong(orgIp2.getBegin());
-                long endIp2 = NetUtil.ipToLong(orgIp2.getEnd());
-                if (beginIp1 > beginIp2) {
+                BigInteger beginIp2 = NetUtil.ipToBigInteger(orgIp2.getBegin());
+                BigInteger endIp2 = NetUtil.ipToBigInteger(orgIp2.getEnd());
+                if (beginIp1.compareTo(beginIp2) > 0) {
                     beginIp2 = beginIp1;
                 }
-                if (endIp1 < endIp2) {
+                if (endIp1.compareTo(endIp2) < 0) {
                     endIp2 = endIp1;
                 }
-                if (beginIp2 < endIp2) {
+                if (beginIp2.compareTo(endIp2) < 0) {
                     OrgIpDTO orgIpDTOKey = new OrgIpDTO();
-                    orgIpDTOKey.setBegin(NetUtil.longToIp(beginIp2)).setEnd(NetUtil.longToIp(endIp2));
+                    orgIpDTOKey.setBegin(NetUtil.bigIntegerToIp(beginIp2, isV6)).setEnd(NetUtil.bigIntegerToIp(endIp2, isV6));
                     if (orgIpMap.get(orgIpDTOKey) != null) {
                         orgIpMap.get(orgIpDTOKey).add(orgIp1);
                         orgIpMap.get(orgIpDTOKey).add(orgIp2);
@@ -159,7 +163,7 @@ public class OrgServiceImpl implements OrgService {
      * @param orgVO
      */
     @Override
-    public void saveOrg(OrgVO orgVO) {
+    public void saveOrg(OrgVO orgVO) throws UnknownHostException {
         Org org = orgRepository.findByFlag(orgVO.getFlag()).orElse(new Org());
         BeanUtil.copyProperties(orgVO, org);
         orgRepository.save(org);
@@ -284,26 +288,26 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) {
+    public List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) throws UnknownHostException {
         // 检查orgFlag是否存在，不存在则抛出异常
         orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
         List<OrgIp> orgIpList = new ArrayList<>();
         for (OrgIpVO orgIpVO : orgIpVOS) {
-            if (orgIpVO.getId() != null && BooleanUtil.isTrue(orgIpVO.isDel())) {
+            if (orgIpVO.getId() != null && BooleanUtil.isTrue(orgIpVO.getDel())) {
                 orgIpRepository.deleteByOrgFlagAndId(orgFlag, orgIpVO.getId());
                 continue;
             }
             String beginIp = orgIpVO.getBegin();
             String endIp = orgIpVO.getEnd();
             //校验IP格式
-            if (!Validator.isIpv4(beginIp) || !Validator.isIpv4(endIp)) {
+            if (!NetUtil.isIp(beginIp) || !NetUtil.isIp(endIp)) {
                 throw IPValidException.validNotIp(beginIp + "---" + endIp);
             }
-            long beginNum = NetUtil.ipv4ToLong(beginIp);
-            long endNum = NetUtil.ipv4ToLong(endIp);
+            BigInteger beginNum = NetUtil.ipToBigInteger(beginIp);
+            BigInteger endNum = NetUtil.ipToBigInteger(endIp);
             // 如果开始IP大于结束IP，将位置互换
-            if (beginNum > endNum) {
-                long temp = beginNum;
+            if (beginNum.compareTo(endNum) > 0) {
+                BigInteger temp = beginNum;
                 beginNum = endNum;
                 beginIp = orgIpVO.getEnd();
                 endNum = temp;
@@ -312,13 +316,13 @@ public class OrgServiceImpl implements OrgService {
             if (orgIpVO.getId() != null) {
                 // 更新
                 OrgIp orgIpEntity = orgIpRepository.findByOrgFlagAndId(orgFlag, orgIpVO.getId()).orElseThrow(NotFoundException::new);
-                if (beginNum < orgIpEntity.getBeginNumber()) {
+                if (beginNum.compareTo(orgIpEntity.getBeginNumber()) < 0) {
                     Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(beginNum);
                     if (optionOrgIp.isPresent()) {
                         throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
                     }
                 }
-                if (endNum > orgIpEntity.getEndNumber() && orgIpRepository.findExists(endNum).isPresent()) {
+                if (endNum.compareTo(orgIpEntity.getEndNumber()) > 0 && orgIpRepository.findExists(endNum).isPresent()) {
                     Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(endNum);
                     if (optionOrgIp.isPresent()) {
                         throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
@@ -369,7 +373,7 @@ public class OrgServiceImpl implements OrgService {
         for (DeptVO deptVo : deptLit){
             if (deptVo.getId() != null) {
                 //删除
-                if (BooleanUtil.isTrue(deptVo.isDel())) {
+                if (BooleanUtil.isTrue(deptVo.getDel())) {
                     orgDeptRepository.deleteByOrgFlagAndId(orgFlag, deptVo.getId());
                 } else {
                     // 修改

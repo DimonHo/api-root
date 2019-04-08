@@ -33,6 +33,11 @@ public class OrgVO {
      */
     private String city;
 
+    /**
+     * 是否禁用
+     */
+    private Boolean disable;
+
     List<OrgLinkmanVO> linkman;
 
     List<OrgProdVO> prod;

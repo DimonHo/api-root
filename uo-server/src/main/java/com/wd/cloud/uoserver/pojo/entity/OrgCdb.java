@@ -34,7 +34,7 @@ public class OrgCdb extends AbstractEntity {
      * 是否隐藏馆藏数据库
      */
     @Column(name = "is_display",columnDefinition = "bit(1) default 0 COMMENT '0:否，1：是'")
-    private boolean display;
+    private Boolean display;
 
     @Column(name = "type",columnDefinition = "tinyint(1) default 1 COMMENT '1:馆藏，2：筛选'")
     private Integer type;

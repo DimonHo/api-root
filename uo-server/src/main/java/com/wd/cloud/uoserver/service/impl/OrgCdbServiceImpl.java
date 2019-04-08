@@ -73,7 +73,7 @@ public class OrgCdbServiceImpl implements OrgCdbService {
         for (OrgCdbVO orgCdbVO : orgCdbVOS) {
             if (orgCdbVO.getId() != null){
                 // 删除
-                if (BooleanUtil.isTrue(orgCdbVO.isDel())){
+                if (BooleanUtil.isTrue(orgCdbVO.getDel())){
                     orgCdbRepository.deleteByOrgFlagAndId(orgFlag, orgCdbVO.getId());
                 }else{
                     // 更新

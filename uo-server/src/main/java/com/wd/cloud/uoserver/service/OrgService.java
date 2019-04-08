@@ -11,6 +11,7 @@ import com.wd.cloud.uoserver.pojo.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,14 +33,14 @@ public interface OrgService {
     /**
      * 翻转起始IP大于结束IP的记录
      */
-    void reverse();
+    void reverse() throws UnknownHostException;
 
     /**
      * 查询重叠IP范围
      *
      * @return
      */
-    Map<OrgIpDTO, Set<OrgIp>> overlay();
+    Map<OrgIpDTO, Set<OrgIp>> overlay() throws UnknownHostException;
 
     /**
      * 检查机构名称或标识是否已存在
@@ -55,7 +56,7 @@ public interface OrgService {
      *
      * @param org
      */
-    void saveOrg(OrgVO org);
+    void saveOrg(OrgVO org) throws UnknownHostException;
 
     /**
      * 查询IP所属机构信息
@@ -115,7 +116,7 @@ public interface OrgService {
      * @param ipModels
      * @return
      */
-    List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels);
+    List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels) throws UnknownHostException;
 
     /**
      * 查询机构院系列表

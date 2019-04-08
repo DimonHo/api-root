@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public class OrgManagerController {
 
     @ApiOperation(value = "翻转Ip起始和结束顺序", tags = {"IP维护"})
     @PatchMapping("/manager/ip/reverse")
-    public ResponseModel reverse() {
+    public ResponseModel reverse() throws UnknownHostException {
         orgService.reverse();
         return ResponseModel.ok();
     }
@@ -44,14 +45,14 @@ public class OrgManagerController {
 
     @ApiOperation(value = "查询重叠IP段", tags = {"IP维护"})
     @GetMapping("/manager/ip/overlay")
-    public ResponseModel overlay() {
+    public ResponseModel overlay() throws UnknownHostException {
         orgService.overlay();
         return ResponseModel.ok();
     }
 
     @ApiOperation(value = "新增,修改机构", tags = {"机构管理"})
     @PostMapping("/manager/org")
-    public ResponseModel addOrg(@RequestBody OrgVO org) {
+    public ResponseModel addOrg(@RequestBody OrgVO org) throws UnknownHostException {
         orgService.saveOrg(org);
         return ResponseModel.ok();
     }
@@ -59,7 +60,7 @@ public class OrgManagerController {
     @ApiOperation(value = "新增/修改/删除机构IP", tags = {"机构管理"})
     @PostMapping("/manager/org/ip")
     public ResponseModel addOrgIp(@RequestParam String orgFlag,
-                                  @RequestBody List<OrgIpVO> ip){
+                                  @RequestBody List<OrgIpVO> ip) throws UnknownHostException {
         List<OrgIp> orgIpList = orgService.saveOrgIp(orgFlag, ip);
         return ResponseModel.ok().setBody(orgIpList);
     }

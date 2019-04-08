@@ -27,5 +27,5 @@ public class OrgIpVO {
     /**
      * 是否删除？
      */
-    private boolean del;
+    private Boolean del;
 }

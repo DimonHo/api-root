@@ -81,12 +81,12 @@ public class UserDTO implements Serializable {
     /**
      * 是否在线？0：离线，1：在线
      */
-    private boolean online;
+    private Boolean online;
 
     /**
      * 是否禁用？ 0：未禁用，1：已禁用
      */
-    private boolean forbidden;
+    private Boolean forbidden;
     /**
      * 认证狀態 0:未认证，1：待认证，2：已认证
      */

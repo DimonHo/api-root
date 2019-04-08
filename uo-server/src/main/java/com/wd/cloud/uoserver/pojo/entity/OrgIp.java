@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 
 /**
  * @author He Zhigang
@@ -24,7 +25,13 @@ public class OrgIp extends AbstractEntity {
 
     private String end;
 
-    private Long beginNumber;
+    private BigInteger beginNumber;
 
-    private Long endNumber;
+    private BigInteger endNumber;
+
+    /**
+     * 是否是IPV6地址
+     */
+    @Column(name = "is_v6", columnDefinition = "bit(1) default 0 COMMENT '0:否，1：是'")
+    private Boolean v6;
 }

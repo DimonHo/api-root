@@ -23,5 +23,5 @@ public class DeptVO {
      */
     private String name;
 
-    boolean del;
+    Boolean del;
 }

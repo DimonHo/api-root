@@ -22,7 +22,7 @@ public class OrgCdbVO {
 
     private Integer type;
 
-    private boolean display;
+    private Boolean display;
 
-    private boolean del;
+    private Boolean del;
 }

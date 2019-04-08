@@ -51,5 +51,5 @@ public class OrgProd extends AbstractEntity {
      * 是否独立购买
      */
     @Column(name = "is_single",columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
-    private boolean single;
+    private Boolean single;
 }

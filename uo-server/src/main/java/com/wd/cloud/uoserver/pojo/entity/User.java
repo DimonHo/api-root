@@ -126,11 +126,11 @@ public class User extends AbstractEntity {
 
     /**是否在线*/
     @Column(name = "is_online",columnDefinition = "tinyint(1) default 0 COMMENT '0:离线，1：在线'")
-    private boolean online;
+    private Boolean online;
 
     /**账号是否被禁用*/
     @Column(name = "is_forbidden",columnDefinition = "tinyint(1) default 0 COMMENT '0:未禁用，1：禁用'")
-    private boolean forbidden;
+    private Boolean forbidden;
 
     private String handlerName;
 
