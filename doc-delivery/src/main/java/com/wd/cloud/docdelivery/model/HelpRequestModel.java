@@ -30,7 +30,7 @@ public class HelpRequestModel {
      */
     @ApiModelProperty(value = "求助渠道", example = "1")
     @NotNull
-    private Integer helpChannel;
+    private Long helpChannel;
 
     /**
      * 求助文件标题
@@ -69,7 +69,7 @@ public class HelpRequestModel {
     private String remark;
 
     @ApiModelProperty(value = "是否匿名,默认false", example = "false")
-    private boolean anonymous = false;
+    private Boolean anonymous;
 
     public String getDocTitle() {
         return HtmlUtil.unescape(HtmlUtil.cleanHtmlTag(this.docTitle.trim()));
