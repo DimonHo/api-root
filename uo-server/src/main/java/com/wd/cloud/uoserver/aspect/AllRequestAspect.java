@@ -44,7 +44,7 @@ public class AllRequestAspect {
     @Autowired
     OrgService orgService;
 
-    @Pointcut("execution(public * com.wd.cloud.docdelivery.controller.*.*(..))")
+    @Pointcut("execution(public * com.wd.cloud.uoserver.controller.*.*(..))")
     public void pointcut() {
     }
 
