@@ -134,8 +134,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserDTO(String id) {
         User user = userRepository.findUser(id).orElseThrow(NotFoundException::new);
-        UserDTO userDTO = new UserDTO();
-        BeanUtil.copyProperties(user, userDTO);
+        UserDTO userDTO = BeanUtil.toBean(user, UserDTO.class);
         if (StrUtil.isNotBlank(user.getOrgFlag())) {
             addUserOrg(user, userDTO);
         }
@@ -148,8 +147,7 @@ public class UserServiceImpl implements UserService {
 
     private void addUserOrg(User user, UserDTO userDTO) {
         Org org = orgRepository.findByFlag(user.getOrgFlag()).orElseThrow(NotFoundException::new);
-        OrgDTO orgDTO = new OrgDTO();
-        BeanUtil.copyProperties(org, orgDTO);
+        OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
         userDTO.setOrg(orgDTO).setOrgName(org.getName());
         //如果有部門ID，則返回部門名稱
         if (user.getOrgDeptId() != null) {
