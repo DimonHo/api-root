@@ -13,8 +13,6 @@ import com.wd.cloud.uoserver.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,12 +30,6 @@ public class UserController {
 
     @Autowired
     HttpServletRequest request;
-
-    @Autowired
-    RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
-    RedisOperationsSessionRepository redisOperationsSessionRepository;
 
     @Autowired
     UserService userService;

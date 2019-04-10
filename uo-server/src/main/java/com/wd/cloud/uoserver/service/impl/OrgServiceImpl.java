@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.wd.cloud.commons.constant.CacheConstant;
 import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.util.DateUtil;
 import com.wd.cloud.commons.util.NetUtil;
@@ -16,14 +18,17 @@ import com.wd.cloud.uoserver.repository.*;
 import com.wd.cloud.uoserver.service.OrgService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sun.net.util.IPAddressUtil;
 
 import java.math.BigInteger;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,6 +65,24 @@ public class OrgServiceImpl implements OrgService {
     @Autowired
     OrgLinkmanRepository orgLinkmanRepository;
 
+    @Override
+    @Cacheable(value = CacheConstant.ORG_IP, key = "'all'")
+    public List<OrgIp> findAllOrgIp() {
+        return orgIpRepository.findAll().stream().map(orgIp -> orgIp
+                .setBeginNumber(NetUtil.ipToBigInteger(orgIp.getBegin()))
+                .setEndNumber(NetUtil.ipToBigInteger(orgIp.getEnd()))).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<OrgIp> findIp(String ip) {
+        BigInteger ipNum = NetUtil.ipToBigInteger(ip);
+        return findAllOrgIp().stream()
+                // 某ip大于等于开始IP且小于等于结束IP，则表示在某一个范围内
+                .filter(orgIp -> ipNum.compareTo(orgIp.getBeginNumber()) >= 0 && ipNum.compareTo(orgIp.getEndNumber()) <= 0)
+                .findAny();
+    }
+
+
     /**
      * 校验IP是否是正确的格式，返回错误IP列表
      *
@@ -83,7 +106,7 @@ public class OrgServiceImpl implements OrgService {
      * 翻转起始IP大于结束IP的记录
      */
     @Override
-    public void reverse() throws UnknownHostException {
+    public void reverse() {
         //查询所有数据
         List<OrgIp> orgIps = orgIpRepository.findAll();
         //根据Id查询开始IP跟结束IP
@@ -108,7 +131,7 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public Map<OrgIpDTO, Set<OrgIp>> overlay() throws UnknownHostException {
+    public Map<OrgIpDTO, Set<OrgIp>> overlay() {
         List<OrgIp> orgIps = orgIpRepository.findAll();
         Map<OrgIpDTO, Set<OrgIp>> orgIpMap = new HashMap<>();
         for (int i = 0; i < orgIps.size(); i++) {
@@ -163,7 +186,8 @@ public class OrgServiceImpl implements OrgService {
      * @param orgVO
      */
     @Override
-    public void saveOrg(OrgVO orgVO) throws UnknownHostException {
+    @Cacheable(value = CacheConstant.ORG, key = "#orgVO.flag")
+    public void saveOrg(OrgVO orgVO) {
         Org org = orgRepository.findByFlag(orgVO.getFlag()).orElse(new Org());
         BeanUtil.copyProperties(orgVO, org);
         orgRepository.save(org);
@@ -184,19 +208,20 @@ public class OrgServiceImpl implements OrgService {
      *
      * @param orgName
      * @param flag
-     * @param ip
      * @return
      */
     @Override
-    public OrgDTO findOrg(String orgName, String flag, String ip, List<String> includes) {
-        Org org = orgRepository.findOne(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, ip, null, null, false))
+    @Cacheable(value = CacheConstant.ORG, key = "#flag", condition = "#flag != null")
+    public OrgDTO findOrg(String orgName, String flag) {
+        Org org = orgRepository.findOne(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, null, null, false))
                 .orElseThrow(NotFoundOrgException::new);
-        return convertOrgToDTO(org, null,null,false, includes);
+        return convertOrgToDTO(org, null, null, false, CollectionUtil.newArrayList("ip", "linkman", "dept", "cdb"));
     }
 
     @Override
-    public List<Org> getOrgList() {
-        return orgRepository.findAll();
+    @Cacheable(value = CacheConstant.ORG)
+    public List<Org> getOrgList(Sort sort) {
+        return orgRepository.findAll(sort);
     }
 
     /**
@@ -210,7 +235,11 @@ public class OrgServiceImpl implements OrgService {
      */
     @Override
     public Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp,boolean isFilter,List<String> includes, Pageable pageable) {
-        Page<Org> orgPage = orgRepository.findAll(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, ip, prodStatus, isExp, true), pageable);
+        if (StrUtil.isBlank(flag) && StrUtil.isNotBlank(ip)){
+            Optional<OrgIp> optionalOrgIp = findIpRange(findAllOrgIp(),NetUtil.ipToBigInteger(ip));
+            flag = optionalOrgIp.map(OrgIp::getOrgFlag).orElse(null);
+        }
+        Page<Org> orgPage = orgRepository.findAll(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, prodStatus, isExp, true), pageable);
         return orgPage.map(org -> convertOrgToDTO(org, prodStatus,isExp, isFilter,includes));
     }
 
@@ -221,6 +250,7 @@ public class OrgServiceImpl implements OrgService {
      * @param orgProdVOS
      */
     @Override
+    @CacheEvict(value = CacheConstant.ORG, key = "#orgFlag")
     public void saveOrgProd(String orgFlag, List<OrgProdVO> orgProdVOS) {
         List<OrgProd> orgProds = new ArrayList<>();
         for (OrgProdVO orgProdVO : orgProdVOS) {
@@ -239,6 +269,7 @@ public class OrgServiceImpl implements OrgService {
     }
 
     @Override
+    @CacheEvict(value = CacheConstant.ORG, key = "#orgFlag")
     public void saveLinkman(String orgFlag, List<OrgLinkmanVO> linkmanVOS) {
         List<OrgLinkman> orgLinkmanList = new ArrayList<>();
         for (OrgLinkmanVO linkmanVO : linkmanVOS) {
@@ -272,6 +303,7 @@ public class OrgServiceImpl implements OrgService {
      * @param prodIds
      */
     @Override
+    @CacheEvict(value = CacheConstant.ORG, key = "#orgFlag")
     public void cancelProd(String orgFlag, List<Long> prodIds) {
         //如果prodIds为空，则取消订购所有产品
         if (CollectionUtil.isEmpty(prodIds)) {
@@ -288,7 +320,12 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) throws UnknownHostException {
+    @Caching(evict = {
+            @CacheEvict(value = CacheConstant.ORG, key = "#orgFlag"),
+            @CacheEvict(value = CacheConstant.ORG_IP, allEntries = true)
+    })
+    public List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> orgIpVOS) {
+        List<OrgIp> cacheIpList = findAllOrgIp();
         // 检查orgFlag是否存在，不存在则抛出异常
         orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
         List<OrgIp> orgIpList = new ArrayList<>();
@@ -316,39 +353,60 @@ public class OrgServiceImpl implements OrgService {
                 endNum = temp;
                 endIp = orgIpVO.getBegin();
             }
+
+            Optional<OrgIp> optionalOrgBeginIp = findIpRange(cacheIpList, beginNum);
+            Optional<OrgIp> optionalOrgEndIp = findIpRange(cacheIpList, endNum);
+
             if (orgIpVO.getId() != null) {
                 // 更新
                 OrgIp orgIpEntity = orgIpRepository.findByOrgFlagAndId(orgFlag, orgIpVO.getId()).orElseThrow(NotFoundException::new);
+                // 如果新ip范围完全在原来的IP范围之内，直接更新。 否则检查超出部分是否和已有范围有重叠。
+                // 如果新的开始IP小于原来的开始IP，则有可能新IP和别的范围有重叠
                 if (beginNum.compareTo(orgIpEntity.getBeginNumber()) < 0) {
-                    Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(beginNum);
-                    if (optionOrgIp.isPresent()) {
-                        throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
+                    if (optionalOrgBeginIp.isPresent()) {
+                        throw IPValidException.existsIp(beginIp, endIp, optionalOrgBeginIp.get());
                     }
                 }
-                if (endNum.compareTo(orgIpEntity.getEndNumber()) > 0 && orgIpRepository.findExists(endNum).isPresent()) {
-                    Optional<OrgIp> optionOrgIp = orgIpRepository.findExists(endNum);
-                    if (optionOrgIp.isPresent()) {
-                        throw IPValidException.existsIp(beginIp, endIp, optionOrgIp.get());
+                // 如果新的结束IP大于原来的结束IP，则有可能新IP和别的范围有重叠
+                if (endNum.compareTo(orgIpEntity.getEndNumber()) > 0) {
+                    if (optionalOrgEndIp.isPresent()) {
+                        throw IPValidException.existsIp(beginIp, endIp, optionalOrgEndIp.get());
                     }
                 }
                 // 通过检查，更新
-                orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum).setV6(isV6);
+                orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setV6(isV6);
                 orgIpList.add(orgIpEntity);
 
             } else {
                 // 新增
-                List<OrgIp> overlayOrgIps = orgIpRepository.findExists(beginNum, endNum);
-                if (CollectionUtil.isEmpty(overlayOrgIps)) {
-                    // 通过检查，如果有id,则更新，否则就新增
-                    OrgIp orgIpEntity = new OrgIp();
-                    orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setBeginNumber(beginNum).setEndNumber(endNum).setV6(isV6);
-                    orgIpList.add(orgIpEntity);
+                if (optionalOrgBeginIp.isPresent()) {
+                    // 开始IP与已有IP范围重叠
+                    throw IPValidException.existsIp(beginIp, endIp, optionalOrgBeginIp.get());
+                } else if (optionalOrgEndIp.isPresent()) {
+                    // 结束IP与已有IP范围重叠
+                    throw IPValidException.existsIp(beginIp, endIp, optionalOrgEndIp.get());
                 } else {
-                    throw IPValidException.existsIp(beginIp, endIp, overlayOrgIps);
+                    // 通过检查，新增
+                    OrgIp orgIpEntity = new OrgIp();
+                    orgIpEntity.setOrgFlag(orgFlag).setBegin(beginIp).setEnd(endIp).setV6(isV6);
+                    orgIpList.add(orgIpEntity);
                 }
             }
         }
         return orgIpRepository.saveAll(orgIpList);
+    }
+
+    /**
+     * 查询IP是否在已有IP的范围内
+     *
+     * @param cacheIpList
+     * @param ipNum
+     */
+    private Optional<OrgIp> findIpRange(List<OrgIp> cacheIpList, BigInteger ipNum) {
+        return cacheIpList.stream()
+                // 某ip大于等于开始IP且小于等于结束IP，则表示在某一个范围内
+                .filter(orgIp -> ipNum.compareTo(orgIp.getBeginNumber()) >= 0 && ipNum.compareTo(orgIp.getEndNumber()) <= 0)
+                .findAny();
     }
 
     /**

@@ -3,6 +3,7 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@DynamicInsert
 @Entity
 @Table(name = "org")
 public class Org extends AbstractEntity {

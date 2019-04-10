@@ -10,10 +10,12 @@ import com.wd.cloud.uoserver.pojo.entity.OrgIp;
 import com.wd.cloud.uoserver.pojo.vo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -24,6 +26,18 @@ import java.util.Set;
 public interface OrgService {
 
     /**
+     * 查询所有IP列表
+     * @return
+     */
+    List<OrgIp> findAllOrgIp();
+
+    /**
+     * 查找IP所在范围
+     * @param ip
+     * @return
+     */
+    Optional<OrgIp> findIp(String ip);
+    /**
      * 校验IP是否是正确的格式，返回错误IP列表
      *
      * @return
@@ -33,14 +47,14 @@ public interface OrgService {
     /**
      * 翻转起始IP大于结束IP的记录
      */
-    void reverse() throws UnknownHostException;
+    void reverse();
 
     /**
      * 查询重叠IP范围
      *
      * @return
      */
-    Map<OrgIpDTO, Set<OrgIp>> overlay() throws UnknownHostException;
+    Map<OrgIpDTO, Set<OrgIp>> overlay();
 
     /**
      * 检查机构名称或标识是否已存在
@@ -56,28 +70,34 @@ public interface OrgService {
      *
      * @param org
      */
-    void saveOrg(OrgVO org) throws UnknownHostException;
+    void saveOrg(OrgVO org);
 
     /**
      * 查询IP所属机构信息
      *
      * @param orgName
      * @param flag
-     * @param ip
      * @return
      */
-    OrgDTO findOrg(String orgName, String flag, String ip, List<String> includes);
+    OrgDTO findOrg(String orgName, String flag);
 
 
-    List<Org> getOrgList();
+    /**
+     * 获取机构列表
+     * @param sort
+     * @return
+     */
+    List<Org> getOrgList(Sort sort);
+
     /**
      * 查询机构列表
-     *
      * @param orgName
      * @param flag
      * @param ip
-     * @param prodStatus 产品状态
-     * @param isExp      产品是否过期
+     * @param prodStatus
+     * @param isExp
+     * @param isFilter
+     * @param result
      * @param pageable
      * @return
      */
@@ -116,7 +136,7 @@ public interface OrgService {
      * @param ipModels
      * @return
      */
-    List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels) throws UnknownHostException;
+    List<OrgIp> saveOrgIp(String orgFlag, List<OrgIpVO> ipModels);
 
     /**
      * 查询机构院系列表

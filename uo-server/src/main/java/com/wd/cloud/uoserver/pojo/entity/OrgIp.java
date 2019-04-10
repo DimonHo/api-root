@@ -3,8 +3,12 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.math.BigInteger;
 
 /**
@@ -16,6 +20,7 @@ import java.math.BigInteger;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@DynamicInsert
 @Table(name = "org_ip")
 public class OrgIp extends AbstractEntity {
 
@@ -25,8 +30,13 @@ public class OrgIp extends AbstractEntity {
 
     private String end;
 
+    /**
+     * 数据库无法保存超过20位的数字，所以这两个字段不做持久化
+     */
+    @Transient
     private BigInteger beginNumber;
 
+    @Transient
     private BigInteger endNumber;
 
     /**

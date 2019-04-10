@@ -3,6 +3,7 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@DynamicInsert
 @Table(name = "org_prod",uniqueConstraints = {@UniqueConstraint(columnNames={"org_flag", "prod_id"})})
 public class OrgProd extends AbstractEntity {
 

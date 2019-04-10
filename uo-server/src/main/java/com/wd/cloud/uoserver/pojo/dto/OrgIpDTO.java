@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -20,4 +21,6 @@ public class OrgIpDTO implements Serializable {
     private Date gmtModified;
     private String begin;
     private String end;
+    private BigInteger beginNumber;
+    private BigInteger endNumber;
 }
