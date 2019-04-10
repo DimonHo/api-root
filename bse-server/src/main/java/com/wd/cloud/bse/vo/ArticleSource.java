@@ -2,64 +2,64 @@ package com.wd.cloud.bse.vo;
 
 import java.io.Serializable;
 
-public class ArticleSource implements Serializable{
+public class ArticleSource implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7005712453622044901L;
-	private String dbName;
-	private String desc;
-	private String url;
-	private String ruleName;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 7005712453622044901L;
+    private String dbName;
+    private String desc;
+    private String url;
+    private String ruleName;
 
-	public ArticleSource() {
-	}
+    public ArticleSource() {
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public String getDesc() {
-		return desc;
-	}
+    public String getDesc() {
+        return desc;
+    }
 
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
 
-	public String getDbName() {
-		return dbName;
-	}
+    public String getDbName() {
+        return dbName;
+    }
 
-	public void setDbName(String dbName) {
-		this.dbName = dbName;
-	}
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
 
-	public String getRuleName() {
-		return ruleName;
-	}
+    public String getRuleName() {
+        return ruleName;
+    }
 
-	public void setRuleName(String ruleName) {
-		this.ruleName = ruleName;
-	}
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof ArticleSource){
-			ArticleSource as = (ArticleSource)obj;
-			if(this.url != null && this.url.equals(as.url)){
-				return true;
-			}
-			return false;
-		}else{
-			return false;
-		}
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ArticleSource) {
+            ArticleSource as = (ArticleSource) obj;
+            if (this.url != null && this.url.equals(as.url)) {
+                return true;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
 
-	
+
 }

@@ -24,25 +24,35 @@ public class OrgCdbDTO implements Serializable {
     private Date gmtCreate;
     private Date gmtModified;
 
-    /**馆藏名称*/
+    /**
+     * 馆藏名称
+     */
     private String name;
 
-    /**馆藏url*/
+    /**
+     * 馆藏url
+     */
     private String url;
 
     /**
      * 类型 1：馆藏，2：筛选
      */
     private Integer type;
-    /**机构标示*/
+    /**
+     * 机构标示
+     */
     private String orgFlag;
 
     private String orgName;
 
-    /**本地资源url*/
+    /**
+     * 本地资源url
+     */
     private String localUrl;
 
-    /**是否显示馆藏数据库*/
+    /**
+     * 是否显示馆藏数据库
+     */
     private Boolean display;
 
 }

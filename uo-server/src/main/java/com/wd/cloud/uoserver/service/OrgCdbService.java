@@ -15,8 +15,8 @@ public interface OrgCdbService {
      *
      * @param pageable
      * @param orgFlag
-     * @param type 资源类型 1馆藏，2筛选
-     * @param keyword 模糊查询关键字
+     * @param type     资源类型 1馆藏，2筛选
+     * @param keyword  模糊查询关键字
      * @return
      * @Param local 是否有localUrl
      */

@@ -42,10 +42,10 @@ public class AsyncTask {
         Pageable pageable = PageRequest.of(0, 1000);
         Page<UploadRecord> uploadRecords = uploadRecordService.getNotAsyncList(pageable);
         log.info("共有{}个文件待同步", uploadRecords.getTotalElements());
-        do{
+        do {
             uploadRecords.getContent().forEach(this::asyncToHbase);
             uploadRecords = uploadRecordService.getNotAsyncList(uploadRecords.nextPageable());
-        }while (uploadRecords.hasNext());
+        } while (uploadRecords.hasNext());
         log.info("执行同步文件至hbase完成");
     }
 

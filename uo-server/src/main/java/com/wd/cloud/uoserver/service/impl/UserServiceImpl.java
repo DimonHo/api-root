@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
     public User registerUser(UserVO userVO) {
         checkUserExists(userVO.getUsername(), userVO.getEmail());
         User user = BeanUtil.toBean(userVO, User.class);
-        log.info("添加用户到数据库:{}",user.toString());
+        log.info("添加用户到数据库:{}", user.toString());
         user = userRepository.save(user);
         return user;
     }
@@ -103,8 +103,8 @@ public class UserServiceImpl implements UserService {
     public User saveUser(BackUserVO backUserVO) {
         User user = userRepository.findByUsername(backUserVO.getUsername()).orElse(new User());
         BeanUtil.copyProperties(backUserVO, user);
-        if (backUserVO.getOutside() != null){
-            setOutsidePermission(backUserVO.getUsername(),OutsideEnum.FOREVER);
+        if (backUserVO.getOutside() != null) {
+            setOutsidePermission(backUserVO.getUsername(), OutsideEnum.FOREVER);
         }
         return userRepository.save(user);
     }
@@ -152,16 +152,16 @@ public class UserServiceImpl implements UserService {
         BeanUtil.copyProperties(org, orgDTO);
         userDTO.setOrg(orgDTO).setOrgName(org.getName());
         //如果有部門ID，則返回部門名稱
-        if (user.getOrgDeptId() != null){
-            Optional<OrgDept> optionalOrgDept = orgDeptRepository.findByOrgFlagAndId(user.getOrgFlag(),user.getOrgDeptId());
+        if (user.getOrgDeptId() != null) {
+            Optional<OrgDept> optionalOrgDept = orgDeptRepository.findByOrgFlagAndId(user.getOrgFlag(), user.getOrgDeptId());
             optionalOrgDept.ifPresent(orgDept -> userDTO.setOrgDeptName(orgDept.getName()));
         }
     }
 
-    private Page<UserMsg>  userMsgs(String username) {
-        Pageable pageable = PageRequest.of(0,10, Sort.by("read").ascending());
-        Page<UserMsg> userMsgPage = userMsgRepository.findByUsername(username,pageable);
-        if (userMsgPage.getTotalElements()>0){
+    private Page<UserMsg> userMsgs(String username) {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("read").ascending());
+        Page<UserMsg> userMsgPage = userMsgRepository.findByUsername(username, pageable);
+        if (userMsgPage.getTotalElements() > 0) {
             return userMsgPage;
         }
         return null;
@@ -176,16 +176,16 @@ public class UserServiceImpl implements UserService {
      * 查询用户列表
      *
      * @param orgFlag
-     * @param orgName 机构名称
+     * @param orgName   机构名称
      * @param orgDeptId
-     * @param orgDept 部门名称
+     * @param orgDept   部门名称
      * @param userType
      * @param keyword
      * @param pageable
      * @return
      */
     @Override
-    public Page<UserDTO> queryUsers(String orgFlag, String orgName, Long orgDeptId, String orgDept, List<Integer> userType,Boolean valid,List<Integer> validStatus, String keyword, Pageable pageable) {
+    public Page<UserDTO> queryUsers(String orgFlag, String orgName, Long orgDeptId, String orgDept, List<Integer> userType, Boolean valid, List<Integer> validStatus, String keyword, Pageable pageable) {
         // 如果根据机构名称查询
         if (StrUtil.isBlank(orgFlag) && StrUtil.isNotBlank(orgName)) {
             Org org = orgRepository.findByName(orgName).orElseThrow(NotFoundOrgException::new);
@@ -196,7 +196,7 @@ public class UserServiceImpl implements UserService {
             OrgDept orgDeptObj = orgDeptRepository.findByOrgFlagAndName(orgFlag, orgDept).orElseThrow(NotFoundOrgException::new);
             orgDeptId = orgDeptObj.getId();
         }
-        Page<User> userPage = userRepository.findAll(UserRepository.SpecBuilder.query(orgFlag, orgDeptId, userType,valid,validStatus, keyword), pageable);
+        Page<User> userPage = userRepository.findAll(UserRepository.SpecBuilder.query(orgFlag, orgDeptId, userType, valid, validStatus, keyword), pageable);
         return userPage.map(user -> convertUserToDTO(user, "org"));
     }
 
@@ -236,10 +236,10 @@ public class UserServiceImpl implements UserService {
     /**
      * 审核验证证件照
      *
-     * @param username 被审核用户名
-     * @param validated 审核通过or不通过
+     * @param username    被审核用户名
+     * @param validated   审核通过or不通过
      * @param handlerName 审核人
-     * @param remark 审核失败原因
+     * @param remark      审核失败原因
      */
     @Override
     public void auditIdPhoto(String username, Boolean validated, String handlerName, String remark) {
@@ -265,27 +265,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void savePermission(PermissionVO permissionVO, String handlerName) {
-        Permission permission = permissionRepository.findByUsernameAndType(permissionVO.getUsername(),permissionVO.getType()).orElse(new Permission());
+        Permission permission = permissionRepository.findByUsernameAndType(permissionVO.getUsername(), permissionVO.getType()).orElse(new Permission());
         String remark;
         // 删除
-        if (BooleanUtil.isTrue(permissionVO.getDel())){
-            remark = StrUtil.format("{} 取消了用户：{} 的 {} 权限", handlerName, permissionVO.getUsername(),PermissionTypeEnum.name(permissionVO.getType()));
+        if (BooleanUtil.isTrue(permissionVO.getDel())) {
+            remark = StrUtil.format("{} 取消了用户：{} 的 {} 权限", handlerName, permissionVO.getUsername(), PermissionTypeEnum.name(permissionVO.getType()));
             permissionRepository.delete(permission);
-        }else{
+        } else {
             // 修改
-            if (permission.getId() != null){
+            if (permission.getId() != null) {
                 remark = StrUtil.format("{} 修改了用户：{} 的 {} 权限，值：{} -> {}",
                         handlerName, permissionVO.getUsername(),
                         PermissionTypeEnum.name(permissionVO.getType()),
-                        permission.getValue(),permissionVO.getValue());
-            }else{
+                        permission.getValue(), permissionVO.getValue());
+            } else {
                 //新增
                 remark = StrUtil.format("{} 新增了用户：{} 的 {} 权限，值：{}",
                         handlerName, permissionVO.getUsername(),
                         PermissionTypeEnum.name(permissionVO.getType()),
                         permissionVO.getValue());
             }
-            BeanUtil.copyProperties(permissionVO,permission);
+            BeanUtil.copyProperties(permissionVO, permission);
             permissionRepository.save(permission);
         }
         // 记录日志
@@ -302,21 +302,23 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 检查用户名是否存在
+     *
      * @param username
      * @return
      */
     @Override
-    public boolean checkUsernameExists(String username){
+    public boolean checkUsernameExists(String username) {
         return userRepository.existsByUsername(username);
     }
 
     /**
      * 检查邮箱是否存在
+     *
      * @param email
      * @return
      */
     @Override
-    public boolean checkEmailExists(String email){
+    public boolean checkEmailExists(String email) {
         return userRepository.existsByEmail(email);
     }
 
@@ -350,7 +352,7 @@ public class UserServiceImpl implements UserService {
                 .setType(PermissionTypeEnum.OUTSIDE.value())
                 .setValue(outsideEnum.value())
                 .setEffDate(new Date())
-                .setExpDate(OutsideEnum.HALF_YEAR.equals(outsideEnum)?DateUtil.offsetMonth(new Date(), 6):DateUtil.offsetMonth(new Date(), 9999));
+                .setExpDate(OutsideEnum.HALF_YEAR.equals(outsideEnum) ? DateUtil.offsetMonth(new Date(), 6) : DateUtil.offsetMonth(new Date(), 9999));
         permissionRepository.save(permission);
     }
 
@@ -386,11 +388,11 @@ public class UserServiceImpl implements UserService {
      * @param email
      */
     public void checkUserExists(String username, String email) {
-        if (StrUtil.isNotBlank(username)){
+        if (StrUtil.isNotBlank(username)) {
             // 检查username是否已存在
             userRepository.findByUsername(username).ifPresent(user -> UserExistsException.userExists(user.getUsername()));
         }
-        if (StrUtil.isNotBlank(email)){
+        if (StrUtil.isNotBlank(email)) {
             // 检查email是否已存在
             userRepository.findByEmail(email).ifPresent(user -> UserExistsException.emailExists(user.getEmail()));
         }

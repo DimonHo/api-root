@@ -21,6 +21,7 @@ public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
     /**
      * 查询文献所有的文档
+     *
      * @param literatureId
      * @return
      */
@@ -30,9 +31,7 @@ public interface DocFileRepository extends JpaRepository<DocFile, Long> {
 
     List<DocFile> findByLiteratureIdIn(List ids);
 
-    Optional<DocFile> findByFileIdAndLiteratureId(String fileId , long literatureId);
-
-
+    Optional<DocFile> findByFileIdAndLiteratureId(String fileId, long literatureId);
 
 
 }

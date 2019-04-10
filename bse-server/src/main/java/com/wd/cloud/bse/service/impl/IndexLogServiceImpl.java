@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class IndexLogServiceImpl implements IndexLogService {
-	
-	@Autowired
-	IndexLogRepository indexLogRepository;
-	
-	@Override
+
+    @Autowired
+    IndexLogRepository indexLogRepository;
+
+    @Override
     public void save(IndexLog indexLog) {
-		indexLogRepository.save(indexLog);
-	}
-	
+        indexLogRepository.save(indexLog);
+    }
+
 
 }

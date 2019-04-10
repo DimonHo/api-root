@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "reusing_log")
-public class ReusingLog extends AbstractEntity{
+public class ReusingLog extends AbstractEntity {
 
 //    private String handlerName;
 //

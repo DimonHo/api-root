@@ -53,7 +53,7 @@ public class HelpRequestServiceImpl implements HelpRequestService {
     public void helpRequest(Literature literature, HelpRecord helpRecord) {
         literature.createUnid();
         Optional<Literature> optionalLiterature = literatureRepository.findByUnid(literature.getUnid());
-        if (optionalLiterature.isPresent()){
+        if (optionalLiterature.isPresent()) {
             Literature lt = optionalLiterature.get();
             // 最近15天是否求助过相同的文献
             helpRecordRepository
@@ -70,10 +70,10 @@ public class HelpRequestServiceImpl implements HelpRequestService {
         // 如果有复用文件，自动应助成功
         if (null != reusingDocFile) {
             autoGive(reusingDocFile, helpRecord);
-        }else{
+        } else {
             bigDbGive(literatureEntity, helpRecord);
         }
-        if (helpRecord.getId() == null){
+        if (helpRecord.getId() == null) {
             helpRecordRepository.save(helpRecord);
         }
     }

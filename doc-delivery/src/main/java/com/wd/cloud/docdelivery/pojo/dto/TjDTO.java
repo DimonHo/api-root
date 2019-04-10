@@ -46,6 +46,6 @@ public class TjDTO {
     }
 
     public String getTodaySuccessRate() {
-        return this.todayTotal != null ? NumberUtil.formatPercent((double) this.todaySuccessTotal / (double) this.todayTotal, 2):null;
+        return this.todayTotal != null ? NumberUtil.formatPercent((double) this.todaySuccessTotal / (double) this.todayTotal, 2) : null;
     }
 }

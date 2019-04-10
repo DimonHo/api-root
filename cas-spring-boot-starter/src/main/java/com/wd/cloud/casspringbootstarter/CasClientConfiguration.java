@@ -27,8 +27,14 @@ public class CasClientConfiguration {
     @Autowired
     CasClientConfigurationProperties casProperties;
 
+    @Bean
+    public TicketFilter ticketFilter() {
+        return new TicketFilter();
+    }
+
     /**
      * 登出监听器
+     *
      * @return
      */
     @Bean
@@ -41,6 +47,7 @@ public class CasClientConfiguration {
 
     /**
      * 登出过滤器
+     *
      * @return
      */
     @Bean
@@ -55,13 +62,15 @@ public class CasClientConfiguration {
 
     }
 
+
     /**
      * ticket过滤器
+     *
      * @return
      */
     @Bean
     public FilterRegistrationBean<TicketFilter> ticketFilterRegistration() {
-        FilterRegistrationBean<TicketFilter> registrationBean = new FilterRegistrationBean<>(new TicketFilter());
+        FilterRegistrationBean<TicketFilter> registrationBean = new FilterRegistrationBean<>(ticketFilter());
         registrationBean.addInitParameter("casServerLoginUrl", casProperties.getServerLoginUrl());
         registrationBean.addInitParameter("serverName", casProperties.getClientHostUrl());
         registrationBean.addUrlPatterns(casProperties.getAuthenticationUrlPatterns());
@@ -89,6 +98,7 @@ public class CasClientConfiguration {
 
     /**
      * ticket校验过滤器
+     *
      * @return
      */
     @Bean

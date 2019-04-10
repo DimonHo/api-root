@@ -34,8 +34,8 @@ public class TjController {
     })
     @GetMapping("/dc_count/name")
     public ResponseModel dcCountByOrgName(@RequestParam(required = false) String orgName,
-                                 @RequestParam(required = false) String date,
-                                 @RequestParam(required = false, defaultValue = "1") Integer type) {
+                                          @RequestParam(required = false) String date,
+                                          @RequestParam(required = false, defaultValue = "1") Integer type) {
         date = date != null ? date : DateUtil.now();
         Map<String, BigInteger> dcCountModels = tjService.tjDcCount(orgName, date, type);
         return ResponseModel.ok().setBody(dcCountModels);

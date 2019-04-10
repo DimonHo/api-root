@@ -21,17 +21,18 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class AppBeanConfig {
 
     @Bean
-    public StringRedisSerializer stringRedisSerializer(){
+    public StringRedisSerializer stringRedisSerializer() {
         return new StringRedisSerializer();
     }
 
     @Bean
-    public GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer(){
+    public GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer() {
         return new GenericJackson2JsonRedisSerializer();
     }
 
     /**
      * redis 配置
+     *
      * @param lettuceConnectionFactory
      * @return
      */
@@ -54,6 +55,7 @@ public class AppBeanConfig {
 
     /**
      * 缓存配置
+     *
      * @param connectionFactory
      * @return
      */

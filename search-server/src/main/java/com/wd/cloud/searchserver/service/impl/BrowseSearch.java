@@ -1,6 +1,5 @@
 package com.wd.cloud.searchserver.service.impl;
 
-import cn.hutool.json.JSONObject;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.searchserver.service.BrowseSearchI;
@@ -155,7 +154,7 @@ public class BrowseSearch implements BrowseSearchI {
     }
 
     @Override
-    public Map<String, Map<String,Integer>> tjData(String orgName, String beginDate, String endDate) {
+    public Map<String, Map<String, Integer>> tjData(String orgName, String beginDate, String endDate) {
         RangeQueryBuilder filterBuilder = QueryBuilders.rangeQuery("lastTime").from(beginDate).to(endDate);
         BoolQueryBuilder q = QueryBuilders.boolQuery().filter(filterBuilder);
         if (!StringUtils.isEmpty(orgName) && !"all".equals(orgName)) {
@@ -187,17 +186,17 @@ public class BrowseSearch implements BrowseSearchI {
                 .execute()
                 .actionGet();
 
-        Map<String, Map<String,Integer>> resultMap = new HashMap<>();
+        Map<String, Map<String, Integer>> resultMap = new HashMap<>();
 
         Terms orgTerms = searchResponse.getAggregations().get("orgGroup");
         orgTerms.getBuckets().forEach(org -> {
-            Map<String,Integer> resultObj = new HashMap<>();
+            Map<String, Integer> resultObj = new HashMap<>();
             Sum pvCount = org.getAggregations().get("pvCount");
             resultObj.put("pvCount", new Double(pvCount.value()).intValue());
             Terms uvTerms = org.getAggregations().get("uvCount");
             resultObj.put("uvCount", uvTerms.getBuckets().size());
             long vvCount = uvTerms.getBuckets().stream().map(Terms.Bucket::getDocCount).reduce((a, b) -> a + b).orElse(0L);
-            resultObj.put("vvCount", (int)vvCount);
+            resultObj.put("vvCount", (int) vvCount);
             Sum visitTime = org.getAggregations().get("visitTime");
             resultObj.put("visitTime", new Double(visitTime.value()).intValue());
             resultMap.put(org.getKeyAsString(), resultObj);

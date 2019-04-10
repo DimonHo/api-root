@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SchoolServiceImpl implements SchoolService {
-	
-	@Autowired
-	SchoolRepository schoolRepository;
-	
-	@Override
+
+    @Autowired
+    SchoolRepository schoolRepository;
+
+    @Override
     public School findByName(String name) {
-		return schoolRepository.findByName(name);
-	}
+        return schoolRepository.findByName(name);
+    }
 
 }

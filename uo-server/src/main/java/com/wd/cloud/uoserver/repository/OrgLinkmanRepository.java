@@ -15,6 +15,7 @@ public interface OrgLinkmanRepository extends JpaRepository<OrgLinkman, Long> {
 
     /**
      * 查询机构联系人
+     *
      * @param orgFlag 机构标示
      * @return 联系人列表
      */
@@ -23,6 +24,7 @@ public interface OrgLinkmanRepository extends JpaRepository<OrgLinkman, Long> {
 
     /**
      * 获取联系人
+     *
      * @param orgFlag
      * @param id
      * @return
@@ -31,8 +33,9 @@ public interface OrgLinkmanRepository extends JpaRepository<OrgLinkman, Long> {
 
     /**
      * 删除联系人
+     *
      * @param orgFlag
      * @param id
      */
-    void deleteByOrgFlagAndId(String orgFlag,Long id);
+    void deleteByOrgFlagAndId(String orgFlag, Long id);
 }

@@ -1,5 +1,6 @@
 package com.wd.cloud.searchserver.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.searchserver.entity.Categorydata;
 import com.wd.cloud.searchserver.entity.SearchCondition;
@@ -7,7 +8,6 @@ import com.wd.cloud.searchserver.entity.SearchResult;
 import com.wd.cloud.searchserver.entity.UniqueList;
 import com.wd.cloud.searchserver.service.SearchServiceI;
 import com.wd.cloud.searchserver.util.SystemContext;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -115,7 +115,7 @@ public class SearchInterfaceController {
 
             long end = System.currentTimeMillis();
             searchResult.setTime(end - start);
-            String result = JSONObject.fromObject(searchResult).toString();
+            String result = JSONUtil.toJsonStr(searchResult);
             return ResponseModel.ok().setBody(result);
         } catch (Exception e) {
         }
@@ -177,7 +177,7 @@ public class SearchInterfaceController {
 //			}
             long end = System.currentTimeMillis();
             System.out.println(end - start);
-            String result = JSONObject.fromObject(map).toString();
+            String result = JSONUtil.toJsonStr(map);
             return ResponseModel.ok().setBody(result);
         } catch (Exception e) {
             throw new RuntimeException(e);

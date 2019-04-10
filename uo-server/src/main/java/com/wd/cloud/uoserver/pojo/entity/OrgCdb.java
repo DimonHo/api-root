@@ -20,7 +20,7 @@ import javax.persistence.UniqueConstraint;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
-@Table(name = "org_cdb",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
+@Table(name = "org_cdb", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "org_flag"})})
 public class OrgCdb extends AbstractEntity {
 
     @Column(name = "org_flag")
@@ -38,9 +38,9 @@ public class OrgCdb extends AbstractEntity {
     /**
      * 是否隐藏馆藏数据库
      */
-    @Column(name = "is_display",columnDefinition = "bit(1) default 0 COMMENT '0:否，1：是'")
+    @Column(name = "is_display", columnDefinition = "bit(1) default 0 COMMENT '0:否，1：是'")
     private Boolean display;
 
-    @Column(name = "type",columnDefinition = "tinyint(1) default 1 COMMENT '1:馆藏，2：筛选'")
+    @Column(name = "type", columnDefinition = "tinyint(1) default 1 COMMENT '1:馆藏，2：筛选'")
     private Integer type;
 }

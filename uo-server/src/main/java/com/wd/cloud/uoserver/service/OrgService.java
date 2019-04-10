@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,16 +26,19 @@ public interface OrgService {
 
     /**
      * 查询所有IP列表
+     *
      * @return
      */
     List<OrgIp> findAllOrgIp();
 
     /**
      * 查找IP所在范围
+     *
      * @param ip
      * @return
      */
     Optional<OrgIp> findIp(String ip);
+
     /**
      * 校验IP是否是正确的格式，返回错误IP列表
      *
@@ -84,6 +86,7 @@ public interface OrgService {
 
     /**
      * 获取机构列表
+     *
      * @param sort
      * @return
      */
@@ -91,6 +94,7 @@ public interface OrgService {
 
     /**
      * 查询机构列表
+     *
      * @param orgName
      * @param flag
      * @param ip
@@ -148,6 +152,7 @@ public interface OrgService {
 
     /**
      * 新增、修改、删除院系
+     *
      * @param orgFlag
      * @param deptLit
      * @return

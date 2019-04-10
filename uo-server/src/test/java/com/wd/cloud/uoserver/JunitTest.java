@@ -20,8 +20,8 @@ public class JunitTest {
     @Test
     public void test1() throws UnknownHostException {
         Long i = NetUtil.ipv4ToLong("113.240.226.123");
-        BigInteger i2 = NetUtil.ipToBigInteger("113.240.226.123");
-        Console.log("ipToLong:{}, ipToBig:{}",i,i2);
+        BigInteger i2 = NetUtil.ipToBigInteger("FE80::2AA:FF:FE9A:4CA2");
+        Console.log("ipToLong:{}, ipToBig:{}", i, i2.toString());
         Long j = cn.hutool.core.util.NetUtil.ipv4ToLong("113.240.226.337");
         String ip1 = NetUtil.longToIpv4(i);
         String ip2 = cn.hutool.core.util.NetUtil.longToIpv4(i);
@@ -31,22 +31,22 @@ public class JunitTest {
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         PerfectUserVO perfectUserVO = new PerfectUserVO();
         perfectUserVO.setUsername("aaaa");
         perfectUserVO.setOrgFlag("wdkj");
         User user = new User();
         user.setNickname("nick");
         user.setUsername("bbbb");
-        BeanUtil.copyProperties(perfectUserVO,user,"username");
+        BeanUtil.copyProperties(perfectUserVO, user, "username");
         Console.log(user);
     }
 
     @Test
-    public void test3(){
+    public void test3() {
         Boolean isExp = null;
-        int a = isExp?1:2;
+        int a = isExp ? 1 : 2;
         Console.log(a);
-        
+
     }
 }

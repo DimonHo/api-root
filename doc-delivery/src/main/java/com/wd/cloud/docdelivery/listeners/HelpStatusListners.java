@@ -27,24 +27,20 @@ import java.util.Optional;
 @Slf4j
 @Component
 public class HelpStatusListners extends DefaultLoadEventListener implements PostUpdateEventListener, PostInsertEventListener {
-    @Autowired
-    MailService mailService;
-
-    @Autowired
-    VHelpRecordRepository vHelpRecordRepository;
-
-    @Autowired
-    private EntityManagerFactory entityManagerFactory;
-
     /**
      * HelpRecord.status字段名称
      */
     private static final String HELP_RECORD_STATUS = "status";
-
     /**
      * 3:求助第三方，4：求助成功，5：疑难文献
      */
     private static final List<Integer> SEND_STATUS = CollectionUtil.newArrayList(3, 4, 5);
+    @Autowired
+    MailService mailService;
+    @Autowired
+    VHelpRecordRepository vHelpRecordRepository;
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
 
     @PostConstruct
     public void registerListeners() {

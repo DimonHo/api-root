@@ -183,6 +183,7 @@ public class OrgServiceImpl implements OrgService {
 
     /**
      * 新增、修改、删除机构信息
+     *
      * @param orgVO
      */
     @Override
@@ -192,13 +193,13 @@ public class OrgServiceImpl implements OrgService {
         BeanUtil.copyProperties(orgVO, org);
         orgRepository.save(org);
         if (CollectionUtil.isNotEmpty(orgVO.getIp())) {
-            saveOrgIp(orgVO.getFlag(),orgVO.getIp());
+            saveOrgIp(orgVO.getFlag(), orgVO.getIp());
         }
-        if (CollectionUtil.isNotEmpty(orgVO.getProd())){
-            saveOrgProd(orgVO.getFlag(),orgVO.getProd());
+        if (CollectionUtil.isNotEmpty(orgVO.getProd())) {
+            saveOrgProd(orgVO.getFlag(), orgVO.getProd());
         }
-        if (CollectionUtil.isNotEmpty(orgVO.getLinkman())){
-            saveLinkman(orgVO.getFlag(),orgVO.getLinkman());
+        if (CollectionUtil.isNotEmpty(orgVO.getLinkman())) {
+            saveLinkman(orgVO.getFlag(), orgVO.getLinkman());
         }
 
     }
@@ -234,13 +235,13 @@ public class OrgServiceImpl implements OrgService {
      * @return
      */
     @Override
-    public Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp,boolean isFilter,List<String> includes, Pageable pageable) {
-        if (StrUtil.isBlank(flag) && StrUtil.isNotBlank(ip)){
-            Optional<OrgIp> optionalOrgIp = findIpRange(findAllOrgIp(),NetUtil.ipToBigInteger(ip));
+    public Page<OrgDTO> likeOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp, boolean isFilter, List<String> includes, Pageable pageable) {
+        if (StrUtil.isBlank(flag) && StrUtil.isNotBlank(ip)) {
+            Optional<OrgIp> optionalOrgIp = findIpRange(findAllOrgIp(), NetUtil.ipToBigInteger(ip));
             flag = optionalOrgIp.map(OrgIp::getOrgFlag).orElse(null);
         }
         Page<Org> orgPage = orgRepository.findAll(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, prodStatus, isExp, true), pageable);
-        return orgPage.map(org -> convertOrgToDTO(org, prodStatus,isExp, isFilter,includes));
+        return orgPage.map(org -> convertOrgToDTO(org, prodStatus, isExp, isFilter, includes));
     }
 
     /**
@@ -411,6 +412,7 @@ public class OrgServiceImpl implements OrgService {
 
     /**
      * 查询机构院系列表
+     *
      * @param orgFlag
      * @return
      */
@@ -422,16 +424,17 @@ public class OrgServiceImpl implements OrgService {
 
     /**
      * 新增、修改、删除院系
+     *
      * @param orgFlag
      * @param deptLit
      * @return
      */
     @Override
-    public List<OrgDept> saveDept(String orgFlag,List<DeptVO> deptLit) {
+    public List<OrgDept> saveDept(String orgFlag, List<DeptVO> deptLit) {
         // 检查orgFlag是否存在，不存在则抛出异常
         orgRepository.findByFlag(orgFlag).orElseThrow(NotFoundOrgException::new);
         List<OrgDept> orgDeptList = new ArrayList<>();
-        for (DeptVO deptVo : deptLit){
+        for (DeptVO deptVo : deptLit) {
             if (deptVo.getId() != null) {
                 //删除
                 if (BooleanUtil.isTrue(deptVo.getDel())) {
@@ -462,14 +465,16 @@ public class OrgServiceImpl implements OrgService {
 
     /**
      * orgDept 转换 DTO
+     *
      * @param orgDept
      * @return
      */
     private OrgDeptDTO convertOrgDeptToOrgDeptDTO(OrgDept orgDept) {
-        OrgDeptDTO orgDeptDTO = BeanUtil.toBean(orgDept,OrgDeptDTO.class);
+        OrgDeptDTO orgDeptDTO = BeanUtil.toBean(orgDept, OrgDeptDTO.class);
         orgDeptDTO.setUserCount(userRepository.countByOrgDeptId(orgDept.getId()));
         return orgDeptDTO;
     }
+
     /**
      * org转换OrgDTO
      *
@@ -478,16 +483,16 @@ public class OrgServiceImpl implements OrgService {
      * @param includes   需要包含的关联对象 （"ip" or "linkman" or "dept" or "cdb"）
      * @return
      */
-    private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus,Boolean isExp,boolean isFilter, List<String> includes) {
+    private OrgDTO convertOrgToDTO(Org org, List<Integer> prodStatus, Boolean isExp, boolean isFilter, List<String> includes) {
         OrgDTO orgDTO = BeanUtil.toBean(org, OrgDTO.class);
-        if (CollectionUtil.isNotEmpty(includes)){
+        if (CollectionUtil.isNotEmpty(includes)) {
             for (String include : includes) {
                 if ("ip".equals(include)) {
                     includeIpList(org, orgDTO);
                 }
                 if ("prod".equals(include)) {
                     // 如果isFilter为false,表示返回结果中不过滤产品状态和是否过期
-                    if (!isFilter){
+                    if (!isFilter) {
                         prodStatus = null;
                         isExp = null;
                     }
@@ -499,19 +504,19 @@ public class OrgServiceImpl implements OrgService {
                 if ("dept".equals(include)) {
                     includeOrgDeptList(org, orgDTO);
                 }
-                if ("cdb".equals(include)){
-                    includeCdbList(org,orgDTO);
+                if ("cdb".equals(include)) {
+                    includeCdbList(org, orgDTO);
                 }
             }
         }
         return orgDTO;
     }
 
-    private void includeCdbList(Org org, OrgDTO orgDTO){
+    private void includeCdbList(Org org, OrgDTO orgDTO) {
         List<OrgCdb> orgCdbList = orgCdbRepository.findByOrgFlag(org.getFlag());
         List<OrgCdbDTO> orgCdbDTOS = new ArrayList<>();
         orgCdbList.forEach(orgCdb -> {
-            OrgCdbDTO orgCdbDTO = BeanUtil.toBean(orgCdb,OrgCdbDTO.class);
+            OrgCdbDTO orgCdbDTO = BeanUtil.toBean(orgCdb, OrgCdbDTO.class);
             orgCdbDTOS.add(orgCdbDTO);
         });
         orgDTO.setCdbList(orgCdbDTOS);
@@ -539,9 +544,9 @@ public class OrgServiceImpl implements OrgService {
 
     private void includeProdList(Org org, List<Integer> prodStatus, Boolean isExp, OrgDTO orgDTO) {
         // 如果isExp!=null且isExp==true?查询机构过期产品, isExp==false？查询机构未过期产品, isExp==null?查询机构所有产品
-        List<OrgProd> orgProds = isExp!=null?
-                isExp? orgProdRepository.findByOrgFlagAndExpDateBefore(org.getFlag(), DateUtil.date())
-                        : orgProdRepository.findByOrgFlagAndEffDateBeforeAndExpDateAfter(org.getFlag(),DateUtil.date(),DateUtil.date())
+        List<OrgProd> orgProds = isExp != null ?
+                isExp ? orgProdRepository.findByOrgFlagAndExpDateBefore(org.getFlag(), DateUtil.date())
+                        : orgProdRepository.findByOrgFlagAndEffDateBeforeAndExpDateAfter(org.getFlag(), DateUtil.date(), DateUtil.date())
                 : orgProdRepository.findByOrgFlag(org.getFlag());
         List<OrgProdDTO> orgProdDTOS = new ArrayList<>();
         List<Integer> finalProdStatus = prodStatus;
@@ -563,7 +568,7 @@ public class OrgServiceImpl implements OrgService {
         List<OrgIp> orgIps = orgIpRepository.findByOrgFlag(org.getFlag());
         List<OrgIpDTO> orgIpDTOS = new ArrayList<>();
         orgIps.forEach(orgIp -> {
-            OrgIpDTO orgIpDTO = BeanUtil.toBean(orgIp,OrgIpDTO.class);
+            OrgIpDTO orgIpDTO = BeanUtil.toBean(orgIp, OrgIpDTO.class);
             orgIpDTOS.add(orgIpDTO);
         });
         orgDTO.setIpList(orgIpDTOS);

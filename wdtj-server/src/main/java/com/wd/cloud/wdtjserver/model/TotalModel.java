@@ -4,8 +4,6 @@ import cn.hutool.core.date.DateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Access;
-
 /**
  * @author He Zhigang
  * @date 2018/11/19

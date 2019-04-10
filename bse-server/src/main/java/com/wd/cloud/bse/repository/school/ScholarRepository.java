@@ -1,11 +1,8 @@
 package com.wd.cloud.bse.repository.school;
 
+import com.wd.cloud.bse.entity.school.Scholar;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
-import com.wd.cloud.bse.entity.school.Scholar;
-
-import java.util.List;
 
 
 /**
@@ -18,7 +15,7 @@ public interface ScholarRepository extends JpaRepository<Scholar, Long>, JpaSpec
     /**
      * 根据scid查询学校
      *
-     * @param scid
+     * @param id
      * @return
      */
     Scholar findById(int id);

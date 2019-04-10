@@ -21,7 +21,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
-@Table(name = "org_prod",uniqueConstraints = {@UniqueConstraint(columnNames={"org_flag", "prod_id"})})
+@Table(name = "org_prod", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_flag", "prod_id"})})
 public class OrgProd extends AbstractEntity {
 
     @Column(name = "org_flag")
@@ -52,6 +52,6 @@ public class OrgProd extends AbstractEntity {
     /**
      * 是否独立购买
      */
-    @Column(name = "is_single",columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
+    @Column(name = "is_single", columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
     private Boolean single;
 }

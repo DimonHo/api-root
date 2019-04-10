@@ -17,6 +17,7 @@ public interface OrgProdRepository extends JpaRepository<OrgProd, Long> {
 
     /**
      * 机构所有产品
+     *
      * @param orgFlag
      * @return
      */
@@ -24,6 +25,7 @@ public interface OrgProdRepository extends JpaRepository<OrgProd, Long> {
 
     /**
      * 查询机构过期产品
+     *
      * @param orgFlag
      * @param effDate
      * @return
@@ -32,6 +34,7 @@ public interface OrgProdRepository extends JpaRepository<OrgProd, Long> {
 
     /**
      * 查询机构未过期产品
+     *
      * @param orgFlag
      * @param effDate
      * @param expDate
@@ -41,6 +44,7 @@ public interface OrgProdRepository extends JpaRepository<OrgProd, Long> {
 
     /**
      * 查询机构产品
+     *
      * @param orgFlag
      * @param prodId
      * @return
@@ -50,39 +54,42 @@ public interface OrgProdRepository extends JpaRepository<OrgProd, Long> {
 
     /**
      * 未过期的产品
+     *
      * @param orgFlag
      * @param status
      * @return
      */
-    @Query(value = "select * from org_prod where org_flag =?1 and status =?2 and to_days(end_date) > to_days(now())",nativeQuery = true)
+    @Query(value = "select * from org_prod where org_flag =?1 and status =?2 and to_days(end_date) > to_days(now())", nativeQuery = true)
     List<OrgProd> findByOrgFlagAndStatus(String orgFlag, Integer status);
 
     /**
      * 过期产品
+     *
      * @param orgFlag
      * @return
      */
-    @Query(value = "select * from org_prod where org_flag =?1 and to_days(end_date) < to_days(now())",nativeQuery = true)
+    @Query(value = "select * from org_prod where org_flag =?1 and to_days(end_date) < to_days(now())", nativeQuery = true)
     List<OrgProd> expByOrgFlag(String orgFlag);
 
     /**
      * 取消订购某产品
+     *
      * @param orgFlag
      */
-    void deleteByOrgFlagAndProdIdIn(String orgFlag,List<Long> prodIds);
+    void deleteByOrgFlagAndProdIdIn(String orgFlag, List<Long> prodIds);
 
     /**
      * 取消订购所有产品
+     *
      * @param orgFlag
      */
     void deleteByOrgFlag(String orgFlag);
 
     /**
-     *
      * @param orgFlag
      * @param prodId
      */
-    void deleteByOrgFlagAndProdId(String orgFlag,Long prodId);
+    void deleteByOrgFlagAndProdId(String orgFlag, Long prodId);
 
 
 }

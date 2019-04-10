@@ -10,7 +10,7 @@
 <body>
 您好！您求助的文献 ${docTitle} 已应助成功。<br/>
 请点击以下链接下载全文 <a href='${downloadUrl}' target='blank'> ${downloadUrl} </a><br/>
-注意：该链接有效期为15天（  ${expStr} 止），请及时下载。<br/>
+注意：该链接有效期为15天（ ${expStr} 止），请及时下载。<br/>
 <br/>
 欢迎您使用${channelName}<br/>
 <a href='${channelUrl}' target='blank'>${channelUrl}</a>

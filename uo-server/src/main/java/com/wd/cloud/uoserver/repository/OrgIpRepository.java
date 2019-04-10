@@ -18,6 +18,7 @@ public interface OrgIpRepository extends JpaRepository<OrgIp, Long> {
 
     /**
      * 查询机构所有ip范围
+     *
      * @param orgFlag
      * @return
      */
@@ -25,6 +26,7 @@ public interface OrgIpRepository extends JpaRepository<OrgIp, Long> {
 
     /**
      * 获取指定记录
+     *
      * @param orgFlag
      * @param id
      * @return
@@ -33,6 +35,7 @@ public interface OrgIpRepository extends JpaRepository<OrgIp, Long> {
 
     /**
      * 删除一条记录
+     *
      * @param orgFlag
      * @param id
      */
@@ -40,6 +43,6 @@ public interface OrgIpRepository extends JpaRepository<OrgIp, Long> {
             @CacheEvict(value = CacheConstant.ORG_IP, allEntries = true),
             @CacheEvict(value = CacheConstant.ORG, key = "#orgFlag")
     })
-    void deleteByOrgFlagAndId(String orgFlag,Long id);
+    void deleteByOrgFlagAndId(String orgFlag, Long id);
 
 }

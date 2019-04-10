@@ -28,7 +28,7 @@ public interface TjViewDataRepository extends JpaRepository<TjViewData, TjDataPk
     List<Map<String, Object>> groupByTjDate(String orgFlag, String beginDate, String endDate, String format);
 
     @Modifying
-    @Query(value = "delete from tj_view_data where org_flag = ?1 and tj_date >= ?2 and tj_date <= ?3",nativeQuery = true)
+    @Query(value = "delete from tj_view_data where org_flag = ?1 and tj_date >= ?2 and tj_date <= ?3", nativeQuery = true)
     int deleteByTjDate(String orgFlag, String beginDate, String endDate);
 
 }

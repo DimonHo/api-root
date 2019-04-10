@@ -32,13 +32,13 @@ public class QueryCondition implements Serializable {
         this.beanName = fieldFlag;
         this.values = Arrays.asList(value);
     }
+
     /**
-     * 
-     * @param beanName   	javaBean名称
-     * @param fieldFlag		es字段名
-     * @param value			
+     * @param beanName  javaBean名称
+     * @param fieldFlag es字段名
+     * @param value
      */
-    public QueryCondition(String beanName,String fieldFlag, String value) {
+    public QueryCondition(String beanName, String fieldFlag, String value) {
         super();
         this.beanName = beanName;
         this.fieldFlag = fieldFlag;
@@ -49,9 +49,9 @@ public class QueryCondition implements Serializable {
         this(fieldFlag, value);
         this.logic = logic;
     }
-    
-    public QueryCondition(String beanName,String fieldFlag, String value, int logic) {
-        this(beanName,fieldFlag, value);
+
+    public QueryCondition(String beanName, String fieldFlag, String value, int logic) {
+        this(beanName, fieldFlag, value);
         this.logic = logic;
     }
 
@@ -61,7 +61,7 @@ public class QueryCondition implements Serializable {
         this.beanName = fieldFlag;
         this.values = values;
     }
-    
+
     public QueryCondition(String fieldFlag, List<String> values, int logic) {
         super();
         this.fieldFlag = fieldFlag;
@@ -126,13 +126,13 @@ public class QueryCondition implements Serializable {
         this.type = type;
     }
 
-	public String getBeanName() {
-		return beanName;
-	}
+    public String getBeanName() {
+        return beanName;
+    }
 
-	public void setBeanName(String beanName) {
-		this.beanName = beanName;
-	}
+    public void setBeanName(String beanName) {
+        this.beanName = beanName;
+    }
 
 
 }

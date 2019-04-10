@@ -129,7 +129,7 @@ public class SettingController {
 
     @ApiOperation(value = "可设置列表", tags = {"后台设置"})
     @GetMapping("/org/list")
-    public ResponseModel orgList(){
+    public ResponseModel orgList() {
         List<JSONObject> orgList = settingService.getOrgList();
         return ResponseModel.ok().setBody(orgList);
     }

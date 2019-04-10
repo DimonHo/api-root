@@ -162,7 +162,7 @@ public class HisQuotaServiceImpl implements HisQuotaService {
         }
         log.info("待生成[{} - {}]共{}天数据", tjHisQuota.getBeginTime(), tjHisQuota.getEndTime(), dayList.size());
         //删除旧的数据
-        tjViewDataRepository.deleteByTjDate(tjHisQuota.getOrgFlag(),DateUtil.formatDateTime(tjHisQuota.getBeginTime()),DateUtil.formatDateTime(tjHisQuota.getEndTime()));
+        tjViewDataRepository.deleteByTjDate(tjHisQuota.getOrgFlag(), DateUtil.formatDateTime(tjHisQuota.getBeginTime()), DateUtil.formatDateTime(tjHisQuota.getEndTime()));
         // 计算每天的权重
         List<WeightRandom.WeightObj<DateTime>> dayWeightList = RandomUtil.dayWeightList(weightMap, dayList);
         // 生成随机历史数据

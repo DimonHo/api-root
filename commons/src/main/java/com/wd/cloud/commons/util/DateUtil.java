@@ -1,7 +1,5 @@
 package com.wd.cloud.commons.util;
 
-import cn.hutool.core.date.DateField;
-
 import java.util.List;
 
 /**
@@ -13,11 +11,12 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
 
     /**
      * 格式化mysql时间
+     *
      * @param type
      * @return
      */
     @Deprecated
-    public static String formatMysqlStr(int type){
+    public static String formatMysqlStr(int type) {
         String dateFormatStr = null;
         switch (type) {
             case 1:
@@ -41,10 +40,11 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
 
     /**
      * 格式化mysql时间
+     *
      * @param type
      * @return
      */
-    public static String formatMysqlStr2(int type){
+    public static String formatMysqlStr2(int type) {
         String dateFormatStr = null;
         switch (type) {
             case 1:
@@ -72,10 +72,11 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
 
     /**
      * 格式化mysql时间
+     *
      * @param type
      * @return
      */
-    public static String formatStr2(int type){
+    public static String formatStr2(int type) {
         String dateFormatStr = null;
         switch (type) {
             case 1:
@@ -102,11 +103,12 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
 
     /**
      * 格式化时间
+     *
      * @param type
      * @return
      */
     @Deprecated
-    public static String formatStr(int type){
+    public static String formatStr(int type) {
         String dateFormatStr = null;
         switch (type) {
             case 1:
@@ -128,7 +130,7 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         return dateFormatStr;
     }
 
-    public List<String> range(String start,String end){
+    public List<String> range(String start, String end) {
         return null;
     }
 }

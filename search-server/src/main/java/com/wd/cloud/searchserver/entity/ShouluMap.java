@@ -1,7 +1,7 @@
 package com.wd.cloud.searchserver.entity;
 
 
-import net.sf.json.JSONArray;
+import cn.hutool.json.JSONUtil;
 
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +58,7 @@ public class ShouluMap {
      */
     public String getZkyNewDate() {
         if (impacts != null) {
-            return JSONArray.fromObject(impacts.subList(impacts.size() - 1, impacts.size())).toString();
+            return JSONUtil.toJsonStr(impacts.subList(impacts.size() - 1, impacts.size()));
         } else {
             return null;
         }
@@ -68,7 +68,7 @@ public class ShouluMap {
      * 获取最新年份的数据 modified 2018.03.07 by 何志刚
      */
     public String getZkyNewYear() {
-        return JSONArray.fromObject(years.subList(years.size() - 1, years.size())).toString();
+        return JSONUtil.toJsonStr(years.subList(years.size() - 1, years.size()));
     }
 
     public Map<String, String> getYearSubject() {
@@ -80,11 +80,11 @@ public class ShouluMap {
     }
 
     public String getxAxis() {
-        return JSONArray.fromObject(years).toString();
+        return JSONUtil.toJsonStr(years);
     }
 
     public String getData() {
-        return JSONArray.fromObject(impacts).toString();
+        return JSONUtil.toJsonStr(impacts);
     }
 
     public List<String> getYears() {
@@ -163,18 +163,18 @@ public class ShouluMap {
     //------------手机版最多只显示三年
     public String getxAxisM() {
         if (years.size() > 3) {
-            return JSONArray.fromObject(years.subList(years.size() - 3, years.size())).toString();
+            return JSONUtil.toJsonStr(years.subList(years.size() - 3, years.size()));
         } else {
-            return JSONArray.fromObject(years).toString();
+            return JSONUtil.toJsonStr(years);
         }
     }
 
     public String getDataM() {
         if (impacts != null) {
             if (impacts.size() > 3) {
-                return JSONArray.fromObject(impacts.subList(impacts.size() - 3, impacts.size())).toString();
+                return JSONUtil.toJsonStr(impacts.subList(impacts.size() - 3, impacts.size()));
             } else {
-                return JSONArray.fromObject(impacts).toString();
+                return JSONUtil.toJsonStr(impacts);
             }
         } else {
             return null;

@@ -15,8 +15,8 @@ import javax.persistence.Table;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "black")
-public class Black extends AbstractEntity{
+public class Black extends AbstractEntity {
 
     private String email;
-    
+
 }

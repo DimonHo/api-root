@@ -153,6 +153,7 @@ public class FrontServiceImpl implements FrontService {
 
     /**
      * 主动取消应助，删除应助记录
+     *
      * @param helpRecordId
      * @param giverName
      * @return
@@ -223,7 +224,7 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public Page<HelpRecordDTO> myHelpRecords(String username, List<Integer> status, Boolean isDifficult, Pageable pageable) {
 
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(null, status, null, username, null, isDifficult, null,null,null), pageable);
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(null, status, null, username, null, isDifficult, null, null, null), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
@@ -238,7 +239,7 @@ public class FrontServiceImpl implements FrontService {
 
     @Override
     public Page<HelpRecordDTO> getHelpRecords(List<Long> channel, List<Integer> status, String email, String keyword, Boolean isDifficult, String orgFlag, Pageable pageable) {
-        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, email, null, keyword, isDifficult, orgFlag,null,null), pageable);
+        Page<VHelpRecord> vHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, email, null, keyword, isDifficult, orgFlag, null, null), pageable);
         return coversHelpRecordDTO(vHelpRecords);
     }
 
@@ -250,14 +251,14 @@ public class FrontServiceImpl implements FrontService {
                 HelpStatusEnum.WAIT_HELP.value(),
                 HelpStatusEnum.HELPING.value(),
                 HelpStatusEnum.HELP_THIRD.value());
-        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, isDifficult, orgFlag,null,null), pageable);
+        Page<VHelpRecord> waitHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, isDifficult, orgFlag, null, null), pageable);
         return coversHelpRecordDTO(waitHelpRecords);
     }
 
     @Override
     public Page<HelpRecordDTO> getFinishHelpRecords(List<Long> channel, String orgFlag, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value(), HelpStatusEnum.HELP_FAILED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgFlag,null,null), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgFlag, null, null), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 
@@ -265,7 +266,7 @@ public class FrontServiceImpl implements FrontService {
     @Override
     public Page<HelpRecordDTO> getSuccessHelpRecords(List<Long> channel, String orgFlag, Pageable pageable) {
         List<Integer> status = CollectionUtil.newArrayList(HelpStatusEnum.HELP_SUCCESSED.value());
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgFlag,null,null), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, null, orgFlag, null, null), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
 
     }
@@ -276,9 +277,9 @@ public class FrontServiceImpl implements FrontService {
         //https://www.tapd.cn/47850539/prong/stories/view/1147850539001000859)
         Date endDate = new Date();
         // 一个月间隔
-        Date beginDate = DateUtil.offsetMonth(endDate,-1);
+        Date beginDate = DateUtil.offsetMonth(endDate, -1);
         // end
-        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, true, orgFlag,beginDate,endDate), pageable);
+        Page<VHelpRecord> finishHelpRecords = vHelpRecordRepository.findAll(VHelpRecordRepository.SpecBuilder.buildVhelpRecord(channel, status, null, null, null, true, orgFlag, beginDate, endDate), pageable);
         return coversHelpRecordDTO(finishHelpRecords);
     }
 

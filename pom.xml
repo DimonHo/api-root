@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.wd.cloud</groupId>
     <artifactId>api-root</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>api-root</name>
@@ -46,13 +46,10 @@
         <spring-cloud.version>Finchley.RC2</spring-cloud.version>
         <feign.version>1.4.5.RELEASE</feign.version>
         <druid.version>1.1.14</druid.version>
-        <javax.mail.version>1.4.7</javax.mail.version>
         <swagger.version>1.8.0.RELEASE</swagger.version>
         <cn.hutool.all.version>4.4.0</cn.hutool.all.version>
+        <javax.mail.version>1.4.7</javax.mail.version>
         <guava.version>23.0</guava.version>
-        <jackson.databind.version>2.9.5</jackson.databind.version>
-        <jackson.core.version>2.9.5</jackson.core.version>
-        <jackson.asl.version>1.9.12</jackson.asl.version>
         <log4j-api.version>2.9.1</log4j-api.version>
         <log4j-core.version>2.9.1</log4j-core.version>
         <spring-boot-admin.version>2.0.1</spring-boot-admin.version>
@@ -60,31 +57,21 @@
         <hbase.client.version>1.1.2</hbase.client.version>
         <spring.data.hadoop.version>2.5.0.RELEASE</spring.data.hadoop.version>
         <spring.data.elasticsearch.version>3.0.9.RELEASE</spring.data.elasticsearch.version>
-        <lombok.version>1.16.20</lombok.version>
-        <cas.client.version>3.5.1</cas.client.version>
-        <cas.wdclient.version>3.5.2-SNAPSHOT</cas.wdclient.version>
-        <cas.starter.version>2.0.0-GA</cas.starter.version>
         <jsoup.version>1.7.3</jsoup.version>
-        <servlet.version>2.5</servlet.version>
+        <wd.cloud.commons>0.0.6-SNAPSHOT</wd.cloud.commons>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-
-            <dependency>
-                <groupId>org.jasig.cas.client</groupId>
-                <artifactId>cas-client-core</artifactId>
-                <version>${cas.client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${servlet.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.wd.cloud</groupId>
                 <artifactId>cas-spring-boot-starter</artifactId>
                 <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>${javax.mail.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jsoup</groupId>
@@ -98,11 +85,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-elasticsearch</artifactId>
@@ -129,13 +112,12 @@
                 <artifactId>jolokia-core</artifactId>
                 <version>${jolokia.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter -->
+
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid.version}</version>
             </dependency>
-
 
 
             <dependency>
@@ -165,15 +147,9 @@
             </dependency>
 
             <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>${javax.mail.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.wd.cloud</groupId>
                 <artifactId>commons</artifactId>
-                <version>${version}</version>
+                <version>${wd.cloud.commons}</version>
             </dependency>
             <dependency>
                 <groupId>com.wd.cloud</groupId>
@@ -190,35 +166,7 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.databind.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jackson.asl.version}</version>
-            </dependency>
 
-            <!-- ==========================ES 依赖包start============================-->
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>${log4j-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>${log4j-core.version}</version>
-            </dependency>
-
-            <!-- ==========================ES 依赖包end============================-->
         </dependencies>
     </dependencyManagement>
 

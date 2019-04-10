@@ -8,6 +8,11 @@ import org.springframework.cloud.netflix.turbine.EnableTurbine;
 import org.springframework.context.annotation.Configuration;
 
 
+/**
+ * @Author: He Zhigang
+ * @Date: 2019-04-09
+ * @Description: 监控模块
+ */
 @Configuration
 @EnableAutoConfiguration
 @EnableDiscoveryClient
@@ -18,6 +23,5 @@ public class MonitoringApplication {
     public static void main(String[] args) {
         SpringApplication.run(MonitoringApplication.class, args);
     }
-
 
 }

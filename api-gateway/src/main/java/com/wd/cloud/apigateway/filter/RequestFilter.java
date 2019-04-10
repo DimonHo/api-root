@@ -2,11 +2,10 @@ package com.wd.cloud.apigateway.filter;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.http.Method;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletInputStream;
@@ -19,9 +18,9 @@ import java.util.Enumeration;
  * @date 2018/10/10
  * @Description:
  */
+@Slf4j
 @Component
 public class RequestFilter extends ZuulFilter {
-    private static final Log log = LogFactory.get();
 
     @Override
     public String filterType() {
@@ -77,12 +76,7 @@ public class RequestFilter extends ZuulFilter {
                 e.printStackTrace();
             }
         }
-        //doSomething();
         return null;
     }
 
-    private void doSomething() {
-        System.out.println("dosometing===========================================");
-        throw new RuntimeException("Exist some errors...");
-    }
 }

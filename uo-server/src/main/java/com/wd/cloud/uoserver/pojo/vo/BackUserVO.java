@@ -26,22 +26,34 @@ public class BackUserVO {
     private String orgName;
     private String phone;
 
-    /**院系ID*/
+    /**
+     * 院系ID
+     */
     private String orgDeptId;
 
-    /**身份类型 1:学生，2：老师*/
+    /**
+     * 身份类型 1:学生，2：老师
+     */
     private Integer identityType;
 
-    /**职工号/学号*/
+    /**
+     * 职工号/学号
+     */
     private String studentId;
 
-    /**教育程度*/
+    /**
+     * 教育程度
+     */
     private Integer eduLevel;
 
-    /**性别*/
+    /**
+     * 性别
+     */
     private Short sex;
 
-    /**入学年份*/
+    /**
+     * 入学年份
+     */
     private String entranceYear;
 
     /**

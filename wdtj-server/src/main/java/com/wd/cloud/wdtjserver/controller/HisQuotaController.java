@@ -57,7 +57,7 @@ public class HisQuotaController {
         List<TjHisQuota> tjHisQuotas = new ArrayList<>();
         hisQuotaModels.forEach(hisQuotaModel -> {
             TjHisQuota tjHisQuota = ModelUtil.build(hisQuotaModel);
-            if (tjHisQuota != null){
+            if (tjHisQuota != null) {
                 tjHisQuotas.add(ModelUtil.build(hisQuotaModel).setOrgFlag(orgFlag).setCreateUser(createUser));
             }
         });
@@ -113,7 +113,7 @@ public class HisQuotaController {
     @ApiOperation(value = "批量生成历史详细记录", tags = {"后台设置"})
     @PatchMapping("/his/buildAll")
     public ResponseModel buildAll(@RequestParam String buildUser) {
-        Pageable pageable = PageRequest.of(0,1000);
+        Pageable pageable = PageRequest.of(0, 1000);
         Page<TjHisQuota> tjHisQuotaPage = hisQuotaService.getAllHisQuota(pageable);
         tjHisQuotaPage.forEach(tjHisQuota -> {
             if (tjHisQuota.isLocked()) {

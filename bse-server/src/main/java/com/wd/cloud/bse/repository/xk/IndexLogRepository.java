@@ -1,9 +1,8 @@
 package com.wd.cloud.bse.repository.xk;
 
+import com.wd.cloud.bse.entity.xk.IndexLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
-import com.wd.cloud.bse.entity.xk.IndexLog;
 
 
 /**

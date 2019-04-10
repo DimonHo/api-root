@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 @Component("commTermsQuery")
 public class CommQueryBuildStrategy implements QueryBuilderStrategyI {
 
-	@Override
-	public QueryBuilder execute(QueryCondition queryCondition) {
-		String field = queryCondition.getFieldFlag();
-		String value = queryCondition.getValue();
+    @Override
+    public QueryBuilder execute(QueryCondition queryCondition) {
+        String field = queryCondition.getFieldFlag();
+        String value = queryCondition.getValue();
         return QueryBuilders.termQuery(field, value.trim());
-	}
+    }
 
 }

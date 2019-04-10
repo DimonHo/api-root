@@ -10,5 +10,5 @@ public interface HandlerLogRepository extends JpaRepository<HandlerLog, Long> {
 
     Optional<HandlerLog> findByUsername(String userName);
 
-    Optional<HandlerLog> findByUsernameAndType(String username,Integer type);
+    Optional<HandlerLog> findByUsernameAndType(String username, Integer type);
 }

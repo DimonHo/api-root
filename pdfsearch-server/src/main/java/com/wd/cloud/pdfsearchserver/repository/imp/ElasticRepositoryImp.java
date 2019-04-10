@@ -10,10 +10,9 @@ import org.springframework.stereotype.Repository;
 @Repository("elasticRepository")
 public class ElasticRepositoryImp implements ElasticRepository {
 
-    final
+    @Autowired
     TransportClient transportClient;
 
-    @Autowired
     public ElasticRepositoryImp(TransportClient transportClient) {
         this.transportClient = transportClient;
     }
@@ -23,7 +22,8 @@ public class ElasticRepositoryImp implements ElasticRepository {
         return transportClient.prepareSearch(indexName).setTypes(type).setQuery(qeryBuilder).setSize(10).execute().actionGet();
     }
 
-    public SearchResponse queryAllTypeByQueryBuilder(String indexName, QueryBuilder qeryBuilder){
+    @Override
+    public SearchResponse queryAllTypeByQueryBuilder(String indexName, QueryBuilder qeryBuilder) {
         return transportClient.prepareSearch(indexName).setQuery(qeryBuilder).setSize(10).execute().actionGet();
     }
 }

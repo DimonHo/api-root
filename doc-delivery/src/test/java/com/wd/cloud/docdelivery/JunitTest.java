@@ -11,9 +11,9 @@ import org.junit.Test;
  */
 public class JunitTest {
     @Test
-    public void test1(){
+    public void test1() {
         String templateFile = "中国-success.ftl";
-        templateFile.replace(StrUtil.subBefore(templateFile,"-",false),"default");
+        templateFile.replace(StrUtil.subBefore(templateFile, "-", false), "default");
         Console.log(templateFile);
     }
 }

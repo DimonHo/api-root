@@ -8,14 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @Date: 2019/3/23 15:22
  * @Description:
  */
-public interface DicRepository extends JpaRepository<Dic,Long> {
+public interface DicRepository extends JpaRepository<Dic, Long> {
 
     /**
      * 查询字典名
+     *
      * @param tableName
      * @param columnName
      * @param value
      * @return
      */
-    Dic findByTableNameAndColumnNameAndValue(String tableName,String columnName,Integer value);
+    Dic findByTableNameAndColumnNameAndValue(String tableName, String columnName, Integer value);
 }

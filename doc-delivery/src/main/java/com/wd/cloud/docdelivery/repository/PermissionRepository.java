@@ -18,5 +18,5 @@ public interface PermissionRepository extends JpaRepository<Permission, Long>, J
     @Query(value = "select * from permission where org_flag = ?1 and level = ?2", nativeQuery = true)
     Permission getOrgFlagAndLevel(String orgFlag, int level);
 
-    Permission getByLevelAndOrgFlag(int level,String orgFlag);
+    Permission getByLevelAndOrgFlag(int level, String orgFlag);
 }

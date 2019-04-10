@@ -20,7 +20,7 @@ import javax.persistence.Table;
 @Entity
 @DynamicInsert
 @Table(name = "user_msg")
-public class UserMsg extends AbstractEntity{
+public class UserMsg extends AbstractEntity {
 
     /**
      * 用户
@@ -35,6 +35,6 @@ public class UserMsg extends AbstractEntity{
     /**
      * 是否已读
      */
-    @Column(name = "is_read",columnDefinition = "bit(1) default 0 COMMENT '0:未读，1：已读'")
+    @Column(name = "is_read", columnDefinition = "bit(1) default 0 COMMENT '0:未读，1：已读'")
     private Boolean read;
 }

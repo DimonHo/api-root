@@ -32,14 +32,16 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     /**
      * 用戶名或邮箱查询
+     *
      * @param username
      * @param email
      * @return
      */
-    Optional<User> findByUsernameOrEmail(String username,String email);
+    Optional<User> findByUsernameOrEmail(String username, String email);
 
     /**
      * 用户名查询
+     *
      * @param username
      * @return
      */
@@ -49,6 +51,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     /**
      * 用户名是否存在
+     *
      * @param username
      * @return
      */
@@ -56,6 +59,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     /**
      * 邮箱是否存在
+     *
      * @param email
      * @return
      */
@@ -63,6 +67,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     /**
      * 查询邮箱
+     *
      * @param email
      * @return
      */
@@ -71,6 +76,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     /**
      * 统计院系用户数量
+     *
      * @param orgDeptId
      * @return
      */
@@ -78,18 +84,20 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     /**
      * 统计机构院系用户
+     *
      * @param orgFlag
      * @return
      */
-    @Query(value = "SELECT sum(1) AS userCount,SUM(IF ((USER.user_type=1),1,0)) AS normalCount,sum(IF ((USER.user_type=2),1,0)) AS orgAdminCount,sum(IF ((USER.is_online=1),1,0)) AS onlineCount,sum(IF ((USER.org_dept_id=org_dept.id AND USER.username IN (SELECT username FROM permission WHERE type=1)),1,0)) outsideCount,org_dept.NAME FROM USER,org_dept WHERE USER.org_flag= ?1 AND USER.org_dept_id=org_dept.id GROUP BY USER.org_dept_id ORDER BY userCount DESC",nativeQuery = true)
-    List<Map<String,Object>> tjOrgDepartUser(String orgFlag);
+    @Query(value = "SELECT sum(1) AS userCount,SUM(IF ((USER.user_type=1),1,0)) AS normalCount,sum(IF ((USER.user_type=2),1,0)) AS orgAdminCount,sum(IF ((USER.is_online=1),1,0)) AS onlineCount,sum(IF ((USER.org_dept_id=org_dept.id AND USER.username IN (SELECT username FROM permission WHERE type=1)),1,0)) outsideCount,org_dept.NAME FROM USER,org_dept WHERE USER.org_flag= ?1 AND USER.org_dept_id=org_dept.id GROUP BY USER.org_dept_id ORDER BY userCount DESC", nativeQuery = true)
+    List<Map<String, Object>> tjOrgDepartUser(String orgFlag);
 
     /**
      * 统计机构用户
+     *
      * @return userCount：机构总用户数，normalCount 普通用户数 orgAdminCount 机构管理员用户数，onlineCount 在线用户数，outsideCount 有校外权限用户数
      */
     @Query(value = "SELECT sum(1) AS userCount,SUM(IF ((USER.user_type=1),1,0)) AS normalCount,sum(IF ((USER.user_type=2),1,0)) AS orgAdminCount,sum(IF ((USER.is_online=1),1,0)) AS onlineCount,sum(IF ((USER.org_flag=org.flag AND USER.username IN (SELECT username FROM permission WHERE type=1)),1,0)) AS outsideCount,USER.org_flag,org.NAME FROM USER,org WHERE USER.org_flag=org.flag GROUP BY USER.org_flag,org.NAME ORDER BY userCount DESC", nativeQuery = true)
-    List<Map<String,Object>> tjOrgUser();
+    List<Map<String, Object>> tjOrgUser();
 
     class SpecBuilder {
 
@@ -102,14 +110,14 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
                 if (orgDeptId != null) {
                     list.add(cb.equal(root.get("orgDeptId").as(String.class), orgDeptId));
                 }
-                if (CollectionUtil.isNotEmpty(userType)){
+                if (CollectionUtil.isNotEmpty(userType)) {
                     list.add(cb.in(root.get("userType")).value(userType));
                 }
                 if (valid != null) {
                     // 如果valid==true? 查询审核记录，否则查询idPhoto未null的
                     list.add(valid ? cb.isNotNull(root.get("idPhoto")) : cb.isNull(root.get("idPhoto")));
                 }
-                if (CollectionUtil.isNotEmpty(validStatus)){
+                if (CollectionUtil.isNotEmpty(validStatus)) {
                     list.add(cb.in(root.get("validStatus")).value(validStatus));
                 }
                 if (StrUtil.isNotBlank(keyword)) {

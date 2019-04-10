@@ -10,7 +10,7 @@ public enum PermissionTypeEnum {
     /**
      * 权限类型
      */
-    OUTSIDE("校外访问",1);
+    OUTSIDE("校外访问", 1);
 
     private String name;
     private int value;

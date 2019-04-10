@@ -86,7 +86,7 @@ public class FrontendController {
         }
         helpRecord.setHelperIp(ip).setSend(true);
         try {
-            helpRequestService.helpRequest(literature,helpRecord);
+            helpRequestService.helpRequest(literature, helpRecord);
             return ResponseModel.ok().setMessage("求助成功");
         } catch (ConstraintViolationException e) {
             throw new AppException(ExceptionEnum.HELP_REPEAT);
@@ -162,7 +162,7 @@ public class FrontendController {
                                          @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null && isOrg? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg ? org.getStr("flag") : null;
         Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgFlag, pageable);
         return ResponseModel.ok().setBody(successHelpRecords);
     }
@@ -178,7 +178,7 @@ public class FrontendController {
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null && isOrg? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg ? org.getStr("flag") : null;
         Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);

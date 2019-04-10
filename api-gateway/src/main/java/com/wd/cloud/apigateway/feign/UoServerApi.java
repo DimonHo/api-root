@@ -29,10 +29,11 @@ public interface UoServerApi {
     ResponseModel<JSONObject> org(@RequestParam(value = "orgName", required = false) String name,
                                   @RequestParam(value = "flag", required = false) String flag,
                                   @RequestParam(value = "ip", required = false) String ip,
-                                  @RequestParam(value = "include",required = false) List<String> include);
+                                  @RequestParam(value = "include", required = false) List<String> include);
 
     /**
      * 获取用户信息
+     *
      * @param id 用户名或者邮箱
      * @return
      */

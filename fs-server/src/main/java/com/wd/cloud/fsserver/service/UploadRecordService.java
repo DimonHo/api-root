@@ -29,7 +29,7 @@ public interface UploadRecordService {
 
     UploadRecord save(String path, String fileName, MultipartFile file) throws IOException;
 
-    UploadRecord save(String path,String fileName,String fileMd5,MultipartFile file,boolean isAsynced,boolean isMissed) throws IOException;
+    UploadRecord save(String path, String fileName, String fileMd5, MultipartFile file, boolean isAsynced, boolean isMissed) throws IOException;
 
     UploadRecord save(String path, String fileName, File file);
 

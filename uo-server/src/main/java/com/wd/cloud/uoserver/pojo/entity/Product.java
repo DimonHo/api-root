@@ -19,8 +19,8 @@ import javax.persistence.UniqueConstraint;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
-@Table(name = "product",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "url"})})
-public class Product extends AbstractEntity{
+@Table(name = "product", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "url"})})
+public class Product extends AbstractEntity {
 
     /**
      * 产品名称

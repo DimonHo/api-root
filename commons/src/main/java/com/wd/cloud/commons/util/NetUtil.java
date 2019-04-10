@@ -18,17 +18,19 @@ public class NetUtil extends cn.hutool.core.util.NetUtil {
 
     /**
      * 是否是合法IP, ipv4 or ipv6
+     *
      * @param ip
      * @return
      */
-    public static boolean isIp(String ip){
+    public static boolean isIp(String ip) {
         return IPAddressUtil.isIPv4LiteralAddress(ip) || IPAddressUtil.isIPv6LiteralAddress(ip);
     }
 
     /**
      * 数字转IP
+     *
      * @param bigInteger
-     * @param isIpV6 是否是IPV6地址
+     * @param isIpV6     是否是IPV6地址
      * @return
      */
     public static String bigIntegerToIp(BigInteger bigInteger, boolean isIpV6) {
@@ -51,7 +53,7 @@ public class NetUtil extends cn.hutool.core.util.NetUtil {
     }
 
     public static String bigIntegerToIpv6(BigInteger number) {
-        return bigIntegerToIpv6(number,true);
+        return bigIntegerToIpv6(number, true);
     }
 
     public static String bigIntegerToIpv6(BigInteger number, boolean isCompress) {
@@ -73,7 +75,7 @@ public class NetUtil extends cn.hutool.core.util.NetUtil {
      * @param endIp
      * @return
      */
-    public static boolean isInner(String ip, String beginIp, String endIp) throws UnknownHostException {
+    public static boolean isInner(String ip, String beginIp, String endIp) {
         BigInteger ipNum = ipToBigInteger(ip);
         BigInteger beginIpNum = ipToBigInteger(beginIp);
         BigInteger endIpNum = ipToBigInteger(endIp);
@@ -87,29 +89,31 @@ public class NetUtil extends cn.hutool.core.util.NetUtil {
 
     }
 
-    public static BigInteger ipToBigInteger(String ip) throws UnknownHostException {
+    public static BigInteger ipToBigInteger(String ip) {
+        BigInteger bigInteger = BigInteger.ZERO;
         // 转换为完整形式的ip字符串
-        ip = InetAddress.getByName(ip).getHostAddress();
-        // ipv4转数字
-        if (IPAddressUtil.isIPv4LiteralAddress(ip)) {
-            final long[] numbers = StrUtil.splitToLong(ip, ".");
-            return BigInteger.valueOf((numbers[0] << 24)
-                    + (numbers[1] << 16)
-                    + (numbers[2] << 8)
-                    + (numbers[3]));
-            //ipv6转数字
-        } else if (IPAddressUtil.isIPv6LiteralAddress(ip)) {
-            final String[] numbers = StrUtil.split(ip, ":");
-            BigInteger bigInteger = BigInteger.ZERO;
-            for (int i = 0; i < numbers.length; i++) {
-                bigInteger = bigInteger.add(
-                        BigInteger.valueOf(Long.valueOf(numbers[i], 16)).shiftLeft(16 * (numbers.length - 1 - i))
-                );
+        try {
+            ip = InetAddress.getByName(ip).getHostAddress();
+            // ipv4转数字
+            if (IPAddressUtil.isIPv4LiteralAddress(ip)) {
+                final long[] numbers = StrUtil.splitToLong(ip, ".");
+                bigInteger = BigInteger.valueOf((numbers[0] << 24)
+                        + (numbers[1] << 16)
+                        + (numbers[2] << 8)
+                        + (numbers[3]));
+                //ipv6转数字
+            } else if (IPAddressUtil.isIPv6LiteralAddress(ip)) {
+                final String[] numbers = StrUtil.split(ip, ":");
+                for (int i = 0; i < numbers.length; i++) {
+                    bigInteger = bigInteger.add(
+                            BigInteger.valueOf(Long.valueOf(numbers[i], 16)).shiftLeft(16 * (numbers.length - 1 - i))
+                    );
+                }
             }
-            return bigInteger;
-        } else {
-            return BigInteger.ZERO;
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
+        return bigInteger;
     }
 
 }

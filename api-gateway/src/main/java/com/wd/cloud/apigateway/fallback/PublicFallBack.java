@@ -2,7 +2,6 @@ package com.wd.cloud.apigateway.fallback;
 
 import cn.hutool.json.JSONUtil;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
-import com.wd.cloud.commons.exception.ApiException;
 import com.wd.cloud.commons.model.ResponseModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
@@ -61,7 +60,7 @@ public class PublicFallBack implements FallbackProvider {
                 ResponseModel responseModel = ResponseModel.fail().setMessage(message);
                 if (cause instanceof HystrixTimeoutException) {
                     responseModel.setStatus(HttpStatus.GATEWAY_TIMEOUT.value());
-                }  else {
+                } else {
                     responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 }
                 //返回前端的内容

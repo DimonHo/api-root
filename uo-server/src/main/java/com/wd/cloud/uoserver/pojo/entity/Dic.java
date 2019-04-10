@@ -19,9 +19,9 @@ import javax.persistence.Table;
 @Entity
 @DynamicInsert
 @Table(name = "dic")
-public class Dic extends AbstractEntity{
+public class Dic extends AbstractEntity {
     /**
-     *  表名
+     * 表名
      */
     private String tableName;
     /**

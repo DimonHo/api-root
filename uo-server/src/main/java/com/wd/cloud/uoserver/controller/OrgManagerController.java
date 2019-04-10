@@ -31,22 +31,22 @@ public class OrgManagerController {
 
     @ApiOperation(value = "检查错误IP", tags = {"IP维护"})
     @GetMapping("/manager/ip/validator-ip")
-    public ResponseModel validatorIp(@RequestParam String username,@RequestParam String password) {
-        if ("hezhigang".equals(username) && "hzg123".equals(password)){
+    public ResponseModel validatorIp(@RequestParam String username, @RequestParam String password) {
+        if ("hezhigang".equals(username) && "hzg123".equals(password)) {
             List<OrgIp> errorOrgIps = orgService.validatorIp();
             return ResponseModel.ok().setBody(errorOrgIps);
-        }else{
+        } else {
             throw new AuthException("用户名或密码不正确");
         }
     }
 
     @ApiOperation(value = "翻转Ip起始和结束顺序", tags = {"IP维护"})
     @PatchMapping("/manager/ip/reverse")
-    public ResponseModel reverse(@RequestParam String username,@RequestParam String password) throws UnknownHostException {
-        if ("hezhigang".equals(username) && "hzg123".equals(password)){
+    public ResponseModel reverse(@RequestParam String username, @RequestParam String password) throws UnknownHostException {
+        if ("hezhigang".equals(username) && "hzg123".equals(password)) {
             orgService.reverse();
             return ResponseModel.ok();
-        }else{
+        } else {
             throw new AuthException("用户名或密码不正确");
         }
 
@@ -55,11 +55,11 @@ public class OrgManagerController {
 
     @ApiOperation(value = "查询重叠IP段", tags = {"IP维护"})
     @GetMapping("/manager/ip/overlay")
-    public ResponseModel overlay(@RequestParam String username,@RequestParam String password) throws UnknownHostException {
-        if ("hezhigang".equals(username) && "hzg123".equals(password)){
+    public ResponseModel overlay(@RequestParam String username, @RequestParam String password) throws UnknownHostException {
+        if ("hezhigang".equals(username) && "hzg123".equals(password)) {
             orgService.overlay();
             return ResponseModel.ok();
-        }else{
+        } else {
             throw new AuthException("用户名或密码不正确");
         }
     }
@@ -80,22 +80,22 @@ public class OrgManagerController {
     }
 
 
-    @ApiOperation(value = "新增，修改，删除院系",tags = {"机构管理"})
+    @ApiOperation(value = "新增，修改，删除院系", tags = {"机构管理"})
     @PostMapping("/manager/org/dept")
     public ResponseModel saveOrgDeptId(@RequestParam String orgFlag,
-                                          @RequestBody List<DeptVO> deptVo) {
+                                       @RequestBody List<DeptVO> deptVo) {
         List<OrgDept> orgDeptList = orgService.saveDept(orgFlag, deptVo);
         return ResponseModel.ok().setBody(orgDeptList);
     }
 
-    @ApiOperation(value = "删除院系",tags = {"机构管理"})
+    @ApiOperation(value = "删除院系", tags = {"机构管理"})
     @DeleteMapping("/manager/org/dept")
     public ResponseModel deleteOrgDeptId(@RequestParam Long id) {
         orgService.deleteOrgDeptId(id);
         return ResponseModel.ok().setMessage("删除成功");
     }
 
-    @ApiOperation(value = "更改订购产品状态",tags = {"机构管理"})
+    @ApiOperation(value = "更改订购产品状态", tags = {"机构管理"})
     @PostMapping("/manager/org/prod")
     public ResponseModel modifyOrgProd(@RequestParam String orgFlag,
                                        @RequestBody List<OrgProdVO> prod) {
@@ -103,7 +103,7 @@ public class OrgManagerController {
         return ResponseModel.ok().setMessage("更该成功");
     }
 
-    @ApiOperation(value = "取消订购产品",tags = {"机构管理"})
+    @ApiOperation(value = "取消订购产品", tags = {"机构管理"})
     @DeleteMapping("/manager/org/prod")
     public ResponseModel cancelOrgProd(@RequestParam String orgFlag,
                                        @RequestBody(required = false) List<Long> prodId) {

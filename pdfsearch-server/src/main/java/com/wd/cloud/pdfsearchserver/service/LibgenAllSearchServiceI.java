@@ -6,5 +6,5 @@ import com.wd.cloud.commons.model.ResponseModel;
 import java.util.List;
 
 public interface LibgenAllSearchServiceI {
-    public ResponseModel<List<JSON>> getResult(String title,String doi,String url);
+    public ResponseModel<List<JSON>> getResult(String title, String doi, String url);
 }

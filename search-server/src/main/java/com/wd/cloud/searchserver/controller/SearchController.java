@@ -6,7 +6,6 @@ import com.wd.cloud.searchserver.entity.SearchResult;
 import com.wd.cloud.searchserver.service.SearchServiceI;
 import com.wd.cloud.searchserver.util.PinYinUtil;
 import com.wd.cloud.searchserver.util.SystemContext;
-import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -196,7 +195,7 @@ public class SearchController {
     public ResponseModel subjectJSON(HttpServletRequest request,
                                      String db, String year) {
         if (StringUtils.isBlank(db) || StringUtils.isBlank(year)) {
-            return ResponseModel.ok().setBody(JSONArray.fromObject(new String[]{}));
+            return ResponseModel.fail();
         }
         SearchCondition condition = new SearchCondition();
         condition.setSearchComponentFlag("subject_system_search");
@@ -214,7 +213,7 @@ public class SearchController {
                 return p1.compareTo(p2);
             }
         });
-        return ResponseModel.ok().setBody(JSONArray.fromObject(datas));
+        return ResponseModel.ok().setBody(datas);
     }
 
 

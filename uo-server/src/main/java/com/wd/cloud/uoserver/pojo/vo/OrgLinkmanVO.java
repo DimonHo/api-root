@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class OrgLinkmanVO {
     Long id;
+    Boolean del;
     /**
      * 联系人名称
      */
@@ -24,6 +25,4 @@ public class OrgLinkmanVO {
      * 联系人电话
      */
     private String phone;
-
-    Boolean del;
 }

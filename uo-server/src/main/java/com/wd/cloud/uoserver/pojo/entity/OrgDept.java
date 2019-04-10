@@ -20,7 +20,7 @@ import javax.persistence.UniqueConstraint;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
-@Table(name = "org_dept",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
+@Table(name = "org_dept", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "org_flag"})})
 public class OrgDept extends AbstractEntity {
 
     /**

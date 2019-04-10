@@ -47,25 +47,39 @@ public class UserDTO implements Serializable {
      */
     private Integer userType;
 
-    /**身份类型 1:学生，2：老师*/
+    /**
+     * 身份类型 1:学生，2：老师
+     */
     private Integer identityType;
 
-    /**职工号/学号*/
+    /**
+     * 职工号/学号
+     */
     private String studentId;
 
-    /**教育程度*/
+    /**
+     * 教育程度
+     */
     private Integer eduLevel;
 
-    /**入学年份*/
+    /**
+     * 入学年份
+     */
     private String entranceYear;
 
-    /** 证件照*/
+    /**
+     * 证件照
+     */
     private String idPhoto;
 
-    /** 头像*/
+    /**
+     * 头像
+     */
     private String headImg;
 
-    /**登陆类型,1 normal，2qq，3wechat，4weibo*/
+    /**
+     * 登陆类型,1 normal，2qq，3wechat，4weibo
+     */
     private String loginType;
 
     private String qqOpenid;

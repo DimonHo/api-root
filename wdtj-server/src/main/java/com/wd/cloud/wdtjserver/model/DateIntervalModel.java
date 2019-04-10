@@ -20,7 +20,7 @@ public class DateIntervalModel {
         if (beginDate.after(endDate)) {
             this.beginDate = endDate;
             this.endDate = beginDate;
-        }else{
+        } else {
             this.beginDate = beginDate;
             this.endDate = endDate;
         }

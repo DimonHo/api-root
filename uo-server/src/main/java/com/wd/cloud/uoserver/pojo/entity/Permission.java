@@ -21,7 +21,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
-@Table(name = "permission",uniqueConstraints = {@UniqueConstraint(columnNames={"username", "type","value"})})
+@Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "type", "value"})})
 public class Permission extends AbstractEntity {
 
     /**

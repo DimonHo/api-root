@@ -1,14 +1,14 @@
 package com.wd.cloud.uoserver.aspect;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
-import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.exception.AuthException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.jasig.cas.client.util.AbstractCasFilter;
+import org.jasig.cas.client.validation.Assertion;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,11 +25,13 @@ public class AuthAspect {
     @Autowired
     HttpServletRequest request;
 
+    @Autowired
+    RedisTemplate redisTemplate;
+
     @Before(value = "@annotation(com.wd.cloud.commons.annotation.ValidateLogin)")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
-        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-        String username = loginUser != null ? loginUser.getStr("username") : null;
-        if (StrUtil.isBlank(username)) {
+        Assertion principal = (Assertion) request.getSession().getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
+        if (principal == null) {
             throw new AuthException();
         }
     }

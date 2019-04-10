@@ -9,6 +9,6 @@
 </head>
 <body>
 <p><span style='color: blue;'>${orgName}</span>用户<span
-        style='color: blue;'>${helperEmail}</span>已提交文献互助请求，请及时处理！</p>
+            style='color: blue;'>${helperEmail}</span>已提交文献互助请求，请及时处理！</p>
 </body>
 </html>

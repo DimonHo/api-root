@@ -2,6 +2,8 @@ package com.wd.cloud.commons.model;
 
 import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.enums.StatusEnum;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.StringJoiner;
@@ -11,6 +13,8 @@ import java.util.StringJoiner;
  * @date 2018/5/3
  * @remark api返回的response对象
  */
+@Data
+@Accessors(chain = true)
 public class ResponseModel<T> implements Serializable {
     /**
      * 是否失败？error==true？失败：成功；
@@ -70,41 +74,6 @@ public class ResponseModel<T> implements Serializable {
         return new ResponseModel(StatusEnum.INTERNAL_SERVER_ERROR, true);
     }
 
-    public boolean isError() {
-        return error;
-    }
-
-    public ResponseModel<T> setError(boolean error) {
-        this.error = error;
-        return this;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public ResponseModel<T> setStatus(Integer status) {
-        this.status = status;
-        return this;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public ResponseModel<T> setMessage(String message) {
-        this.message = message;
-        return this;
-    }
-
-    public T getBody() {
-        return body;
-    }
-
-    public ResponseModel<T> setBody(T body) {
-        this.body = body;
-        return this;
-    }
 
     @Override
     public String toString() {

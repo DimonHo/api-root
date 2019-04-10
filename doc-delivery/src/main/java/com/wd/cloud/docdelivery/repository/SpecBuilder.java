@@ -52,7 +52,7 @@ public class SpecBuilder {
             predicateList.add(cb.equal(helperNamePath, helperName));
             query.multiselect(helperNamePath).groupBy(helperNamePath);
         }
-        if (StrUtil.isNotBlank(format)){
+        if (StrUtil.isNotBlank(format)) {
             Selection<String> tjDate = cb.function("DATE_FORMAT", String.class, gmtCreatePath, cb.literal(format)).alias("tjDate");
         }
         if (StrUtil.isNotBlank(beginDate)) {
