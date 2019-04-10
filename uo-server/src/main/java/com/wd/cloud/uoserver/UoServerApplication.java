@@ -1,6 +1,7 @@
 package com.wd.cloud.uoserver;
 
 import com.spring4all.swagger.EnableSwagger2Doc;
+import com.wd.cloud.casspringbootstarter.EnableCasClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.SpringCloudApplication;
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableSwagger2Doc
 @EnableJpaAuditing
 @EnableFeignClients
+@EnableCasClient
 @SpringCloudApplication
 public class UoServerApplication {
 

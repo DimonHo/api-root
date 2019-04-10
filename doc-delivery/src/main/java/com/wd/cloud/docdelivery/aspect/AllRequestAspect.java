@@ -45,27 +45,28 @@ public class AllRequestAspect {
         Assertion principal = (Assertion) request.getSession().getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
         // 如果用户已登录
         if (principal != null) {
-            String username = principal.getPrincipal().getName();
-            String sessionUser = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            String casUsername = principal.getPrincipal().getName();
+            JSONObject sessionUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+            String sessionUsername = sessionUser != null? sessionUser.getStr("username"): null;
             JSONObject sessionOrg = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
             // session中已存在用户信息，则跳过
-            if (username.equals(sessionUser) && sessionOrg != null) {
+            if (casUsername.equals(sessionUsername) && sessionOrg != null) {
                 return;
             }
             // 获取用户信息
-            ResponseModel<JSONObject> userResponse = uoServerApi.user(username);
+            ResponseModel<JSONObject> userResponse = uoServerApi.user(casUsername);
             log.info("调用uo-server获取用户信息【{}】", userResponse);
             if (!userResponse.isError()) {
-                JSONObject userJson = userResponse.getBody();
-                String orgFlag = userJson.getStr("orgFlag");
-                String loginIp = userJson.getStr("lastLoginIp");
+                sessionUser = userResponse.getBody();
+                String orgFlag = sessionUser.getStr("orgFlag");
+                String loginIp = sessionUser.getStr("lastLoginIp");
                 // 证件照验证状态 2为已验证
-                Integer validStatus = userJson.getInt("validStatus");
+                Integer validStatus = sessionUser.getInt("validStatus");
                 // 如果用户所属某个机构，则以该机构作为访问机构
                 if (StrUtil.isNotBlank(orgFlag)) {
                     // 获取用户的机构信息
                     ResponseModel<JSONObject> orgFlagResponse = uoServerApi.org(null, orgFlag, null);
-                    log.info("调用uo-server获取【{}】用户的机构信息【{}】", username, orgFlagResponse);
+                    log.info("调用uo-server获取【{}】用户的机构信息【{}】", casUsername, orgFlagResponse);
                     if (!orgFlagResponse.isError()) {
                         String orgName = orgFlagResponse.getBody().getStr("name");
                         sessionOrg = new JSONObject();
@@ -76,7 +77,7 @@ public class AllRequestAspect {
                 }
                 // 获取最后用户最后登陆IP的机构信息
                 ResponseModel<JSONObject> orgIpResponse = uoServerApi.org(null, null, loginIp);
-                log.info("调用uo-server获取用户【{}】登陆IP【{}】的机构信息【{}】", username, loginIp, orgIpResponse);
+                log.info("调用uo-server获取用户【{}】登陆IP【{}】的机构信息【{}】", casUsername, loginIp, orgIpResponse);
                 // 用户最后登陆IP未找到对应机构信息，表示校外登陆
                 if (orgIpResponse.isError() && orgIpResponse.getStatus() == 404) {
                     request.getSession().setAttribute(SessionConstant.IS_OUT, true);
@@ -85,7 +86,7 @@ public class AllRequestAspect {
                     request.getSession().setAttribute(SessionConstant.IS_OUT, false);
                     request.getSession().setAttribute(SessionConstant.LEVEL, validStatus == 2 ? 7 : 3);
                 }
-                request.getSession().setAttribute(SessionConstant.LOGIN_USER, username);
+                request.getSession().setAttribute(SessionConstant.LOGIN_USER, sessionUser);
             }
 
         } else {
