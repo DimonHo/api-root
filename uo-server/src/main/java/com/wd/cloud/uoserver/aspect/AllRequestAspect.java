@@ -1,6 +1,7 @@
 package com.wd.cloud.uoserver.aspect;
 
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.HttpUtil;
@@ -54,20 +55,20 @@ public class AllRequestAspect {
         // 如果用户已登录
         if (principal != null) {
             String casUsername = principal.getPrincipal().getName();
-            UserDTO sessionUser = (UserDTO) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
-            String sessionUsername = sessionUser != null ? sessionUser.getUsername() : null;
+            JSONObject sessionUser = JSONUtil.parseObj(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
+            String sessionUsername = sessionUser != null ? sessionUser.getStr("username") : null;
             JSONObject sessionOrg = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
             // session中已存在用户信息，则跳过
             if (casUsername.equals(sessionUsername) && sessionOrg != null) {
                 return;
             }
             // 获取用户信息
-            sessionUser = userService.getUserDTO(casUsername);
+            sessionUser = JSONUtil.parseObj(userService.getUserDTO(casUsername));
 
-            String orgFlag = sessionUser.getOrgFlag();
-            String loginIp = sessionUser.getLastLoginIp();
+            String orgFlag = sessionUser.getStr("orgFlag");
+            String loginIp = sessionUser.getStr("lastLoginIp");
             // 证件照验证状态 2为已验证
-            Integer validStatus = sessionUser.getValidStatus();
+            Integer validStatus = sessionUser.getInt("validStatus");
             // 如果用户所属某个机构，则以该机构作为访问机构
             if (StrUtil.isNotBlank(orgFlag)) {
                 // 获取用户的机构信息

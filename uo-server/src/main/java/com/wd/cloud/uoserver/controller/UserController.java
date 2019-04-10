@@ -1,6 +1,7 @@
 package com.wd.cloud.uoserver.controller;
 
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.annotation.ValidateLogin;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -38,7 +39,7 @@ public class UserController {
     @ValidateLogin
     @GetMapping("/login/info")
     public ResponseModel getLogin() {
-        JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject loginUser = JSONUtil.parseObj(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
         String username = loginUser != null ? loginUser.getStr("username") : null;
         if (StrUtil.isBlank(username)) {
             return ResponseModel.fail();
