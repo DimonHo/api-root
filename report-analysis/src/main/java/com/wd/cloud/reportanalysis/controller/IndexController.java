@@ -208,7 +208,7 @@ public class IndexController {
                 result = analysisByDBService.analysis(Integer.parseInt(scid), issue, category, classify, column, Integer.parseInt(type_c));
                 break;
             case "column_list":
-                result.put("content", analysisByDBService.getColumnList(Integer.parseInt(scid), issue, school.getName()));
+                result.put("content", analysisByDBService.getColumnList(Integer.parseInt(scid), issue, school.getName(), category));
                 break;
             default:
                 break;
