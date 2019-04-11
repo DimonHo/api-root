@@ -40,7 +40,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
     @Override
     public Map<String, Object> getColumnList(int scid, String issue, String scname, String category) {
         try {
-            return cache.get(scid + ":" + issue, new Callable<Map<String, Object>>() {
+            return cache.get(scid + ":" + issue+ ":" + category, new Callable<Map<String, Object>>() {
 
                 @Override
                 public Map<String, Object> call() throws Exception {
@@ -100,7 +100,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                 }
             }
         }
-        cache.put(scid + ":" + issue, map);
+        cache.put(scid + ":" + issue + ":" + category, map);
         return map;
     }
 
