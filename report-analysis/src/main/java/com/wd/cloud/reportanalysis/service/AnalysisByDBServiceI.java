@@ -16,9 +16,12 @@ public interface AnalysisByDBServiceI {
 
     public Map<String, Object> analysis(int scid, String issue, String category, String classify, String column, int type_c);
 
-    public Map<String, Object> getColumnList(int scid, String issue, String scname);
-
-
+    public Map<String, Object> getColumnList(int scid, String issue, String scname, String category);
+    
+    
+    
+    
+    
     /**
      * 本校ESI学科论文分析
      *

@@ -37,22 +37,22 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
     }
 
     @Override
-    public Map<String, Object> getColumnList(int scid, String issue, String scname) {
+    public Map<String, Object> getColumnList(int scid, String issue, String scname, String category) {
         try {
             return cache.get(scid + ":" + issue, new Callable<Map<String, Object>>() {
 
                 @Override
                 public Map<String, Object> call() throws Exception {
-                    return columnList(scid, issue, scname);
+                    return columnList(scid, issue, scname, category);
                 }
 
             });
         } catch (Exception e) {
-            return columnList(scid, issue, scname);
+            return columnList(scid, issue, scname, category);
         }
     }
 
-    public Map<String, Object> columnList(int scid, String issue, String scname) {
+    public Map<String, Object> columnList(int scid, String issue, String scname, String category) {
         Map<String, Object> map = new HashMap<>();
         Iterator<Setting.Entry<String, String>> it = ConfigUtil.getIterator();
         while (it.hasNext()) {
@@ -84,7 +84,8 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                 }
                 if ("paper".equals(classify)) {
                     if (!"percentile".equals(column)) {
-                        sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
+                        //sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
+                        sql = sql + " AND category = '"+category +"'";
                     }
                 }
                 List<Map<String, Object>> result = analysisRepository.query(sql);
