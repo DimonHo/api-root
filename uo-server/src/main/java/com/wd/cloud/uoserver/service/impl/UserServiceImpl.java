@@ -1,6 +1,7 @@
 package com.wd.cloud.uoserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -102,9 +103,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUser(BackUserVO backUserVO) {
         User user = userRepository.findByUsername(backUserVO.getUsername()).orElse(new User());
-        BeanUtil.copyProperties(backUserVO, user);
+        BeanUtil.copyProperties(backUserVO, user, CopyOptions.create().setIgnoreNullValue(true));
         if (backUserVO.getOutside() != null) {
-            setOutsidePermission(backUserVO.getUsername(), OutsideEnum.FOREVER);
+            if (backUserVO.getOutside()) {
+                setOutsidePermission(backUserVO.getUsername(), OutsideEnum.FOREVER);
+            } else {
+                permissionRepository.deleteByUsernameAndType(backUserVO.getUsername(), PermissionTypeEnum.OUTSIDE.value());
+            }
         }
         return userRepository.save(user);
     }
@@ -118,7 +123,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User perfectUser(PerfectUserVO perfectUserVO) {
         User user = userRepository.findByUsername(perfectUserVO.getUsername()).orElseThrow(NotFoundUserException::new);
-        BeanUtil.copyProperties(perfectUserVO, user);
+        BeanUtil.copyProperties(perfectUserVO, user, CopyOptions.create().setIgnoreNullValue(true));
         // 完善信息自动获得6个月校外权限
         setOutsidePermission(user.getUsername(), OutsideEnum.HALF_YEAR);
         user = userRepository.save(user);
@@ -139,7 +144,7 @@ public class UserServiceImpl implements UserService {
             addUserOrg(user, userDTO);
         }
         // 加载用户权限
-        userDTO.setPermissions(userPpermissions(userDTO.getUsername()));
+        userDTO.setPermissions(userPermissions(userDTO.getUsername()));
         // 加载用户消息
         userDTO.setMsgs(userMsgs(userDTO.getUsername()));
         return userDTO;
@@ -165,7 +170,7 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    private List<Permission> userPpermissions(String username) {
+    private List<Permission> userPermissions(String username) {
         List<Permission> permissionList = permissionRepository.findByUsername(username);
         return permissionList;
     }
@@ -283,7 +288,7 @@ public class UserServiceImpl implements UserService {
                         PermissionTypeEnum.name(permissionVO.getType()),
                         permissionVO.getValue());
             }
-            BeanUtil.copyProperties(permissionVO, permission);
+            BeanUtil.copyProperties(permissionVO, permission, CopyOptions.create().setIgnoreNullValue(true));
             permissionRepository.save(permission);
         }
         // 记录日志

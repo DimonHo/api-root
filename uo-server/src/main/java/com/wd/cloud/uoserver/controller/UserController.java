@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 /**
  * @author He Zhigang
@@ -49,7 +50,7 @@ public class UserController {
 
     @ApiOperation(value = "新增用户", tags = {"用户注册"})
     @PostMapping("/user")
-    public ResponseModel registerUser(@RequestBody UserVO userVO) {
+    public ResponseModel registerUser(@Valid @RequestBody UserVO userVO) {
         try {
             log.info("注册新用户：[{}]", userVO.toString());
             User user = userService.registerUser(userVO);

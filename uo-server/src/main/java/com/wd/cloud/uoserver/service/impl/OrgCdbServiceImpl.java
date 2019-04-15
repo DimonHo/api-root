@@ -2,6 +2,7 @@ package com.wd.cloud.uoserver.service.impl;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.BooleanUtil;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.pojo.dto.OrgCdbDTO;
@@ -78,14 +79,13 @@ public class OrgCdbServiceImpl implements OrgCdbService {
                 } else {
                     // 更新
                     OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
-                    BeanUtil.copyProperties(orgCdbVO, orgCdb);
+                    BeanUtil.copyProperties(orgCdbVO, orgCdb, CopyOptions.create().setIgnoreNullValue(true));
                     orgCdb.setOrgFlag(orgFlag);
                     orgCdbList.add(orgCdb);
                 }
             } else {
                 // 新增
-                OrgCdb orgCdb = new OrgCdb();
-                BeanUtil.copyProperties(orgCdbVO, orgCdb);
+                OrgCdb orgCdb = BeanUtil.toBean(orgCdbVO, OrgCdb.class);
                 orgCdb.setOrgFlag(orgFlag);
                 orgCdbList.add(orgCdb);
             }

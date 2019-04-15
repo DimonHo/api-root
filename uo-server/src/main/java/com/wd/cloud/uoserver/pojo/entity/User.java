@@ -1,13 +1,12 @@
 package com.wd.cloud.uoserver.pojo.entity;
 
+import cn.hutool.crypto.SecureUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author He Zhigang
@@ -32,10 +31,13 @@ public class User extends AbstractEntity {
      */
     @Column(name = "user_type", columnDefinition = "tinyint(1) default 1 COMMENT '1:普通用户，1：机构管理员用户，2，后台操作员用户，9：超级管理员用户'")
     public Integer userType;
-    @Column(unique = true)
+
+    @Column(unique = true, columnDefinition = "varchar(16) COMMETN '用户名'")
     private String username;
+
     @Column(unique = true)
     private String email;
+
     private String password;
     /**
      * 昵称
@@ -142,5 +144,11 @@ public class User extends AbstractEntity {
     private Boolean forbidden;
 
     private String handlerName;
+
+    @PrePersist
+    public void createPassword() {
+        this.password = SecureUtil.md5(this.password);
+    }
+
 
 }

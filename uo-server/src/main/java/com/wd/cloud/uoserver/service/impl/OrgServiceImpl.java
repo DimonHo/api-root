@@ -1,6 +1,7 @@
 package com.wd.cloud.uoserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.BooleanUtil;
@@ -190,7 +191,7 @@ public class OrgServiceImpl implements OrgService {
     @Cacheable(value = CacheConstant.ORG, key = "#orgVO.flag")
     public void saveOrg(OrgVO orgVO) {
         Org org = orgRepository.findByFlag(orgVO.getFlag()).orElse(new Org());
-        BeanUtil.copyProperties(orgVO, org);
+        BeanUtil.copyProperties(orgVO, org, CopyOptions.create().setIgnoreNullValue(true));
         orgRepository.save(org);
         if (CollectionUtil.isNotEmpty(orgVO.getIp())) {
             saveOrgIp(orgVO.getFlag(), orgVO.getIp());
@@ -261,7 +262,7 @@ public class OrgServiceImpl implements OrgService {
             } else {
                 // 新增或修改
                 OrgProd orgProd = orgProdRepository.findByOrgFlagAndProdId(orgFlag, orgProdVO.getProdId()).orElse(new OrgProd());
-                BeanUtil.copyProperties(orgProdVO, orgProd);
+                BeanUtil.copyProperties(orgProdVO, orgProd, CopyOptions.create().setIgnoreNullValue(true));
                 orgProd.setOrgFlag(orgFlag);
                 orgProds.add(orgProd);
             }
@@ -282,14 +283,13 @@ public class OrgServiceImpl implements OrgService {
                     // 更新
                 } else {
                     OrgLinkman orgLinkman = orgLinkmanRepository.findByOrgFlagAndId(orgFlag, linkmanVO.getId()).orElseThrow(NotFoundException::new);
-                    BeanUtil.copyProperties(linkmanVO, orgLinkman);
+                    BeanUtil.copyProperties(linkmanVO, orgLinkman, CopyOptions.create().setIgnoreNullValue(true));
                     orgLinkman.setOrgFlag(orgFlag);
                     orgLinkmanList.add(orgLinkman);
                 }
             } else {
                 // 新增
-                OrgLinkman orgLinkman = new OrgLinkman();
-                BeanUtil.copyProperties(linkmanVO, orgLinkman);
+                OrgLinkman orgLinkman = BeanUtil.toBean(linkmanVO, OrgLinkman.class);
                 orgLinkman.setOrgFlag(orgFlag);
                 orgLinkmanList.add(orgLinkman);
             }
@@ -442,14 +442,13 @@ public class OrgServiceImpl implements OrgService {
                 } else {
                     // 修改
                     OrgDept orgDept = orgDeptRepository.findByOrgFlagAndId(orgFlag, deptVo.getId()).orElseThrow(NotFoundException::new);
-                    BeanUtil.copyProperties(deptVo, orgDept);
+                    BeanUtil.copyProperties(deptVo, orgDept, CopyOptions.create().setIgnoreNullValue(true));
                     orgDept.setOrgFlag(orgFlag);
                     orgDeptList.add(orgDept);
                 }
             } else {
                 //新增
-                OrgDept orgDept = new OrgDept();
-                BeanUtil.copyProperties(deptVo, orgDept);
+                OrgDept orgDept = BeanUtil.toBean(deptVo, OrgDept.class);
                 orgDept.setOrgFlag(orgFlag);
                 orgDeptList.add(orgDept);
             }
@@ -557,7 +556,7 @@ public class OrgServiceImpl implements OrgService {
                     OrgProdDTO orgProdDTO = BeanUtil.toBean(orgProd, OrgProdDTO.class);
                     Optional<Product> optionalProduct = productRepository.findById(orgProd.getProdId());
                     optionalProduct.ifPresent(product -> {
-                        BeanUtil.copyProperties(product, orgProdDTO);
+                        BeanUtil.copyProperties(product, orgProdDTO, CopyOptions.create().setIgnoreNullValue(true));
                         orgProdDTOS.add(orgProdDTO);
                     });
                 });

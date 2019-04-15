@@ -2,7 +2,9 @@ package com.wd.cloud.uoserver.pojo.vo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -15,14 +17,17 @@ import java.util.Date;
 @Accessors(chain = true)
 public class UserVO {
     @NotNull
+    @Length(min = 6,max = 16)
     private String username;
 
+    @Length(min = 6,max = 16)
     private String password;
 
     private String nickname;
 
     private String realname;
 
+    @Email
     private String email;
 
     private String orgFlag;

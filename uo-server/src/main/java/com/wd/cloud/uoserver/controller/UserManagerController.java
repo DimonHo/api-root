@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -32,13 +33,13 @@ public class UserManagerController {
 
     @ApiOperation(value = "后台新增用户", tags = {"用户管理"})
     @PostMapping("/manager/user")
-    public ResponseModel createUser(@RequestBody BackUserVO backUserVO) {
+    public ResponseModel createUser(@Valid @RequestBody BackUserVO backUserVO) {
         return ResponseModel.ok().setBody(userService.addUser(backUserVO));
     }
 
     @ApiOperation(value = "后台更新用户", tags = {"用户管理"})
     @PutMapping("/manager/user")
-    public ResponseModel modifyUser(@RequestBody BackUserVO backUserVO) {
+    public ResponseModel modifyUser(@Valid @RequestBody BackUserVO backUserVO) {
         return ResponseModel.ok().setBody(userService.saveUser(backUserVO));
     }
 
