@@ -1,5 +1,6 @@
 package com.wd.cloud.docdelivery.repository;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
@@ -51,7 +52,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
         public static Specification<VHelpRecord> buildVhelpRecord(List<Long> channel, List<Integer> status, String email, String helperName, String keyword, Boolean isDifficult, String orgFlag, Date beginDate, Date endDate) {
             return (Specification<VHelpRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<>();
-                if (orgFlag != null) {
+                if (StrUtil.isNotBlank(orgFlag)) {
                     list.add(cb.equal(root.get("orgFlag"), orgFlag));
                 }
                 if (StrUtil.isNotBlank(helperName)) {
@@ -61,11 +62,11 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                     list.add(cb.equal(root.get("helperEmail"), email));
                 }
                 // 渠道过滤
-                if (channel != null && channel.size() > 0) {
+                if (CollectionUtil.isNotEmpty(channel)) {
                     list.add(cb.in(root.get("helpChannel")).value(channel));
                 }
                 // 状态过滤
-                if (status != null && status.size() > 0) {
+                if (CollectionUtil.isNotEmpty(status)) {
                     list.add(cb.in(root.get("status")).value(status));
                 }
                 if (StrUtil.isNotBlank(keyword)) {
@@ -75,11 +76,11 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                 }
                 // 是否是疑难文献
                 if (isDifficult != null) {
-                    list.add(cb.equal(root.get("difficult").as(boolean.class), isDifficult));
+                    list.add(cb.equal(root.get("difficult").as(Boolean.class), isDifficult));
                 }
                 if (beginDate != null || endDate != null) {
-                    Date begin = beginDate == null ? new Date() : beginDate;
                     Date end = endDate == null ? new Date() : endDate;
+                    Date begin = beginDate == null ? DateUtil.offsetMonth(end, -1) : beginDate;
                     list.add(cb.between(root.get("gmtCreate").as(Date.class), begin, end));
                 }
 

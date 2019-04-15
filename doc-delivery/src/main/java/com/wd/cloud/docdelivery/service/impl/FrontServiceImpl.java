@@ -343,8 +343,7 @@ public class FrontServiceImpl implements FrontService {
 
     private Page<HelpRecordDTO> coversHelpRecordDTO(Page<VHelpRecord> helpRecordPage) {
         return helpRecordPage.map(vHelpRecord -> {
-            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(anonymous(vHelpRecord), helpRecordDTO);
+            HelpRecordDTO helpRecordDTO = BeanUtil.toBean(anonymous(vHelpRecord), HelpRecordDTO.class);
             Optional<Literature> optionalLiterature = literatureRepository.findById(vHelpRecord.getLiteratureId());
             optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
             //如果有用户正在应助
@@ -358,8 +357,7 @@ public class FrontServiceImpl implements FrontService {
 
     private Page<GiveRecordDTO> coversGiveRecordDTO(Page<GiveRecord> giveRecordPage) {
         return giveRecordPage.map(giveRecord -> {
-            GiveRecordDTO giveRecordDTO = new GiveRecordDTO();
-            BeanUtil.copyProperties(giveRecord, giveRecordDTO);
+            GiveRecordDTO giveRecordDTO = BeanUtil.toBean(giveRecord, GiveRecordDTO.class);
             Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(giveRecord.getHelpRecordId());
             optionalHelpRecord.ifPresent(helpRecord -> {
                 giveRecordDTO.setHelperEmail(BooleanUtil.isTrue(helpRecord.getAnonymous()) ? "匿名" : StrUtil.hideMailAddr(helpRecord.getHelperEmail()))
@@ -373,6 +371,11 @@ public class FrontServiceImpl implements FrontService {
         });
     }
 
+    /**
+     * 匿名和邮箱隐藏处理
+     * @param vHelpRecord
+     * @return
+     */
     private VHelpRecord anonymous(VHelpRecord vHelpRecord) {
         if (BooleanUtil.isTrue(vHelpRecord.getAnonymous())) {
             vHelpRecord.setHelperEmail("匿名").setHelperName("匿名");
