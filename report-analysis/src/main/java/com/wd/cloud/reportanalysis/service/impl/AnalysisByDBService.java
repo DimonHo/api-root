@@ -7,6 +7,7 @@ import com.wd.cloud.reportanalysis.repository.analysis.AnalysisRepository;
 import com.wd.cloud.reportanalysis.service.AnalysisByDBServiceI;
 import com.wd.cloud.reportanalysis.util.ConfigUtil;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
     @Override
     public Map<String, Object> getColumnList(int scid, String issue, String scname, String category) {
         try {
-            return cache.get(scid + ":" + issue, new Callable<Map<String, Object>>() {
+            return cache.get(scid + ":" + issue+ ":" + category, new Callable<Map<String, Object>>() {
 
                 @Override
                 public Map<String, Object> call() throws Exception {
@@ -83,7 +84,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                     sql = "SELECT * FROM st_analysis_year WHERE issue = '" + issue + "' and category = '全部领域' AND scid = '" + scid + "' and type = 2";
                 }
                 if ("paper".equals(classify)) {
-                    if (!"percentile".equals(column)) {
+                    if (!"percentile".equals(column) && StringUtils.isNotBlank(category)) {
                         //sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
                         sql = sql + " AND category = '"+category +"'";
                     }
@@ -99,7 +100,7 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                 }
             }
         }
-        cache.put(scid + ":" + issue, map);
+        cache.put(scid + ":" + issue + ":" + category, map);
         return map;
     }
 
