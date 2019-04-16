@@ -5,7 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.annotation.ValidateLogin;
-import com.wd.cloud.commons.annotation.ValidateUser;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -66,7 +65,6 @@ public class FrontendController {
     HttpServletRequest request;
 
     @ApiOperation(value = "文献求助")
-    @ValidateUser
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
         JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);

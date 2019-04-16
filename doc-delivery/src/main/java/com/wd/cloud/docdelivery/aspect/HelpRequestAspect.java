@@ -47,7 +47,8 @@ public class HelpRequestAspect {
     @Before("helpRequest()")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
         // 接收到请求，记录请求内容
-        String username = (String) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        JSONObject sessionUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = sessionUser != null? sessionUser.getStr("username"): null;
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
         Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
         log.info("当前等级：[{}]", level);
