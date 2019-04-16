@@ -5,5 +5,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 
 public interface ElasticRepository {
     public SearchResponse queryByName(String indexName, String type, QueryBuilder qeryBuilder);
+
     public SearchResponse queryAllTypeByQueryBuilder(String indexName, QueryBuilder qeryBuilder);
 }

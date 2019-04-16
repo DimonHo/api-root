@@ -3,8 +3,12 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * @author He Zhigang
@@ -15,7 +19,8 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "org_dept",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
+@DynamicInsert
+@Table(name = "org_dept", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "org_flag"})})
 public class OrgDept extends AbstractEntity {
 
     /**

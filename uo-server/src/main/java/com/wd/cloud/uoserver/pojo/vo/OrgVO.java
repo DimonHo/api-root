@@ -13,36 +13,28 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class OrgVO {
+    List<OrgLinkmanVO> linkman;
+    List<OrgProdVO> prod;
+    List<OrgIpVO> ip;
+    List<OrgCdbVO> cdb;
     /**
      * 机构默认标识
      */
     private String flag;
-
     /**
      * 机构名称
      */
     private String name;
-
     /**
      * 省份
      */
     private String province;
-
     /**
      * 市、区
      */
     private String city;
-
     /**
      * 是否禁用
      */
     private Boolean disable;
-
-    List<OrgLinkmanVO> linkman;
-
-    List<OrgProdVO> prod;
-
-    List<OrgIpVO> ip;
-
-    List<OrgCdbVO> cdb;
 }

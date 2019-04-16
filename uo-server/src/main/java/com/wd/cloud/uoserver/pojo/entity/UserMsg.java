@@ -3,6 +3,7 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,8 +18,9 @@ import javax.persistence.Table;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@DynamicInsert
 @Table(name = "user_msg")
-public class UserMsg extends AbstractEntity{
+public class UserMsg extends AbstractEntity {
 
     /**
      * 用户
@@ -33,6 +35,6 @@ public class UserMsg extends AbstractEntity{
     /**
      * 是否已读
      */
-    @Column(name = "is_read",columnDefinition = "bit(1) default 0 COMMENT '0:未读，1：已读'")
+    @Column(name = "is_read", columnDefinition = "bit(1) default 0 COMMENT '0:未读，1：已读'")
     private Boolean read;
 }

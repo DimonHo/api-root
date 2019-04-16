@@ -1,6 +1,5 @@
 package com.wd.cloud.fsserver.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
@@ -47,7 +46,7 @@ public class FileServiceImpl implements FileService {
         //文件md5校验码
         String md5 = FileUtil.fileMd5(file);
         String fileMd5Name = FileUtil.buildFileMd5Name(file, md5);
-        UploadRecord uploadRecord = uploadRecordService.getOne(dir,md5);
+        UploadRecord uploadRecord = uploadRecordService.getOne(dir, md5);
         if (uploadRecord == null || uploadRecord.isMissed()) {
             if (uploadRecord == null) {
                 uploadRecord = new UploadRecord();

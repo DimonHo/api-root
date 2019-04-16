@@ -54,6 +54,36 @@ public class BlockFileModel {
      */
     private String blockMd5;
 
+    public static BlockFileModel build(String dir, String fileMd5, MultipartFile blockFile, HttpServletRequest request) {
+        BlockFileModel blockFileModel = new BlockFileModel();
+        blockFileModel.setDir(dir)
+                .setFileMd5(fileMd5)
+                .setBlockFile(blockFile)
+                .setBlockSize(blockFile.getSize());
+        request.getParameterMap().forEach((k, v) -> {
+            switch (k) {
+                case "name":
+                    blockFileModel.setFileName(v[0]);
+                    break;
+                case "size":
+                    blockFileModel.setFileSize(Integer.valueOf(v[0]));
+                    break;
+                case "chunks":
+                    blockFileModel.setChunks(Integer.valueOf(v[0]));
+                    break;
+                case "chunk":
+                    blockFileModel.setChunkIndex(Integer.valueOf(v[0]));
+                    break;
+                case "id":
+                    blockFileModel.setId(v[0]);
+                    break;
+                default:
+                    break;
+            }
+        });
+        return blockFileModel;
+    }
+
     public String getId() {
         return id;
     }
@@ -158,24 +188,5 @@ public class BlockFileModel {
                 .add("blockFile=" + blockFile)
                 .add("blockMd5='" + blockMd5 + "'")
                 .toString();
-    }
-
-    public static BlockFileModel build(String dir, String fileMd5, MultipartFile blockFile, HttpServletRequest request){
-        BlockFileModel blockFileModel = new BlockFileModel();
-        blockFileModel.setDir(dir)
-                .setFileMd5(fileMd5)
-                .setBlockFile(blockFile)
-                .setBlockSize(blockFile.getSize());
-        request.getParameterMap().forEach((k,v) -> {
-            switch (k){
-                case "name": blockFileModel.setFileName(v[0]);break;
-                case "size": blockFileModel.setFileSize(Integer.valueOf(v[0]));break;
-                case "chunks": blockFileModel.setChunks(Integer.valueOf(v[0]));break;
-                case "chunk": blockFileModel.setChunkIndex(Integer.valueOf(v[0]));break;
-                case "id": blockFileModel.setId(v[0]);break;
-                default: break;
-            }
-        });
-        return blockFileModel;
     }
 }

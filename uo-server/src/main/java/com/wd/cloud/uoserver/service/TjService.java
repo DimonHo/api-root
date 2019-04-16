@@ -12,14 +12,16 @@ public interface TjService {
 
     /**
      * 机构用户信息统计
+     *
      * @return
      */
-    List<Map<String,Object>> tjOrgUser();
+    List<Map<String, Object>> tjOrgUser();
 
     /**
      * 院系统计
+     *
      * @param orgFlag
      * @return
      */
-    List<Map<String,Object>> tjOrgDeptUser(String orgFlag);
+    List<Map<String, Object>> tjOrgDeptUser(String orgFlag);
 }

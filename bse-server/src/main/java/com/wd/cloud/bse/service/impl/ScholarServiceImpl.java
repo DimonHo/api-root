@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ScholarServiceImpl implements ScholarService {
-	
-	@Autowired
-	ScholarRepository scholarRepository;
-	
-	@Override
+
+    @Autowired
+    ScholarRepository scholarRepository;
+
+    @Override
     public Scholar findById(Integer id) {
-		return scholarRepository.findById(id);
-	}
+        return scholarRepository.findById(id);
+    }
 
 }

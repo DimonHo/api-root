@@ -27,13 +27,14 @@ public interface AnalysisRepository<T, Long extends Serializable> {
     List<Map<String, Object>> query(String string);
 
     Map<String, Object> queryOne(String string);
-    
-    
+
+
     /**
      * 本校ESI学科论文分析
-     * @param scid	
-     * @param issue			期
-     * @param category		ESI学科类别
+     *
+     * @param scid
+     * @param issue    期
+     * @param category ESI学科类别
      * @param classify
      * @param column
      * @param type_c

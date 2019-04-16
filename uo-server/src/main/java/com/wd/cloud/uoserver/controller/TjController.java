@@ -24,14 +24,14 @@ public class TjController {
 
     @ApiOperation(value = "统计机构用户数", tags = {"统计"})
     @GetMapping("/tj/org")
-    public ResponseModel tjOrgUser(){
+    public ResponseModel tjOrgUser() {
         return ResponseModel.ok().setBody(tjService.tjOrgUser());
     }
 
     @ApiOperation(value = "统计院系用户数", tags = {"统计"})
     @ApiImplicitParam(name = "orgFlag", value = "机构标识", paramType = "String", type = "query")
     @GetMapping("/tj/org/dept")
-    public ResponseModel tjOrgUser(@RequestParam String orgFlag){
+    public ResponseModel tjOrgUser(@RequestParam String orgFlag) {
         return ResponseModel.ok().setBody(tjService.tjOrgDeptUser(orgFlag));
     }
 }

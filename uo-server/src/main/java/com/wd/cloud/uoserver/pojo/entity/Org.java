@@ -3,8 +3,11 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * @author He Zhigang
@@ -14,6 +17,7 @@ import javax.persistence.*;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@DynamicInsert
 @Entity
 @Table(name = "org")
 public class Org extends AbstractEntity {
@@ -40,7 +44,7 @@ public class Org extends AbstractEntity {
     /**
      * 是否停止使用0：否，1：是
      */
-    @Column(name = "is_disable",columnDefinition = "bit(1) default 0")
+    @Column(name = "is_disable", columnDefinition = "bit(1) default 0")
     private Boolean disable;
 
 

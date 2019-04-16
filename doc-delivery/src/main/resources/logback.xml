@@ -3,7 +3,8 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/doc-delivery.log}"/>
-    <property name="ERROR_FILE" value="${ERROR_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/doc-delivery.error.log}"/>
+    <property name="ERROR_FILE"
+              value="${ERROR_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/doc-delivery.error.log}"/>
     <!-- 开发环境. 多个使用逗号隔开. -->
     <springProfile name="dev">
         <logger name="com.example.demo.controller" level="DEBUG" additivity="false">

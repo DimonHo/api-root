@@ -115,8 +115,8 @@ public class QuotaController {
     @GetMapping("/quota/year")
     public ResponseModel runYearQuota(@RequestParam String year) {
         Date date = DateUtil.parseDateTime(year);
-        List<DateTime> days = DateUtil.rangeToList(DateUtil.beginOfYear(date),DateUtil.endOfYear(date), DateField.DAY_OF_MONTH);
-        days.forEach(day ->{
+        List<DateTime> days = DateUtil.rangeToList(DateUtil.beginOfYear(date), DateUtil.endOfYear(date), DateField.DAY_OF_MONTH);
+        days.forEach(day -> {
             quotaService.runTask(day);
         });
         return ResponseModel.ok();

@@ -5,7 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import com.wd.cloud.commons.annotation.ValidateLogin;
-import com.wd.cloud.commons.annotation.ValidateUser;
 import com.wd.cloud.commons.constant.SessionConstant;
 import com.wd.cloud.commons.enums.StatusEnum;
 import com.wd.cloud.commons.model.ResponseModel;
@@ -66,7 +65,6 @@ public class FrontendController {
     HttpServletRequest request;
 
     @ApiOperation(value = "文献求助")
-    @ValidateUser
     @PostMapping(value = "/help/form")
     public ResponseModel<HelpRecord> helpFrom(@Valid HelpRequestModel helpRequestModel) {
         JSONObject loginUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
@@ -86,7 +84,7 @@ public class FrontendController {
         }
         helpRecord.setHelperIp(ip).setSend(true);
         try {
-            helpRequestService.helpRequest(literature,helpRecord);
+            helpRequestService.helpRequest(literature, helpRecord);
             return ResponseModel.ok().setMessage("求助成功");
         } catch (ConstraintViolationException e) {
             throw new AppException(ExceptionEnum.HELP_REPEAT);
@@ -162,7 +160,7 @@ public class FrontendController {
                                          @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                          @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null && isOrg? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg ? org.getStr("flag") : null;
         Page<HelpRecordDTO> successHelpRecords = frontService.getSuccessHelpRecords(channel, orgFlag, pageable);
         return ResponseModel.ok().setBody(successHelpRecords);
     }
@@ -178,7 +176,7 @@ public class FrontendController {
                                         @RequestParam(required = false, defaultValue = "false") boolean isOrg,
                                         @PageableDefault(sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
-        String orgFlag = org != null && isOrg? org.getStr("flag") : null;
+        String orgFlag = org != null && isOrg ? org.getStr("flag") : null;
         Page<HelpRecordDTO> finishHelpRecords = frontService.getFailedHelpRecords(channel, status, orgFlag, pageable);
 
         return ResponseModel.ok().setBody(finishHelpRecords);

@@ -17,9 +17,9 @@ import java.util.*;
 public class ResourceLabel {
 
     private String id;
-    
+
     private String block;
-    
+
     private String plate;
 
     private String act;
@@ -37,22 +37,22 @@ public class ResourceLabel {
     private String source;
 
     private String signature;
-    
+
     /**
      * 0为按最新年，1为按文章年
      */
-    private String type;			
+    private String type;
 
     public ResourceLabel(HttpServletRequest request) {
-    	block = request.getParameter("block");
-    	plate = request.getParameter("plate");
+        block = request.getParameter("block");
+        plate = request.getParameter("plate");
         act = request.getParameter("act");
         table = request.getParameter("table");
         scid = request.getParameter("scid");
         category = request.getParameter("category_type");
         type = request.getParameter("type");
-        if(StrUtil.isEmpty(type)) {
-        	type = "0";
+        if (StrUtil.isEmpty(type)) {
+            type = "0";
         }
 //		compareScids = request.getParameterValues("compare_scids");
 //		time = request.getParameterValues("time");
@@ -90,8 +90,10 @@ public class ResourceLabel {
     public String getAct() {
         return act;
     }
+
     /**
      * compare接口查询索引类型
+     *
      * @return 索引类型type
      */
     public String getType() {
@@ -117,24 +119,24 @@ public class ResourceLabel {
 //	    }
         return type;
     }
-    
-    
+
+
     public String getEsiType() {
-    	String type = "";
-    	switch (act) {
-        case "amount":
-        case "partition":
-        case "cited":
-            type = "esi";
-            break;
-        default:
-            type = "analysis";
-            break;
-    	}
-    	return type;
+        String type = "";
+        switch (act) {
+            case "amount":
+            case "partition":
+            case "cited":
+                type = "esi";
+                break;
+            default:
+                type = "analysis";
+                break;
+        }
+        return type;
     }
 
-    
+
     public List<QueryCondition> getQueryList() {
         List<QueryCondition> list = new ArrayList<>();
         if (time != null) {
@@ -148,41 +150,41 @@ public class ResourceLabel {
         }
         return list;
     }
-    
+
     public FacetField getFacetField() {
-    	FacetField facetField = new FacetField();
-    	switch (table) {
-	        case "amount":
-	        	facetField.setName("year");
-	        	facetField.setField("year");
-	            break;
-	        case "jcr":
-	        	if("0".equals(type)) {
-	        		facetField.setName("jcr_new");
-	        		facetField.setField("jcr_new");
-	        	} else {
-	        		facetField.setName("jcr");
-	        		facetField.setField("jcr");
-	        	}
-	            break;
-	        case "jcr_zky_1":
-	        	if("0".equals(type)) {
-	        		facetField.setName("jcr_b_new");
-	        		facetField.setField("jcr_b_new");
-	        	} else {
-	        		facetField.setName("jcr_b");
-	        		facetField.setField("jcr_b");
-	        	}
-	            break;
-	        case "jcr_zky_2":
-	        	if("0".equals(type)) {
-	        		facetField.setName("jcr_s_new");
-	        		facetField.setField("jcr_s_new");
-	        	} else {
-	        		facetField.setName("jcr_s");
-	        		facetField.setField("jcr_s");
-	        	}
-	            break;
+        FacetField facetField = new FacetField();
+        switch (table) {
+            case "amount":
+                facetField.setName("year");
+                facetField.setField("year");
+                break;
+            case "jcr":
+                if ("0".equals(type)) {
+                    facetField.setName("jcr_new");
+                    facetField.setField("jcr_new");
+                } else {
+                    facetField.setName("jcr");
+                    facetField.setField("jcr");
+                }
+                break;
+            case "jcr_zky_1":
+                if ("0".equals(type)) {
+                    facetField.setName("jcr_b_new");
+                    facetField.setField("jcr_b_new");
+                } else {
+                    facetField.setName("jcr_b");
+                    facetField.setField("jcr_b");
+                }
+                break;
+            case "jcr_zky_2":
+                if ("0".equals(type)) {
+                    facetField.setName("jcr_s_new");
+                    facetField.setField("jcr_s_new");
+                } else {
+                    facetField.setName("jcr_s");
+                    facetField.setField("jcr_s");
+                }
+                break;
 //	        case "jcr_year":
 //	        	facetField.setName("jcr_year");
 //	        	facetField.setField("jcr");
@@ -195,71 +197,71 @@ public class ResourceLabel {
 //	        	facetField.setName("jcr_year");
 //	        	facetField.setField("jcr_s");
 //	            break;
-	        case "total_cited":            //总被引频次
-	        	facetField.setName("wosCitesAll");
-	        	facetField.setField("year");
-	            break;
-	        case "paper_cited":            //篇均被引频次
-	        	facetField.setName("wosCites");
-	        	facetField.setField("year");
-	            break;
-	        default:
-	        	facetField.setName("year");
-	        	facetField.setField("year");
-	            break;
-	    }
-		return facetField;
+            case "total_cited":            //总被引频次
+                facetField.setName("wosCitesAll");
+                facetField.setField("year");
+                break;
+            case "paper_cited":            //篇均被引频次
+                facetField.setName("wosCites");
+                facetField.setField("year");
+                break;
+            default:
+                facetField.setName("year");
+                facetField.setField("year");
+                break;
+        }
+        return facetField;
     }
-    
-    
-    public Map<String,String> getFacetMap() {
-    	Map<String,String> facetMap = new HashMap<>();
-    	switch (table) {
-	        case "amount":
-	        	facetMap.put("year", "year");
-	            break;
-	        case "jcr":
-	        	if("0".equals(type)) {
-            		facetMap.put("jcr_new", "jcr_new");
-            	} else {
-            		facetMap.put("jcr", "jcr");
-            	}
-	            break;
-	        case "jcr_zky_1":
-	        	if("0".equals(type)) {
-            		facetMap.put("jcr_b_new", "jcr_b_new");
-            	} else {
-            		facetMap.put("jcr_b", "jcr_b");
-            	}
-	            break;
-	        case "jcr_zky_2":
-	        	if("0".equals(type)) {
+
+
+    public Map<String, String> getFacetMap() {
+        Map<String, String> facetMap = new HashMap<>();
+        switch (table) {
+            case "amount":
+                facetMap.put("year", "year");
+                break;
+            case "jcr":
+                if ("0".equals(type)) {
+                    facetMap.put("jcr_new", "jcr_new");
+                } else {
+                    facetMap.put("jcr", "jcr");
+                }
+                break;
+            case "jcr_zky_1":
+                if ("0".equals(type)) {
+                    facetMap.put("jcr_b_new", "jcr_b_new");
+                } else {
+                    facetMap.put("jcr_b", "jcr_b");
+                }
+                break;
+            case "jcr_zky_2":
+                if ("0".equals(type)) {
 //            		filed = "jcr_new";
-            		facetMap.put("jcr_s_new", "jcr_s_new");
-            	} else {
-            		facetMap.put("jcr_s", "jcr_s");
-            	}
-	            break;
-	        case "jcr_year":
-	        	facetMap.put("jcr_year", "jcr");
+                    facetMap.put("jcr_s_new", "jcr_s_new");
+                } else {
+                    facetMap.put("jcr_s", "jcr_s");
+                }
+                break;
+            case "jcr_year":
+                facetMap.put("jcr_year", "jcr");
                 break;
             case "jcr_zky_1_year":
-            	facetMap.put("jcr_year", "jcr_b");
+                facetMap.put("jcr_year", "jcr_b");
                 break;
             case "jcr_zky_2_year":
-            	facetMap.put("jcr_year", "jcr_s");
+                facetMap.put("jcr_year", "jcr_s");
                 break;
-	        case "total_cited":            //总被引频次
-	        	facetMap.put("wosCitesAll", "year");
-	            break;
-	        case "paper_cited":            //篇均被引频次
-	        	facetMap.put("wosCites", "year");
-	            break;
-	        default:
-	        	facetMap.put("year", "year");
-	            break;
-	    }
-    	return facetMap;
+            case "total_cited":            //总被引频次
+                facetMap.put("wosCitesAll", "year");
+                break;
+            case "paper_cited":            //篇均被引频次
+                facetMap.put("wosCites", "year");
+                break;
+            default:
+                facetMap.put("year", "year");
+                break;
+        }
+        return facetMap;
     }
 
 
@@ -318,8 +320,8 @@ public class ResourceLabel {
     }
 
 
-	public String getBlock() {
-		return block;
-	}
+    public String getBlock() {
+        return block;
+    }
 
 }

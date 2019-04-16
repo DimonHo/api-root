@@ -2,6 +2,7 @@ package com.wd.cloud.uoserver.service.impl;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.BooleanUtil;
 import com.wd.cloud.uoserver.exception.NotFoundOrgException;
 import com.wd.cloud.uoserver.pojo.dto.OrgCdbDTO;
@@ -35,10 +36,10 @@ public class OrgCdbServiceImpl implements OrgCdbService {
 
     @Autowired
     OrgRepository orgRepository;
-    
+
     @Autowired
     OrgIpRepository orgIpRepository;
-    
+
     @Autowired
     OrgProdRepository orgProdRepository;
 
@@ -47,8 +48,8 @@ public class OrgCdbServiceImpl implements OrgCdbService {
      *
      * @param pageable
      * @param orgFlag
-     * @param type 资源类型 1馆藏，2筛选
-     * @param keyword 模糊查询关键字
+     * @param type     资源类型 1馆藏，2筛选
+     * @param keyword  模糊查询关键字
      * @return
      * @Param local 是否有localUrl
      */
@@ -71,21 +72,20 @@ public class OrgCdbServiceImpl implements OrgCdbService {
     public void saveOrgCdb(String orgFlag, List<OrgCdbVO> orgCdbVOS) {
         List<OrgCdb> orgCdbList = new ArrayList<>();
         for (OrgCdbVO orgCdbVO : orgCdbVOS) {
-            if (orgCdbVO.getId() != null){
+            if (orgCdbVO.getId() != null) {
                 // 删除
-                if (BooleanUtil.isTrue(orgCdbVO.getDel())){
+                if (BooleanUtil.isTrue(orgCdbVO.getDel())) {
                     orgCdbRepository.deleteByOrgFlagAndId(orgFlag, orgCdbVO.getId());
-                }else{
+                } else {
                     // 更新
                     OrgCdb orgCdb = orgCdbRepository.findByOrgFlagAndId(orgFlag, orgCdbVO.getId()).orElse(new OrgCdb());
-                    BeanUtil.copyProperties(orgCdbVO, orgCdb);
+                    BeanUtil.copyProperties(orgCdbVO, orgCdb, CopyOptions.create().setIgnoreNullValue(true));
                     orgCdb.setOrgFlag(orgFlag);
                     orgCdbList.add(orgCdb);
                 }
-            }else{
+            } else {
                 // 新增
-                OrgCdb orgCdb = new OrgCdb();
-                BeanUtil.copyProperties(orgCdbVO, orgCdb);
+                OrgCdb orgCdb = BeanUtil.toBean(orgCdbVO, OrgCdb.class);
                 orgCdb.setOrgFlag(orgFlag);
                 orgCdbList.add(orgCdb);
             }
@@ -96,12 +96,12 @@ public class OrgCdbServiceImpl implements OrgCdbService {
     @Override
     public void deleteIpAndProd(String orgFlag) {
         List<OrgIp> orgIpList = orgIpRepository.findByOrgFlag(orgFlag);
-        for (OrgIp orgIp : orgIpList){
+        for (OrgIp orgIp : orgIpList) {
             Long id = orgIp.getId();
             orgIpRepository.deleteById(id);
         }
         List<OrgProd> orgProdList = orgProdRepository.findByOrgFlag(orgFlag);
-        for (OrgProd orgProd :orgProdList){
+        for (OrgProd orgProd : orgProdList) {
             Long id = orgProd.getId();
             orgProdRepository.deleteById(id);
         }

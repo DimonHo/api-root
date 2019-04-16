@@ -1,7 +1,6 @@
 package com.wd.cloud.bse.entity.school;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "wd_cu_scholar")
@@ -13,16 +12,16 @@ public class Scholar {
 
     @Column(name = "name")
     private String name;
-    
+
     @Column(name = "school")
     private String school;
-    
+
     @Column(name = "department")
     private String department;
-    
+
     @Column(name = "school_smail")
     private String schoolSmail;
-    
+
 
 //    @Column(name = "province")
 //    private String province;
@@ -54,53 +53,53 @@ public class Scholar {
     @Column(name = "scid")
     private Integer scid;
 
-	public Integer getId() {
-		return id;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Integer getScid() {
-		return scid;
-	}
+    public Integer getScid() {
+        return scid;
+    }
 
-	public void setScid(Integer scid) {
-		this.scid = scid;
-	}
+    public void setScid(Integer scid) {
+        this.scid = scid;
+    }
 
-	public String getSchool() {
-		return school;
-	}
+    public String getSchool() {
+        return school;
+    }
 
-	public void setSchool(String school) {
-		this.school = school;
-	}
+    public void setSchool(String school) {
+        this.school = school;
+    }
 
-	public String getDepartment() {
-		return department;
-	}
+    public String getDepartment() {
+        return department;
+    }
 
-	public void setDepartment(String department) {
-		this.department = department;
-	}
+    public void setDepartment(String department) {
+        this.department = department;
+    }
 
-	public String getSchoolSmail() {
-		return schoolSmail;
-	}
+    public String getSchoolSmail() {
+        return schoolSmail;
+    }
 
-	public void setSchoolSmail(String schoolSmail) {
-		this.schoolSmail = schoolSmail;
-	}
+    public void setSchoolSmail(String schoolSmail) {
+        this.schoolSmail = schoolSmail;
+    }
 
     /**
      * 对应的ESI机构

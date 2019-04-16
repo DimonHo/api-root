@@ -3,6 +3,7 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +20,8 @@ import java.util.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "org_prod",uniqueConstraints = {@UniqueConstraint(columnNames={"org_flag", "prod_id"})})
+@DynamicInsert
+@Table(name = "org_prod", uniqueConstraints = {@UniqueConstraint(columnNames = {"org_flag", "prod_id"})})
 public class OrgProd extends AbstractEntity {
 
     @Column(name = "org_flag")
@@ -50,6 +52,6 @@ public class OrgProd extends AbstractEntity {
     /**
      * 是否独立购买
      */
-    @Column(name = "is_single",columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
+    @Column(name = "is_single", columnDefinition = "tinyint(1) default 0 COMMENT '0:否，1：是'")
     private Boolean single;
 }

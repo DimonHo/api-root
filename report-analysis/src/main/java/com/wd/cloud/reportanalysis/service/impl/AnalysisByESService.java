@@ -6,8 +6,6 @@ import com.wd.cloud.reportanalysis.repository.TransportRepository;
 import com.wd.cloud.reportanalysis.service.AnalysisByESServiceI;
 import com.wd.cloud.reportanalysis.util.AggregationBuilderUtil;
 import com.wd.cloud.reportanalysis.util.QueryBuilderUtil;
-import com.wd.cloud.reportanalysis.util.SearchRequestUtil;
-
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 @Service
 public class AnalysisByESService implements AnalysisByESServiceI {
@@ -30,7 +27,7 @@ public class AnalysisByESService implements AnalysisByESServiceI {
     @Autowired
     TransportRepository transportRepository;
 
-//    @Override
+    //    @Override
 //    public Map<String, Object> amount(List<QueryCondition> list, String filed, String type,Map<String,String> facetMap) {
 //        QueryBuilder queryBuilder = QueryBuilderUtil.convertQueryBuilder(list);
 //        List<AbstractAggregationBuilder> aggs = AggregationBuilderUtil.buildFacetCondition1(facetMap);
@@ -39,10 +36,10 @@ public class AnalysisByESService implements AnalysisByESServiceI {
 //    }
     @Override
     public Map<String, Object> amount(List<QueryCondition> list, FacetField filed, String type) {
-    	QueryBuilder queryBuilder = QueryBuilderUtil.convertQueryBuilder(list);
-    	List<AbstractAggregationBuilder> aggs = AggregationBuilderUtil.buildFacetCondition2(filed);
-    	SearchResponse res = transportRepository.query(queryBuilder, null, aggs, type);
-    	return transform1(res, filed);
+        QueryBuilder queryBuilder = QueryBuilderUtil.convertQueryBuilder(list);
+        List<AbstractAggregationBuilder> aggs = AggregationBuilderUtil.buildFacetCondition2(filed);
+        SearchResponse res = transportRepository.query(queryBuilder, null, aggs, type);
+        return transform1(res, filed);
     }
 
     @Override
@@ -57,13 +54,13 @@ public class AnalysisByESService implements AnalysisByESServiceI {
         return null;
     }
 
-    public Map<String, Object> transform(SearchResponse searchResponse, String filed,Map<String,String> facetMap) {
+    public Map<String, Object> transform(SearchResponse searchResponse, String filed, Map<String, String> facetMap) {
         Map<String, Object> result = new HashMap<>();
         SearchHits searchHits = searchResponse.getHits();
         long total = searchHits.getTotalHits();
         double cites = 0;
         result.put("total", total);
-        
+
 //        for (Entry<String, String> facetFlag : facetMap.entrySet()) {
 //        	String name = facetFlag.getKey();
 //        	Terms yearTerms = (StringTerms) searchResponse.getAggregations().get(name);
@@ -107,7 +104,7 @@ public class AnalysisByESService implements AnalysisByESServiceI {
 //                }
 //        	}
 //        }
-        
+
         Terms yearTerms = (StringTerms) searchResponse.getAggregations().get(filed);
         Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> iter = (Iterator<Bucket>) yearTerms.getBuckets().iterator();
         Map<String, Object> map = new LinkedHashMap<>();
@@ -127,20 +124,18 @@ public class AnalysisByESService implements AnalysisByESServiceI {
                 double value = pvTerms.getValue();
                 cites += value;
                 val = value;
-            }
-            else if("jcr_year".equals(filed)) {
-            	Terms jcrTerms = (Terms) collegeBucket.getAggregations().asMap().get("jcr");
-            	Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> jcrIter = (Iterator<Bucket>) jcrTerms.getBuckets().iterator();
-            	Map<String, Object> jcrMap = new LinkedHashMap<>();
-            	while (jcrIter.hasNext()) {
-            		Bucket jcrBucket = jcrIter.next();
-            		String jcr = jcrBucket.getKey().toString();
-            		long jcrCount = jcrBucket.getDocCount();
-            		jcrMap.put(jcr, jcrCount);
-            	}
-            	map.put(key, jcrMap);
-            }
-            else {
+            } else if ("jcr_year".equals(filed)) {
+                Terms jcrTerms = (Terms) collegeBucket.getAggregations().asMap().get("jcr");
+                Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> jcrIter = (Iterator<Bucket>) jcrTerms.getBuckets().iterator();
+                Map<String, Object> jcrMap = new LinkedHashMap<>();
+                while (jcrIter.hasNext()) {
+                    Bucket jcrBucket = jcrIter.next();
+                    String jcr = jcrBucket.getKey().toString();
+                    long jcrCount = jcrBucket.getDocCount();
+                    jcrMap.put(jcr, jcrCount);
+                }
+                map.put(key, jcrMap);
+            } else {
                 val = yearCount;
             }
             if (StringUtils.isNotEmpty(key) && !"jcr_year".equals(filed)) {
@@ -156,17 +151,15 @@ public class AnalysisByESService implements AnalysisByESServiceI {
         }
         return result;
     }
-    
-    
-    
-    
+
+
     public Map<String, Object> transform1(SearchResponse searchResponse, FacetField facetField) {
         Map<String, Object> result = new HashMap<>();
         SearchHits searchHits = searchResponse.getHits();
         long total = searchHits.getTotalHits();
         double cites = 0;
         result.put("total", total);
-        
+
         String filedName = facetField.getName();
         Terms yearTerms = (StringTerms) searchResponse.getAggregations().get(filedName);
         Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> iter = (Iterator<Bucket>) yearTerms.getBuckets().iterator();
@@ -187,20 +180,18 @@ public class AnalysisByESService implements AnalysisByESServiceI {
                 double value = pvTerms.getValue();
                 cites += value;
                 val = value;
-            }
-            else if("jcr_year".equals(filedName)) {
-            	Terms jcrTerms = (Terms) collegeBucket.getAggregations().asMap().get("jcr");
-            	Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> jcrIter = (Iterator<Bucket>) jcrTerms.getBuckets().iterator();
-            	Map<String, Object> jcrMap = new LinkedHashMap<>();
-            	while (jcrIter.hasNext()) {
-            		Bucket jcrBucket = jcrIter.next();
-            		String jcr = jcrBucket.getKey().toString();
-            		long jcrCount = jcrBucket.getDocCount();
-            		jcrMap.put(jcr, jcrCount);
-            	}
-            	map.put(key, jcrMap);
-            }
-            else {
+            } else if ("jcr_year".equals(filedName)) {
+                Terms jcrTerms = (Terms) collegeBucket.getAggregations().asMap().get("jcr");
+                Iterator<org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> jcrIter = (Iterator<Bucket>) jcrTerms.getBuckets().iterator();
+                Map<String, Object> jcrMap = new LinkedHashMap<>();
+                while (jcrIter.hasNext()) {
+                    Bucket jcrBucket = jcrIter.next();
+                    String jcr = jcrBucket.getKey().toString();
+                    long jcrCount = jcrBucket.getDocCount();
+                    jcrMap.put(jcr, jcrCount);
+                }
+                map.put(key, jcrMap);
+            } else {
                 val = yearCount;
             }
             if (StringUtils.isNotEmpty(key) && !"jcr_year".equals(filedName)) {
@@ -216,6 +207,6 @@ public class AnalysisByESService implements AnalysisByESServiceI {
         }
         return result;
     }
-    
+
 
 }

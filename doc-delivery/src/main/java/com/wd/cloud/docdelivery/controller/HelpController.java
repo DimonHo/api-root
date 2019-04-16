@@ -35,7 +35,7 @@ public class HelpController {
     HelpRequestService helpRequestService;
 
     @PostMapping("/help")
-    public ResponseModel helpRequest(@Valid @RequestBody HelpRequestVO helpRequestVO, Errors errors){
+    public ResponseModel helpRequest(@Valid @RequestBody HelpRequestVO helpRequestVO, Errors errors) {
         if (errors.hasErrors()) {
             throw new ParamException("参数错误");
         }
@@ -43,7 +43,7 @@ public class HelpController {
         HelpRecord helpRecord = BeanUtil.toBean(helpRequestVO.getHelper(), HelpRecord.class);
         String ip = HttpUtil.getClientIP(request);
         helpRecord.setHelperIp(ip).setSend(true);
-        helpRequestService.helpRequest(literature,helpRecord);
+        helpRequestService.helpRequest(literature, helpRecord);
         return ResponseModel.ok();
     }
 }

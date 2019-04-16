@@ -5,12 +5,12 @@ package com.wd.cloud.uoserver.enums;
  * @Date: 2019/3/18 15:33
  * @Description: 校外权限
  */
-public enum  OutsideEnum {
+public enum OutsideEnum {
     /**
      * 校外权限状态
      */
-    HALF_YEAR("6个月校外权限",1),
-    FOREVER("永久校外权限",2);
+    HALF_YEAR("6个月校外权限", 1),
+    FOREVER("永久校外权限", 2);
 
 
     private String name;

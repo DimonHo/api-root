@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @date 2018/11/28
  * @Description:
  */
-public interface TjHisBuildRepository extends JpaRepository<TjHisBuild,Long> {
+public interface TjHisBuildRepository extends JpaRepository<TjHisBuild, Long> {
 
 }

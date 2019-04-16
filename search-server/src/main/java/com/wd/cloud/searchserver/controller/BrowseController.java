@@ -1,13 +1,12 @@
 package com.wd.cloud.searchserver.controller;
 
-import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.searchserver.service.BrowseSearchI;
 import com.wd.cloud.searchserver.util.*;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -71,7 +70,7 @@ public class BrowseController {
         Date dateTime = date == null ? new Date() : com.wd.cloud.commons.util.DateUtil.parse(date);
         String beginDate = cn.hutool.core.date.DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:00");
         String endDate = cn.hutool.core.date.DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:59");
-        Map<String, Map<String,Integer>> body = browseSearch.tjData(orgName, beginDate, endDate);
+        Map<String, Map<String, Integer>> body = browseSearch.tjData(orgName, beginDate, endDate);
         return ResponseModel.ok().setBody(body);
     }
 
@@ -86,7 +85,7 @@ public class BrowseController {
     public ResponseModel rangeTj(@RequestParam(required = false) String orgName,
                                  @RequestParam(required = false) String beginDate,
                                  @RequestParam(required = false) String endDate) {
-        Map<String, Map<String,Integer>> body = browseSearch.tjData(orgName, beginDate, endDate);
+        Map<String, Map<String, Integer>> body = browseSearch.tjData(orgName, beginDate, endDate);
         return ResponseModel.ok().setBody(body);
     }
 
@@ -238,8 +237,8 @@ public class BrowseController {
                                              @PathVariable int day,
                                              @PathVariable String typesJson,
                                              @PathVariable String type) {
-        String[] types = JsonUtil.json2Obj(typesJson, String[].class);
-        Map<String, Object> json = new LinkedMap();
+        String[] types = JSONUtil.toBean(typesJson, String[].class);
+        Map<String, Object> json = new LinkedHashMap();
         SearchResponse searchResponse = null;
         BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
         //构建查询范围
@@ -572,7 +571,7 @@ public class BrowseController {
                                               @RequestParam int memberType,
                                               @RequestParam String sort,
                                               @RequestParam String dataType) {
-        String[] types = JsonUtil.json2Obj(typesJson, String[].class);
+        String[] types = JSONUtil.toBean(typesJson, String[].class);
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         try {
             SearchResponse searchResponse = null;
@@ -659,7 +658,7 @@ public class BrowseController {
             }
             Iterator<? extends org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket> shouluBucketIt = shouluTerms.getBuckets().iterator();
             while (shouluBucketIt.hasNext()) {
-                Map<String, Object> json = new LinkedMap();
+                Map<String, Object> json = new LinkedHashMap();
                 org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket collegeBucket = shouluBucketIt.next();
                 Object key = collegeBucket.getKey();
                 long count = collegeBucket.getDocCount();
@@ -815,7 +814,7 @@ public class BrowseController {
                 .execute().actionGet();
         InternalDateRange shouluTerms = (InternalDateRange) searchResponse.getAggregations().get("lastTimeCount");
         Iterator<InternalDateRange.Bucket> shouluBucketIt = shouluTerms.getBuckets().iterator();
-        Map<String, Map<String, Long>> timeMap = new LinkedMap();
+        Map<String, Map<String, Long>> timeMap = new LinkedHashMap();
         while (shouluBucketIt.hasNext()) {
             Map<String, Long> memberMap = new HashMap<String, Long>();
             InternalDateRange.Bucket collegeBucket = shouluBucketIt.next();

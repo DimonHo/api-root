@@ -14,9 +14,9 @@ import java.util.Map;
 public interface AnalysisByESServiceI {
 
 
-//    public Map<String, Object> amount(List<QueryCondition> list, String filed, String type,Map<String,String> facetMap);
-	public Map<String, Object> amount(List<QueryCondition> list, FacetField filed, String type);
-	
+    //    public Map<String, Object> amount(List<QueryCondition> list, String filed, String type,Map<String,String> facetMap);
+    public Map<String, Object> amount(List<QueryCondition> list, FacetField filed, String type);
+
     public Map<String, Object> explain(String type);
 
 

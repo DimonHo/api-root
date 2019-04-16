@@ -90,9 +90,9 @@ public class TjServiceImpl implements TjService {
     }
 
     @Override
-    public TjDTO tjForHelp(){
-        Map<String,Long> tjResult = helpRecordRepository.tj();
-        TjDTO tjDTO = BeanUtil.mapToBean(tjResult,TjDTO.class,true);
+    public TjDTO tjForHelp() {
+        Map<String, Long> tjResult = helpRecordRepository.tj();
+        TjDTO tjDTO = BeanUtil.mapToBean(tjResult, TjDTO.class, true);
         return tjDTO;
     }
 

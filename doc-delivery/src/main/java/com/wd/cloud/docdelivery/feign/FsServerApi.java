@@ -32,8 +32,8 @@ import java.util.List;
 public interface FsServerApi {
 
     @GetMapping("/check/{dir}/{fileMd5}")
-    ResponseModel<JSONObject> checkFile(@PathVariable(value="dir") String dir,
-                                        @PathVariable(value="fileMd5") String fileMd5);
+    ResponseModel<JSONObject> checkFile(@PathVariable(value = "dir") String dir,
+                                        @PathVariable(value = "fileMd5") String fileMd5);
 
     @PostMapping(value = "/upload/{dir}", consumes = "multipart/form-data")
     ResponseModel<JSONObject> uploadFile(@PathVariable(value = "dir") String dir,

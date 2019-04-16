@@ -5,9 +5,9 @@ public enum ProdStatusEnum {
     /**
      * 产品状态
      */
-    TRIAL("试用",1),
-    BUY("购买",2),
-    STOP("停用",3);
+    TRIAL("试用", 1),
+    BUY("购买", 2),
+    STOP("停用", 3);
 
     private String name;
     private int value;

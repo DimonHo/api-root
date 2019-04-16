@@ -29,6 +29,7 @@ public interface UserService {
 
     /**
      * 后台手动添加新用户
+     *
      * @param backUserVO
      * @return
      */
@@ -36,6 +37,7 @@ public interface UserService {
 
     /**
      * 更新user
+     *
      * @param backUserVO
      * @return
      */
@@ -44,6 +46,7 @@ public interface UserService {
 
     /**
      * 完善用户信息
+     *
      * @param perfectUserVO
      * @return
      */
@@ -60,6 +63,7 @@ public interface UserService {
 
     /**
      * 上传证件照
+     *
      * @param username
      * @param file
      * @return
@@ -69,15 +73,16 @@ public interface UserService {
     /**
      * 审核验证证件照
      *
-     * @param username 被审核用户名
-     * @param validated 审核通过or不通过
+     * @param username    被审核用户名
+     * @param validated   审核通过or不通过
      * @param handlerName 审核人
-     * @param remark 审核失败原因
+     * @param remark      审核失败原因
      */
     void auditIdPhoto(String username, Boolean validated, String handlerName, String remark);
 
     /**
      * 新增修改删除权限
+     *
      * @param permissionVO
      * @param handlerName
      */
@@ -93,6 +98,7 @@ public interface UserService {
 
     /**
      * 返回用户列表
+     *
      * @param orgFlag
      * @param orgName
      * @param orgDeptId
@@ -104,16 +110,18 @@ public interface UserService {
      * @param pageable
      * @return
      */
-    Page<UserDTO> queryUsers(String orgFlag, String orgName, Long orgDeptId, String orgDept, List<Integer> userType,Boolean valid,List<Integer> validStatus, String keyword, Pageable pageable);
+    Page<UserDTO> queryUsers(String orgFlag, String orgName, Long orgDeptId, String orgDept, List<Integer> userType, Boolean valid, List<Integer> validStatus, String keyword, Pageable pageable);
 
     /**
      * 删除用户
+     *
      * @param username
      */
     void deleteUser(String username);
 
     /**
      * 检查邮箱是否存在
+     *
      * @param username
      * @return
      */
@@ -121,6 +129,7 @@ public interface UserService {
 
     /**
      * 检查用户名是否已存在
+     *
      * @param email
      * @return
      */

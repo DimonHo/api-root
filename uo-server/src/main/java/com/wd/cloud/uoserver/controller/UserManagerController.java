@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -32,17 +33,17 @@ public class UserManagerController {
 
     @ApiOperation(value = "后台新增用户", tags = {"用户管理"})
     @PostMapping("/manager/user")
-    public ResponseModel createUser(@RequestBody BackUserVO backUserVO){
+    public ResponseModel createUser(@Valid @RequestBody BackUserVO backUserVO) {
         return ResponseModel.ok().setBody(userService.addUser(backUserVO));
     }
 
     @ApiOperation(value = "后台更新用户", tags = {"用户管理"})
     @PutMapping("/manager/user")
-    public ResponseModel modifyUser(@RequestBody BackUserVO backUserVO){
+    public ResponseModel modifyUser(@Valid @RequestBody BackUserVO backUserVO) {
         return ResponseModel.ok().setBody(userService.saveUser(backUserVO));
     }
 
-    @ApiOperation(value = "查询用户列表", tags = {"用户管理","用户查询"})
+    @ApiOperation(value = "查询用户列表", tags = {"用户管理", "用户查询"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orgFlag", value = "机构标识", paramType = "String", type = "query"),
             @ApiImplicitParam(name = "orgName", value = "机构全称", paramType = "String", type = "query"),
@@ -68,14 +69,14 @@ public class UserManagerController {
         return ResponseModel.ok().setBody(userDTOPage);
     }
 
-    @ApiOperation(value = "删除用户",tags = {"用户管理"})
+    @ApiOperation(value = "删除用户", tags = {"用户管理"})
     @DeleteMapping("/manager/user")
     public ResponseModel deleteUser(@RequestParam String username) {
         userService.deleteUser(username);
-        return ResponseModel.ok().setMessage("用户["+username+"]已经被删除");
+        return ResponseModel.ok().setMessage("用户[" + username + "]已经被删除");
     }
 
-    @ApiOperation(value = "审核证件照",tags = {"用户管理"})
+    @ApiOperation(value = "审核证件照", tags = {"用户管理"})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "被审核用户名", paramType = "String", type = "query"),
             @ApiImplicitParam(name = "pass", value = "审核通过/不通过", paramType = "Boolean", type = "query"),
@@ -91,12 +92,12 @@ public class UserManagerController {
         return ResponseModel.ok().setMessage("审核成功");
     }
 
-    @ApiOperation(value = "修改用户权限",tags = {"用户管理"})
+    @ApiOperation(value = "修改用户权限", tags = {"用户管理"})
     @ApiImplicitParam(name = "handlerName", value = "操作人", paramType = "String", type = "query")
     @PostMapping("/manager/user/permission")
     public ResponseModel updateUserPermission(@RequestBody PermissionVO permissionVo,
-                                              @RequestParam(required = false) String handlerName){
-        userService.savePermission(permissionVo,handlerName);
+                                              @RequestParam(required = false) String handlerName) {
+        userService.savePermission(permissionVo, handlerName);
         return ResponseModel.ok();
     }
 

@@ -1,9 +1,8 @@
 package com.wd.cloud.bse.repository.school;
 
+import com.wd.cloud.bse.entity.school.University;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
-import com.wd.cloud.bse.entity.school.University;
 
 
 /**
@@ -19,6 +18,6 @@ public interface UniversityRepository extends JpaRepository<University, Long>, J
      * @param scid
      * @return
      */
-	public University findById(int id);
+    public University findById(int id);
 
 }

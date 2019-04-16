@@ -38,7 +38,6 @@ public class TjController {
     HttpServletRequest request;
 
 
-
     @ApiOperation(value = "邮箱统计")
     @ApiImplicitParam(name = "email", value = "用户邮箱", dataType = "String", paramType = "query")
     @GetMapping("/tj")

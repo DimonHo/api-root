@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 @Service("libgenSearchService")
 public class LibgenAllSearchServiceImp implements LibgenAllSearchServiceI {
     private static final Log log = LogFactory.get(LibgenAllSearchServiceImp.class);
@@ -30,40 +31,41 @@ public class LibgenAllSearchServiceImp implements LibgenAllSearchServiceI {
     private String type;
     @Value("${datasource.bookType}")
     private String bookType;
+
     @Override
-    public ResponseModel<List<JSON>> getResult(String title,String doi,String url) {
-        ResponseModel<List<JSON>> responseModel =ResponseModel.fail();
-        if(StringUtils.isBlank(title) && StringUtils.isBlank(doi) && StringUtils.isBlank(url)){
+    public ResponseModel<List<JSON>> getResult(String title, String doi, String url) {
+        ResponseModel<List<JSON>> responseModel = ResponseModel.fail();
+        if (StringUtils.isBlank(title) && StringUtils.isBlank(doi) && StringUtils.isBlank(url)) {
             log.error("标题,doi和url都为空");
             return responseModel.setMessage("标题、doi、url不能都为空");
         }
         List<JSON> list = new ArrayList<>();
-        BoolQueryBuilder queryBuilder =QueryBuilders.boolQuery();
-        if(StringUtils.isNotBlank(title)){
-            queryBuilder.must(QueryBuilders.matchQuery("title",title));
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+        if (StringUtils.isNotBlank(title)) {
+            queryBuilder.must(QueryBuilders.matchQuery("title", title));
         }
-        if(StringUtils.isNotBlank(doi)){
-            queryBuilder.must(QueryBuilders.termQuery("doi",doi));
+        if (StringUtils.isNotBlank(doi)) {
+            queryBuilder.must(QueryBuilders.termQuery("doi", doi));
         }
-        if(StringUtils.isNotBlank(url)){
-            queryBuilder.must(QueryBuilders.termQuery("abstracturl",url));
+        if (StringUtils.isNotBlank(url)) {
+            queryBuilder.must(QueryBuilders.termQuery("abstracturl", url));
         }
         try {
-            SearchResponse searchResponse =elasticRepository.queryAllTypeByQueryBuilder(indexName,queryBuilder);
-            SearchHits hits =searchResponse.getHits();
-            if(hits.getTotalHits()>0){
+            SearchResponse searchResponse = elasticRepository.queryAllTypeByQueryBuilder(indexName, queryBuilder);
+            SearchHits hits = searchResponse.getHits();
+            if (hits.getTotalHits() > 0) {
                 Iterator<SearchHit> iterator = hits.iterator();
                 JSON json = null;
-                while (iterator.hasNext()){
+                while (iterator.hasNext()) {
                     SearchHit hit = iterator.next();
-                    json=JSON.parseObject(hit.getSourceAsString());
+                    json = JSON.parseObject(hit.getSourceAsString());
                     list.add(json);
                 }
-                responseModel=ResponseModel.ok().setBody(list);
+                responseModel = ResponseModel.ok().setBody(list);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            log.error("查询 "+queryBuilder.toString()+" 异常 = "+ e);
+            log.error("查询 " + queryBuilder.toString() + " 异常 = " + e);
         }
         return responseModel;
     }

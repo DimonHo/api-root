@@ -1,7 +1,6 @@
 package com.wd.cloud.casspringbootstarter;
 
 import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.commons.util.CasUtil;
 import com.wd.cloud.commons.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jasig.cas.client.Protocol;
@@ -45,10 +44,12 @@ public class TicketFilter extends AbstractCasFilter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         ParameterRequestWrapper requestWrapper = new ParameterRequestWrapper(request);
-        String cookieStr = HttpUtil.getCookieStr(requestWrapper);
+        // 从cookie中获取TGC
+        String tgc = HttpUtil.getCookieValue(requestWrapper, "TGC");
         String clientUrl = this.constructServiceUrl(request, response);
-        if (cookieStr.contains("TGC=")) {
-//            if (request.getUserPrincipal() == null){
+        if (StrUtil.isNotBlank(tgc)) {
+            if (requestWrapper.getUserPrincipal() == null) {
+                String cookieStr = HttpUtil.getCookieStr(requestWrapper);
                 log.info("clientUrl = {}", clientUrl);
                 // 获取一个ST
                 String st = CasUtil.getSt(requestWrapper, casServerLoginUrl, clientUrl, cookieStr);
@@ -57,10 +58,10 @@ public class TicketFilter extends AbstractCasFilter {
                     //将ST加入到请求地址后面
                     requestWrapper.addQueryString("ticket=" + st);
                 }
-//            }
+            }
+        } else {
+            requestWrapper.getSession().removeAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
         }
-        request.getSession().removeAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
-
         filterChain.doFilter(requestWrapper, response);
     }
 

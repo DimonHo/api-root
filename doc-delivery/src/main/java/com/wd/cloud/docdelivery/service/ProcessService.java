@@ -41,9 +41,13 @@ public interface ProcessService {
     void failed(Long helpRecordId, String giverName);
 
     Page<HelpRecordDTO> waitHelpRecordList(Pageable pageable);
+
     Page<HelpRecordDTO> successHelpRecordList(Pageable pageable);
+
     Page<HelpRecordDTO> failedHelpRecordList(Pageable pageable);
+
     Page<HelpRecordDTO> waitAuditHelpRecordList(Pageable pageable);
+
     Page<HelpRecordDTO> helpingHelpRecordList(Pageable pageable);
 
     Page<HelpRecordDTO> helpRecordList(Map<String, Object> query, Pageable pageable);

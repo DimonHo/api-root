@@ -25,7 +25,7 @@ public interface TjOrgRepository extends JpaRepository<TjOrg, Long>, JpaSpecific
      */
     Page<TjOrg> findAllByHistory(boolean history, Pageable pageable);
 
-    @Query(value = "select distinct(org_name) from tj_org where is_history = false",nativeQuery = true)
+    @Query(value = "select distinct(org_name) from tj_org where is_history = false", nativeQuery = true)
     List<String> distinctByOrgFlag();
 
 

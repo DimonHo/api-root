@@ -3,8 +3,12 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * @author He Zhigang
@@ -15,7 +19,8 @@ import javax.persistence.*;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "org_cdb",uniqueConstraints = {@UniqueConstraint(columnNames={"name", "org_flag"})})
+@DynamicInsert
+@Table(name = "org_cdb", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "org_flag"})})
 public class OrgCdb extends AbstractEntity {
 
     @Column(name = "org_flag")
@@ -33,9 +38,9 @@ public class OrgCdb extends AbstractEntity {
     /**
      * 是否隐藏馆藏数据库
      */
-    @Column(name = "is_display",columnDefinition = "bit(1) default 0 COMMENT '0:否，1：是'")
+    @Column(name = "is_display", columnDefinition = "bit(1) default 0 COMMENT '0:否，1：是'")
     private Boolean display;
 
-    @Column(name = "type",columnDefinition = "tinyint(1) default 1 COMMENT '1:馆藏，2：筛选'")
+    @Column(name = "type", columnDefinition = "tinyint(1) default 1 COMMENT '1:馆藏，2：筛选'")
     private Integer type;
 }

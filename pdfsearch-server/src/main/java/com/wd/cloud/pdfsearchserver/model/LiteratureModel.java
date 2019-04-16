@@ -34,5 +34,4 @@ public class LiteratureModel {
     private String journal;
 
 
-
 }

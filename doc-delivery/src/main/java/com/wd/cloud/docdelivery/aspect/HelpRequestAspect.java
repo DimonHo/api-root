@@ -15,13 +15,10 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.Objects;
 
 /**
  * @author He Zhigang
@@ -31,6 +28,7 @@ import java.util.Objects;
 @Slf4j
 @Aspect
 @Component
+@Order(9)
 public class HelpRequestAspect {
 
     @Autowired
@@ -39,6 +37,9 @@ public class HelpRequestAspect {
     @Autowired
     PermissionRepository permissionRepository;
 
+    @Autowired
+    HttpServletRequest request;
+
     @Pointcut("execution(public * com.wd.cloud.docdelivery.controller.FrontendController.helpFrom(..))")
     public void helpRequest() {
     }
@@ -46,19 +47,12 @@ public class HelpRequestAspect {
     @Before("helpRequest()")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
         // 接收到请求，记录请求内容
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
-        HttpSession session  =request.getSession();
-        log.info("========= {} ================================",session.getId());
-        JSONObject loginUser = (JSONObject) session.getAttribute(SessionConstant.LOGIN_USER);
-        String username = loginUser != null ? loginUser.getStr("username") : null;
-        JSONObject org = (JSONObject) session.getAttribute(SessionConstant.ORG);
-        Integer level = (Integer) session.getAttribute(SessionConstant.LEVEL);
-        level = level == null ? 1 : level;
-        Boolean isOut = (Boolean) session.getAttribute(SessionConstant.IS_OUT);
-        isOut = level == 0 || isOut == null;
-        log.info("当前等级：[{}],isOut=[{}]", level, isOut);
-         //如果是校外，且未登錄
+        JSONObject sessionUser = (JSONObject) request.getSession().getAttribute(SessionConstant.LOGIN_USER);
+        String username = sessionUser != null? sessionUser.getStr("username"): null;
+        JSONObject org = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+        Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
+        log.info("当前等级：[{}]", level);
+        //如果是校外，且未登錄
         if (level < 1) {
             throw new AuthException("校外必须先登录才能求助");
         }

@@ -1,12 +1,10 @@
 package com.wd.cloud.commons.util;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -32,11 +30,11 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         return fileMd5;
     }
 
-    public static String getSysUserHome(){
+    public static String getSysUserHome() {
         return System.getProperty("user.home");
     }
 
-    public static String getTempDir(){
+    public static String getTempDir() {
         return getSysUserHome() + "/temp";
     }
 }

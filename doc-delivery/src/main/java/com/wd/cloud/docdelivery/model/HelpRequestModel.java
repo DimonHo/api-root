@@ -76,6 +76,6 @@ public class HelpRequestModel {
     }
 
     public String getDocHref() {
-        return this.docHref != null?this.docHref.trim():null;
+        return this.docHref != null ? this.docHref.trim() : null;
     }
 }

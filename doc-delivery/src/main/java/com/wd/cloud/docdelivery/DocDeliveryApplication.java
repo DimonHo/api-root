@@ -2,13 +2,13 @@ package com.wd.cloud.docdelivery;
 
 
 import com.spring4all.swagger.EnableSwagger2Doc;
+import com.wd.cloud.casspringbootstarter.EnableCasClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * DocDeliveryApplication class
@@ -20,8 +20,8 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @EnableScheduling
 @EnableJpaAuditing
 @EnableSwagger2Doc
-@EnableRedisHttpSession
 @EnableFeignClients
+@EnableCasClient
 @SpringCloudApplication
 public class DocDeliveryApplication {
 

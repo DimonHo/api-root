@@ -7,5 +7,5 @@ import org.elasticsearch.index.query.QueryBuilder;
 
 public interface FilterBuilderStrategyI {
 
-	public QueryBuilder build(QueryCondition queryCondition);
+    public QueryBuilder build(QueryCondition queryCondition);
 }

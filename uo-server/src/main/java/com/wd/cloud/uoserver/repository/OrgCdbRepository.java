@@ -21,6 +21,7 @@ public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecif
 
     /**
      * 查询机构馆藏
+     *
      * @param orgFlag
      * @return
      */
@@ -28,6 +29,7 @@ public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecif
 
     /**
      * 获取机构馆藏
+     *
      * @param orgFlag
      * @param id
      * @return
@@ -36,13 +38,14 @@ public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecif
 
     /**
      * 删除机构馆藏
+     *
      * @param orgFlag
      * @param id
      */
     void deleteByOrgFlagAndId(String orgFlag, Long id);
 
     class SpecBuilder {
-        public static Specification<OrgCdb> query(String orgFlag, Integer type,Boolean local,String keyword) {
+        public static Specification<OrgCdb> query(String orgFlag, Integer type, Boolean local, String keyword) {
             return (Specification<OrgCdb>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (StrUtil.isNotBlank(orgFlag)) {
@@ -51,14 +54,14 @@ public interface OrgCdbRepository extends JpaRepository<OrgCdb, Long>, JpaSpecif
                 if (type != null) {
                     list.add(cb.equal(root.get("type"), type));
                 }
-                if (local != null){
+                if (local != null) {
                     // local 为true表示localUrl不为空，local为false，表示查询localUrl为空的记录
-                    list.add(local? cb.isNotNull(root.get("localUrl")): cb.isNull(root.get("localUrl")));
+                    list.add(local ? cb.isNotNull(root.get("localUrl")) : cb.isNull(root.get("localUrl")));
                 }
-                if (StrUtil.isNotBlank(keyword)){
-                    String likeKey = "%"+keyword+"%";
+                if (StrUtil.isNotBlank(keyword)) {
+                    String likeKey = "%" + keyword + "%";
                     // 馆藏名称或馆藏url模糊查询
-                    list.add(cb.or(cb.like(root.get("name"),likeKey),cb.like(root.get("url"),likeKey)));
+                    list.add(cb.or(cb.like(root.get("name"), likeKey), cb.like(root.get("url"), likeKey)));
                 }
                 Predicate[] p = new Predicate[list.size()];
                 return cb.and(list.toArray(p));

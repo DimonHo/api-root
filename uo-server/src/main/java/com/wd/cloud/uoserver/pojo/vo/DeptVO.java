@@ -12,16 +12,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class DeptVO {
 
+    Boolean del;
     private Long id;
     /**
      * 所属上级院系
      */
     private Long pid;
-
     /**
      * 院系名称
      */
     private String name;
-
-    Boolean del;
 }

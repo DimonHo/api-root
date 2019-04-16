@@ -15,6 +15,7 @@ public interface TjService {
 
     /**
      * 实时文献传递量
+     *
      * @param orgName
      * @param date
      * @param type
@@ -24,6 +25,7 @@ public interface TjService {
 
     /**
      * 求助统计
+     *
      * @return
      */
     TjDTO tjForHelp();
@@ -31,6 +33,7 @@ public interface TjService {
 
     /**
      * 平均响应时间
+     *
      * @param startDate
      * @return
      */
@@ -38,6 +41,7 @@ public interface TjService {
 
     /**
      * 成功的平均响应时间
+     *
      * @param startDate
      * @return
      */
@@ -45,6 +49,7 @@ public interface TjService {
 
     /**
      * 我的统计
+     *
      * @param username
      * @return
      */
@@ -53,6 +58,7 @@ public interface TjService {
 
     /**
      * 邮箱的统计
+     *
      * @param email
      * @param ip
      * @return

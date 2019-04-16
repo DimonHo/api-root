@@ -25,7 +25,7 @@ public class TjServiceImpl implements TjService {
 
     @Override
     public List<Map<String, Object>> tjOrgUser() {
-        List<Map<String,Object>> orgUserMap = userRepository.tjOrgUser();
+        List<Map<String, Object>> orgUserMap = userRepository.tjOrgUser();
 
         return orgUserMap;
     }

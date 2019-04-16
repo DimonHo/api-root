@@ -9,10 +9,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 public class pdfSearchController {
     @Autowired
@@ -30,9 +26,9 @@ public class pdfSearchController {
             @ApiImplicitParam(name = "doi", value = "doi", dataType = "String", paramType = "query")
     })
     @PostMapping(value = "/searchpdf")
-    public ResponseModel<String> getRowKey(@RequestBody LiteratureModel literatureModel){
+    public ResponseModel<String> getRowKey(@RequestBody LiteratureModel literatureModel) {
         String title = literatureModel.getDocTitle();
-        if(title==null || "".equals(title)){
+        if (title == null || "".equals(title)) {
             return ResponseModel.fail().setMessage("标题不能为空");
         }
         return pdfSearchService.getRowKey(literatureModel);
@@ -41,7 +37,7 @@ public class pdfSearchController {
     @ApiOperation(value = "获取全文接口")
     @ApiImplicitParams(@ApiImplicitParam(name = "rowKey", value = "文件id", dataType = "String", paramType = "path"))
     @GetMapping(value = "/search/{rowKey}")
-    public ResponseModel<byte[]> getpdf(@PathVariable String rowKey){
+    public ResponseModel<byte[]> getpdf(@PathVariable String rowKey) {
         return pdfSearchService.getpdf(rowKey);
     }
 }

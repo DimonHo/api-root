@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -40,23 +39,23 @@ public class OrgDTO implements Serializable {
     /**
      * Ip范围
      */
-    private List<OrgIpDTO> ipList = new ArrayList<>();
+    private List<OrgIpDTO> ipList;
     /**
      * 机构产品
      */
-    private List<OrgProdDTO> prodList = new ArrayList<>();
+    private List<OrgProdDTO> prodList;
     /**
      * 机构院系
      */
-    private List<OrgDeptDTO> deptList = new ArrayList<>();
+    private List<OrgDeptDTO> deptList;
     /**
      * 机构馆藏
      */
-    private List<OrgCdbDTO> cdbList = new ArrayList<>();
+    private List<OrgCdbDTO> cdbList;
     /**
      * 机构联系人
      */
-    private List<OrgLinkmanDTO> linkmanList = new ArrayList<>();
+    private List<OrgLinkmanDTO> linkmanList;
     /**
      * 是否激活
      */

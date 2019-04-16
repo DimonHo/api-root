@@ -36,7 +36,7 @@ public enum GiveStatusEnum {
         return null;
     }
 
-    public static GiveStatusEnum match(int value){
+    public static GiveStatusEnum match(int value) {
         for (GiveStatusEnum giveStatusEnum : GiveStatusEnum.values()) {
             if (giveStatusEnum.value() == value) {
                 return giveStatusEnum;

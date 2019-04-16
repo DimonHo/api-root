@@ -24,12 +24,13 @@ public interface AnalysisByDBServiceI {
     
     /**
      * 本校ESI学科论文分析
-     * @param scid   学校
-     * @param category	ESI学科类别
-     * @param act		栏目
+     *
+     * @param scid     学校
+     * @param category ESI学科类别
+     * @param act      栏目
      * @param type_c
      * @return
      */
-    public Map<String, Object> analysisEsiPaper(int scid, String category , String act, int type_c);
+    public Map<String, Object> analysisEsiPaper(int scid, String category, String act, int type_c);
 
 }

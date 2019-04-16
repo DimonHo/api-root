@@ -12,18 +12,18 @@ import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.commons.util.FileUtil;
 import com.wd.cloud.docdelivery.config.Global;
-import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
-import com.wd.cloud.docdelivery.pojo.dto.LiteratureDTO;
-import com.wd.cloud.docdelivery.pojo.entity.DocFile;
-import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
-import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
-import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.exception.AppException;
 import com.wd.cloud.docdelivery.exception.ExceptionEnum;
 import com.wd.cloud.docdelivery.feign.FsServerApi;
+import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
+import com.wd.cloud.docdelivery.pojo.dto.LiteratureDTO;
+import com.wd.cloud.docdelivery.pojo.entity.DocFile;
+import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
+import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
+import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.MailService;
 import com.wd.cloud.docdelivery.service.ProcessService;
@@ -234,8 +234,7 @@ public class ProcessServiceImpl implements ProcessService {
         }, pageable);
 
         Page<HelpRecordDTO> helpRecordDTOS = result.map(vHelpRecord -> {
-            HelpRecordDTO helpRecordDTO = new HelpRecordDTO();
-            BeanUtil.copyProperties(vHelpRecord, helpRecordDTO);
+            HelpRecordDTO helpRecordDTO = BeanUtil.toBean(vHelpRecord, HelpRecordDTO.class);
             helpRecordDTO.setGiveRecords(giveRecordRepository.findByHelpRecordId(vHelpRecord.getId()));
             return helpRecordDTO;
         });

@@ -3,8 +3,8 @@ spring:
     name: bse-server
   profiles:
     active: dev
-#    active: test
-#    active: prod
+  #    active: test
+  #    active: prod
   cloud:
     config:
       uri: http://192.168.1.7:8888

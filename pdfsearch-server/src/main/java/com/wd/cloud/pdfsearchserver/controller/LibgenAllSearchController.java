@@ -7,7 +7,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class LibgenAllSearchController {
             @ApiImplicitParam(name = "url", value = "url", dataType = "String", paramType = "query")
     })
     @PostMapping(value = "/searchPaper")
-    public ResponseModel<List<JSON>> getRowKey(@RequestParam String title, @RequestParam String doi, @RequestParam String url){
-        return libgenSearchService.getResult(title,doi,url);
+    public ResponseModel<List<JSON>> getRowKey(@RequestParam String title, @RequestParam String doi, @RequestParam String url) {
+        return libgenSearchService.getResult(title, doi, url);
     }
 }

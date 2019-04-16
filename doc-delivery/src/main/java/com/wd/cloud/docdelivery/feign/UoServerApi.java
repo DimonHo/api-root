@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface UoServerApi {
 
     @GetMapping("/org")
-    ResponseModel<JSONObject> getOrg(@RequestParam(required = false) String name,
-                                     @RequestParam(required = false) String flag,
-                                     @RequestParam(required = false) String ip);
+    ResponseModel<JSONObject> org(@RequestParam(required = false) String name,
+                                  @RequestParam(required = false) String flag,
+                                  @RequestParam(required = false) String ip);
 
     /**
      * 通过邮箱或用户名获取用户信息
+     *
      * @param id
      * @return
      */
@@ -29,7 +30,7 @@ public interface UoServerApi {
     class Fallback implements UoServerApi {
 
         @Override
-        public ResponseModel<JSONObject> getOrg(String name, String flag, String ip) {
+        public ResponseModel<JSONObject> org(String name, String flag, String ip) {
             return ResponseModel.fail(StatusEnum.FALL_BACK).setMessage("[fallback]:uo-server调用失败！");
         }
 

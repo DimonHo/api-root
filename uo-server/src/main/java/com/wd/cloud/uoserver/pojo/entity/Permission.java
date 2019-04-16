@@ -3,8 +3,11 @@ package com.wd.cloud.uoserver.pojo.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.Date;
 
 /**
@@ -17,7 +20,8 @@ import java.util.Date;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "permission",uniqueConstraints = {@UniqueConstraint(columnNames={"username", "type","value"})})
+@DynamicInsert
+@Table(name = "permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "type", "value"})})
 public class Permission extends AbstractEntity {
 
     /**

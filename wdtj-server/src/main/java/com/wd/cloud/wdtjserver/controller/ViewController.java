@@ -33,7 +33,7 @@ public class ViewController {
                                  @RequestParam String endTime,
                                  @RequestParam(required = false, defaultValue = "0") int viewType) {
         ViewDataModel viewDataModel = viewService.getViewDate(orgFlag, beginTime, endTime, viewType);
-        if (viewDataModel == null){
+        if (viewDataModel == null) {
             return ResponseModel.fail().setMessage("该机构不存在或没有权限查看");
         }
         return ResponseModel.ok().setBody(viewDataModel);

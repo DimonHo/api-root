@@ -13,14 +13,10 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +39,8 @@ public class IndexController {
 
     @ApiOperation(value = "发文量、分区、被引频次对比分析（非esi）")
     @ApiImplicitParams({
-    	@ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
-    	@ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "act", value = "分析类型;amount：发文量;partition：分区;cited：被引频次", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "table", value = "表名", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "scid", value = "学校scid", dataType = "String", paramType = "query"),
@@ -80,23 +76,24 @@ public class IndexController {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("explain", explain);
         result.put("content", scidMap);
-        if("ourschool".equals(resource.getBlock())) {
-        	result.put("content", scidMap.get(resource.getScid()));
+        if ("ourschool".equals(resource.getBlock())) {
+            result.put("content", scidMap.get(resource.getScid()));
         }
         System.out.println(result);
         return ResponseModel.ok().setBody(result);
     }
-    
-    
+
+
     /**
      * 本校ESI学科论文分析
+     *
      * @param request
      * @return
      */
     @ApiOperation(value = "发文量、分区、被引频次对比分析（非esi）")
     @ApiImplicitParams({
-    	@ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
-    	@ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "block", value = "是否本校(本校:ourschool;多校对比:contrast)", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "plate", value = "板块  paper:论文对比分析 ;esi:ESI对比分析", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "act", value = "分析类型;amount：发文量;partition：分区;cited：被引频次", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "table", value = "表名", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "scid", value = "学校scid", dataType = "String", paramType = "query"),
@@ -110,36 +107,32 @@ public class IndexController {
     public ResponseModel compareOurSchool(HttpServletRequest request) {
         ResourceLabel resource = new ResourceLabel(request);
         Map<String, Object> scidMap = new HashMap<>();
-        
+
         String scid = resource.getScid();
-        
+
         String type = resource.getEsiType();
-        if("analysis".equals(type)) {
-        	scidMap.put(scid, analysisByDBService.analysisEsiPaper(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0)); 
+        if ("analysis".equals(type)) {
+            scidMap.put(scid, analysisByDBService.analysisEsiPaper(Integer.parseInt(scid), resource.getCategory(), resource.getAct(), 0));
         } else {
-        	List<QueryCondition> list = resource.getQueryList();
+            List<QueryCondition> list = resource.getQueryList();
             list.add(new QueryCondition("scid", scid));
             if (resource.getSignature() != null) {
                 list.add(new QueryCondition("signature", scid, resource.getSignature()));
             }
             scidMap.put(scid, analysisByESService.amount(list, resource.getFacetField(), type));
         }
-        
+
         Map<String, Object> explain = analysisByESService.explain(type);
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("explain", explain);
         result.put("content", scidMap);
-        if("ourschool".equals(resource.getBlock())) {
-        	result.put("content", scidMap.get(resource.getScid()));
+        if ("ourschool".equals(resource.getBlock())) {
+            result.put("content", scidMap.get(resource.getScid()));
         }
         System.out.println(result);
         return ResponseModel.ok().setBody(result);
     }
-    
-    
-    
-    
-    
+
 
     @ApiOperation(value = "智慧云分析数据：发文量、分区、被引频次对比分析（非esi）")
     @ApiImplicitParams({
@@ -162,8 +155,8 @@ public class IndexController {
         School school = null;
         if (scid != null) {
             school = schoolService.findByScid(Integer.parseInt(scid));
-            if(school.getName().contains("中国地质大学")) {
-            	school.setName("中国地质大学");
+            if (school.getName().contains("中国地质大学")) {
+                school.setName("中国地质大学");
             }
         }
         String type_c = request.getParameter("type_c");
@@ -201,7 +194,7 @@ public class IndexController {
             case "categoryins":        //获取潜力学科
                 result = analysisByDBService.getanalysisCategory("categoryins", issue, school.getName(), Integer.parseInt(scid));
                 break;
-            case "categoryap":		//ESI优势及潜力学科论文分析
+            case "categoryap":        //ESI优势及潜力学科论文分析
                 result = analysisByDBService.getanalysisCategory("categoryap", issue, school.getName(), Integer.parseInt(scid));
                 break;
             case "data":
@@ -216,6 +209,6 @@ public class IndexController {
 
         return ResponseModel.ok().setBody(result);
     }
-    
+
 
 }

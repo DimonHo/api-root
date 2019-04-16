@@ -14,26 +14,26 @@ import java.util.Map;
 
 /**
  * Query查询组合器
- * @author yangshuaifei
  *
+ * @author yangshuaifei
  */
 @Component
 public class QueryBuilderUtil {
-	
-	@Autowired
-	QueryBuildContext queryBuilderStrategyContext;
-	
+
+    @Autowired
+    QueryBuildContext queryBuilderStrategyContext;
+
     public BoolQueryBuilder convertQueryBuilder(List<QueryCondition> list) {
-    	Map<String,QueryBuilderStrategyI> map = queryBuilderStrategyContext.getQueryBuilders();
+        Map<String, QueryBuilderStrategyI> map = queryBuilderStrategyContext.getQueryBuilders();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        if(list == null) {
+        if (list == null) {
             return boolQueryBuilder;
         }
         for (QueryCondition condition : list) {
-        	if("org".equals(condition.getFieldFlag().trim()) || "relationSubject".equals(condition.getFieldFlag().trim())) {
-        		continue;
-        	}
-        	QueryBuilderStrategyI strategy = map.get(condition.getFieldFlag());
+            if ("org".equals(condition.getFieldFlag().trim()) || "relationSubject".equals(condition.getFieldFlag().trim())) {
+                continue;
+            }
+            QueryBuilderStrategyI strategy = map.get(condition.getFieldFlag());
             QueryBuilder queryBuilder = strategy.execute(condition);
             switch (condition.getLogic()) {
                 case 1: {
@@ -51,23 +51,23 @@ public class QueryBuilderUtil {
         }
         BoolQueryBuilder orgBuilder = QueryBuilders.boolQuery();
         for (QueryCondition condition : list) {
-        	if("org".equals(condition.getFieldFlag().trim())|| "relationSubject".equals(condition.getFieldFlag().trim())) {
-        		QueryBuilderStrategyI strategy = map.get(condition.getFieldFlag());
-        		QueryBuilder queryBuilder = strategy.execute(condition);
+            if ("org".equals(condition.getFieldFlag().trim()) || "relationSubject".equals(condition.getFieldFlag().trim())) {
+                QueryBuilderStrategyI strategy = map.get(condition.getFieldFlag());
+                QueryBuilder queryBuilder = strategy.execute(condition);
                 switch (condition.getLogic()) {
                     case 1: {
-                    	orgBuilder.must(queryBuilder);
+                        orgBuilder.must(queryBuilder);
                         break;
                     }
                     case 2: {
-                    	orgBuilder.should(queryBuilder);
+                        orgBuilder.should(queryBuilder);
                         break;
                     }
                     default: {
-                    	orgBuilder.mustNot(queryBuilder);
+                        orgBuilder.mustNot(queryBuilder);
                     }
                 }
-        	}
+            }
         }
         boolQueryBuilder.must(orgBuilder);
         return boolQueryBuilder;

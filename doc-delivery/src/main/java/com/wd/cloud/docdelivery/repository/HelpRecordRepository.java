@@ -67,10 +67,11 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     /**
      * 求助统计
+     *
      * @return
      */
-    @Query(value = "SELECT count(*) AS total,sum(IF (STATUS=4,1,0)) AS successTotal,sum(IF (TO_DAYS(gmt_create)=TO_DAYS(now()),1,0)) AS todayTotal,sum(IF (TO_DAYS(gmt_create)=TO_DAYS(now()) AND STATUS=4,1,0)) AS todaySuccessTotal FROM help_record",nativeQuery = true)
-    Map<String,Long> tj();
+    @Query(value = "SELECT count(*) AS total,sum(IF (STATUS=4,1,0)) AS successTotal,sum(IF (TO_DAYS(gmt_create)=TO_DAYS(now()),1,0)) AS todayTotal,sum(IF (TO_DAYS(gmt_create)=TO_DAYS(now()) AND STATUS=4,1,0)) AS todaySuccessTotal FROM help_record", nativeQuery = true)
+    Map<String, Long> tj();
 
     /**
      * 今日求助总量
@@ -82,13 +83,14 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     /**
      * 今日成功数量
+     *
      * @return
      */
     @Query(value = "select count(*) from help_record where status = 4 and TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
     long successCountToday();
 
     @Query(value = "select count(*) as sumCount, sum(if (status=4,1,0)) as successCount from help_record where TO_DAYS(gmt_create) = TO_DAYS(NOW())", nativeQuery = true)
-    Map<String,Object> totayTj();
+    Map<String, Object> totayTj();
 
     /**
      * 今日用户求助量

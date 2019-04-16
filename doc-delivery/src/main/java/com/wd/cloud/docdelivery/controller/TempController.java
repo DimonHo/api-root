@@ -25,13 +25,13 @@ public class TempController {
 
 
     @GetMapping("/deleteLiteratureUnid")
-    public ResponseModel deleteLiteratureUnid(){
+    public ResponseModel deleteLiteratureUnid() {
         tempService.deleteLiteratureUnid();
         return ResponseModel.ok();
     }
 
     @GetMapping("/updateHandlerName")
-    public ResponseModel updateHandlerName(){
+    public ResponseModel updateHandlerName() {
         tempService.updateHandlerName();
         return ResponseModel.ok();
     }

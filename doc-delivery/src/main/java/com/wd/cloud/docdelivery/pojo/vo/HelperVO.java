@@ -38,6 +38,8 @@ public class HelperVO {
     @Email
     private String helperEmail;
 
+    private String helperName;
+
     @ApiModelProperty(value = "求助更多", example = "doi:01923959101,xxx:102030104")
     private String remark;
 

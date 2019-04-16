@@ -4,8 +4,8 @@ import com.wd.cloud.bse.vo.SortCondition;
 import org.elasticsearch.search.sort.SortBuilder;
 
 
-public interface SortBuilderStrategyI{
-	
-	public SortBuilder build(SortCondition sortCondition);
+public interface SortBuilderStrategyI {
+
+    public SortBuilder build(SortCondition sortCondition);
 
 }

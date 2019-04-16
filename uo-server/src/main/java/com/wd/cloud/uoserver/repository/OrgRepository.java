@@ -2,9 +2,6 @@ package com.wd.cloud.uoserver.repository;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.NetUtil;
-import cn.hutool.core.util.StrUtil;
-import com.wd.cloud.uoserver.pojo.entity.OrgIp;
 import com.wd.cloud.uoserver.pojo.entity.Org;
 import com.wd.cloud.uoserver.pojo.entity.OrgProd;
 import org.springframework.data.jpa.domain.Specification;
@@ -44,6 +41,7 @@ public interface OrgRepository extends JpaRepository<Org, String>, JpaSpecificat
 
     /**
      * 机构是否已存在
+     *
      * @param flag
      * @param name
      * @return
@@ -55,15 +53,15 @@ public interface OrgRepository extends JpaRepository<Org, String>, JpaSpecificat
 
         /**
          * 机构信息查询
+         *
          * @param orgName
          * @param flag
-         * @param ip
          * @param prodStatus 产品状态
-         * @param isExp 是否过期
-         * @param isLike 是否模糊查询
+         * @param isExp      是否过期
+         * @param isLike     是否模糊查询
          * @return
          */
-        public static Specification<Org> queryOrg(String orgName, String flag, String ip, List<Integer> prodStatus, Boolean isExp, boolean isLike) {
+        public static Specification<Org> queryOrg(String orgName, String flag, List<Integer> prodStatus, Boolean isExp, boolean isLike) {
             return (Specification<Org>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (orgName != null) {
@@ -92,15 +90,8 @@ public interface OrgRepository extends JpaRepository<Org, String>, JpaSpecificat
                         Predicate expDate = isExp ? cb.lessThan(prodRoot.get("expDate"), new Date()) : cb.greaterThanOrEqualTo(prodRoot.get("expDate"), new Date());
                         prodWhere.add(expDate);
                     }
-                    prodQuery.select(prodRoot.get("orgFlag")).where(ArrayUtil.toArray(prodWhere,Predicate.class));
+                    prodQuery.select(prodRoot.get("orgFlag")).where(ArrayUtil.toArray(prodWhere, Predicate.class));
                     list.add(cb.in(root.get("flag")).value(prodQuery));
-                }
-                if (StrUtil.isNotBlank(ip)) {
-                    long ipNumber = NetUtil.ipv4ToLong(ip);
-                    Subquery<OrgIp> subQuery = query.subquery(OrgIp.class);
-                    Root<OrgIp> subRoot = subQuery.from(OrgIp.class);
-                    subQuery.select(subRoot.get("orgFlag")).where(cb.lessThanOrEqualTo(subRoot.get("beginNumber"), ipNumber), cb.greaterThanOrEqualTo(subRoot.get("endNumber"), ipNumber));
-                    list.add(cb.equal(root.get("flag"), subQuery));
                 }
 
                 Predicate[] p = new Predicate[list.size()];

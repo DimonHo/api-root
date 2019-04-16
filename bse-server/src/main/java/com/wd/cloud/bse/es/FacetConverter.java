@@ -1,17 +1,16 @@
 package com.wd.cloud.bse.es;
 
 
-import org.elasticsearch.search.aggregations.Aggregation;
-
 import com.wd.cloud.bse.vo.FacetResult;
+import org.elasticsearch.search.aggregations.Aggregation;
 
 /**
  * 分类统计转换
- * @author Administrator
  *
+ * @author Administrator
  */
 public interface FacetConverter {
-	
-	public FacetResult convert(Aggregation facet);
+
+    public FacetResult convert(Aggregation facet);
 
 }

@@ -11,7 +11,8 @@ public interface WeightService {
 
     /**
      * 获取所有权重设置，组装map
+     *
      * @return
      */
-    Map<String,Double> buildWeightMap();
+    Map<String, Double> buildWeightMap();
 }

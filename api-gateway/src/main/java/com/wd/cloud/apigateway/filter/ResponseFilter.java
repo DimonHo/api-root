@@ -41,16 +41,16 @@ public class ResponseFilter extends ZuulFilter {
         Integer level = (Integer) ctx.getRequest().getSession().getAttribute(SessionConstant.LEVEL);
         ctx.getResponse().setHeader("level", level + "");
         JSONObject org = (JSONObject) ctx.getRequest().getSession().getAttribute(SessionConstant.ORG);
-        if (org != null){
-            ctx.getResponse().setHeader("org",URLUtil.encode(org.toString()));
-        }else{
-            ctx.getResponse().setHeader("org",null);
+        if (org != null) {
+            ctx.getResponse().setHeader("org", URLUtil.encode(org.toString()));
+        } else {
+            ctx.getResponse().setHeader("org", null);
         }
         JSONObject loginUser = (JSONObject) ctx.getRequest().getSession().getAttribute(SessionConstant.LOGIN_USER);
-        if (loginUser != null){
+        if (loginUser != null) {
             ctx.getResponse().setHeader("user", URLUtil.encode(loginUser.getStr("username")));
-        }else{
-            ctx.getResponse().setHeader("user",null);
+        } else {
+            ctx.getResponse().setHeader("user", null);
         }
         log.info("level={},user = {} ,org = {}", level, loginUser, org);
         return null;

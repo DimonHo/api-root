@@ -25,7 +25,9 @@ public class OrgDeptDTO implements Serializable {
 
     private String orgName;
 
-    /**用户数量*/
+    /**
+     * 用户数量
+     */
     private Long userCount;
 
 }

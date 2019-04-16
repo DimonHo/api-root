@@ -28,4 +28,15 @@ public class HttpUtil extends cn.hutool.http.HttpUtil {
         }
         return cookieStr.toString();
     }
+
+    public static String getCookieValue(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookieName.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
 }

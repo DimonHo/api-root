@@ -15,6 +15,7 @@ public interface OrgDeptRepository extends JpaRepository<OrgDept, Long> {
 
     /**
      * 查询机构院系列表
+     *
      * @param orgFlag
      * @return
      */
@@ -22,6 +23,7 @@ public interface OrgDeptRepository extends JpaRepository<OrgDept, Long> {
 
     /**
      * 查找院系
+     *
      * @param orgFlag
      * @param name
      * @return
@@ -30,22 +32,20 @@ public interface OrgDeptRepository extends JpaRepository<OrgDept, Long> {
 
     /**
      * 查找院系
+     *
      * @param orgFlag
      * @param id
      * @return
      */
-    Optional<OrgDept> findByOrgFlagAndId(String orgFlag,Long id);
+    Optional<OrgDept> findByOrgFlagAndId(String orgFlag, Long id);
 
     /**
      * 删除指定院系
+     *
      * @param orgFlag
      * @param id
      */
-    void deleteByOrgFlagAndId(String orgFlag,Long id);
-
-
-
-
+    void deleteByOrgFlagAndId(String orgFlag, Long id);
 
 
 }

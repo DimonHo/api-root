@@ -1,10 +1,10 @@
 package com.wd.cloud.apigateway.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -14,11 +14,13 @@ import org.springframework.web.filter.CorsFilter;
  * @date 2018/12/22
  * @Description:
  */
+@Slf4j
 @Configuration
 @EnableConfigurationProperties(GlobalProperties.class)
 public class WebConfig {
     @Autowired
     GlobalProperties globalProperties;
+
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -33,10 +35,4 @@ public class WebConfig {
         return new CorsFilter(source);
     }
 
-    @Bean
-    public DefaultCookieSerializer defaultCookieSerializer(){
-        DefaultCookieSerializer defaultCookieSerializer = new DefaultCookieSerializer();
-        defaultCookieSerializer.setDomainName(globalProperties.getCookieDomain());
-        return defaultCookieSerializer;
-    }
 }
