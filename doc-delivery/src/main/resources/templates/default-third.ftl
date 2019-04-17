@@ -8,7 +8,7 @@
     <title>${mailTitle}</title>
 </head>
 <body>
-您好！您求助的文献 ${docTitle} 为疑难文献，我们已为您邮件通知更多用户应助该文献，并将在7天内通过邮件通知您应助结果。<br/>
+非常抱歉，您求助的文献：<b> ${docTitle} </b> 暂时还未找到全文，正在努力查找中，请耐心等待。查找结果将在7天内通过邮件通知您。<br/>
 <br/>
 欢迎您使用${channelName}<br/>
 <a href='${channelUrl}' target='blank'>${channelUrl}</a>
