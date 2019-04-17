@@ -103,6 +103,16 @@ public class SearchCondition {
         return this;
     }
 
+    public void delFilterConditionByFieldName(String name){
+        List<QueryCondition> filterConditions_new = new ArrayList<QueryCondition>();
+        for(QueryCondition condition : this.filterConditions){
+            if(!name.equals(condition.getBeanName())){
+                filterConditions_new.add(condition);
+            }
+        }
+        this.filterConditions = filterConditions_new;
+    }
+
     public SearchCondition addHighLight(String field) {
         if (highLightFields == null) {
             highLightFields = new ArrayList<String>();
