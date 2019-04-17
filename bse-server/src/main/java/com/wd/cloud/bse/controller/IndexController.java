@@ -263,11 +263,12 @@ public class IndexController {
             indexLogService.save(new IndexLog("getDocTypeTotle", reqParams));
             QueryParam params = ParamsAnalyze.parse(reqParams);
             SearchCondition condition = params.converToSearchCondition();
-
+            List<QueryCondition> queryConditionList = condition.getFilterConditions();
             for (DocType docType : DocType.values()) {
 //    			String reqParams = "<params><filters><field><name>docType</name><value>"+doctype.getKey()+"</value></field></filters><types>["+doctype.getKey()+"]</types><is_facets>1</is_facets><page>0</page><size>0</size></params>";
 //    			QueryParam params = ParamsAnalyze.parse(reqParams);
 //        		SearchCondition  condition  = params.converToSearchCondition();
+                condition.setFilterConditions(queryConditionList);
                 condition.addFilterCondition(new QueryCondition("docType", docType.getKey() + ""));
                 condition.setTypes(new String[]{docType.getValue()});
                 condition.setSize(0);

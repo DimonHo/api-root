@@ -123,6 +123,9 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
         String title_map = StringUtil.repalceSymbol(literatureModel.getDocTitle());
         for (SearchHit hit : searchHits) {
             int num = 0;
+            if(!hit.getSource().containsKey("md5")){
+                break;
+            }
             String title_es = StringUtil.repalceSymbol(hit.getSource().get("title").toString());
             if (!title_es.equals(title_map)) {
                 break;
