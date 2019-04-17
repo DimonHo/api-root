@@ -3,6 +3,7 @@ package com.wd.cloud.docdelivery.task;
 import cn.hutool.core.util.RandomUtil;
 import com.wd.cloud.docdelivery.model.AvgResponseTimeModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
  * @date 2019/2/27
  * @Description: 每隔一小时换平均时长
  */
+@Async
 @Component
 public class AvgResponseTimeTask {
 

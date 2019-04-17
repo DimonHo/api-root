@@ -8,6 +8,7 @@ import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.List;
  * @Description: 定时删除用户过期的应助记录
  */
 @Slf4j
+@Async
 @Component
 public class GiveRecordTask {
     @Autowired

@@ -1,10 +1,13 @@
 package com.wd.cloud.docdelivery.listeners;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
 import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
 import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
-import com.wd.cloud.docdelivery.repository.VHelpRecordRepository;
+import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.MailService;
+import com.wd.cloud.docdelivery.task.AutoGiveTask;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.event.internal.DefaultLoadEventListener;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -12,10 +15,12 @@ import org.hibernate.event.spi.*;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +44,20 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
     MailService mailService;
     @Autowired
     VHelpRecordRepository vHelpRecordRepository;
+    @Autowired
+    HelpRecordRepository helpRecordRepository;
+    @Autowired
+    GiveRecordRepository giveRecordRepository;
+    @Autowired
+    LiteratureRepository literatureRepository;
+    @Autowired
+    DocFileRepository docFileRepository;
+    @Autowired
+    PdfSearchServerApi pdfSearchServerApi;
+
+    @Autowired
+    ThreadPoolTaskScheduler threadPoolTaskScheduler;
+
     @Autowired
     private EntityManagerFactory entityManagerFactory;
 
@@ -64,8 +83,18 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
 
         if (postInsertEvent.getEntity() instanceof HelpRecord) {
             HelpRecord helpRecord = (HelpRecord) postInsertEvent.getEntity();
+
             Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
             optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+
+            // 10秒钟后执行自动应助
+            threadPoolTaskScheduler.schedule(new AutoGiveTask(helpRecordRepository,
+                    literatureRepository,
+                    giveRecordRepository,
+                    docFileRepository,
+                    pdfSearchServerApi,
+                    helpRecord.getId()), DateUtil.offsetSecond(new Date(), 10));
+
         }
 
     }
@@ -86,6 +115,7 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
                         && SEND_STATUS.contains(postUpdateEvent.getState()[i])) {
                     Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
                     optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+
                 }
             }
         }
