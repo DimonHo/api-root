@@ -6,8 +6,8 @@ server:
     context-path: /
 swagger:
   enabled: true
-  title: crscholar����-��������
-  description: crscholar����API
+  title: crscholar服务-开发环境
+  description: crscholar服务API
   version: 2.0
   contact:
     name: hezhigang
@@ -23,7 +23,7 @@ eureka:
       enabled: true
     registry-fetch-interval-seconds: 5
     serviceUrl:
-      defaultZone: http://192.168.1.104:8761/eureka/
+      defaultZone: http://192.168.1.105:8761/eureka/
 management:
   health:
     elasticsearch:
@@ -45,9 +45,54 @@ spring:
   # sleuth:
   #   sampler:
   #     probability: 1
+  http:
+    converters:
+      preferred-json-mapper: gson
+  gson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialize-nulls: false
   data:
     elasticsearch:
       cluster-name: wdkj
       cluster-nodes: 192.168.1.11:8300,192.168.1.12:8300,192.168.1.13:8300,192.168.1.14:8300,192.168.1.15:8300
-
+  jpa:
+    database: MYSQL
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://192.168.1.36:3306/${spring.application.name}?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: dev
+    password: dev123
+    druid:
+      # 配置初始化大小、最小、最大
+      initial-size: 1
+      max-active: 20
+      min-idle: 1
+      max-open-prepared-statements: 20
+      pool-prepared-statements: true
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      validation-query: "select 1"
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      async-init: true
+      filters: stat,wall,slf4j
+      aop-patterns:
+        - com.wd.cloud.docdelivery.service.*
+        - com.wd.cloud.docdelivery.repository.*
+      web-stat-filter:
+        enabled: true
+      stat-view-servlet:
+        enabled: true
+        url-pattern: "/druid/*"
+        login-username: admin
+        login-password: admin@123
 

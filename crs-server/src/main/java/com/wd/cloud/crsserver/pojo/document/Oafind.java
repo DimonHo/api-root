@@ -15,8 +15,10 @@ import java.util.List;
  * @Description:
  */
 @Data
-@Document(indexName = "oafind_2.0", type = "periodical")
+@Document(indexName = "oafind_1.0", type = "periodical")
 public class Oafind {
+    @Id
+    String id;
 
     String title;
 
@@ -39,9 +41,6 @@ public class Oafind {
     List<String> keywords;
 
     String issue;
-
-    @Id
-    String id;
 
     Integer hits;
 
@@ -93,16 +92,6 @@ public class Oafind {
 
     @Data
     static class Affiliations{
-//        public Affiliations(){}
-//        public Affiliations(String affilication,String authors){
-//            this.affilication = affilication;
-//            this.authors = authors;
-//        }
-//        public Affiliations(String affilication,String authors,String email){
-//            this.affilication = affilication;
-//            this.authors = authors;
-//            this.email = email;
-//        }
         String affilication;
         String authors;
         String email;
@@ -118,22 +107,22 @@ public class Oafind {
     }
 
     @Data
-    static class ReferencesList{
+    class ReferencesList{
         String id;
         String reference;
     }
 
     @Data
     static class ReprintAuthor{
-        String affilication;
-        String authors;
+        String affiliation;
+        String author;
         String email;
     }
 
     @Data
     static class ReprintAuthors{
-        String affilication;
-        String authors;
+        String affiliation;
+        String author;
         String email;
     }
 

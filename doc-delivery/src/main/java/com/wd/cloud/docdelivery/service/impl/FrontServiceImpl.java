@@ -26,6 +26,7 @@ import com.wd.cloud.docdelivery.pojo.entity.*;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.FileService;
 import com.wd.cloud.docdelivery.service.FrontService;
+import com.wd.cloud.docdelivery.service.GiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -69,6 +70,9 @@ public class FrontServiceImpl implements FrontService {
 
     @Autowired
     PdfSearchServerApi pdfSearchServerApi;
+
+    @Autowired
+    GiveService giveService;
 
     @Autowired
     FileService fileService;
@@ -348,7 +352,7 @@ public class FrontServiceImpl implements FrontService {
             optionalLiterature.ifPresent(literature -> helpRecordDTO.setDocTitle(literature.getDocTitle()).setDocHref(literature.getDocHref()));
             //如果有用户正在应助
             if (vHelpRecord.getStatus() == HelpStatusEnum.HELPING.value()) {
-                Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(vHelpRecord.getId(), GiveStatusEnum.WAIT_UPLOAD.value());
+                Optional<GiveRecord> optionalGiveRecord = giveService.getGiveRecord(vHelpRecord.getId(),GiveStatusEnum.WAIT_UPLOAD);
                 optionalGiveRecord.ifPresent(helpRecordDTO::setGiving);
             }
             return helpRecordDTO;

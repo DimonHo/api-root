@@ -25,6 +25,7 @@ import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
 import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
 import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.repository.*;
+import com.wd.cloud.docdelivery.service.GiveService;
 import com.wd.cloud.docdelivery.service.MailService;
 import com.wd.cloud.docdelivery.service.ProcessService;
 import lombok.extern.slf4j.Slf4j;
@@ -71,6 +72,9 @@ public class ProcessServiceImpl implements ProcessService {
     FsServerApi fsServerApi;
 
     @Autowired
+    GiveService giveService;
+
+    @Autowired
     MailService mailService;
 
     @Autowired
@@ -115,7 +119,7 @@ public class ProcessServiceImpl implements ProcessService {
             docFile.setLiteratureId(helpRecord.getLiteratureId()).setFileId(fileId);
 
             //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.THIRD.value()).orElse(new GiveRecord());
+            GiveRecord giveRecord = giveService.getGiveRecord(helpRecord.getId(), GiveStatusEnum.THIRD).orElse(new GiveRecord());
             giveRecord.setHelpRecordId(helpRecord.getId())
                     .setFileId(fileId)
                     .setType(GiveTypeEnum.MANAGER.value())
@@ -143,7 +147,7 @@ public class ProcessServiceImpl implements ProcessService {
             }
             helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value());
             //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-            GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.value()).orElse(new GiveRecord());
+            GiveRecord giveRecord = giveService.getGiveRecord(helpRecordId, GiveStatusEnum.THIRD).orElse(new GiveRecord());
 
             giveRecord.setHandlerName(handlerName)
                     .setType(GiveTypeEnum.MANAGER.value())

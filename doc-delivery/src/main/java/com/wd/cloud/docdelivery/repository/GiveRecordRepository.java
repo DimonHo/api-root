@@ -94,6 +94,15 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
     @Query(value = "select * FROM give_record WHERE help_record_id = ?1 AND status = 6", nativeQuery = true)
     GiveRecord findByHelpRecordIdAndStatusSuccess(Long helpRecordId);
 
+    /**
+     * 查询指定状态的记录
+     *
+     * @param helpRecordId
+     * @param status
+     * @return
+     */
+    Optional<List<GiveRecord>> findByHelpRecordIdAndStatus(Long helpRecordId,Integer status);
+
     List<GiveRecord> findByHelpRecordId(Long helpRecordId);
 
     /**
@@ -105,15 +114,6 @@ public interface GiveRecordRepository extends JpaRepository<GiveRecord, Long>, J
      * @return
      */
     Optional<GiveRecord> findByHelpRecordIdAndGiverNameAndStatus(Long helpRecordId, String giverName, Integer status);
-
-    /**
-     * 查询指定状态的记录
-     *
-     * @param helpRecordId
-     * @param status
-     * @return
-     */
-    Optional<GiveRecord> findByHelpRecordIdAndStatus(Long helpRecordId, Integer status);
 
     List<GiveRecord> findByTypeAndStatus(Integer type, Integer status);
 

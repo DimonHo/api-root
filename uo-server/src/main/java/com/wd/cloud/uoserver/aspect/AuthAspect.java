@@ -25,9 +25,6 @@ public class AuthAspect {
     @Autowired
     HttpServletRequest request;
 
-    @Autowired
-    RedisTemplate redisTemplate;
-
     @Before(value = "@annotation(com.wd.cloud.commons.annotation.ValidateLogin)")
     public void doBefore(JoinPoint joinPoint) throws Throwable {
         Assertion principal = (Assertion) request.getSession().getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);

@@ -16,4 +16,8 @@ public class NotFoundException extends ApiException {
     public NotFoundException(String message) {
         super(StatusEnum.NOT_FOUND.value(), message);
     }
+
+    public static NotFoundException setMessage(String message){
+        return new NotFoundException(message);
+    }
 }

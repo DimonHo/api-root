@@ -1,7 +1,11 @@
 package com.wd.cloud.crsserver.service;
 
 import com.wd.cloud.crsserver.pojo.document.Oafind;
-import org.springframework.data.domain.Page;
+import com.weidu.commons.search.SearchField;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+
+import java.util.List;
 
 /**
  * @Author: He Zhigang
@@ -10,5 +14,15 @@ import org.springframework.data.domain.Page;
  */
 public interface OafindService {
 
-    Page<Oafind> baseSearch();
+    AggregatedPage<Oafind> baseSearch(String queryStr,
+                          Integer startYear, Integer endYear,
+                          List<Integer> codes,
+                          List<String> sources,
+                          List<Integer> years,
+                          List<String> journals,
+                          List<Integer> languages,
+                          String aggFiled, Pageable pageable);
+
+
+    AggregatedPage<Oafind> exactSearch(List<SearchField> searchField, Pageable pageable);
 }

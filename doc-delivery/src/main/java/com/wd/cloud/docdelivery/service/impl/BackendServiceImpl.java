@@ -17,6 +17,7 @@ import com.wd.cloud.docdelivery.pojo.entity.*;
 import com.wd.cloud.docdelivery.repository.*;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
+import com.wd.cloud.docdelivery.service.GiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -62,6 +63,9 @@ public class BackendServiceImpl implements BackendService {
 
     @Autowired
     FileService fileService;
+
+    @Autowired
+    GiveService giveService;
 
     @Autowired
     ReusingLogRepository reusingLogRepository;
@@ -141,10 +145,8 @@ public class BackendServiceImpl implements BackendService {
         }
         docFile = saveDocFile(helpRecord.getLiteratureId(), fileId);
         //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        Optional<GiveRecord> giveRecordOptional = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecord.getId(), GiveStatusEnum.THIRD.value());
-
+        GiveRecord giveRecord = giveService.getGiveRecord(helpRecord.getId(), GiveStatusEnum.THIRD).orElse(new GiveRecord());
         //如果没有第三方状态的记录，则新建一条应助记录
-        GiveRecord giveRecord = giveRecordOptional.orElseGet(GiveRecord::new);
         giveRecord.setStatus(GiveStatusEnum.SUCCESS.value());
         giveRecord.setHelpRecordId(helpRecord.getId());
         giveRecord.setFileId(docFile.getFileId());
@@ -156,6 +158,7 @@ public class BackendServiceImpl implements BackendService {
         giveRecordRepository.save(giveRecord);
         helpRecordRepository.save(helpRecord);
     }
+
 
     @Override
     public void third(Long helpRecordId, String giverName) {
@@ -179,11 +182,9 @@ public class BackendServiceImpl implements BackendService {
         HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
         //标记为疑难文献
         helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value()).setDifficult(true);
-        //如果有求助第三方的状态的应助记录，则直接处理更新这个记录
-        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.THIRD.value());
 
         //如果没有第三方状态的记录，则新建一条应助记录
-        GiveRecord giveRecord = optionalGiveRecord.orElseGet(GiveRecord::new);
+        GiveRecord giveRecord = giveService.getGiveRecord(helpRecord.getId(), GiveStatusEnum.THIRD).orElse(new GiveRecord());
         giveRecord.setType(GiveTypeEnum.MANAGER.value())
                 .setStatus(GiveStatusEnum.NO_RESULT.value())
                 .setGiverName(giverName).setHandlerName(giverName)

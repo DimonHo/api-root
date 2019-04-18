@@ -4,6 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.wd.cloud.commons.exception.ExpException;
+import com.wd.cloud.commons.exception.NotFoundException;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
 import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
@@ -19,11 +21,13 @@ import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
 import com.wd.cloud.docdelivery.repository.LiteratureRepository;
 import com.wd.cloud.docdelivery.service.FileService;
+import com.wd.cloud.docdelivery.service.GiveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author He Zhigang
@@ -53,30 +57,30 @@ public class FileServiceImpl implements FileService {
     @Autowired
     FsServerApi fsServerApi;
 
+    GiveService giveService;
+
     @Autowired
     PdfSearchServerApi pdfSearchServerApi;
 
     @Override
     public DownloadFileModel getDownloadFile(Long helpRecordId) {
-        HelpRecord helpRecord = null;
-        try {
-            helpRecord = helpRecordRepository.getOne(helpRecordId);
+        DownloadFileModel downloadFileModel = null;
+        Optional<HelpRecord> optionalHelpRecord = helpRecordRepository.findById(helpRecordId);
+        if (optionalHelpRecord.isPresent()){
+            HelpRecord helpRecord = optionalHelpRecord.get();
             if (checkTimeOut(helpRecord.getGmtModified())) {
-                return null;
+                throw new ExpException("文件已过期");
             }
-        } catch (Exception e) {
-            log.error("未找到id为{}的数据", helpRecordId);
-            return null;
+            GiveRecord giveRecord = giveService.getGiveRecord(helpRecordId,GiveStatusEnum.SUCCESS).orElseThrow(NotFoundException::new);
+            downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         }
-        GiveRecord giveRecord = giveRecordRepository.findByHelpRecordIdAndStatusSuccess(helpRecordId);
-        DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, giveRecord);
         return downloadFileModel;
     }
 
     @Override
     public DownloadFileModel getWaitAuditFile(Long helpRecordId) {
         HelpRecord helpRecord = helpRecordRepository.getOne(helpRecordId);
-        Optional<GiveRecord> optionalGiveRecord = giveRecordRepository.findByHelpRecordIdAndStatus(helpRecordId, GiveStatusEnum.WAIT_AUDIT.value());
+        Optional<GiveRecord> optionalGiveRecord = giveService.getGiveRecord(helpRecordId,GiveStatusEnum.WAIT_AUDIT);
         if (optionalGiveRecord.isPresent()) {
             DownloadFileModel downloadFileModel = buildDownloadModel(helpRecord, optionalGiveRecord.get());
             return downloadFileModel;
