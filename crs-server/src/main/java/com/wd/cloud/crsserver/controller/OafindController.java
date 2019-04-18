@@ -5,6 +5,7 @@ import com.wd.cloud.crsserver.service.OafindService;
 import com.wd.cloud.crsserver.service.SearchServcie;
 import com.weidu.commons.search.SearchCondition;
 import com.weidu.commons.search.SearchField;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
@@ -12,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: He Zhigang
@@ -26,6 +28,29 @@ public class OafindController {
 
     @Autowired
     SearchServcie searchServcie;
+
+
+    @GetMapping("/{index}/{id}")
+    public ResponseModel getId(@PathVariable String index,@PathVariable String id){
+       return  ResponseModel.ok().setBody(searchServcie.getById(index,id));
+    }
+
+    @PostMapping("/{index}")
+    public ResponseModel getId(@PathVariable String index,@RequestBody String[] ids){
+        return  ResponseModel.ok().setBody(searchServcie.findByIds(index,ids));
+    }
+
+    @PutMapping("/{index}/{type}/{id}")
+    public ResponseModel updateById(@PathVariable String index, @PathVariable String type, @PathVariable String id, @RequestBody Map<String,Object> source){
+        searchServcie.updateById(index,type,id,source);
+        return ResponseModel.ok();
+    }
+
+    @PostMapping("/index/{index}/{type}")
+    public ResponseModel index(@PathVariable String index, @PathVariable String type, @RequestBody XContentBuilder source){
+        searchServcie.index(index,type,source);
+        return ResponseModel.ok();
+    }
 
     /**
      * 普通查询
