@@ -26,7 +26,7 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
      */
     HelpRecord findByIdAndStatus(long id, int status);
 
-    HelpRecord findByIdAndStatusNot(long id, int status);
+    Optional<HelpRecord> findByIdAndStatusNot(long id, int status);
 
     HelpRecord findByIdAndStatusIn(long id, int[] status);
 

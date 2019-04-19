@@ -199,11 +199,6 @@ public class FrontServiceImpl implements FrontService {
     }
 
     @Override
-    public HelpRecord getNotWaitRecord(long helpRecordId) {
-        return helpRecordRepository.findByIdAndStatusNot(helpRecordId, HelpStatusEnum.WAIT_HELP.value());
-    }
-
-    @Override
     public String clearHtml(String docTitle) {
         return HtmlUtil.unescape(HtmlUtil.cleanHtmlTag(docTitle));
     }

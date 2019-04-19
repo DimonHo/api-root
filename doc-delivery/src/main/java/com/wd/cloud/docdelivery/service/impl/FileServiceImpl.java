@@ -56,7 +56,7 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     FsServerApi fsServerApi;
-
+    @Autowired
     GiveService giveService;
 
     @Autowired

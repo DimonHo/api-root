@@ -5,6 +5,7 @@ import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
 import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
 import com.wd.cloud.docdelivery.service.GiveService;
 import jdk.nashorn.internal.runtime.options.Option;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @Service("giveService")
 public class GiveServiceImpl implements GiveService {
 
+    @Autowired
     GiveRecordRepository giveRecordRepository;
 
     @Override

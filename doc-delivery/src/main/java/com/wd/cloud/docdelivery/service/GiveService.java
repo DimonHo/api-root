@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface GiveService {
 
     /**
-     * 获取指定状态的应助记录，删除数据库中重复数据
+     * 获取指定状态的应助记录，自动修正数据库中多于的重复数据
      * @param helpRecordId
      * @param giveStatusEnum
      * @return

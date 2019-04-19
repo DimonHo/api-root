@@ -50,7 +50,7 @@ public class AutoGiveTask implements Runnable {
      */
     @Override
     public void run() {
-        helpRecordRepository.findById(helpRecordId).ifPresent(helpRecord -> {
+        helpRecordRepository.findByIdAndStatusNot(helpRecordId, HelpStatusEnum.HELP_SUCCESSED.value()).ifPresent(helpRecord -> {
             DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(helpRecord.getLiteratureId());
             if (null != reusingDocFile) {
                 reusingGive(reusingDocFile, helpRecord);
