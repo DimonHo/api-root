@@ -56,10 +56,10 @@ public class AllRequestAspect {
         if (principal != null) {
             String casUsername = principal.getPrincipal().getName();
             JSONObject sessionUser = JSONUtil.parseObj(request.getSession().getAttribute(SessionConstant.LOGIN_USER));
-            String sessionUsername = sessionUser != null ? sessionUser.getStr("username") : null;
-            JSONObject sessionOrg = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+            String sessionUsername = sessionUser.isEmpty() ? null: sessionUser.getStr("username");
+            JSONObject sessionOrg = JSONUtil.parseObj(request.getSession().getAttribute(SessionConstant.ORG));
             // session中已存在用户信息，则跳过
-            if (casUsername.equals(sessionUsername) && sessionOrg != null) {
+            if (casUsername.equals(sessionUsername) && !sessionOrg.isEmpty()) {
                 return;
             }
             // 获取用户信息
@@ -91,10 +91,10 @@ public class AllRequestAspect {
         } else {
             // 如果sso退出登陆，清空session中的用户信息
             cleanSession(request);
-            JSONObject sessionOrg = (JSONObject) request.getSession().getAttribute(SessionConstant.ORG);
+            JSONObject sessionOrg = JSONUtil.parseObj(request.getSession().getAttribute(SessionConstant.ORG));
             Boolean isOut = (Boolean) request.getSession().getAttribute(SessionConstant.IS_OUT);
             Integer level = (Integer) request.getSession().getAttribute(SessionConstant.LEVEL);
-            if (sessionOrg == null || isOut == null || level == null) {
+            if (sessionOrg.isEmpty() || isOut == null || level == null) {
                 String clientIp = HttpUtil.getClientIP(request);
                 log.info("客户端访问IP = {}", clientIp);
                 Optional<OrgIp> optionalOrgIp = orgService.findIp(clientIp);

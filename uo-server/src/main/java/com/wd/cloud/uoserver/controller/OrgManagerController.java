@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -42,7 +41,7 @@ public class OrgManagerController {
 
     @ApiOperation(value = "翻转Ip起始和结束顺序", tags = {"IP维护"})
     @PatchMapping("/manager/ip/reverse")
-    public ResponseModel reverse(@RequestParam String username, @RequestParam String password) throws UnknownHostException {
+    public ResponseModel reverse(@RequestParam String username, @RequestParam String password) {
         if ("hezhigang".equals(username) && "hzg123".equals(password)) {
             orgService.reverse();
             return ResponseModel.ok();
@@ -55,7 +54,7 @@ public class OrgManagerController {
 
     @ApiOperation(value = "查询重叠IP段", tags = {"IP维护"})
     @GetMapping("/manager/ip/overlay")
-    public ResponseModel overlay(@RequestParam String username, @RequestParam String password) throws UnknownHostException {
+    public ResponseModel overlay(@RequestParam String username, @RequestParam String password) {
         if ("hezhigang".equals(username) && "hzg123".equals(password)) {
             orgService.overlay();
             return ResponseModel.ok();
@@ -66,7 +65,7 @@ public class OrgManagerController {
 
     @ApiOperation(value = "新增,修改机构", tags = {"机构管理"})
     @PostMapping("/manager/org")
-    public ResponseModel addOrg(@RequestBody OrgVO org) throws UnknownHostException {
+    public ResponseModel addOrg(@RequestBody OrgVO org) {
         orgService.saveOrg(org);
         return ResponseModel.ok();
     }
@@ -74,7 +73,7 @@ public class OrgManagerController {
     @ApiOperation(value = "新增/修改/删除机构IP", tags = {"机构管理"})
     @PostMapping("/manager/org/ip")
     public ResponseModel addOrgIp(@RequestParam String orgFlag,
-                                  @RequestBody List<OrgIpVO> ip) throws UnknownHostException {
+                                  @RequestBody List<OrgIpVO> ip) {
         List<OrgIp> orgIpList = orgService.saveOrgIp(orgFlag, ip);
         return ResponseModel.ok().setBody(orgIpList);
     }
