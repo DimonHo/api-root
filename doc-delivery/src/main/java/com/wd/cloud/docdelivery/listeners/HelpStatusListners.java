@@ -87,13 +87,13 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
             Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
             optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
 
-            // 10秒钟后执行自动应助
+            // 3秒钟后执行自动应助
             threadPoolTaskScheduler.schedule(new AutoGiveTask(helpRecordRepository,
                     literatureRepository,
                     giveRecordRepository,
                     docFileRepository,
                     pdfSearchServerApi,
-                    helpRecord.getId()), DateUtil.offsetSecond(new Date(), 10));
+                    helpRecord.getId()), DateUtil.offsetSecond(new Date(), 3));
 
         }
 
