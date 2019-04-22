@@ -43,8 +43,10 @@ public class RequestBuilder {
         searchRequest.setSize(searchCondition.getSize());
 
         List<String> highLightFields = new ArrayList<String>();
+
         searchRequest.setPreference(builderStrategyContext.getPreference());
         QueryBuilder query = buildQuery(builderStrategyContext, searchCondition, highLightFields);
+
         if (query != null) {
             // 如果是动态排序
             if (searchCondition.isFieldValueFactor()) {
@@ -58,7 +60,6 @@ public class RequestBuilder {
             }
         }
         searchCondition.setHighLightFields(highLightFields);
-
         //只做统计
         if (searchCondition.isFacetOnly()) {
             searchRequest.setSize(0);
@@ -68,10 +69,6 @@ public class RequestBuilder {
             buildHighLight(builderStrategyContext, searchCondition, searchRequest);
         }
 
-        QueryBuilder filter = buildFilter(builderStrategyContext, searchCondition);
-        if (filter != null) {
-            searchRequest.setPostFilter(filter);
-        }
         //不统计
         if (!searchCondition.isNoFacet()) {
             Collection<TermsAggregationBuilder> aggregationBuilders = buildFacets(builderStrategyContext, searchCondition);
@@ -157,8 +154,11 @@ public class RequestBuilder {
      * @throws Exception
      */
     public static QueryBuilder buildQuery(final BuilderStrategyContext builderContext, final SearchCondition searchCondition, final List<String> highLightFields) throws RuntimeException {
-
+        QueryBuilder filter = buildFilter(builderContext, searchCondition);
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        if (filter != null){
+            boolQueryBuilder.filter(filter);
+        }
         List<SearchField> queryFields = searchCondition.getQueryFields();
         if (queryFields == null || queryFields.size() == 0) {
             return buildQuery(builderContext, searchCondition.getQueries(), highLightFields);
