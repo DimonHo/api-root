@@ -51,6 +51,6 @@ public class RequestLogAspect {
     @AfterReturning(returning = "ret", pointcut = "pointcut()")
     public void doAfterReturning(Object ret) throws Throwable {
         // 处理完请求，返回内容
-        log.info("RESPONSE : " + JSONUtil.toJsonPrettyStr(ret));
+        log.debug("RESPONSE : " + JSONUtil.toJsonPrettyStr(ret));
     }
 }
