@@ -7,6 +7,7 @@ import com.weidu.commons.search.AggsResult.Entry;
 import com.weidu.commons.search.convert.AggsTermsConvert;
 import lombok.Data;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,50 +42,40 @@ public class CodeConvert extends AggsTermsConvert {
 
     @Override
     public AggsResult convert(Aggregation aggregation) {
-        Terms terms = (Terms) aggregation;
         AggsResult result = new AggsResult();
-
-        List<WdSubject> subjects = wdSubjectRepository.findByIndexType("wos");
+        List<WdSubject> wosSubjects = wdSubjectRepository.findByIndexType("wos");
         EntryGroup wosGroup = new EntryGroup("SCI-E、SSCI、A&HCI");
-        for (Terms.Bucket e : terms.getBuckets()) {
-            for (WdSubject subject : subjects) {
-                if ((subject.getId() + "").equals(e.getKeyAsString())) {
-                    wosGroup.addSubEntry(convertTeam(e, subject));
-                }
-            }
+        if (aggregation instanceof Filter){
+            ((Filter)aggregation).getAggregations().forEach(aggs -> group(wosSubjects, wosGroup, (Terms) aggs));
+        }else if (aggregation instanceof Terms){
+            group(wosSubjects, wosGroup, (Terms) aggregation);
         }
         result.addEntry(wosGroup);
 
         List<WdSubject> eiSubjects = wdSubjectRepository.findByIndexType("ei");
         EntryGroup eiGroup = new EntryGroup("EI");
-        for (Terms.Bucket e : terms.getBuckets()) {
-            for (WdSubject subject : eiSubjects) {
-                if ((subject.getId() + "").equals(e.getKeyAsString())) {
-                    eiGroup.addSubEntry(convertTeam(e, subject));
-                }
-            }
+        if (aggregation instanceof Filter){
+            ((Filter)aggregation).getAggregations().forEach(aggs -> group(eiSubjects, eiGroup, (Terms) aggs));
+        }else if (aggregation instanceof Terms){
+            group(eiSubjects, eiGroup, (Terms) aggregation);
         }
         result.addEntry(eiGroup);
 
         List<WdSubject> esiSubjects = wdSubjectRepository.findByIndexType("esi");
         EntryGroup eisGroup = new EntryGroup("ESI");
-        for (Terms.Bucket e : terms.getBuckets()) {
-            for (WdSubject subject : esiSubjects) {
-                if ((subject.getId() + "").equals(e.getKeyAsString())) {
-                    eisGroup.addSubEntry(convertTeam(e, subject));
-                }
-            }
+        if (aggregation instanceof Filter){
+            ((Filter)aggregation).getAggregations().forEach(aggs -> group(esiSubjects, eisGroup, (Terms) aggs));
+        }else if (aggregation instanceof Terms){
+            group(esiSubjects, eisGroup, (Terms) aggregation);
         }
         result.addEntry(eisGroup);
 
         List<WdSubject> niSubjects = wdSubjectRepository.findByIndexType("nature");
         EntryGroup niGroup = new EntryGroup("Nature Index");
-        for (Terms.Bucket e : terms.getBuckets()) {
-            for (WdSubject subject : niSubjects) {
-                if ((subject.getId() + "").equals(e.getKeyAsString())) {
-                    niGroup.addSubEntry(convertTeam(e, subject));
-                }
-            }
+        if (aggregation instanceof Filter){
+            ((Filter)aggregation).getAggregations().forEach(aggs -> group(niSubjects, niGroup, (Terms) aggs));
+        }else if (aggregation instanceof Terms){
+            group(niSubjects, niGroup, (Terms) aggregation);
         }
         result.addEntry(niGroup);
 
@@ -98,6 +89,16 @@ public class CodeConvert extends AggsTermsConvert {
     @Override
     public Entry convertTeam(Terms.Bucket bucket) {
         return new Entry(bucket.getKeyAsString(), bucket.getDocCount());
+    }
+
+    private void group(List<WdSubject> subjects, EntryGroup wosGroup, Terms aggs) {
+        aggs.getBuckets().forEach(subAggs -> {
+            subjects.forEach(subject -> {
+                if ((subject.getId() + "").equals(subAggs.getKeyAsString())){
+                    wosGroup.addSubEntry(convertTeam(subAggs,subject));
+                }
+            });
+        });
     }
 
 }
