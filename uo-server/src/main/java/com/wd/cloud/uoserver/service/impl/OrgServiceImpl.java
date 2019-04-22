@@ -217,7 +217,7 @@ public class OrgServiceImpl implements OrgService {
     public OrgDTO findOrg(String orgName, String flag) {
         Org org = orgRepository.findOne(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, null, null, false))
                 .orElseThrow(NotFoundOrgException::new);
-        return convertOrgToDTO(org, null, null, false, CollectionUtil.newArrayList("ip", "linkman", "dept", "cdb"));
+        return convertOrgToDTO(org, null, null, false, CollectionUtil.newArrayList("ip", "prod","linkman", "dept", "cdb"));
     }
 
     @Override
