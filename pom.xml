@@ -30,6 +30,7 @@
         <module>bse-server</module>
         <module>pdfsearch-server</module>
         <module>agg-search</module> <!--聚合搜索-->
+        <module>crs-server</module>
     </modules>
 
     <parent>

@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
         String resourceUrl = globalProperties.getGatewayUrl() + "/fs-server/load/" + headImg;
         user.setHeadImg(resourceUrl);
         userRepository.save(user);
-        return headImg;
+        return resourceUrl;
     }
 
     /**
@@ -233,7 +233,7 @@ public class UserServiceImpl implements UserService {
         String resourceUrl = globalProperties.getGatewayUrl() + "/fs-server/load/" + idPhoto;
         user.setIdPhoto(resourceUrl).setValidStatus(1);
         userRepository.save(user);
-        return idPhoto;
+        return resourceUrl;
     }
 
     /**

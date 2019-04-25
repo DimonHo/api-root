@@ -19,7 +19,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DynamicInsert
-@Table(name = "help_record", uniqueConstraints = {@UniqueConstraint(columnNames = {"unid"})})
+@Table(name = "help_record")
 public class HelpRecord extends AbstractEntity {
 
     /**
@@ -57,7 +57,7 @@ public class HelpRecord extends AbstractEntity {
     /**
      * 求助渠道，1：QQ，2：SPIS，3：ZHY，4：CRS
      */
-    @Column(name = "help_channel", columnDefinition = "tinyint default 0 COMMENT '求助渠道，1：QQ，2：SPIS，3：ZHY，4：CRS'")
+    @Column(name = "help_channel", nullable = false, columnDefinition = "tinyint default 0 COMMENT '求助渠道，1：QQ，2：SPIS，3：ZHY，4：CRS'")
     private Long helpChannel;
     /**
      * 互助状态
@@ -80,7 +80,7 @@ public class HelpRecord extends AbstractEntity {
     /**
      * 是否成功发送邮件
      */
-    @Column(name = "is_send", columnDefinition = "bit(1) default 1 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
+    @Column(name = "is_send", nullable = false, columnDefinition = "bit(1) default 1 COMMENT '0：未发送邮件， 1：已成功发送邮件'")
     private Boolean send;
 
     /**
@@ -89,7 +89,22 @@ public class HelpRecord extends AbstractEntity {
     @Column(name = "is_anonymous", nullable = false, columnDefinition = "bit(1) default 0 COMMENT '0：未匿名， 1：已匿名'")
     private Boolean anonymous;
 
+    /**
+     * 文件资源路径：http://cloud.hnlat.com/fs-server/load/123aasdf12312
+     */
+    private String file;
+
+    /**
+     * 最后处理人
+     */
+    private String handlerName;
+
+    @Column(unique = true)
     private String unid;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Integer version;
     /**
      * 文献信息
      */

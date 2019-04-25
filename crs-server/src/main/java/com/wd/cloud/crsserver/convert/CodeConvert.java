@@ -91,14 +91,12 @@ public class CodeConvert extends AggsTermsConvert {
         return new Entry(bucket.getKeyAsString(), bucket.getDocCount());
     }
 
-    private void group(List<WdSubject> subjects, EntryGroup wosGroup, Terms aggs) {
-        aggs.getBuckets().forEach(subAggs -> {
-            subjects.forEach(subject -> {
-                if ((subject.getId() + "").equals(subAggs.getKeyAsString())){
-                    wosGroup.addSubEntry(convertTeam(subAggs,subject));
-                }
-            });
-        });
+    private void group(List<WdSubject> subjects, EntryGroup group, Terms aggs) {
+        aggs.getBuckets().forEach(subAggs -> subjects.forEach(subject -> {
+            if ((subject.getId() + "").equals(subAggs.getKeyAsString())){
+                group.addSubEntry(convertTeam(subAggs,subject));
+            }
+        }));
     }
 
 }
