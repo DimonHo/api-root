@@ -53,7 +53,7 @@ public class GiveRecord extends AbstractEntity {
     private Integer type;
 
     /**
-     * 0：待上传，1：待审核，2：求助第三方，3：已取消，4：已超时，5：审核不通过，6：成功，7：成功
+     * 0：待上传，1：待审核，2：求助第三方，3：已取消，4：已超时，5：审核不通过，6：成功，7：无结果
      */
     @Column(columnDefinition = "tinyint COMMENT '应助状态： 0：待上传，1：待审核，2：求助第三方，3：已取消，4：已超时，5：审核不通过，6：成功，7：无结果'")
     private Integer status;

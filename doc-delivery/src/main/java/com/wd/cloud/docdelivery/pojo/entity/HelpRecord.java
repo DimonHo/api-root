@@ -99,6 +99,7 @@ public class HelpRecord extends AbstractEntity {
      */
     private String handlerName;
 
+
     @Column(unique = true)
     private String unid;
 
