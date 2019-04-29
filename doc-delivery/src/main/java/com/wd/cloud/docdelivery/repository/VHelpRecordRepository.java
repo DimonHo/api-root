@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -15,7 +17,7 @@ import java.util.List;
 
 public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>, JpaSpecificationExecutor<VHelpRecord> {
 
-    List<VHelpRecord> findBySend(boolean isSend);
+    Page<VHelpRecord> findBySend(boolean isSend, Pageable pageable);
 
     class SpecBuilder {
 
