@@ -1,7 +1,11 @@
 host=smtp.exmail.qq.com
 port=465
-user=hnlat@hnwdkj.com
-pass=Weidu8888
+#user=hnlat@hnwdkj.com
+#pass=Weidu8888
+#user=spischolar@hnwdkj.com
+#pass=Spis@wdkj123
+user=hezhigang@hnwdkj.com
+pass=rpEuGFb4Mzf2AUVd
 auth=true
-from=文献互助中心<hnlat@hnwdkj.com>
+from=文献互助中心<hezhigang@hnwdkj.com>
 startttlsEnable=true
