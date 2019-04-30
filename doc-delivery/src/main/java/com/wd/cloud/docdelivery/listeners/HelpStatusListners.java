@@ -84,8 +84,8 @@ public class HelpStatusListners extends DefaultLoadEventListener implements Post
         if (postInsertEvent.getEntity() instanceof HelpRecord) {
             HelpRecord helpRecord = (HelpRecord) postInsertEvent.getEntity();
 
-            Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
-            optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
+//            Optional<VHelpRecord> optionalVHelpRecord = vHelpRecordRepository.findById(helpRecord.getId());
+//            optionalVHelpRecord.ifPresent(vHelpRecord -> mailService.sendMail(vHelpRecord));
 
             // 3秒钟后执行自动应助
             threadPoolTaskScheduler.schedule(new AutoGiveTask(helpRecordRepository,
