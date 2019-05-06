@@ -107,10 +107,16 @@ public class LibgenAllSearchServiceImp implements LibgenAllSearchServiceI {
             if (title_es.equals(titleClean)) {
                 json = new JSONObject();
                 if(hit.getSource().containsKey("doi")){
-                    json.put("doi",hit.getSource().get("doi").toString());
+                    String doi = hit.getSource().get("doi").toString();
+                    if(StringUtils.isNotBlank(doi)){
+                        json.put("doi",hit.getSource().get("doi").toString());
+                    }
                 }
                 if(hit.getSource().containsKey("md5")){
-                    json.put("md5",hit.getSource().get("md5").toString());
+                    String md5 = hit.getSource().get("md5").toString();
+                    if(StringUtils.isNotBlank(md5)){
+                        json.put("md5",hit.getSource().get("md5").toString());
+                    }
                 }
                 if(!json.isEmpty()){
                     break;
