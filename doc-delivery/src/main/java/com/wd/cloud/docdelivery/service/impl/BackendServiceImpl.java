@@ -118,7 +118,7 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public void give(Long helpRecordId, String giverName, MultipartFile file) {
-        HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
+        HelpRecord helpRecord = helpRecordRepository.findById(helpRecordId).orElseThrow(NotFoundException::new);
         DocFile docFile = null;
         log.info("正在上传文件[file = {},size = {}]", file.getOriginalFilename(), file.getSize());
         String fileMd5 = null;
@@ -179,7 +179,7 @@ public class BackendServiceImpl implements BackendService {
 
     @Override
     public void failed(Long helpRecordId, String giverName) {
-        HelpRecord helpRecord = getWaitOrThirdHelpRecord(helpRecordId);
+        HelpRecord helpRecord = helpRecordRepository.findById(helpRecordId).orElseThrow(NotFoundException::new);
         //标记为疑难文献
         helpRecord.setStatus(HelpStatusEnum.HELP_FAILED.value()).setDifficult(true);
 
@@ -229,7 +229,7 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public HelpRecord getWaitOrThirdHelpRecord(Long id) {
         return helpRecordRepository.findByIdAndStatusIn(id,
-                new int[]{HelpStatusEnum.WAIT_HELP.value(), HelpStatusEnum.HELP_THIRD.value()});
+                new int[]{HelpStatusEnum.WAIT_HELP.value(), HelpStatusEnum.HELP_THIRD.value(),HelpStatusEnum.HELP_FAILED.value()});
     }
 
     @Override
