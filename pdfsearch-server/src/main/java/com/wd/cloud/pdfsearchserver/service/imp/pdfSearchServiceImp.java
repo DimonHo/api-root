@@ -124,11 +124,11 @@ public class pdfSearchServiceImp implements pdfSearchServiceI {
         for (SearchHit hit : searchHits) {
             int num = 0;
             if(!hit.getSource().containsKey("md5")){
-                break;
+                continue;
             }
             String title_es = StringUtil.repalceSymbol(hit.getSource().get("title").toString());
             if (!title_es.equals(title_map)) {
-                break;
+                continue;
             } else {
                 num++;
             }

@@ -28,4 +28,13 @@ public class LibgenAllSearchController {
     public ResponseModel<List<JSON>> getRowKey(@RequestParam String title, @RequestParam String doi, @RequestParam String url) {
         return libgenSearchService.getResult(title, doi, url);
     }
+
+    @ApiOperation(value = "根据标题检索libgen_all获取数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "title", value = "文章标题", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = "/searchPaperByTitle")
+    public ResponseModel<JSON> getResultByTitle(@RequestParam String title) {
+        return libgenSearchService.queryByTitle(title);
+    }
 }

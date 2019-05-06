@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface LibgenAllSearchServiceI {
     public ResponseModel<List<JSON>> getResult(String title, String doi, String url);
+    public ResponseModel<JSON> queryByTitle(String title);
 }
