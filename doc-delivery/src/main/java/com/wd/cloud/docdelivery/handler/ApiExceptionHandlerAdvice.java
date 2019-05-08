@@ -33,6 +33,7 @@ public class ApiExceptionHandlerAdvice {
             responseModel.setMessage(exception.getMessage());
         }
         log.error("{}:{}", exception.getMessage(), exception);
+        exception.printStackTrace();
         return responseModel;
     }
 }
