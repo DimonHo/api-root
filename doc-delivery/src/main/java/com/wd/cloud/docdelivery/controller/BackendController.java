@@ -4,6 +4,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.wd.cloud.commons.model.ResponseModel;
 import com.wd.cloud.docdelivery.config.Global;
+import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.pojo.dto.HelpRecordDTO;
 import com.wd.cloud.docdelivery.service.BackendService;
 import com.wd.cloud.docdelivery.service.FileService;
@@ -45,6 +46,7 @@ public class BackendController {
 
     @Autowired
     Global global;
+
 
 
     /**

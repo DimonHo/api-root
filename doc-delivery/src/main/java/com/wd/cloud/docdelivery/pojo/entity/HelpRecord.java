@@ -112,6 +112,12 @@ public class HelpRecord extends AbstractEntity {
     @Column(name = "remark")
     private String remark;
 
+    /**
+     * 值班人员
+     */
+    @Column(name = "watch_name", nullable = false, columnDefinition = "值班人员")
+    private String watchName;
+
     @PrePersist
     public void createUnid() {
         this.unid = SecureUtil.md5(this.helperEmail + this.literatureId + DateUtil.formatDate(this.gmtCreate));

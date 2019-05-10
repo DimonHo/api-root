@@ -5,13 +5,9 @@ import com.wd.cloud.docdelivery.enums.GiveStatusEnum;
 import com.wd.cloud.docdelivery.enums.GiveTypeEnum;
 import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
-import com.wd.cloud.docdelivery.pojo.entity.DocFile;
-import com.wd.cloud.docdelivery.pojo.entity.GiveRecord;
-import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
-import com.wd.cloud.docdelivery.repository.DocFileRepository;
-import com.wd.cloud.docdelivery.repository.GiveRecordRepository;
-import com.wd.cloud.docdelivery.repository.HelpRecordRepository;
-import com.wd.cloud.docdelivery.repository.LiteratureRepository;
+import com.wd.cloud.docdelivery.pojo.entity.*;
+import com.wd.cloud.docdelivery.repository.*;
+import com.wd.cloud.docdelivery.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,11 +48,23 @@ public class AutoGiveTask implements Runnable {
     public void run() {
         helpRecordRepository.findByIdAndStatusNot(helpRecordId, HelpStatusEnum.HELP_SUCCESSED.value()).ifPresent(helpRecord -> {
             DocFile reusingDocFile = docFileRepository.findByLiteratureIdAndReusingIsTrue(helpRecord.getLiteratureId());
+            boolean flag = false;
             if (null != reusingDocFile) {
                 reusingGive(reusingDocFile, helpRecord);
             } else {
-                bigDbGive(helpRecord);
+                flag = bigDbGive(helpRecord);
             }
+            //如果求助不成功,则对求助请求进行排班记录分配
+            if(null == reusingDocFile && flag == false) {
+                //查询排班人员
+                LiteraturePlan literaturePlan = Utils.getUserName();
+                if(literaturePlan != null) {
+                    helpRecord.setWatchName(literaturePlan.getUserName());
+                    //修改求助记录表的状态
+                    helpRecordRepository.save(helpRecord);
+                }
+            }
+
         });
     }
 
@@ -65,8 +73,8 @@ public class AutoGiveTask implements Runnable {
      *
      * @param helpRecord
      */
-    public void bigDbGive(HelpRecord helpRecord) {
-
+    public boolean bigDbGive(HelpRecord helpRecord) {
+        boolean[] flag = {true};
         literatureRepository.findById(helpRecord.getLiteratureId()).ifPresent(literature -> {
             ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
             if (!pdfResponse.isError()) {
@@ -86,8 +94,11 @@ public class AutoGiveTask implements Runnable {
                 docFileRepository.save(docFile);
                 giveRecordRepository.save(giveRecord);
                 helpRecordRepository.save(helpRecord);
+            }else{
+                flag[0] = false;
             }
         });
+        return flag[0];
     }
 
     /**

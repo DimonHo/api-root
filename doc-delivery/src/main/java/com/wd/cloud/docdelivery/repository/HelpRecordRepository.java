@@ -3,7 +3,9 @@ package com.wd.cloud.docdelivery.repository;
 import com.wd.cloud.docdelivery.pojo.entity.HelpRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -155,5 +157,6 @@ public interface HelpRecordRepository extends JpaRepository<HelpRecord, Long>, J
 
     @Query(value = "select avg(TIMESTAMPDIFF(HOUR,gmt_create,gmt_modified)) from help_record t where t.status=4 and t.gmt_create >= ?1", nativeQuery = true)
     long avgSuccessResponseDate(String startDate);
+
 
 }
