@@ -13,7 +13,7 @@ import java.util.List;
  * 排班人员工具类
  */
 @Component
-public class Utils {
+public class DocDeliveryArrangeUtils {
 
     @Autowired
     private  static LiteraturePlanService literaturePlanService;
@@ -63,7 +63,6 @@ public class Utils {
         }
         //如果当天没排班,默认返回空
         if(userNames.size() == 0) {
-            System.out.println("返回了空数据********");
             return null;
         }
         return userNames.get(temp);
@@ -71,13 +70,8 @@ public class Utils {
 
 
     @Autowired(required = true)
-    public  void setDocImageFileDao(LiteraturePlanService literaturePlanService) {
-        Utils.literaturePlanService = literaturePlanService;
+    public  void setLiteraturePlanService(LiteraturePlanService literaturePlanService) {
+        DocDeliveryArrangeUtils.literaturePlanService = literaturePlanService;
     }
-    @Autowired(required = true)
-    public  void setImageFileDao(LiteraturePlanService literaturePlanService) {
-        Utils.literaturePlanService = literaturePlanService;
-    }
-
 
 }

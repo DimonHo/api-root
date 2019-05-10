@@ -7,7 +7,7 @@ import com.wd.cloud.docdelivery.enums.HelpStatusEnum;
 import com.wd.cloud.docdelivery.feign.PdfSearchServerApi;
 import com.wd.cloud.docdelivery.pojo.entity.*;
 import com.wd.cloud.docdelivery.repository.*;
-import com.wd.cloud.docdelivery.util.Utils;
+import com.wd.cloud.docdelivery.util.DocDeliveryArrangeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,13 +51,14 @@ public class AutoGiveTask implements Runnable {
             boolean flag = false;
             if (null != reusingDocFile) {
                 reusingGive(reusingDocFile, helpRecord);
+                flag = true;
             } else {
                 flag = bigDbGive(helpRecord);
             }
             //如果求助不成功,则对求助请求进行排班记录分配
-            if(null == reusingDocFile && flag == false) {
+            if(flag == false) {
                 //查询排班人员
-                LiteraturePlan literaturePlan = Utils.getUserName();
+                LiteraturePlan literaturePlan = DocDeliveryArrangeUtils.getUserName();
                 if(literaturePlan != null) {
                     helpRecord.setWatchName(literaturePlan.getUserName());
                     //修改求助记录表的状态
