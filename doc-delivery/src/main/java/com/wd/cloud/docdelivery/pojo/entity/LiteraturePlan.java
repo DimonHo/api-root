@@ -24,7 +24,7 @@ public class LiteraturePlan extends AbstractEntity  {
      * 被排班人
      */
     @Column(name = "user_name")
-    private String userName;
+    private String username;
 
     /**
      * 排班日期

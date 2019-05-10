@@ -60,7 +60,7 @@ public class AutoGiveTask implements Runnable {
                 //查询排班人员
                 LiteraturePlan literaturePlan = DocDeliveryArrangeUtils.getUserName();
                 if(literaturePlan != null) {
-                    helpRecord.setWatchName(literaturePlan.getUserName());
+                    helpRecord.setWatchName(literaturePlan.getUsername());
                     //修改求助记录表的状态
                     helpRecordRepository.save(helpRecord);
                 }
@@ -76,29 +76,35 @@ public class AutoGiveTask implements Runnable {
      */
     public boolean bigDbGive(HelpRecord helpRecord) {
         boolean[] flag = {true};
-        literatureRepository.findById(helpRecord.getLiteratureId()).ifPresent(literature -> {
-            ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
-            if (!pdfResponse.isError()) {
-                String fileId = pdfResponse.getBody();
+        try {
+            literatureRepository.findById(helpRecord.getLiteratureId()).ifPresent(literature -> {
+                ResponseModel<String> pdfResponse = pdfSearchServerApi.search(literature);
+                if (!pdfResponse.isError()) {
+                    String fileId = pdfResponse.getBody();
 
-                DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
-                docFile.setFileId(fileId).setLiteratureId(literature.getId()).setBigDb(true);
+                    DocFile docFile = docFileRepository.findByFileIdAndLiteratureId(fileId, literature.getId()).orElse(new DocFile());
+                    docFile.setFileId(fileId).setLiteratureId(literature.getId()).setBigDb(true);
 
-                GiveRecord giveRecord = new GiveRecord();
-                giveRecord.setFileId(fileId)
-                        .setType(GiveTypeEnum.BIG_DB.value())
-                        .setGiverName(GiveTypeEnum.BIG_DB.name())
-                        .setStatus(GiveStatusEnum.SUCCESS.value());
-                giveRecord.setHelpRecordId(helpRecord.getId());
+                    GiveRecord giveRecord = new GiveRecord();
+                    giveRecord.setFileId(fileId)
+                            .setType(GiveTypeEnum.BIG_DB.value())
+                            .setGiverName(GiveTypeEnum.BIG_DB.name())
+                            .setStatus(GiveStatusEnum.SUCCESS.value());
+                    giveRecord.setHelpRecordId(helpRecord.getId());
 
-                helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
-                docFileRepository.save(docFile);
-                giveRecordRepository.save(giveRecord);
-                helpRecordRepository.save(helpRecord);
-            }else{
-                flag[0] = false;
-            }
-        });
+                    helpRecord.setStatus(HelpStatusEnum.HELP_SUCCESSED.value());
+                    docFileRepository.save(docFile);
+                    giveRecordRepository.save(giveRecord);
+                    helpRecordRepository.save(helpRecord);
+                } else {
+                    flag[0] = false;
+                }
+            });
+        }catch (Exception e){
+            log.info("pdf 服务平台正在调试");
+            flag[0] = false;
+            return flag[0];
+        }
         return flag[0];
     }
 
