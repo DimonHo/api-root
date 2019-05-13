@@ -67,6 +67,8 @@ public class VHelpRecord {
 
     private Integer status;
 
+    private String watchMame;
+
     @Column(name = "is_send")
     private Boolean send;
 

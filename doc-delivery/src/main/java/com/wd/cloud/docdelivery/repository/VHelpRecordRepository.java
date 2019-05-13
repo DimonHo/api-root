@@ -21,7 +21,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
 
     class SpecBuilder {
 
-        public static Specification<VHelpRecord> buildBackendList(String orgFlag, Integer status, String keyword, String beginTime, String endTime) {
+        public static Specification<VHelpRecord> buildBackendList(String orgFlag, Integer status, String keyword, String beginTime, String endTime,String watchName) {
             return (Specification<VHelpRecord>) (root, query, cb) -> {
                 List<Predicate> list = new ArrayList<>();
                 if (StrUtil.isNotBlank(orgFlag)) {
@@ -34,6 +34,9 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                     } else {
                         list.add(cb.equal(root.get("status").as(Integer.class), status));
                     }
+                }
+                if(StrUtil.isNotBlank(watchName)) {
+                    list.add(cb.equal(root.get("watch_name").as(String.class),watchName));
                 }
                 if (StrUtil.isNotBlank(keyword)) {
                     list.add(cb.or(

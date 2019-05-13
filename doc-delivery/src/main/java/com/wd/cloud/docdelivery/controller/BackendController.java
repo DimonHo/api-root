@@ -60,6 +60,7 @@ public class BackendController {
             @ApiImplicitParam(name = "orgFlag", value = "学校falg", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "keyword", value = "搜索关键词", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "beginTime", value = "开始时间", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "watchName", value = "值班人员", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "String", paramType = "query")
     })
     @GetMapping("/helpRecords/view")
@@ -67,9 +68,11 @@ public class BackendController {
                                   @RequestParam(required = false) String orgFlag,
                                   @RequestParam(required = false) String keyword,
                                   @RequestParam(required = false) String beginTime,
+                                  @RequestParam(required = false) String watchName,
                                   @RequestParam(required = false) String endTime,
                                   @PageableDefault(value = 20, sort = {"gmtCreate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Map<String, Object> param = new HashMap<String, Object>();
+        param.put("watchName",watchName);
         param.put("orgFlag", orgFlag);
         param.put("status", status);
         param.put("keyword", keyword);
