@@ -17,6 +17,9 @@ import java.util.List;
 
 public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>, JpaSpecificationExecutor<VHelpRecord> {
 
+    List<VHelpRecord> findBySend(boolean isSend);
+
+
     Page<VHelpRecord> findBySend(boolean isSend, Pageable pageable);
 
     class SpecBuilder {

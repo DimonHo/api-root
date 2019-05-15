@@ -27,16 +27,17 @@ public class LiteraturePlan extends AbstractEntity  {
     private String username;
 
     /**
-     * 排班日期
-     */
-    @Column(name = "daytime")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dayTime;
-
-    /**
      *安排人
      */
     @Column(name = "arranger")
     private String arranger;
+
+    @Column(name = "starttime")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date startTime;
+
+    @Column(name = "endtime")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date endTime;
 
 }

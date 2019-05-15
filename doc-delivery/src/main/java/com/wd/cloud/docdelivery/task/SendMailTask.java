@@ -1,5 +1,7 @@
 package com.wd.cloud.docdelivery.task;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.wd.cloud.docdelivery.pojo.entity.VHelpRecord;
 import com.wd.cloud.docdelivery.repository.VHelpRecordRepository;
 import com.wd.cloud.docdelivery.service.MailService;
@@ -32,8 +34,10 @@ public class SendMailTask {
     @Scheduled(cron = "0/15 * * * * ?")
     public void updateGiveRecord() {
         //每隔15秒重发一封邮件，避免邮件发送频率过快
-        Pageable pageable = PageRequest.of(0,1, Sort.by(Sort.Order.by("gmtCreate")));
-        Page<VHelpRecord> bySend = vHelpRecordRepository.findBySend(false,pageable);
-        bySend.forEach(vHelpRecord -> mailService.sendMail(vHelpRecord));
+        List<VHelpRecord> bySend = vHelpRecordRepository.findBySend(false);
+        if (CollectionUtil.isNotEmpty(bySend)){
+            mailService.sendMail(RandomUtil.randomEle(bySend));
+        }
+
     }
 }
