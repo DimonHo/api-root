@@ -40,4 +40,6 @@ public class LiteraturePlan extends AbstractEntity  {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endTime;
 
+    @Column(name = "orderlist")
+    private int orderlist;
 }

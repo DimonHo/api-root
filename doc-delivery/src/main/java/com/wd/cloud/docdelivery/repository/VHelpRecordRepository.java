@@ -39,7 +39,7 @@ public interface VHelpRecordRepository extends JpaRepository<VHelpRecord, Long>,
                     }
                 }
                 if(StrUtil.isNotBlank(watchName)) {
-                    list.add(cb.equal(root.get("watch_name").as(String.class),watchName));
+                    list.add(cb.equal(root.get("watchName"),watchName));
                 }
                 if (StrUtil.isNotBlank(keyword)) {
                     list.add(cb.or(
