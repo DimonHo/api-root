@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface LiteraturePlanService {
 
-    List<LiteraturePlan> findByDate();
+    List<LiteraturePlan> findByDate(Date date);
 
 
     void  arrangePerson(LiteraturePlan literaturePlan,String arrange);
