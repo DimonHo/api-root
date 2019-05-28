@@ -63,7 +63,7 @@ public interface OrgRepository extends JpaRepository<Org, String>, JpaSpecificat
          */
         public static Specification<Org> queryOrg(String orgName, String flag, List<Integer> prodStatus, Boolean isExp, boolean isLike) {
             return (Specification<Org>) (root, query, cb) -> {
-                List<Predicate> list = new ArrayList<Predicate>();
+                List<Predicate> list = new ArrayList<>();
                 if (orgName != null) {
                     if (isLike) {
                         //模糊查询

@@ -77,6 +77,7 @@ public class OrgServiceImpl implements OrgService {
     @Override
     public Optional<OrgIp> findIp(String ip) {
         BigInteger ipNum = NetUtil.ipToBigInteger(ip);
+        List<OrgIp> allOrgIp = findAllOrgIp();
         return findAllOrgIp().stream()
                 // 某ip大于等于开始IP且小于等于结束IP，则表示在某一个范围内
                 .filter(orgIp -> ipNum.compareTo(orgIp.getBeginNumber()) >= 0 && ipNum.compareTo(orgIp.getEndNumber()) <= 0)
@@ -240,6 +241,10 @@ public class OrgServiceImpl implements OrgService {
         if (StrUtil.isBlank(flag) && StrUtil.isNotBlank(ip)) {
             Optional<OrgIp> optionalOrgIp = findIpRange(findAllOrgIp(), NetUtil.ipToBigInteger(ip));
             flag = optionalOrgIp.map(OrgIp::getOrgFlag).orElse(null);
+            //如果ip不为空,且查询出来的机构为空,其他的字段名都为空,则默认返回无
+            if (StrUtil.isBlank(flag) && StrUtil.isBlank(orgName)) {
+                flag = "";
+            }
         }
         Page<Org> orgPage = orgRepository.findAll(OrgRepository.SpecificationBuilder.queryOrg(orgName, flag, prodStatus, isExp, true), pageable);
         return orgPage.map(org -> convertOrgToDTO(org, prodStatus, isExp, isFilter, includes));
