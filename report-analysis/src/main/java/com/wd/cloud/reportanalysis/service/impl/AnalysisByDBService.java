@@ -84,9 +84,12 @@ public class AnalysisByDBService implements AnalysisByDBServiceI {
                     sql = "SELECT * FROM st_analysis_year WHERE issue = '" + issue + "' and category = '全部领域' AND scid = '" + scid + "' and type = 2";
                 }
                 if ("paper".equals(classify)) {
-                    if (!"percentile".equals(column) && StringUtils.isNotBlank(category)) {
-                        //sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
-                        sql = sql + " AND category = '"+category +"'";
+                    if (!"percentile".equals(column)) {
+                        if(StringUtils.isNotBlank(category)){
+                            sql = sql + " AND category = '"+category +"'";
+                        }else{
+                            sql = "SELECT * FROM st_analysis_categoryap WHERE issue = '" + issue + "' and scid = '" + scid + "'";
+                        }
                     }
                 }
                 List<Map<String, Object>> result = analysisRepository.query(sql);
